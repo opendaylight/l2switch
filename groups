@@ -1,0 +1,5 @@
+# UUID                                  	Group Name
+#
+global:Anonymous-Users                  	Anonymous Users
+global:Registered-Users                 	Registered Users
+ldap:cn=gerrit-l2switch-committers,ou=Groups,dc=opendaylight,dc=org	ldap/gerrit-l2switch-committers
