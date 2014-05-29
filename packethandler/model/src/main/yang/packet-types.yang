@@ -1,0 +1,52 @@
+module packet-types {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:types";
+  prefix ptypes;
+
+  import ietf-yang-types {
+    prefix yang;
+    revision-date 2010-09-24;
+  }
+
+  organization "Cisco Systems Inc";
+  contact "Alex Fan <alefan@cisco.com>";
+
+  revision 2014-05-28 {
+    description
+      "Packet types module draft.";
+  }
+
+  grouping ethernet-packet {
+    leaf source {
+      type yang:mac-address;
+    }
+
+    leaf destination {
+      type yang:mac-address;
+    }
+
+    leaf priority-code {
+      type int8;
+    }
+
+    leaf drop-eligible {
+      type boolean;
+    }
+
+    leaf vlan {
+      type int16;
+    }
+
+    leaf ethertype {
+      type int16;
+    }
+
+    leaf length {
+      type int16;
+    }
+
+    leaf payload {
+      type binary;
+    }
+  }
+}
