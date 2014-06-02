@@ -1,17 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.opendaylight.odl</groupId>
-    <artifactId>odl-root-parent</artifactId>
+    <groupId>org.opendaylight.odlparent</groupId>
+    <artifactId>odlparent</artifactId>
     <version>1.4.2-SNAPSHOT</version>
   </parent>
-  <properties>
-    <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
-    <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
-  </properties>
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>l2switch-parent</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <properties>
+    <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
+    <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
+    <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
+  </properties>
+
+  <repositories>
+    <!-- OpenDayLight Repo Mirror -->
+    <repository>
+      <id>opendaylight-mirror</id>
+      <name>opendaylight-mirror</name>
+      <url>http://nexus.opendaylight.org/content/groups/public/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
+
+    <!-- OpenDayLight Snapshot artifact -->
+    <repository>
+      <id>opendaylight-snapshot</id>
+      <name>opendaylight-snapshot</name>
+      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+
+  </repositories>
+
+  <distributionManagement>
+    <!-- OpenDayLight Released artifact -->
+    <repository>
+      <id>opendaylight-release</id>
+      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.release/</url>
+    </repository>
+    <!-- OpenDayLight Snapshot artifact -->
+    <snapshotRepository>
+      <id>opendaylight-snapshot</id>
+      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+    </snapshotRepository>
+    <site>
+      <id>${project.artifactId}-site</id>
+      <url>./</url>
+    </site>
+  </distributionManagement>
+
 </project>
