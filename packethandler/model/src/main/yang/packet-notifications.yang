@@ -1,0 +1,23 @@
+module packet-notifications {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:notifications";
+  prefix packet;
+
+  import packet-types {
+    prefix ptypes;
+    revision-date 2014-05-28;
+  }
+
+  organization "Cisco Systems Inc";
+  contact "Alex Fan <alefan@cisco.com>";
+
+  revision 2014-05-28 {
+    description
+      "Packet notifications module draft.";
+  }
+
+  notification ethernet-packet-received {
+    uses ptypes:ethernet-packet;
+  }
+
+}
