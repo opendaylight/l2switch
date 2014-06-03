@@ -1,0 +1,79 @@
+module packet-types {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:types";
+  prefix ptypes;
+
+  import ietf-yang-types {
+    prefix yang;
+    revision-date 2010-09-24;
+  }
+  import packet-processing {
+    prefix pprocessing;
+    revision-date 2013-07-09;
+  }
+
+  organization "Cisco Systems Inc";
+  contact "Alex Fan <alefan@cisco.com>";
+
+  revision 2014-05-28 {
+    description
+      "Packet types module draft.";
+  }
+
+  grouping header8021q {
+    leaf priority-code {
+      type int16;
+    }
+
+    leaf drop-eligible {
+      type boolean;
+    }
+
+    leaf vlan {
+      type int32;
+    }
+  }
+
+  grouping ethernet-packet {
+    leaf source {
+      type binary;
+    }
+
+    leaf destination {
+      type binary;
+    }
+
+    list header8021q {
+      uses header8021q;
+    }
+
+    leaf ethertype {
+      type int32;
+    }
+
+    leaf length {
+      type int32;
+    }
+
+    uses pprocessing:raw-packet;
+  }
+
+  grouping ipv4-packet {
+    uses ethernet-packet;
+  }
+
+  grouping ipv6-packet {
+    uses ethernet-packet;
+  }
+
+  grouping lldp-packet {
+    uses ethernet-packet;
+  }
+
+  container packet-types {
+    list ethernet-packet {
+      uses ethernet-packet;
+    }
+  }
+
+}
