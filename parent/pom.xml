@@ -13,9 +13,12 @@
   <packaging>pom</packaging>
 
   <properties>
-    <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
+    <adsal.version>0.8.1-SNAPSHOT</adsal.version>
+    <mdsal.version>1.1-SNAPSHOT</mdsal.version>
+    <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
+    <ietf-yang-types.version>2010.09.24.4-SNAPSHOT</ietf-yang-types.version>
   </properties>
 
   <repositories>
