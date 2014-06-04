@@ -19,4 +19,20 @@
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/L2_Switch:Main</url>
   </scm>
+  <distributionManagement>
+    <!-- OpenDayLight Released artifact -->
+    <repository>
+      <id>opendaylight-release</id>
+      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.release/</url>
+    </repository>
+    <!-- OpenDayLight Snapshot artifact -->
+    <snapshotRepository>
+      <id>opendaylight-snapshot</id>
+      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+    </snapshotRepository>
+    <site>
+      <id>${project.artifactId}-site</id>
+      <url>./</url>
+    </site>
+  </distributionManagement>
 </project>

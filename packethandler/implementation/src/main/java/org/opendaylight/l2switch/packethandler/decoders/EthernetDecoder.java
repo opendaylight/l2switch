@@ -1,4 +1,4 @@
-package org.opendaylight.l2switch.decoder;
+package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
@@ -31,6 +31,7 @@ public class EthernetDecoder {
 
   /**
    * Decode a RawPacket into an EthernetPacket
+   *
    * @param rawPacket -- data from wire to deserialize
    * @return
    * @throws BufferException
@@ -50,45 +51,43 @@ public class EthernetDecoder {
     Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
     int extraHeaderBits = 0;
     ArrayList<Header8021q> headerList = new ArrayList<Header8021q>();
-    while (nextField.equals(ETHERTYPE_8021Q) || nextField.equals(ETHERTYPE_QINQ)) {
+    while(nextField.equals(ETHERTYPE_8021Q) || nextField.equals(ETHERTYPE_QINQ)) {
       Header8021qBuilder hBuilder = new Header8021qBuilder();
       hBuilder.setType(Header8021qType.forValue(nextField));
 
       // Read 2 more bytes for priority (3bits), drop eligible (1bit), vlan-id (12bits)
-      byte[] vlanBytes = BitBufferHelper.getBits(data, 112+extraHeaderBits, 16);
+      byte[] vlanBytes = BitBufferHelper.getBits(data, 112 + extraHeaderBits, 16);
 
       // Remove the sign & right-shift to get the priority code
-      hBuilder.setPriorityCode((short)((vlanBytes[0] & 0xff) >> 5));
+      hBuilder.setPriorityCode((short) ((vlanBytes[0] & 0xff) >> 5));
 
       // Remove the sign & remove priority code bits & right-shift to get drop-eligible bit
       hBuilder.setDropEligible(1 == (((vlanBytes[0] & 0xff) & 0x10) >> 4));
 
       // Remove priority code & drop-eligible bits, to get the VLAN-id
-      vlanBytes[0] = (byte)(vlanBytes[0] & 0x0F);
+      vlanBytes[0] = (byte) (vlanBytes[0] & 0x0F);
       hBuilder.setVlan(BitBufferHelper.getInt(vlanBytes));
 
       // Add 802.1Q header to the growing collection
       headerList.add(hBuilder.build());
 
       // Reset value of "nextField" to correspond to following 2 bytes for next 802.1Q header or EtherType/Length
-      nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 128+extraHeaderBits, 16));
+      nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 128 + extraHeaderBits, 16));
 
       // 802.1Q header means payload starts at a later position
       extraHeaderBits += 32;
     }
     // Set 802.1Q headers
-    if (!headerList.isEmpty()) {
+    if(!headerList.isEmpty()) {
       builder.setHeader8021q(headerList);
     }
 
     // Deserialize the EtherType or Length field
-    if (nextField >= ETHERTYPE_MIN) {
+    if(nextField >= ETHERTYPE_MIN) {
       builder.setEthertype(KnownEtherType.forValue(nextField));
-    }
-    else if (nextField <= LENGTH_MAX) {
+    } else if(nextField <= LENGTH_MAX) {
       builder.setLength(nextField);
-    }
-    else {
+    } else {
       _logger.debug("Undefined header, value is not valid EtherType or length.  Value is " + nextField);
     }
 
