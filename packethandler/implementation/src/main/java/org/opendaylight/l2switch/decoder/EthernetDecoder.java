@@ -7,11 +7,14 @@ import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.Header8021qType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.Header8021q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.Header8021qBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -22,20 +25,16 @@ public class EthernetDecoder {
   public static final Integer LENGTH_MAX = 1500;
   public static final Integer ETHERTYPE_MIN = 1536;
   public static final Integer ETHERTYPE_8021Q = 0x8100;
-
-  // payload, 0,payload.length * NetUtils.NumBitsInAByte
+  public static final Integer ETHERTYPE_QINQ = 0x9100;
 
   /**
-   * Decode a packet into an EthernetPacket
+   * Decode a RawPacket into an EthernetPacket
    * @param data - data from wire to deserialize
    * @param bitOffset - bit position where packet header starts in data
    * @return
    */
   public static EthernetPacket decode(byte[] data, int bitOffset) throws BufferException {
     EthernetPacketBuilder builder = new EthernetPacketBuilder();
-
-    //0, 48, 96   = start pos
-    //48, 48, 16  = length in bits
 
     //ToDo:  Possibly log these values
       /*if (_logger.isTraceEnabled()) {
@@ -49,14 +48,17 @@ public class EthernetDecoder {
     builder.setDestination(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0+bitOffset, 48))));
     builder.setSource(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48+bitOffset, 48))));
 
-    // Deserialize the optional field 802.1Q header
-    Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96 + bitOffset, 16));
+    // Deserialize the optional field 802.1Q headers
+    Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96+bitOffset, 16));
     int extraHeaderBits = 0;
-    if (nextField.equals(ETHERTYPE_8021Q)) {
-      // Read 2 more bytes for priority (3bits), drop eligible (1bit), vlan-id (12bits)
-      byte[] vlanBytes = BitBufferHelper.getBits(data, 112+bitOffset, 16);
-
+    ArrayList<Header8021q> headerList = new ArrayList<Header8021q>();
+    while (nextField.equals(ETHERTYPE_8021Q) || nextField.equals(ETHERTYPE_QINQ)) {
       Header8021qBuilder hBuilder = new Header8021qBuilder();
+      hBuilder.setType(Header8021qType.forValue(nextField));
+
+      // Read 2 more bytes for priority (3bits), drop eligible (1bit), vlan-id (12bits)
+      byte[] vlanBytes = BitBufferHelper.getBits(data, 112+bitOffset+extraHeaderBits, 16);
+
       // Remove the sign & right-shift to get the priority code
       hBuilder.setPriorityCode((short)((vlanBytes[0] & 0xff) >> 5));
 
@@ -67,14 +69,18 @@ public class EthernetDecoder {
       vlanBytes[0] = (byte)(vlanBytes[0] & 0x0F);
       hBuilder.setVlan(BitBufferHelper.getInt(vlanBytes));
 
-      // Set 802.1Q header
-      builder.setHeader8021q(Arrays.asList(hBuilder.build()));
+      // Add 802.1Q header to the growing collection
+      headerList.add(hBuilder.build());
 
-      // Reset value of "nextField" to correspond to following 2 bytes for EtherType/Length
-      nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 128+bitOffset, 16));
+      // Reset value of "nextField" to correspond to following 2 bytes for next 802.1Q header or EtherType/Length
+      nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 128+bitOffset+extraHeaderBits, 16));
 
       // 802.1Q header means payload starts at a later position
-      extraHeaderBits = 32;
+      extraHeaderBits += 32;
+    }
+    // Set 802.1Q headers
+    if (!headerList.isEmpty()) {
+      builder.setHeader8021q(headerList);
     }
 
     // Deserialize the EtherType or Length field
