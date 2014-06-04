@@ -12,6 +12,7 @@ import org.opendaylight.l2switch.decoder.EthernetDecoder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.Header8021qType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.RawPacketBuilder;
 
 import java.util.Arrays;
 
@@ -27,7 +28,7 @@ public class EthernetDecoderTest {
       0x08, 0x00,
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11
     };
-    EthernetPacket e = EthernetDecoder.decode(packet, 0);
+    EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv4);
     assertNull(e.getLength());
     assertNull(e.getHeader8021q());
@@ -44,7 +45,7 @@ public class EthernetDecoderTest {
       0x00, 0x0e,
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11
     };
-    EthernetPacket e = EthernetDecoder.decode(packet, 0);
+    EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertNull(e.getEthertype());
     assertEquals(e.getLength().intValue(), 14);
     assertNull(e.getHeader8021q());
@@ -63,7 +64,7 @@ public class EthernetDecoderTest {
       (byte)0x86, (byte)0xdd,
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11
     };
-    EthernetPacket e = EthernetDecoder.decode(packet, 0);
+    EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv6);
     assertNull(e.getLength());
     assertEquals(e.getHeader8021q().size(), 1);
@@ -88,7 +89,7 @@ public class EthernetDecoderTest {
       (byte)0x86, (byte)0xdd,
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11
     };
-    EthernetPacket e = EthernetDecoder.decode(packet, 0);
+    EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv6);
     assertNull(e.getLength());
     assertEquals(e.getHeader8021q().size(), 2);
