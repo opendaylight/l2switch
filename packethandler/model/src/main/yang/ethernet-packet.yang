@@ -12,9 +12,6 @@ module ethernet-packet {
     revision-date 2013-07-09;
   }
 
-  organization "Cisco Systems Inc";
-  contact "Alex Fan <alefan@cisco.com>";
-
   revision 2014-05-28 {
     description
       "Packet types module draft.";

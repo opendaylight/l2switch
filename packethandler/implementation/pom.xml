@@ -15,7 +15,6 @@
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal</artifactId>
-      <version>${adsal.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.packethandler</groupId>
