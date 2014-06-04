@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_76215cfa",
+        "filename": "packethandler/model/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:31:11Z",
+      "side": 1,
+      "message": "add dependency management in parent pom. So that version can go in parent pom as well.",
+      "revId": "4d5aa8fb89d9b8407fa5a83eb45ce66e9fd9433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
