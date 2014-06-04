@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f636cc51",
+        "filename": "packethandler/model/src/main/yang/packet-notifications.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:05:01Z",
+      "side": 1,
+      "message": "remove this file once we have notification in other yang file.",
+      "revId": "d46a5fee2c4df4db32d6f066179dab306e2e5745",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5609b893",
+        "filename": "packethandler/model/src/main/yang/packet-types.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:05:01Z",
+      "side": 1,
+      "message": "lets call this module ethernet packet",
+      "revId": "d46a5fee2c4df4db32d6f066179dab306e2e5745",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_96ee60b3",
+        "filename": "packethandler/model/src/main/yang/packet-types.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:05:01Z",
+      "side": 1,
+      "message": "needs reformatting of tabs for this enum",
+      "revId": "d46a5fee2c4df4db32d6f066179dab306e2e5745",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_362d14ff",
+        "filename": "packethandler/model/src/main/yang/packet-types.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:05:01Z",
+      "side": 1,
+      "message": "we can have enum here for 2 possible 801q headers (0x8100, 0x9100)",
+      "revId": "d46a5fee2c4df4db32d6f066179dab306e2e5745",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5630d855",
+        "filename": "packethandler/model/src/main/yang/packet-types.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-04T02:05:01Z",
+      "side": 1,
+      "message": "we can add ethernet packet received notification here itself.",
+      "revId": "d46a5fee2c4df4db32d6f066179dab306e2e5745",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
