@@ -1,7 +1,7 @@
 module ethernet-packet {
   yang-version 1;
-  namespace "urn:opendaylight:packet:types";
-  prefix ptypes;
+  namespace "urn:opendaylight:packet:ethernet";
+  prefix ethernet;
 
   import ietf-yang-types {
     prefix yang;
@@ -14,7 +14,7 @@ module ethernet-packet {
 
   revision 2014-05-28 {
     description
-      "Packet types module draft.";
+      "Ethernet packet module draft.";
   }
 
   /* Taken from opendaylight-l2-types.yang, but it is commented out there -- will import once uncommented */
@@ -227,11 +227,11 @@ module ethernet-packet {
   }
 
   grouping ethernet-packet-grp {
-    leaf source {
+    leaf source-mac {
       type yang:mac-address;
     }
 
-    leaf destination {
+    leaf destination-mac {
       type yang:mac-address;
     }
 
@@ -243,11 +243,11 @@ module ethernet-packet {
       type known-ether-type;
     }
 
-    leaf length {
+    leaf ethernet-length {
       type int32;
     }
 
-    leaf payload {
+    leaf ethernet-payload {
       type binary;
     }
 

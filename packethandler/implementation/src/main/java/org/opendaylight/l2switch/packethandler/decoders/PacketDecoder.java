@@ -8,7 +8,7 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
 
 /**
  * PacketDecoder should be implemented by all the decoders that are further going to decode EthernetPacket.

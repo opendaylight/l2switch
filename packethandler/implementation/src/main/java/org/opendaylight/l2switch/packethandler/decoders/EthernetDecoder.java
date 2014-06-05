@@ -6,13 +6,13 @@ import org.opendaylight.controller.sal.utils.HexEncode;
 import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.RawPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.Header8021qType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.Header8021q;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.Header8021qBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021q;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021qBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.RawPacketBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by alefan on 5/29/14.
+ * Ethernet Packet Decoder
  */
 public class EthernetDecoder {
   private static final Logger _logger = LoggerFactory.getLogger(EthernetDecoder.class);
@@ -44,8 +44,8 @@ public class EthernetDecoder {
     builder.setRawPacket(new RawPacketBuilder().setIngress(rawPacket.getIngress()).setPayload(data).build());
 
     // Deserialize the destination & source fields
-    builder.setDestination(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
-    builder.setSource(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
+    builder.setDestinationMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
+    builder.setSourceMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
 
     // Deserialize the optional field 802.1Q headers
     Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
@@ -86,7 +86,7 @@ public class EthernetDecoder {
     if(nextField >= ETHERTYPE_MIN) {
       builder.setEthertype(KnownEtherType.forValue(nextField));
     } else if(nextField <= LENGTH_MAX) {
-      builder.setLength(nextField);
+      builder.setEthernetLength(nextField);
     } else {
       _logger.debug("Undefined header, value is not valid EtherType or length.  Value is " + nextField);
     }
@@ -96,7 +96,7 @@ public class EthernetDecoder {
     int payloadSize = data.length * NetUtils.NumBitsInAByte - payloadStart;
     int start = payloadStart / NetUtils.NumBitsInAByte;
     int stop = start + payloadSize / NetUtils.NumBitsInAByte;
-    builder.setPayload(Arrays.copyOfRange(data, start, stop));
+    builder.setEthernetPayload(Arrays.copyOfRange(data, start, stop));
 
     return builder.build();
 

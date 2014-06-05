@@ -1,6 +1,6 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**

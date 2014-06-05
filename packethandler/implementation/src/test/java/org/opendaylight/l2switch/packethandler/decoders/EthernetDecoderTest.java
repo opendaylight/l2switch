@@ -8,10 +8,10 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.Header8021qType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.types.rev140528.ethernet.packet.grp.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.RawPacketBuilder;
 
 import java.util.Arrays;
 
@@ -29,11 +29,11 @@ public class EthernetDecoderTest {
     };
     EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv4);
-    assertNull(e.getLength());
+    assertNull(e.getEthernetLength());
     assertNull(e.getHeader8021q());
-    assertEquals(e.getDestination().getValue(), "01:23:45:67:89:ab");
-    assertEquals(e.getSource().getValue(), "cd:ef:01:23:45:67");
-    assertTrue(Arrays.equals(e.getPayload(), Arrays.copyOfRange(packet, 14, packet.length)));
+    assertEquals(e.getDestinationMac().getValue(), "01:23:45:67:89:ab");
+    assertEquals(e.getSourceMac().getValue(), "cd:ef:01:23:45:67");
+    assertTrue(Arrays.equals(e.getEthernetPayload(), Arrays.copyOfRange(packet, 14, packet.length)));
   }
 
   @Test
@@ -46,11 +46,11 @@ public class EthernetDecoderTest {
     };
     EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertNull(e.getEthertype());
-    assertEquals(e.getLength().intValue(), 14);
+    assertEquals(e.getEthernetLength().intValue(), 14);
     assertNull(e.getHeader8021q());
-    assertEquals(e.getDestination().getValue(), "01:23:45:67:89:ab");
-    assertEquals(e.getSource().getValue(), "cd:ef:01:23:45:67");
-    assertTrue(Arrays.equals(e.getPayload(), Arrays.copyOfRange(packet, 14, packet.length)));
+    assertEquals(e.getDestinationMac().getValue(), "01:23:45:67:89:ab");
+    assertEquals(e.getSourceMac().getValue(), "cd:ef:01:23:45:67");
+    assertTrue(Arrays.equals(e.getEthernetPayload(), Arrays.copyOfRange(packet, 14, packet.length)));
   }
 
   @Test
@@ -65,15 +65,15 @@ public class EthernetDecoderTest {
     };
     EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv6);
-    assertNull(e.getLength());
+    assertNull(e.getEthernetLength());
     assertEquals(e.getHeader8021q().size(), 1);
     assertEquals(e.getHeader8021q().get(0).getType(), Header8021qType.VlanTagged);
     assertEquals(e.getHeader8021q().get(0).getPriorityCode().intValue(), 7);
     assertTrue(e.getHeader8021q().get(0).isDropEligible());
     assertEquals(e.getHeader8021q().get(0).getVlan().intValue(), 4095);
-    assertEquals(e.getDestination().getValue(), "01:23:45:67:89:ab");
-    assertEquals(e.getSource().getValue(), "cd:ef:01:23:45:67");
-    assertTrue(Arrays.equals(e.getPayload(), Arrays.copyOfRange(packet, 18, packet.length)));
+    assertEquals(e.getDestinationMac().getValue(), "01:23:45:67:89:ab");
+    assertEquals(e.getSourceMac().getValue(), "cd:ef:01:23:45:67");
+    assertTrue(Arrays.equals(e.getEthernetPayload(), Arrays.copyOfRange(packet, 18, packet.length)));
   }
 
   @Test
@@ -90,7 +90,7 @@ public class EthernetDecoderTest {
     };
     EthernetPacket e = EthernetDecoder.decode(new RawPacketBuilder().setPayload(packet).build());
     assertEquals(e.getEthertype(), KnownEtherType.Ipv6);
-    assertNull(e.getLength());
+    assertNull(e.getEthernetLength());
     assertEquals(e.getHeader8021q().size(), 2);
     assertEquals(e.getHeader8021q().get(0).getType(), Header8021qType.QInQ);
     assertEquals(e.getHeader8021q().get(0).getPriorityCode().intValue(), 7);
@@ -100,8 +100,8 @@ public class EthernetDecoderTest {
     assertEquals(e.getHeader8021q().get(1).getPriorityCode().intValue(), 5);
     assertFalse(e.getHeader8021q().get(1).isDropEligible());
     assertEquals(e.getHeader8021q().get(1).getVlan().intValue(), 10);
-    assertEquals(e.getDestination().getValue(), "01:23:45:67:89:ab");
-    assertEquals(e.getSource().getValue(), "cd:ef:01:23:45:67");
-    assertTrue(Arrays.equals(e.getPayload(), Arrays.copyOfRange(packet, 22, packet.length)));
+    assertEquals(e.getDestinationMac().getValue(), "01:23:45:67:89:ab");
+    assertEquals(e.getSourceMac().getValue(), "cd:ef:01:23:45:67");
+    assertTrue(Arrays.equals(e.getEthernetPayload(), Arrays.copyOfRange(packet, 22, packet.length)));
   }
 }

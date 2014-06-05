@@ -1,0 +1,105 @@
+module IPv4-packet {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:ipv4";
+  prefix ipv4;
+
+  import ietf-inet-types {
+    prefix inet;
+    revision-date 2010-09-24;
+  }
+  import packet-processing {
+    prefix pprocessing;
+    revision-date 2013-07-09;
+  }
+
+  revision 2014-05-28 {
+    description
+      "IPv4 packet module draft.";
+  }
+
+  grouping ipv4-packet-grp {
+    leaf version {
+      type uint8;
+    }
+
+    leaf ihl {
+      type uint8;
+      description "Internal Header Length";
+    }
+
+    leaf dscp {
+      type uint8;
+      description "Differentiated Code Services Point";
+    }
+
+    leaf ecn {
+      type uint8;
+      description "Explicit Congestion Notification";
+    }
+
+    leaf ipv4-length {
+      type uint16;
+      description "Packet size, including header and data, in bytes";
+    }
+
+    leaf id {
+      type uint16;
+      description "Identification";
+    }
+
+    leaf reserved-flag {
+      type boolean;
+      description "First bit in the flags, must be 0";
+    }
+
+    leaf df-flag {
+      type boolean;
+      description "Second bit in the flags, Don't Fragment Flag";
+    }
+
+    leaf mf-flag {
+      type boolean;
+      description "Third bit in the flags, More Fragments Flag";
+    }
+
+    leaf fragment-offset {
+      type uint16;
+      description "Specifies the offset of a particular fragment relative to the beginning of the original unfragmented IP datagram";
+    }
+
+    leaf ttl {
+      type uint8;
+      description "Time to live";
+    }
+
+    leaf protocol {
+      type uint8;
+      description "Protocol for the data";
+    }
+
+    leaf checksum {
+      type uint16;
+      description "Header Checksum";
+    }
+
+    leaf source-ip {
+      type inet:ip-address;
+    }
+
+    leaf destination-ip {
+      type inet:ip-address;
+    }
+
+    leaf ipv4-payload {
+      type binary;
+    }
+  }
+
+  container ipv4-packet {
+    uses ipv4-packet-grp;
+  }
+
+  notification ipv4-packet-received {
+    uses ipv4-packet-grp;
+  }
+}
