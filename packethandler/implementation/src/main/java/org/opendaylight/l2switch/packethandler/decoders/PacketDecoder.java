@@ -9,11 +9,12 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
 
 /**
  * PacketDecoder should be implemented by all the decoders that are further going to decode EthernetPacket.
  * E.g. LLDPDecoder, ARPDecoder etc.
  */
 public interface PacketDecoder {
-  public <E extends EthernetPacket> E decode(EthernetPacket ethernetPacket);
+  public <E extends EthernetPacketGrp> E decode(EthernetPacket ethernetPacket);
 }

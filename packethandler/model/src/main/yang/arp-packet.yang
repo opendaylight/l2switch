@@ -1,0 +1,109 @@
+module arp-packet {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:arp";
+  prefix arp;
+
+  import ietf-inet-types {
+    prefix inet;
+    revision-date 2010-09-24;
+  }
+  import ethernet-packet {
+    prefix ethernet;
+    revision-date 2014-05-28;
+  }
+
+  revision 2014-05-28 {
+    description
+      "ARP packet module draft.";
+  }
+
+  typedef known-hardware-type {
+    type enumeration {
+      enum "reserved" {
+        value 0;
+      }
+      enum "ethernet" {
+        value 1;
+      }
+    }
+  }
+
+  typedef known-operation {
+    type enumeration {
+      enum "reserved" {
+        value 0;
+      }
+      enum "request" {
+        value 1;
+      }
+      enum "reply" {
+        value 2;
+      }
+      enum "request reverse" {
+        value 3;
+      }
+      enum "reply reverse" {
+        value 4;
+      }
+    }
+  }
+
+
+  grouping arp-packet-grp {
+    leaf hardware-type {
+      type known-hardware-type;
+      description "Network protocol type";
+    }
+
+    leaf protocol-type {
+      type ethernet:known-ether-type;
+      description "Higher layer protocol for which the ARP request is intended.  This corresponds to EtherType.";
+    }
+
+    leaf hardware-length {
+      type uint8;
+      description "Length (in octets) of a hardware address.  Ethernet address size is 6.";
+    }
+
+    leaf protocol-length {
+      type uint8;
+      description "Length (in octets) of addresses used in the higher layer protocol.  IPv4 address size is 4.";
+    }
+
+    leaf operation {
+      type known-operation;
+      description "Specifies the operation that the sender is performing: 1 for request, 2 for reply.";
+    }
+
+    leaf source-hardware-address {
+      type string;
+      description "Media address of the sender.";
+    }
+
+    leaf source-protocol-address {
+      type string;
+      description "Internet address of the sender.";
+    }
+
+    leaf destination-hardware-address {
+      type string;
+      description "Media address of the destination/target.";
+    }
+
+    leaf destination-protocol-address {
+      type string;
+      description "Internet address of the destination/target.";
+    }
+
+    uses ethernet:ethernet-packet-grp;
+  }
+
+  container arp-packet {
+    uses arp-packet-grp;
+  }
+
+  notification arp-packet-received {
+    uses arp-packet-grp;
+  }
+
+}

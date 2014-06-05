@@ -7,9 +7,9 @@ module IPv4-packet {
     prefix inet;
     revision-date 2010-09-24;
   }
-  import packet-processing {
-    prefix pprocessing;
-    revision-date 2013-07-09;
+  import ethernet-packet {
+    prefix ethernet;
+    revision-date 2014-05-28;
   }
 
   revision 2014-05-28 {
@@ -82,17 +82,19 @@ module IPv4-packet {
       description "Header Checksum";
     }
 
-    leaf source-ip {
+    leaf source-ipv4 {
       type inet:ip-address;
     }
 
-    leaf destination-ip {
+    leaf destination-ipv4 {
       type inet:ip-address;
     }
 
     leaf ipv4-payload {
       type binary;
     }
+
+    uses ethernet:ethernet-packet-grp;
   }
 
   container ipv4-packet {
