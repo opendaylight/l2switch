@@ -9,8 +9,13 @@ package org.opendaylight.l2switch.packethandler;
 
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
+import org.opendaylight.l2switch.packethandler.decoders.DecoderRegistry;
+import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderService;
+import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderServiceImpl;
+import org.opendaylight.l2switch.packethandler.decoders.PacketNotificationRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
@@ -36,12 +41,22 @@ public class PacketHandlerProvider extends AbstractBindingAwareConsumer
   @Override
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     DataBrokerService dataService = consumerContext.<DataBrokerService>getSALService(DataBrokerService.class);
-    NotificationService notificationService =
-        consumerContext.<NotificationService>getSALService(NotificationService.class);
-    PacketProcessingService packetProcessingService =
-        consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
+
+    NotificationProviderService notificationProviderService =
+        consumerContext.<NotificationProviderService>getSALService(NotificationProviderService.class);
+
+    DecoderRegistry decoderRegistry = new DecoderRegistry();
+
+    PacketNotificationRegistry packetNotificationRegistry = new PacketNotificationRegistry();
+    notificationProviderService.registerInterestListener(packetNotificationRegistry);
+
+    PacketDecoderService packetDecoderService = new PacketDecoderServiceImpl(decoderRegistry, packetNotificationRegistry);
+
     RawPacketHandler rawPacketHandler = new RawPacketHandler();
-    this.rawPacketListenerRegistration = notificationService.registerNotificationListener(rawPacketHandler);
+    rawPacketHandler.setNotificationProviderService(notificationProviderService);
+    rawPacketHandler.setDecoderRegistry(decoderRegistry);
+    rawPacketHandler.setPacketNotificationRegistry(packetNotificationRegistry);
+    this.rawPacketListenerRegistration = notificationProviderService.registerNotificationListener(rawPacketHandler);
   }
 
   /**
