@@ -8,6 +8,8 @@ import org.opendaylight.l2switch.packethandler.decoders.PacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.PacketNotificationRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -15,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by amitmandke on 6/4/14.
+ * RawPacketHandler subscribes to RawPacket in event. Calls the Ethernet decoder to
  */
 public class RawPacketHandler implements PacketProcessingListener {
   private final static Logger _logger = LoggerFactory.getLogger(RawPacketHandler.class);
@@ -53,6 +55,13 @@ public class RawPacketHandler implements PacketProcessingListener {
     if(ethernetPacket==null) {
       _logger.info("RawPacket could not be decoded as Ethernet Packet.");
       return;
+    }
+
+    // publish ethernet notification if listener is subscribed
+    if(packetNotificationRegistry.isListenerSubscribed(EthernetPacketReceived.class)) {
+      EthernetPacketReceivedBuilder ethernetPacketReceivedBuilder = new EthernetPacketReceivedBuilder(ethernetPacket);
+      EthernetPacketReceived ethernetNotification = ethernetPacketReceivedBuilder.build();
+      notificationProviderService.publish(ethernetNotification);
     }
 
     if(!packetNotificationRegistry.isListenerSubscribed(ethernetPacket.getEthertype())) {

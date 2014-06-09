@@ -17,6 +17,7 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
   private Map<KnownEtherType, Class<? extends Notification>> etherTypeToPacketNotificationTypeMap = new EnumMap<KnownEtherType, Class<? extends Notification>>(KnownEtherType.class);
 
   private Map<Class<? extends Notification>, Integer> packetNotificationTypeToListenerCountMap = new HashMap<Class<? extends Notification>, Integer>();
+
   /**
    * Increments the listener count for given notification type.
    *
@@ -26,22 +27,25 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
   public void onNotificationSubscribtion(Class<? extends Notification> aClass) {
     if(aClass == null) return;
 
-    int listenerCount = packetNotificationTypeToListenerCountMap.get(aClass);
-    packetNotificationTypeToListenerCountMap.put(aClass,listenerCount++);
-
+    synchronized(this) {
+      Integer listenerCount = packetNotificationTypeToListenerCountMap.get(aClass);
+      if(listenerCount == null)
+        listenerCount =0;
+      packetNotificationTypeToListenerCountMap.put(aClass, ++listenerCount);
+    }
   }
 
   /**
    * Maintains map of EtherType to notificationType
    *
    * @param notificationType
-   * @param <C>
+   * @param <N>
    */
-  public <C extends Notification> void trackPacketNotificationListener(KnownEtherType etherType, Class<C> notificationType) {
+  public <N extends Notification> void trackPacketNotificationListener(KnownEtherType etherType, Class<N> notificationType) {
     if(etherType == null || notificationType == null) return;
 
-    synchronized(this){
-      etherTypeToPacketNotificationTypeMap.put(etherType,notificationType);
+    synchronized(this) {
+      etherTypeToPacketNotificationTypeMap.put(etherType, notificationType);
     }
 
   }
@@ -55,8 +59,25 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
   public boolean isListenerSubscribed(KnownEtherType etherType) {
     if(etherType == null) return false;
 
-    int listenerCount = packetNotificationTypeToListenerCountMap.get(etherTypeToPacketNotificationTypeMap.get(etherType));
+    Class<?> packetNotification = etherTypeToPacketNotificationTypeMap.get(etherType);
+    if(packetNotification == null) return false;
 
-    return listenerCount>0;
+    return isListenerSubscribed((Class<? extends Notification>) packetNotification);
+  }
+
+  /**
+   * Checks if a listener is subscribed to give the notification type .
+   *
+   * @param packetNotificationType
+   * @return
+   */
+  public boolean isListenerSubscribed(Class<? extends Notification> packetNotificationType) {
+    if(packetNotificationType == null) return false;
+
+    Integer listenerCount = packetNotificationTypeToListenerCountMap.get(packetNotificationType);
+
+    if(listenerCount == null) return false;
+
+    return listenerCount > 0;
   }
 }

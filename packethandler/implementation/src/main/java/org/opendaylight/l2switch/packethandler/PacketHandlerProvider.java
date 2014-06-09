@@ -7,16 +7,14 @@
  */
 package org.opendaylight.l2switch.packethandler;
 
-import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
+import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
 import org.opendaylight.l2switch.packethandler.decoders.DecoderRegistry;
 import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderService;
 import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderServiceImpl;
 import org.opendaylight.l2switch.packethandler.decoders.PacketNotificationRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
@@ -25,7 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * PacketHandlerProvider serves as the Activator for our L2Switch OSGI bundle.
  */
-public class PacketHandlerProvider extends AbstractBindingAwareConsumer
+public class PacketHandlerProvider extends AbstractBindingAwareProvider
     implements AutoCloseable {
 
   private final static Logger _logger = LoggerFactory.getLogger(PacketHandlerProvider.class);
@@ -36,14 +34,14 @@ public class PacketHandlerProvider extends AbstractBindingAwareConsumer
   /**
    * Setup the packet handler.
    *
-   * @param consumerContext The context of the L2Switch.
+   * @param providerContext The context of the L2Switch.
    */
   @Override
-  public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
-    DataBrokerService dataService = consumerContext.<DataBrokerService>getSALService(DataBrokerService.class);
+  public void onSessionInitiated(BindingAwareBroker.ProviderContext providerContext) {
+    DataBrokerService dataService = providerContext.<DataBrokerService>getSALService(DataBrokerService.class);
 
     NotificationProviderService notificationProviderService =
-        consumerContext.<NotificationProviderService>getSALService(NotificationProviderService.class);
+        providerContext.<NotificationProviderService>getSALService(NotificationProviderService.class);
 
     DecoderRegistry decoderRegistry = new DecoderRegistry();
 
