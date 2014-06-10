@@ -1,9 +1,9 @@
-package org.opendaylight.l2switch.packethandler.decoders;
+package org.opendaylight.l2switch.arppacket;
 
 import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.HexEncode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacket;
+import org.opendaylight.l2switch.packethandler.decoders.PacketDecoder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownOperation;
