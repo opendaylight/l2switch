@@ -1,0 +1,60 @@
+module packet {
+  yang-version 1;
+  namespace "urn:opendaylight:packethandler:packet";
+  prefix ethernet;
+
+  import ietf-yang-types {
+    prefix yang;
+    revision-date 2010-09-24;
+  }
+  import packet-processing {
+    prefix pprocessing;
+    revision-date 2013-07-09;
+  }
+
+  revision 2014-05-28 {
+    description
+      "Base packet module draft.";
+  }
+
+  /* packet type for the packets that have payload in them to decode  */
+  typedef packet-type {
+    type enumeration {
+      enum "raw" {
+        value 0;
+        description "Default raw packet";
+      }
+      enum "ethernet" {
+        value 1;
+        description "Ethernet protocol";
+      }
+      enum "ipv4" {
+        value 2;
+        description "Address Resolution Protocol (ARP)";
+      }
+
+    }
+  }
+
+  grouping packet-payload-type-grp {
+    leaf packet-type {
+      type packet-type;
+    }
+    leaf payload-type {
+      type int32;
+    }
+ }
+
+  grouping packet {
+    container packet-payload-type {
+      uses packet-payload-type-grp;
+    }
+    container raw-packet {
+      uses pprocessing:raw-packet;
+    }
+  }
+
+  container base-packet {
+    uses packet;
+  }
+}

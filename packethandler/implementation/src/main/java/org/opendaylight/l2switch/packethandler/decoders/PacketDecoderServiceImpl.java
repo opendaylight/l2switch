@@ -1,6 +1,6 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -16,8 +16,8 @@ public class PacketDecoderServiceImpl implements PacketDecoderService {
   }
 
   @Override
-  public <C extends Notification> void registerDecoder(KnownEtherType etherType, PacketDecoder packetDecoder, Class<C> packetReceivedNotificationType) {
-    decoderRegistry.addDecoder(etherType,packetDecoder);
-    packetNotificationRegistry.trackPacketNotificationListener(etherType,packetReceivedNotificationType);
+  public <C extends Notification> void registerDecoder(PacketPayloadType packetPayloadType, PacketDecoder packetDecoder, Class<C> packetReceivedNotificationType) {
+    decoderRegistry.addDecoder(packetPayloadType, packetDecoder);
+    packetNotificationRegistry.trackPacketNotificationListener(packetPayloadType, packetReceivedNotificationType);
   }
 }

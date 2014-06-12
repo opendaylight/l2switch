@@ -1,26 +1,26 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * DecoderRegistry maintains mapping of decoders to EtherType
  */
 public class DecoderRegistry {
-  private Map<KnownEtherType, PacketDecoder> etherTypeToDecoderMap = new EnumMap<KnownEtherType, PacketDecoder>(KnownEtherType.class);
+  private Map<PacketPayloadType, PacketDecoder> etherTypeToDecoderMap = new HashMap<PacketPayloadType, PacketDecoder>();
 
-  public void addDecoder(KnownEtherType etherType, PacketDecoder decoder) {
-    if(etherType == null || decoder == null) return;
+  public void addDecoder(PacketPayloadType packetPayloadType, PacketDecoder decoder) {
+    if(packetPayloadType == null || decoder == null) return;
 
     synchronized(this) {
-      etherTypeToDecoderMap.put(etherType, decoder);
+      etherTypeToDecoderMap.put(packetPayloadType, decoder);
     }
 
   }
 
-  public synchronized PacketDecoder getDecoder(KnownEtherType etherType) {
-    return etherTypeToDecoderMap.get(etherType);
+  public synchronized PacketDecoder getDecoder(PacketPayloadType packetPayloadType) {
+    return etherTypeToDecoderMap.get(packetPayloadType);
   }
 }

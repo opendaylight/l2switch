@@ -1,10 +1,9 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import java.util.Map;
  * is any active listener subscription for any particular EtherType notification.
  */
 public class PacketNotificationRegistry implements NotificationProviderService.NotificationInterestListener {
-  private Map<KnownEtherType, Class<? extends Notification>> etherTypeToPacketNotificationTypeMap = new EnumMap<KnownEtherType, Class<? extends Notification>>(KnownEtherType.class);
+  private Map<PacketPayloadType, Class<? extends Notification>> etherTypeToPacketNotificationTypeMap = new HashMap<PacketPayloadType, Class<? extends Notification>>();
 
   private Map<Class<? extends Notification>, Integer> packetNotificationTypeToListenerCountMap = new HashMap<Class<? extends Notification>, Integer>();
 
@@ -30,7 +29,7 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
     synchronized(this) {
       Integer listenerCount = packetNotificationTypeToListenerCountMap.get(aClass);
       if(listenerCount == null)
-        listenerCount =0;
+        listenerCount = 0;
       packetNotificationTypeToListenerCountMap.put(aClass, ++listenerCount);
     }
   }
@@ -41,11 +40,11 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
    * @param notificationType
    * @param <N>
    */
-  public <N extends Notification> void trackPacketNotificationListener(KnownEtherType etherType, Class<N> notificationType) {
-    if(etherType == null || notificationType == null) return;
+  public <N extends Notification> void trackPacketNotificationListener(PacketPayloadType packetPayloadType, Class<N> notificationType) {
+    if(packetPayloadType == null || notificationType == null) return;
 
     synchronized(this) {
-      etherTypeToPacketNotificationTypeMap.put(etherType, notificationType);
+      etherTypeToPacketNotificationTypeMap.put(packetPayloadType, notificationType);
     }
 
   }
@@ -53,13 +52,13 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
   /**
    * Checks if a listener is subscribed to notification that is associated with given EtherType.
    *
-   * @param etherType
+   * @param packetPayloadType
    * @return
    */
-  public boolean isListenerSubscribed(KnownEtherType etherType) {
-    if(etherType == null) return false;
+  public boolean isListenerSubscribed(PacketPayloadType packetPayloadType) {
+    if(packetPayloadType == null) return false;
 
-    Class<?> packetNotification = etherTypeToPacketNotificationTypeMap.get(etherType);
+    Class<?> packetNotification = etherTypeToPacketNotificationTypeMap.get(packetPayloadType);
     if(packetNotification == null) return false;
 
     return isListenerSubscribed((Class<? extends Notification>) packetNotification);

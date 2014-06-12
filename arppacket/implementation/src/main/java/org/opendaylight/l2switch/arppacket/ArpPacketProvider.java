@@ -17,6 +17,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.K
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 //import org.opendaylight.yangtools.concepts.Registration;
 //import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +39,7 @@ public class ArpPacketProvider extends AbstractBindingAwareConsumer
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     //ToDo: Replace with config subsystem call
     PacketDecoderService packetDecoderService = consumerContext.getSALService(PacketDecoderService.class);
-    packetDecoderService.registerDecoder(KnownEtherType.Arp, new ArpDecoder(), ArpPacketReceived.class);
+    packetDecoderService.registerDecoder(getEthernetArpPacketPayloadType(), new ArpDecoder(), ArpPacketReceived.class);
   }
 
   /**
@@ -44,5 +47,12 @@ public class ArpPacketProvider extends AbstractBindingAwareConsumer
    */
   @Override
   public void close() {
+  }
+
+  private PacketPayloadType getEthernetArpPacketPayloadType() {
+    return new PacketPayloadTypeBuilder()
+        .setPacketType(PacketType.Ethernet)
+        .setPayloadType(KnownEtherType.Arp.getIntValue())
+        .build();
   }
 }
