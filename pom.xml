@@ -12,6 +12,7 @@
     <module>parent</module>
     <module>packethandler</module>
     <module>arppacket</module>
+    <module>ipv4packet</module>
     <module>endpointtracker</module>
   </modules>
   <scm>
