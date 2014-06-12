@@ -79,7 +79,7 @@ public class ArpDecoder implements PacketDecoder {
   public Notification buildPacketNotification(Packet arpPacket) {
     if(arpPacket == null) return null;
 
-    if(arpPacket instanceof ArpPacketReceived) {
+    if(arpPacket instanceof ArpPacketGrp) {
       return new ArpPacketReceivedBuilder((ArpPacketGrp) arpPacket).build();
     }
 
