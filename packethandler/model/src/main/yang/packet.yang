@@ -1,7 +1,7 @@
-module packet {
+module base-packet {
   yang-version 1;
-  namespace "urn:opendaylight:packethandler:packet";
-  prefix ethernet;
+  namespace "urn:opendaylight:packet:basepacket";
+  prefix bpacket;
 
   import ietf-yang-types {
     prefix yang;

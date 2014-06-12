@@ -8,16 +8,16 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.BasePacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.BasePacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.BasePacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.BasePacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacketBuilder;
 
 import java.util.Arrays;
 

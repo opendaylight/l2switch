@@ -5,6 +5,11 @@ import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.HexEncode;
 import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.Packet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
@@ -12,11 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.H
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021qBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacketBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +106,7 @@ public class EthernetDecoder implements PacketDecoder {
       int stop = start + payloadSize / NetUtils.NumBitsInAByte;
       builder.setEthernetPayload(Arrays.copyOfRange(data, start, stop));
 
-      if(null!=builder.getEthertype()) {
+      if(null != builder.getEthertype()) {
         builder.setPacketPayloadType(new PacketPayloadTypeBuilder()
             .setPacketType(PacketType.Ethernet)
             .setPayloadType(builder.getEthertype().getIntValue())

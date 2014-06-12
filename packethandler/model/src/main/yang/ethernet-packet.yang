@@ -11,8 +11,8 @@ module ethernet-packet {
     prefix pprocessing;
     revision-date 2013-07-09;
   }
-  import packet {
-    prefix packet;
+  import base-packet {
+    prefix bpacket;
     revision-date 2014-05-28;
   }
 
@@ -255,7 +255,7 @@ module ethernet-packet {
       type binary;
     }
 
-    uses packet:packet;
+    uses bpacket:packet;
   }
 
   container ethernet-packet {

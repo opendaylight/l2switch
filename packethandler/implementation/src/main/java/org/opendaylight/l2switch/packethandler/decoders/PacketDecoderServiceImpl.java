@@ -1,6 +1,6 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**

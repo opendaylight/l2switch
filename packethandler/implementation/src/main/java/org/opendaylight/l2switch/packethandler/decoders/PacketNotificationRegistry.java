@@ -1,7 +1,7 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Map;
  * is any active listener subscription for any particular EtherType notification.
  */
 public class PacketNotificationRegistry implements NotificationProviderService.NotificationInterestListener {
-  private Map<PacketPayloadType, Class<? extends Notification>> etherTypeToPacketNotificationTypeMap = new HashMap<PacketPayloadType, Class<? extends Notification>>();
+  private Map<PacketPayloadType, Class<? extends Notification>> packetPayloadTypeToPacketNotificationTypeMap = new HashMap<PacketPayloadType, Class<? extends Notification>>();
 
   private Map<Class<? extends Notification>, Integer> packetNotificationTypeToListenerCountMap = new HashMap<Class<? extends Notification>, Integer>();
 
@@ -44,7 +44,7 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
     if(packetPayloadType == null || notificationType == null) return;
 
     synchronized(this) {
-      etherTypeToPacketNotificationTypeMap.put(packetPayloadType, notificationType);
+      packetPayloadTypeToPacketNotificationTypeMap.put(packetPayloadType, notificationType);
     }
 
   }
@@ -58,7 +58,7 @@ public class PacketNotificationRegistry implements NotificationProviderService.N
   public boolean isListenerSubscribed(PacketPayloadType packetPayloadType) {
     if(packetPayloadType == null) return false;
 
-    Class<?> packetNotification = etherTypeToPacketNotificationTypeMap.get(packetPayloadType);
+    Class<?> packetNotification = packetPayloadTypeToPacketNotificationTypeMap.get(packetPayloadType);
     if(packetNotification == null) return false;
 
     return isListenerSubscribed((Class<? extends Notification>) packetNotification);
