@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.Packet;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -21,15 +22,15 @@ public interface PacketDecoder {
   /**
    * Decodes the given EthernetPacket payload further and returns a extension of Ethernet packet.
    * e.g. ARP, IPV4, LLDP etc.
-   * @param ethernetPacket
+   * @param packet
    * @return
    */
-  public EthernetPacketGrp decode(EthernetPacket ethernetPacket);
+  public Packet decode(Packet packet);
 
   /**
    * This is utility method for converting the decoded packet to its corresponding notification.
-   * @param decodedEthernetPacket
+   * @param decodedPacket
    * @return
    */
-  public Notification buildPacketNotification(EthernetPacketGrp decodedEthernetPacket);
+  public Notification buildPacketNotification(Packet decodedPacket);
 }

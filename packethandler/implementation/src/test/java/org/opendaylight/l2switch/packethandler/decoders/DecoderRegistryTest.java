@@ -2,7 +2,9 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -14,21 +16,23 @@ import static org.mockito.Mockito.mock;
 public class DecoderRegistryTest {
   private DecoderRegistry decoderRegistry = null;
   private PacketDecoder packetDecoder;
+  private PacketPayloadType packetPayloadType;
 
   @Before
   public void init() {
     decoderRegistry = new DecoderRegistry();
     packetDecoder = mock(PacketDecoder.class);
+    packetPayloadType = new PacketPayloadTypeBuilder().setPacketType(PacketType.Raw).setPayloadType(1).build();
   }
 
   @Test
   public void testAddDecoderSunnyDay() {
-    decoderRegistry.addDecoder(KnownEtherType.Arp, packetDecoder);
-    assertEquals(packetDecoder, decoderRegistry.getDecoder(KnownEtherType.Arp));
+    decoderRegistry.addDecoder(packetPayloadType, packetDecoder);
+    assertEquals(packetDecoder, decoderRegistry.getDecoder(packetPayloadType));
   }
 
   public void testGetDecoderWithoutAdding() {
-    PacketDecoder decoder = decoderRegistry.getDecoder(KnownEtherType.Arp);
+    PacketDecoder decoder = decoderRegistry.getDecoder(packetPayloadType);
     assertEquals(null, decoder);
   }
 }

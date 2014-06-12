@@ -1,17 +1,19 @@
 package org.opendaylight.l2switch.packethandler;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.DecoderRegistry;
-import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.PacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.PacketNotificationRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.BasePacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.BasePacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.Packet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.RawPacketBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,45 +46,48 @@ public class RawPacketHandler implements PacketProcessingListener {
 
     if(packetReceived == null) return;
 
-    EthernetPacket ethernetPacket = null;
-    try{
-      ethernetPacket = EthernetDecoder.decode(packetReceived);
-    }catch(BufferException be){
-      _logger.info("EthernetDecoder Failed on {} packet received.",packetReceived);
-      throw new RuntimeException("EthernetDecode Failed.",be);
+    PacketPayloadType packetPayloadType = getPacketPayloadType(packetReceived);
+    PacketDecoder packetDecoder = decoderRegistry.getDecoder(packetPayloadType);
+    Packet packet = getBasePacket(packetReceived);
+
+    while(packetDecoder != null) {
+
+      packet = packetDecoder.decode(packet);
+
+      if(packet == null) {
+        _logger.info("Could not decode packet : []", packet);
+        break;
+      }
+
+      Notification packetInNotification = packetDecoder.buildPacketNotification(packet);
+      if(packetInNotification != null && packetNotificationRegistry.isListenerSubscribed(packetInNotification.getClass()))
+        notificationProviderService.publish(packetInNotification);
+
+      packetPayloadType = packet.getPacketPayloadType();
+      if(packetPayloadType == null) {
+        _logger.info("No PacketPayloadType set in packet : []", packet);
+        break;
+      }
+
+      packetDecoder = decoderRegistry.getDecoder(packetPayloadType);
     }
+  }
 
-    if(ethernetPacket==null) {
-      _logger.info("RawPacket could not be decoded as Ethernet Packet.");
-      return;
-    }
+  private BasePacket getBasePacket(PacketReceived packetReceived) {
 
-    // publish ethernet notification if listener is subscribed
-    if(packetNotificationRegistry.isListenerSubscribed(EthernetPacketReceived.class)) {
-      EthernetPacketReceivedBuilder ethernetPacketReceivedBuilder = new EthernetPacketReceivedBuilder(ethernetPacket);
-      EthernetPacketReceived ethernetNotification = ethernetPacketReceivedBuilder.build();
-      notificationProviderService.publish(ethernetNotification);
-    }
+    return new BasePacketBuilder()
+        .setPacketPayloadType(getPacketPayloadType(packetReceived))
+        .setRawPacket(getRawPacket(packetReceived)).build();
+  }
 
-    if(!packetNotificationRegistry.isListenerSubscribed(ethernetPacket.getEthertype())) {
-      _logger.info("No Listener is subscribed for {} notification.",ethernetPacket.getEthertype());
-      return;
-    }
+  private PacketPayloadType getPacketPayloadType(PacketReceived packetReceived) {
 
-    PacketDecoder packetDecoder = decoderRegistry.getDecoder(ethernetPacket.getEthertype());
+    //currently doesn't make use of packet received as currently only ethernet packets are received so following is hard coded.
+    return new PacketPayloadTypeBuilder().setPacketType(PacketType.Raw).setPayloadType(PacketType.Ethernet.getIntValue()).build();
+  }
 
-    if(packetDecoder==null) {
-      _logger.info("No Decode is available for {} packet.",ethernetPacket.getEthertype());
-      return;
-    }
-
-    EthernetPacketGrp decodedEthernetPacket;
-
-    decodedEthernetPacket = packetDecoder.decode(ethernetPacket);
-
-    Notification packetInNotification = packetDecoder.buildPacketNotification(decodedEthernetPacket);
-
-    notificationProviderService.publish(packetInNotification);
+  private RawPacket getRawPacket(PacketReceived packetReceived) {
+    return new RawPacketBuilder().setIngress(packetReceived.getIngress()).setPayload(packetReceived.getPayload()).build();
   }
 
 }

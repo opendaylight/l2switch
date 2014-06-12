@@ -2,7 +2,9 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packethandler.packet.rev140528.packet.PacketPayloadTypeBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import static junit.framework.Assert.assertEquals;
@@ -13,10 +15,12 @@ import static junit.framework.Assert.assertEquals;
  */
 public class PacketNotificationRegistryTest {
   PacketNotificationRegistry packetNotificationRegistry = null;
+  private PacketPayloadType packetPayloadType;
 
   @Before
   public void init() {
     packetNotificationRegistry = new PacketNotificationRegistry();
+    packetPayloadType = new PacketPayloadTypeBuilder().setPacketType(PacketType.Raw).setPayloadType(1).build();
   }
 
   @Test
@@ -26,7 +30,7 @@ public class PacketNotificationRegistryTest {
 
   @Test
   public void testIsListenerSubscribedByEtherTypeWithoutAddingAnyListener() {
-    assertEquals(false, packetNotificationRegistry.isListenerSubscribed(KnownEtherType.Arp));
+    assertEquals(false, packetNotificationRegistry.isListenerSubscribed(packetPayloadType));
   }
 
   @Test
@@ -38,14 +42,14 @@ public class PacketNotificationRegistryTest {
   @Test
   public void testIsListenerSubscribedByEtherTypeWithoutAddingEtherType() {
     addNotification();
-    assertEquals(false, packetNotificationRegistry.isListenerSubscribed(KnownEtherType.Arp));
+    assertEquals(false, packetNotificationRegistry.isListenerSubscribed(packetPayloadType));
   }
 
   @Test
   public void testIsListenerSubscribedByEtherTypeSunnyDay() {
     addNotification();
     addEtherTypeNotification();
-    assertEquals(true, packetNotificationRegistry.isListenerSubscribed(KnownEtherType.Arp));
+    assertEquals(true, packetNotificationRegistry.isListenerSubscribed(packetPayloadType));
   }
 
   private void addNotification() {
@@ -54,6 +58,6 @@ public class PacketNotificationRegistryTest {
   }
 
   private void addEtherTypeNotification() {
-    packetNotificationRegistry.trackPacketNotificationListener(KnownEtherType.Arp, Notification.class);
+    packetNotificationRegistry.trackPacketNotificationListener(packetPayloadType, Notification.class);
   }
 }
