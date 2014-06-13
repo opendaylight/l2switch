@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.l2switch.packethandler.decoders;
+package org.opendaylight.l2switch.ethernetdecoder;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.BasePacket;
