@@ -11,10 +11,11 @@ import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
-import org.opendaylight.l2switch.packethandler.decoders.DecoderRegistry;
-import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderService;
-import org.opendaylight.l2switch.packethandler.decoders.PacketDecoderServiceImpl;
-import org.opendaylight.l2switch.packethandler.decoders.PacketNotificationRegistry;
+import org.opendaylight.l2switch.packethandler.decoders.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
@@ -49,6 +50,7 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
     notificationProviderService.registerInterestListener(packetNotificationRegistry);
 
     PacketDecoderService packetDecoderService = new PacketDecoderServiceImpl(decoderRegistry, packetNotificationRegistry);
+    packetDecoderService.registerDecoder(getEthernetArpPacketPayloadType(), new EthernetDecoder(), EthernetPacketReceived.class);
 
     RawPacketHandler rawPacketHandler = new RawPacketHandler();
     rawPacketHandler.setNotificationProviderService(notificationProviderService);
@@ -66,5 +68,12 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
   public void close() throws Exception {
     if(rawPacketListenerRegistration != null)
       rawPacketListenerRegistration.close();
+  }
+
+  private PacketPayloadType getEthernetArpPacketPayloadType() {
+    return new PacketPayloadTypeBuilder()
+      .setPacketType(PacketType.Raw)
+      .setPayloadType(PacketType.Ethernet.getIntValue())
+      .build();
   }
 }
