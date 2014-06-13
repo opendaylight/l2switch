@@ -3,7 +3,7 @@ package org.opendaylight.l2switch.ipv4packet;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 
 import java.util.Arrays;
 
@@ -39,7 +39,7 @@ public class Ipv4DecoderTest {
     assertFalse(ipv4packet.isMfFlag());
     assertEquals(0, ipv4packet.getFragmentOffset().intValue());
     assertEquals(18, ipv4packet.getTtl().intValue());
-    assertEquals(KnownProtocol.Udp, ipv4packet.getProtocol());
+    assertEquals(KnownIpProtocols.Udp, ipv4packet.getProtocol());
     assertEquals(0, ipv4packet.getChecksum().intValue());
     assertEquals("192.168.0.1", ipv4packet.getSourceIpv4());
     assertEquals("1.2.3.4", ipv4packet.getDestinationIpv4());
@@ -73,7 +73,7 @@ public class Ipv4DecoderTest {
     assertTrue(ipv4packet.isMfFlag());
     assertEquals(4096, ipv4packet.getFragmentOffset().intValue());
     assertEquals(18, ipv4packet.getTtl().intValue());
-    assertEquals(KnownProtocol.Tcp, ipv4packet.getProtocol());
+    assertEquals(KnownIpProtocols.Tcp, ipv4packet.getProtocol());
     assertEquals(0, ipv4packet.getChecksum().intValue());
     assertEquals("192.168.0.1", ipv4packet.getSourceIpv4());
     assertEquals("1.2.3.4", ipv4packet.getDestinationIpv4());
@@ -107,7 +107,7 @@ public class Ipv4DecoderTest {
     assertFalse(ipv4packet.isMfFlag());
     assertEquals(8191, ipv4packet.getFragmentOffset().intValue());
     assertEquals(0, ipv4packet.getTtl().intValue());
-    assertEquals(KnownProtocol.Tcp, ipv4packet.getProtocol());
+    assertEquals(KnownIpProtocols.Tcp, ipv4packet.getProtocol());
     assertEquals(65535, ipv4packet.getChecksum().intValue());
     assertEquals("0.0.0.0", ipv4packet.getSourceIpv4());
     assertEquals("255.255.255.255", ipv4packet.getDestinationIpv4());

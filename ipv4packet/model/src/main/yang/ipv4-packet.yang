@@ -13,7 +13,7 @@ module IPv4-packet {
       "IPv4 packet module draft.";
   }
 
-  typedef known-protocol {
+  typedef known-ip-protocols {
     type enumeration {
       enum "hopopt" {
         value 0;
@@ -182,7 +182,7 @@ module IPv4-packet {
     }
 
     leaf protocol {
-      type known-protocol;
+      type known-ip-protocols;
       description "Protocol for the data";
     }
 

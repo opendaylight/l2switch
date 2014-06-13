@@ -2,19 +2,16 @@ package org.opendaylight.l2switch.ipv4packet;
 
 import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
-import org.opendaylight.controller.sal.utils.HexEncode;
 import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.l2switch.packethandler.decoders.PacketDecoder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.Packet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketGrp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceivedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +62,7 @@ public class Ipv4Decoder implements PacketDecoder {
 
       builder.setFragmentOffset(BitBufferHelper.getInt(BitBufferHelper.getBits(data, 51, 13)));
       builder.setTtl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, 64, 8)));
-      builder.setProtocol(KnownProtocol.forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, 72, 8))));
+      builder.setProtocol(KnownIpProtocols.forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, 72, 8))));
       builder.setChecksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, 80, 16)));
       builder.setSourceIpv4(InetAddress.getByAddress(BitBufferHelper.getBits(data, 96, 32)).getHostAddress());
       builder.setDestinationIpv4(InetAddress.getByAddress(BitBufferHelper.getBits(data, 128, 32)).getHostAddress());
