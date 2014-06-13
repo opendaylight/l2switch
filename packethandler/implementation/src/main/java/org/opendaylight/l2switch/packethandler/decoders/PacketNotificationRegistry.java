@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * PacketNotificationRegistry maintains mapping of NotificationType to EtherType. It also maintains
+ * PacketNotificationRegistry maintains mapping of NotificationType to PacketPayloadType. It also maintains
  * the count of Listener that are subscribed to a particular notification. This way it can specify if there
  * is any active listener subscription for any particular EtherType notification.
  */
