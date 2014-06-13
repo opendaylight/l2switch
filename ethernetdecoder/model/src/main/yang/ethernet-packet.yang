@@ -262,18 +262,6 @@ module ethernet-packet {
     uses ethernet-packet-grp;
   }
 
-  /*grouping ipv4-packet {
-    uses ethernet-packet;
-  }
-
-  grouping ipv6-packet {
-    uses ethernet-packet;
-  }
-
-  grouping lldp-packet {
-    uses ethernet-packet;
-  }*/
-
   notification ethernet-packet-received {
     uses ethernet-packet-grp;
   }
