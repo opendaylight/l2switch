@@ -16,6 +16,23 @@
       "revId": "90a9d42508a941dc5cb9dd9594fea9086699dcae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_19c10de4",
+        "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-17T23:07:53Z",
+      "side": 1,
+      "message": "need to add time stamp to record time of discovery/tracking",
+      "revId": "90a9d42508a941dc5cb9dd9594fea9086699dcae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
