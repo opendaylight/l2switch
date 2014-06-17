@@ -7,18 +7,14 @@
     <version>0.1.0-SNAPSHOT</version>
     <relativePath>../../parent</relativePath>
   </parent>
-  <groupId>org.opendaylight.l2switch.endpointtracker</groupId>
-  <artifactId>endpointtracker-model</artifactId>
+  <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+  <artifactId>addresstracker-model</artifactId>
   <packaging>bundle</packaging>
 
   <dependencies>
     <dependency>
       <groupId>org.opendaylight.controller.model</groupId>
       <artifactId>model-inventory</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>yang-binding</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
