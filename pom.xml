@@ -15,7 +15,7 @@
     <module>arpdecoder</module>
     <module>ipv4decoder</module>
     <!--module>ipv6decoder</module-->
-    <module>endpointtracker</module>
+    <module>addresstracker</module>
   </modules>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
