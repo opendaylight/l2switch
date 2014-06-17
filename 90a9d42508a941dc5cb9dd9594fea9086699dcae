@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_399411e1",
+        "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-06-17T22:58:48Z",
+      "side": 1,
+      "message": "lets use inet ip definition.",
+      "revId": "90a9d42508a941dc5cb9dd9594fea9086699dcae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
