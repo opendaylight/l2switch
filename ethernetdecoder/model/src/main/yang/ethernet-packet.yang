@@ -16,14 +16,32 @@ module ethernet-packet {
     revision-date 2014-05-28;
   }
 
-  revision 2014-05-28 {
+    /*** META INFORMATION ***/
+
+	description
+		"Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+
+		This program and the accompanying materials are made available under the
+		terms of the Eclipse Public License v1.0 which accompanies this distribution,
+		and is available at http://www.eclipse.org/legal/epl-v10.html
+
+      This module contains a YANG definition of the
+       Ethernet protocol.";
+
+  revision 2014-06-16 {
     description
       "Ethernet packet module draft.";
   }
 
-  /* Taken from opendaylight-l2-types.yang, but it is commented out there -- will import once uncommented */
+  /* Based opendaylight-l2-types.yang, which needs to be fixed -- will import once that is done */
+
   typedef known-ether-type {
     type enumeration {
+
+      enum "length" {
+        value 1536; // Implementation must check for less than 0x0600 and set as length.
+        description "802.3 Length Field";
+      }
       enum "ipv4" {
         value 2048; // 0x0800
         description "Internet Protocol version 4 (IPv4)";
@@ -212,44 +230,68 @@ module ethernet-packet {
     }
   }
 
+  typedef vlan-id {
+    type uint16 {
+    range "0..4095";
+    }
+  }
+
   grouping header8021q {
-    leaf type {
+    leaf TPID {
       type header8021q-type;
+      mandatory true;
     }
 
     leaf priority-code {
-      type int16;
+      type uint8 {
+      range "0..7";
+      }
+      mandatory true;
     }
 
     leaf drop-eligible {
       type boolean;
+      mandatory true;
     }
 
     leaf vlan {
-      type int32;
+      type vlan-id;
+      mandatory true;
     }
   }
 
-  grouping ethernet-packet-grp {
+    grouping ethernet-packet-grp {
     leaf source-mac {
       type yang:mac-address;
+      mandatory true;
     }
 
     leaf destination-mac {
       type yang:mac-address;
+      mandatory true;
     }
 
-    list header8021q {
-      uses header8021q;
+    container outer-tag {
+        uses header8021q;
+
+        container inner-tag {
+            uses header8021q;
+        }
     }
 
     leaf ethertype {
       type known-ether-type;
+      mandatory true;
     }
 
     leaf ethernet-length {
-      type int32;
+      type uint16;
+      //Note: Length of Frame may be reported by a driver, but it is not strictly part of the protocol except for 802.3
     }
+
+    leaf crc {
+      type uint32;
+        }
 
     leaf ethernet-payload {
       type binary;
