@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_6e8acac0",
+        "filename": "ethernetdecoder/implementation/src/main/java/org/opendaylight/l2switch/ethernetdecoder/EthernetDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-18T22:50:12Z",
+      "side": 1,
+      "message": "Totally was unaware of padded frames, thanks for catching this.",
+      "revId": "d3bad564be35ef611003c8cbbf7f9852deda707d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8e85ceae",
+        "filename": "ethernetdecoder/model/src/main/yang/ethernet-packet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-18T22:50:12Z",
+      "side": 1,
+      "message": "Is there any specific reason you add a \"length\" enum, since length could be a whole range of values?  Just wanted to see your thought process.",
+      "revId": "d3bad564be35ef611003c8cbbf7f9852deda707d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2e94c2e0",
+        "filename": "ethernetdecoder/model/src/main/yang/ethernet-packet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-18T22:50:12Z",
+      "side": 1,
+      "message": "Good typedef, thanks for catching this.",
+      "revId": "d3bad564be35ef611003c8cbbf7f9852deda707d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_cea3d64d",
+        "filename": "ethernetdecoder/model/src/main/yang/ethernet-packet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-18T22:50:12Z",
+      "side": 1,
+      "message": "According to http://en.wikipedia.org/wiki/IEEE_802.1Q, there is \"non-standard triple-tagging\".  Do you think that warrants having a list?",
+      "revId": "d3bad564be35ef611003c8cbbf7f9852deda707d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_4e8fc6cc",
+        "filename": "ipv4decoder/model/src/main/yang/ipv4-packet.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-18T22:50:12Z",
+      "side": 1,
+      "message": "Thanks for catching this.  Didn\u0027t know they were already defined.",
+      "revId": "d3bad564be35ef611003c8cbbf7f9852deda707d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
