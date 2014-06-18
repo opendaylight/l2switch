@@ -14,7 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPac
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140616.KnownEtherType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
