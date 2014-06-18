@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ae8452d4",
+        "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-06-18T19:40:48Z",
+      "side": 1,
+      "message": "Is this implicitly assuming that there will be a mac address?",
+      "revId": "f6b2122fe08bf27a5a5d7ea79b4430a57bcea093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ce8756d6",
+        "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-06-18T19:40:48Z",
+      "side": 1,
+      "message": "If we\u0027re going to have one entry per address tuple, rather than one entry per address tuple observation, then we\u0027re going to want at least a first-seen and last-seen timestamp and maybe a list of timestamps.",
+      "revId": "f6b2122fe08bf27a5a5d7ea79b4430a57bcea093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
