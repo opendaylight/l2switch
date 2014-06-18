@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_ee61fa39",
+        "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 2106
+      },
+      "writtenOn": "2014-06-18T20:10:53Z",
+      "side": 1,
+      "message": "If anything, this should be uint16 with range 0..4095, or event better import the ethernet.yang definition for use here.\n\nThat said however, shouldn\u0027t VLAN be kept out of an address-tracker (which I imagine is a host address tracker)? Or alternatively, physical port may also be needed",
+      "revId": "f6b2122fe08bf27a5a5d7ea79b4430a57bcea093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_ce8756d6",
         "filename": "addresstracker/model/src/main/yang/address-tracker.yang",
         "patchSetId": 3
