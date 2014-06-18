@@ -9,7 +9,7 @@ module arp-packet {
   }
   import ethernet-packet {
     prefix ethernet;
-    revision-date 2014-05-28;
+    revision-date 2014-06-16;
   }
 
   revision 2014-05-28 {
