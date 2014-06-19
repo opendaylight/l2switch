@@ -44,7 +44,6 @@
       <artifactId>packethandler-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -55,10 +54,44 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Bundle-Activator>org.opendaylight.l2switch.ethernetdecoder.EthernetDecoderProvider</Bundle-Activator>
+            <Export-Package>org.opendaylight.l2switch.ethernetdecoder,</Export-Package>
+            <Import-Package>*</Import-Package>
           </instructions>
-          <manifestLocation>${project.build.directory}/META-INF</manifestLocation>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.opendaylight.yangtools</groupId>
+        <artifactId>yang-maven-plugin</artifactId>
+        <version>${yangtools.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-sources</goal>
+            </goals>
+            <configuration>
+              <codeGenerators>
+                <generator>
+                  <codeGeneratorClass>org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
+                  </codeGeneratorClass>
+                  <outputBaseDir>${configCodeGeneratorPath}</outputBaseDir>
+                  <additionalConfiguration>
+                    <namespaceToPackage1>
+                      urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
+                    </namespaceToPackage1>
+                  </additionalConfiguration>
+                </generator>
+              </codeGenerators>
+              <inspectDependencies>true</inspectDependencies>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>yang-jmx-generator-plugin</artifactId>
+            <version>${config.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<snapshot>
+  <configuration>
+    <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+      <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <module>
+          <type xmlns:pconfig-impl="urn:opendaylight:packetdecoder:config:impl">
+            pconfig-impl:packet-decoder-impl
+          </type>
+          <name>packet-decoder-impl</name>
+
+          <notification-service>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
+              binding:binding-notification-service
+            </type>
+            <name>binding-notification-broker</name>
+          </notification-service>
+        </module>
+
+        <module>
+          <type xmlns:ethernetdecoder="urn:opendaylight:ethernetdecoder:config">
+            ethernetdecoder:ethernet-decoder-impl
+          </type>
+          <name>ethernet-decoder-impl</name>
+
+          <packet-decoder-service>
+            <type xmlns:pdecoder="urn:opendaylight:packetdecoder:config">pdecoder:packet-decoder-service</type>
+            <name>packet-decoder-service</name>
+          </packet-decoder-service>
+
+        </module>
+      </modules>
+
+      <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:pdecoder="urn:opendaylight:packetdecoder:config">
+            pdecoder:packet-decoder-service
+          </type>
+          <instance>
+            <name>packet-decoder-service</name>
+            <provider>/modules/module[type='packet-decoder-impl'][name='packet-decoder-impl']</provider>
+          </instance>
+        </service>
+      </services>
+    </data>
+
+  </configuration>
+
+  <required-capabilities>
+    <capability>urn:opendaylight:packetdecoder:config:impl?module=packet-decoder-impl&amp;revision=2014-05-28</capability>
+  </required-capabilities>
+
+</snapshot>

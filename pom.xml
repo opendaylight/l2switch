@@ -16,6 +16,7 @@
     <module>ipv4decoder</module>
     <module>ipv6decoder</module>
     <module>addresstracker</module>
+    <module>l2switch-controller-config</module>
   </modules>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
