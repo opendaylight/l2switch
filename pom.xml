@@ -14,7 +14,7 @@
     <module>ethernetdecoder</module>
     <module>arpdecoder</module>
     <module>ipv4decoder</module>
-    <!--module>ipv6decoder</module-->
+    <module>ipv6decoder</module>
     <module>addresstracker</module>
   </modules>
   <scm>
