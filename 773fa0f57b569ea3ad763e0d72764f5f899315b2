@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ffd76621",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-06-19T23:59:14Z",
+      "side": 1,
+      "message": "This is exactly what we talked about in the morning -- don\u0027t decode unless it\u0027s necessary. :)",
+      "revId": "773fa0f57b569ea3ad763e0d72764f5f899315b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
