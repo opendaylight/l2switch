@@ -1,4 +1,4 @@
-module IPv4-packet {
+module ipv4-packet {
   yang-version 1;
   namespace "urn:opendaylight:packet:ipv4";
   prefix ipv4;
