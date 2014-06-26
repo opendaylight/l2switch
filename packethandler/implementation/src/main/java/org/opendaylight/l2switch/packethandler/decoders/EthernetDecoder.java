@@ -1,42 +1,19 @@
-package org.opendaylight.l2switch.ethernetdecoder;
+package org.opendaylight.l2switch.packethandler.decoders;
 
+import com.google.common.collect.ImmutableSet;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.packet.BitBufferHelper;
-import org.opendaylight.controller.sal.packet.BufferException;
-import org.opendaylight.controller.sal.utils.HexEncode;
-import org.opendaylight.controller.sal.utils.NetUtils;
-import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
-import org.opendaylight.l2switch.packethandler.decoders.PacketDecoder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.BasePacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.BasePacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.PacketType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.PacketPayloadTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.RawPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketGrp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021q;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.grp.Header8021qBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Ethernet Packet Decoder
  */
-public class EthernetDecoder extends AbstractPacketDecoder<EthernetPacketReceived> implements PacketProcessingListener{
+public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketOverRawReceived> implements PacketProcessingListener {
   private static final Logger _logger = LoggerFactory.getLogger(EthernetDecoder.class);
   public static final Integer LENGTH_MAX = 1500;
   public static final Integer ETHERTYPE_MIN = 1536;
@@ -44,30 +21,29 @@ public class EthernetDecoder extends AbstractPacketDecoder<EthernetPacketReceive
   public static final Integer ETHERTYPE_QINQ = 0x9100;
 
   public EthernetDecoder(NotificationProviderService notificationProviderService) {
-    super(EthernetPacketReceived.class,notificationProviderService);
+    super(EthernetPacketOverRawReceived.class, notificationProviderService);
   }
 
   @Override
   public void onPacketReceived(PacketReceived packetReceived) {
-    decodeAndPublish(getBasePacket(packetReceived));
+    decodeAndPublish(packetReceived);
   }
 
   /**
    * Decode a RawPacket into an EthernetPacket
    *
-   * @param packet -- data from wire to deserialize
+   * @param packetReceived -- data from wire to deserialize
    * @return
-   * @throws BufferException
+   * @throws org.opendaylight.controller.sal.packet.BufferException
    */
   @Override
-  public Packet decode(Packet packet) {
-    RawPacket rawPacket = packet.getRawPacket();
-    EthernetPacketBuilder builder = new EthernetPacketBuilder();
-    byte[] data = rawPacket.getPayload();
-
+  public EthernetPacketOverRawReceived decode(PacketReceived packetReceived) {
+    byte[] data = packetReceived.getPayload();
+    EthernetPacketOverRawReceivedBuilder builder = new EthernetPacketOverRawReceivedBuilder();
+    /*
     try {
       // Save original rawPacket
-      builder.setRawPacket(new RawPacketBuilder().setIngress(rawPacket.getIngress()).setPayload(data).build());
+      builder.setRawPacket(new RawPacketBuilder().setIngress(packetReceived.getIngress()).setPayload(data).build());
 
       // Deserialize the destination & source fields
       builder.setDestinationMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
@@ -135,8 +111,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<EthernetPacketReceive
       _logger.info("Exception during decoding raw packet to ethernet.");
     }
 
-    return builder.build();
-
+*/
     //ToDo:  Possibly log these values
       /*if (_logger.isTraceEnabled()) {
         _logger.trace("{}: {}: {} (offset {} bitsize {})",
@@ -144,30 +119,12 @@ public class EthernetDecoder extends AbstractPacketDecoder<EthernetPacketReceive
             HexEncode.bytesToHexString(hdrFieldBytes),
             startOffset, numBits });
       }*/
+    return builder.build();
   }
+
 
   @Override
-  public EthernetPacketReceived buildPacketNotification(Packet decodedPacket) {
-    if(!(decodedPacket instanceof EthernetPacketGrp)) return null;
-
-    EthernetPacketReceivedBuilder ethernetPacketReceivedBuilder = new EthernetPacketReceivedBuilder((EthernetPacketGrp) decodedPacket);
-    return ethernetPacketReceivedBuilder.build();
-  }
-
-  private BasePacket getBasePacket(PacketReceived packetReceived) {
-
-    return new BasePacketBuilder()
-        .setPacketPayloadType(getPacketPayloadType(packetReceived))
-        .setRawPacket(getRawPacket(packetReceived)).build();
-  }
-
-  private PacketPayloadType getPacketPayloadType(PacketReceived packetReceived) {
-
-    //currently doesn't make use of packet received as currently only ethernet packets are received so following is hard coded.
-    return new PacketPayloadTypeBuilder().setPacketType(PacketType.Raw).setPayloadType(PacketType.Ethernet.getIntValue()).build();
-  }
-
-  private RawPacket getRawPacket(PacketReceived packetReceived) {
-    return new RawPacketBuilder().setIngress(packetReceived.getIngress()).setPayload(packetReceived.getPayload()).build();
+  public NotificationListener getConsumedNotificationListener() {
+    return this;
   }
 }
