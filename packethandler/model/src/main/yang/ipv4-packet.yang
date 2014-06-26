@@ -1,0 +1,228 @@
+module ipv4-packet {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:ipv4";
+  prefix ipv4;
+
+  import base-packet {
+    prefix bpacket;
+    revision-date 2014-05-28;
+  }
+
+  import ethernet-packet {
+    prefix ethernet;
+    revision-date 2014-05-28;
+  }
+
+  revision 2014-05-28 {
+    description
+      "IPv4 packet module draft.";
+  }
+
+  typedef known-ip-protocols {
+    type enumeration {
+      enum "hopopt" {
+        value 0;
+        description "IPv6 Hop-by-Hop Option";
+      }
+      enum "icmp" {
+        value 1;
+        description "Internet Control Message Protocol";
+      }
+      enum "igmp" {
+        value 2;
+        description "Internet Group Management Protocol";
+      }
+      enum "ggp" {
+        value 3;
+        description "Gateway-to-Gateway Protocol";
+      }
+      enum "ip-in-ip" {
+        value 4;
+        description "IP-in-IP Encapsulation";
+      }
+      enum "st" {
+        value 5;
+        description "Internet Stream Protocol";
+      }
+      enum "tcp" {
+        value 6;
+        description "Transmisson Control Protocol";
+      }
+      enum "cbt" {
+        value 7;
+        description "Core-based trees";
+      }
+      enum "egp" {
+        value 8;
+        description "Exterior Gateway Protocol";
+      }
+      enum "igp" {
+        value 9;
+        description "Interior Gateway Protocol";
+      }
+      enum "nvp" {
+        value 11;
+        description "Network Voice Protocol";
+      }
+      enum "udp" {
+        value 17;
+        description "User Datagram Protocol";
+      }
+      enum "hmp" {
+        value 20;
+        description "Host Monitoring Protocol";
+      }
+      enum "rdp" {
+        value 27;
+        description "Reliable Datagram Protocol";
+      }
+      enum "dccp" {
+        value 33;
+        description "Datagram Congestion Control Protocol";
+      }
+      enum "encap" {
+        value 41;
+        description "IPv6 Encapsulation";
+      }
+      enum "ipv6-route" {
+        value 43;
+        description "IPv6 Routing Header";
+      }
+      enum "ipv6-frag" {
+        value 44;
+        description "IPv6 Fragment Header";
+      }
+      enum "rsvp" {
+        value 46;
+        description "Resource Reservation Protocol";
+      }
+      enum "gre" {
+        value 47;
+        description "Generic Routing Encapsulation";
+      }
+      enum "esp" {
+        value 50;
+        description "Encapsulating Security Payload";
+      }
+      enum "ah" {
+        value 51;
+        description "Authentication Header";
+      }
+      enum "ipv6-icmp" {
+        value 58;
+        description "IPv6 ICMP";
+      }
+      enum "ipv6-no-next" {
+        value 59;
+        description "IPv6 No Next Header";
+      }
+      enum "ipv6-opts" {
+        value 60;
+        description "IPv6 Destination Options";
+      }
+      enum "ospf" {
+        value 89;
+        description "Open Shortest Path First";
+      }
+      enum "sctp" {
+        value 132;
+        description "Stream Control Transmission Protocol";
+      }
+    }
+  }
+
+  grouping ipv4-packet-fields {
+    leaf version {
+      type uint8;
+    }
+
+    leaf ihl {
+      type uint8;
+      description "Internal Header Length";
+    }
+
+    leaf dscp {
+      type uint8;
+      description "Differentiated Code Services Point";
+    }
+
+    leaf ecn {
+      type uint8;
+      description "Explicit Congestion Notification";
+    }
+
+    leaf ipv4-length {
+      type uint16;
+      description "Packet size, including header and data, in bytes";
+    }
+
+    leaf id {
+      type uint16;
+      description "Identification";
+    }
+
+    leaf reserved-flag {
+      type boolean;
+      description "First bit in the flags, must be 0";
+    }
+
+    leaf df-flag {
+      type boolean;
+      description "Second bit in the flags, Don't Fragment Flag";
+    }
+
+    leaf mf-flag {
+      type boolean;
+      description "Third bit in the flags, More Fragments Flag";
+    }
+
+    leaf fragment-offset {
+      type uint16;
+      description "Specifies the offset of a particular fragment relative to the beginning of the original unfragmented IP datagram";
+    }
+
+    leaf ttl {
+      type uint8;
+      description "Time to live";
+    }
+
+    leaf protocol {
+      type known-ip-protocols;
+      description "Protocol for the data";
+    }
+
+    leaf checksum {
+      type uint16;
+      description "Header Checksum";
+    }
+
+    leaf source-ipv4 {
+      type string;
+    }
+
+    leaf destination-ipv4 {
+      type string;
+    }
+
+    leaf ipv4-options {
+      type binary;
+    }
+
+
+    uses bpacket:packet-fields;
+  }
+
+  grouping ipv4-packet-over-ethernet-fields {
+    container ipv4-packet {
+      uses ipv4-packet-fields;
+    }
+    container ethernet-over-raw-packet {
+     uses ethernet:ethernet-packet-over-raw-fields;
+    }
+  }
+
+  notification ipv4-packet-over-ethernet-received {
+    uses bpacket:packet-payload;
+    uses ipv4-packet-over-ethernet-fields;
+  }
+}

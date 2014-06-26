@@ -59,44 +59,10 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>org.opendaylight.l2switch.packethandler.decoders,org.opendaylight.yang.gen.v1.urn.opendaylight.packetdecoder.config.rev140528,</Export-Package>
+            <Export-Package>org.opendaylight.l2switch.packethandler.decoders,</Export-Package>
             <Import-Package>*</Import-Package>
           </instructions>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.opendaylight.yangtools</groupId>
-        <artifactId>yang-maven-plugin</artifactId>
-        <version>${yangtools.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate-sources</goal>
-            </goals>
-            <configuration>
-              <codeGenerators>
-                <generator>
-                  <codeGeneratorClass>org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
-                  </codeGeneratorClass>
-                  <outputBaseDir>${configCodeGeneratorPath}</outputBaseDir>
-                  <additionalConfiguration>
-                    <namespaceToPackage1>
-                      urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
-                    </namespaceToPackage1>
-                  </additionalConfiguration>
-                </generator>
-              </codeGenerators>
-              <inspectDependencies>true</inspectDependencies>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>yang-jmx-generator-plugin</artifactId>
-            <version>${config.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>

@@ -7,13 +7,13 @@
  */
 package org.opendaylight.l2switch.packethandler;
 
+import com.google.common.collect.ImmutableSet;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
-import org.opendaylight.l2switch.packethandler.decoders.*;
-import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
 
   private final static Logger _logger = LoggerFactory.getLogger(PacketHandlerProvider.class);
 
-  private Registration<NotificationListener> rawPacketListenerRegistration;
+  ImmutableSet<AbstractPacketDecoder> decoders;
 
 
   /**
@@ -35,23 +35,12 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
    */
   @Override
   public void onSessionInitiated(BindingAwareBroker.ProviderContext providerContext) {
-    DataBrokerService dataService = providerContext.<DataBrokerService>getSALService(DataBrokerService.class);
 
     NotificationProviderService notificationProviderService =
         providerContext.<NotificationProviderService>getSALService(NotificationProviderService.class);
 
-    DecoderRegistry decoderRegistry = new DecoderRegistry();
+    initiateDecoders(notificationProviderService);
 
-    PacketNotificationRegistry packetNotificationRegistry = new PacketNotificationRegistry();
-    notificationProviderService.registerInterestListener(packetNotificationRegistry);
-
-    PacketDecoderService packetDecoderService = new PacketDecoderServiceImpl(decoderRegistry, packetNotificationRegistry);
-
-    RawPacketHandler rawPacketHandler = new RawPacketHandler();
-    rawPacketHandler.setNotificationProviderService(notificationProviderService);
-    rawPacketHandler.setDecoderRegistry(decoderRegistry);
-    rawPacketHandler.setPacketNotificationRegistry(packetNotificationRegistry);
-    this.rawPacketListenerRegistration = notificationProviderService.registerNotificationListener(rawPacketHandler);
   }
 
   /**
@@ -61,7 +50,21 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
    */
   @Override
   public void close() throws Exception {
-    if(rawPacketListenerRegistration != null)
-      rawPacketListenerRegistration.close();
+    closeDecoders();
+  }
+
+  private void initiateDecoders(NotificationProviderService notificationProviderService) {
+    decoders = new ImmutableSet.Builder<AbstractPacketDecoder>()
+        .add(new EthernetDecoder(notificationProviderService))
+        .add(new ArpDecoder(notificationProviderService))
+        .build();
+  }
+
+  private void closeDecoders() throws Exception {
+    if(decoders != null && !decoders.isEmpty()) {
+      for(AbstractPacketDecoder decoder : decoders) {
+        decoder.close();
+      }
+    }
   }
 }
