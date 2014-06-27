@@ -20,6 +20,7 @@
     <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
     <ietf-yang-types.version>2010.09.24.4-SNAPSHOT</ietf-yang-types.version>
     <sal.version>0.8.1-SNAPSHOT</sal.version>
+    <jung2.version>2.0.1</jung2.version>
     <config.version>0.2.5-SNAPSHOT</config.version>
   </properties>
 
@@ -52,6 +53,11 @@
         <version>${mdsal.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.opendaylight.controller.model</groupId>
+        <artifactId>model-topology</artifactId>
+        <version>${mdsal.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.opendaylight.yangtools</groupId>
         <artifactId>yang-binding</artifactId>
         <version>${yangtools.version}</version>
@@ -70,6 +76,11 @@
         <groupId>org.opendaylight.controller.model</groupId>
         <artifactId>model-flow-service</artifactId>
         <version>${mdsal.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.controller.thirdparty</groupId>
+        <artifactId>net.sf.jung2</artifactId>
+        <version>${jung2.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
