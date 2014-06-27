@@ -3,6 +3,11 @@ module ipv4-packet {
   namespace "urn:opendaylight:packet:ipv4";
   prefix ipv4;
 
+  import ietf-inet-types {
+    prefix inet;
+    revision-date 2010-09-24;
+  }
+
   import base-packet {
     prefix bpacket;
     revision-date 2014-05-28;
@@ -197,11 +202,11 @@ module ipv4-packet {
     }
 
     leaf source-ipv4 {
-      type string;
+      type inet:ipv4-address;
     }
 
     leaf destination-ipv4 {
-      type string;
+      type inet:ipv4-address;
     }
 
     leaf ipv4-options {
