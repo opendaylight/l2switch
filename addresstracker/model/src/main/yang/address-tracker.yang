@@ -42,9 +42,13 @@ module address-tracker {
         type uint16;
         description "VLAN id";
       }
-      leaf timestamp {
+      leaf first-seen {
         type yang:timestamp;
-        description "Timestamp of observing this address";
+        description "Timestamp of observing this address for the first time";
+      }
+      leaf last-seen {
+        type yang:timestamp;
+        description "The most recent timestamp of observing this address";
       }
     }
   }
