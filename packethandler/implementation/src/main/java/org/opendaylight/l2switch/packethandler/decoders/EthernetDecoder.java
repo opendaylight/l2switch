@@ -1,14 +1,24 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import com.google.common.collect.ImmutableSet;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceivedBuilder;
+import org.opendaylight.controller.sal.packet.BitBufferHelper;
+import org.opendaylight.controller.sal.packet.BufferException;
+import org.opendaylight.controller.sal.utils.HexEncode;
+import org.opendaylight.controller.sal.utils.NetUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.raw.packet.fields.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021q;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021qBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.EthernetPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 /**
  * Ethernet Packet Decoder
@@ -40,14 +50,13 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
   public EthernetPacketOverRawReceived decode(PacketReceived packetReceived) {
     byte[] data = packetReceived.getPayload();
     EthernetPacketOverRawReceivedBuilder builder = new EthernetPacketOverRawReceivedBuilder();
-    /*
+
     try {
-      // Save original rawPacket
-      builder.setRawPacket(new RawPacketBuilder().setIngress(packetReceived.getIngress()).setPayload(data).build());
+      EthernetPacketBuilder epBuilder = new EthernetPacketBuilder();
 
       // Deserialize the destination & source fields
-      builder.setDestinationMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
-      builder.setSourceMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
+      epBuilder.setDestinationMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
+      epBuilder.setSourceMac(new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
 
       // Deserialize the optional field 802.1Q headers
       Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
@@ -55,7 +64,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
       ArrayList<Header8021q> headerList = new ArrayList<Header8021q>();
       while(nextField.equals(ETHERTYPE_8021Q) || nextField.equals(ETHERTYPE_QINQ)) {
         Header8021qBuilder hBuilder = new Header8021qBuilder();
-        hBuilder.setType(Header8021qType.forValue(nextField));
+        hBuilder.setTPID(Header8021qType.forValue(nextField));
 
         // Read 2 more bytes for priority (3bits), drop eligible (1bit), vlan-id (12bits)
         byte[] vlanBytes = BitBufferHelper.getBits(data, 112 + extraHeaderBits, 16);
@@ -68,7 +77,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
         // Remove priority code & drop-eligible bits, to get the VLAN-id
         vlanBytes[0] = (byte) (vlanBytes[0] & 0x0F);
-        hBuilder.setVlan(BitBufferHelper.getInt(vlanBytes));
+        hBuilder.setVlan(new VlanId(BitBufferHelper.getInt(vlanBytes)));
 
         // Add 802.1Q header to the growing collection
         headerList.add(hBuilder.build());
@@ -81,37 +90,44 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
       }
       // Set 802.1Q headers
       if(!headerList.isEmpty()) {
-        builder.setHeader8021q(headerList);
+        epBuilder.setHeader8021q(headerList);
       }
 
       // Deserialize the EtherType or Length field
       if(nextField >= ETHERTYPE_MIN) {
-        builder.setEthertype(KnownEtherType.forValue(nextField));
+        epBuilder.setEthertype(KnownEtherType.forValue(nextField));
       } else if(nextField <= LENGTH_MAX) {
-        builder.setEthernetLength(nextField);
+        epBuilder.setEthernetLength(nextField);
       } else {
         _logger.debug("Undefined header, value is not valid EtherType or length.  Value is " + nextField);
       }
 
-      // Deserialize the payload now
-      int payloadStart = 96 + 16 + extraHeaderBits;
-      int payloadSize = data.length * NetUtils.NumBitsInAByte - payloadStart;
-      int start = payloadStart / NetUtils.NumBitsInAByte;
-      int stop = start + payloadSize / NetUtils.NumBitsInAByte;
-      builder.setEthernetPayload(Arrays.copyOfRange(data, start, stop));
+      // Determine start & end of payload
+      int payloadStart = ( 112 + extraHeaderBits) / NetUtils.NumBitsInAByte;
+      int payloadEnd = data.length - 4;
 
-      if(null != builder.getEthertype()) {
-        builder.setPacketPayloadType(new PacketPayloadTypeBuilder()
-            .setPacketType(PacketType.Ethernet)
-            .setPayloadType(builder.getEthertype().getIntValue())
-            .build());
-      }
+      // Deserialize the CRC
+      epBuilder.setCrc(BitBufferHelper.getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NumBitsInAByte, 32)));
 
+
+      builder.setEthernetPacket(epBuilder.build());
+
+      // Save original rawPacket & original payload
+      builder.setPayload(data);
+      builder.setRawPacket(new RawPacketBuilder()
+        .setIngress(packetReceived.getIngress())
+        .setConnectionCookie(packetReceived.getConnectionCookie())
+        .setFlowCookie(packetReceived.getFlowCookie())
+        .setTableId(packetReceived.getTableId())
+        .setPacketInReason(packetReceived.getPacketInReason())
+        .setMatch(new MatchBuilder(packetReceived.getMatch()).build())
+        .setPayloadOffset(payloadStart)
+        .setPayloadLength(payloadEnd - payloadStart)
+        .build());
     } catch(BufferException be) {
       _logger.info("Exception during decoding raw packet to ethernet.");
     }
 
-*/
     //ToDo:  Possibly log these values
       /*if (_logger.isTraceEnabled()) {
         _logger.trace("{}: {}: {} (offset {} bitsize {})",
@@ -130,9 +146,6 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
   @Override
   public boolean canDecode(PacketReceived packetReceived) {
-    if(packetReceived==null || packetReceived.getPayload()==null)
-      return false;
-
-    return true;
+    return packetReceived != null && packetReceived.getPayload() != null;
   }
 }

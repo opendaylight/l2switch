@@ -18,10 +18,15 @@ module ethernet-packet {
 
   revision 2014-05-28 {
     description
-      "Ethernet packet module draft.";
+      "Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+      This program and the accompanying materials are made available under the
+      terms of the Eclipse Public License v1.0 which accompanies this distribution,
+      and is available at http://www.eclipse.org/legal/epl-v10.html
+
+      This module contains a YANG definition of the	Ethernet protocol.";
   }
 
-  /* Taken from opendaylight-l2-types.yang, but it is commented out there -- will import once uncommented */
+  /* Based on opendaylight-l2-types.yang, which needs to be fixed -- will import once that is done */
   typedef known-ether-type {
     type enumeration {
       enum "ipv4" {
@@ -199,6 +204,12 @@ module ethernet-packet {
     }
   }
 
+  typedef vlan-id {
+    type uint16 {
+      range "0..4095";
+    }
+  }
+
   typedef header8021q-type {
     type enumeration {
       enum "vlan-tagged" {
@@ -213,30 +224,38 @@ module ethernet-packet {
   }
 
   grouping header8021q {
-    leaf type {
+    leaf TPID {
       type header8021q-type;
+      mandatory true;
     }
 
     leaf priority-code {
-      type int16;
+      type uint8 {
+        range "0..7";
+      }
+      mandatory true;
     }
 
     leaf drop-eligible {
       type boolean;
+      mandatory true;
     }
 
     leaf vlan {
-      type int32;
+      type vlan-id;
+      mandatory true;
     }
   }
 
   grouping ethernet-packet-fields {
     leaf source-mac {
       type yang:mac-address;
+      mandatory true;
     }
 
     leaf destination-mac {
       type yang:mac-address;
+      mandatory true;
     }
 
     list header8021q {
@@ -248,8 +267,14 @@ module ethernet-packet {
     }
 
     leaf ethernet-length {
-      type int32;
+      type uint16;
+      //Note: Length of Frame may be reported by a driver, but it is not strictly part of the protocol except for 802.3
     }
+
+    leaf crc {
+      type uint32;
+    }
+
     uses bpacket:packet-fields;
   }
 
@@ -263,7 +288,7 @@ module ethernet-packet {
   }
 
   notification ethernet-packet-over-raw-received {
-    uses bpacket:packet-payload;
-    uses ethernet-packet-over-raw-fields;
+    uses bpacket:packet-payload; //setPayload
+    uses ethernet-packet-over-raw-fields; //set rawpacket & set ethernet-packet
   }
 }
