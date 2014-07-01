@@ -4,6 +4,7 @@ import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.HexEncode;
+import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
@@ -41,29 +42,29 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketOverRawRecei
     ArpPacketOverEthernetReceivedBuilder arpReceivedBuilder = new ArpPacketOverEthernetReceivedBuilder();
 
     byte[] data = ethernetPacketOverRawReceived.getPayload();
-    int offset = ethernetPacketOverRawReceived.getEthernetPacket().getPayloadOffset();
+    int bitOffset = ethernetPacketOverRawReceived.getEthernetPacket().getPayloadOffset() * NetUtils.NumBitsInAByte;
 
     ArpPacketBuilder builder = new ArpPacketBuilder();
 
     try {
       // Decode the hardware-type (HTYPE) and protocol-type (PTYPE) fields
-      builder.setHardwareType(KnownHardwareType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, offset + 0, 16))));
-      builder.setProtocolType(KnownEtherType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, offset+16, 16))));
+      builder.setHardwareType(KnownHardwareType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 0, 16))));
+      builder.setProtocolType(KnownEtherType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset+16, 16))));
 
       // Decode the hardware-length and protocol-length fields
-      builder.setHardwareLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, offset+32, 8)));
-      builder.setProtocolLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, offset+40, 8)));
+      builder.setHardwareLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset+32, 8)));
+      builder.setProtocolLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset+40, 8)));
 
       // Decode the operation field
-      builder.setOperation(KnownOperation.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, offset+48, 16))));
+      builder.setOperation(KnownOperation.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset+48, 16))));
 
       // Decode the address fields
       int indexSrcProtAdd = 64 + 8 * builder.getHardwareLength();
       int indexDstHardAdd = indexSrcProtAdd + 8 * builder.getProtocolLength();
       int indexDstProtAdd = indexDstHardAdd + 8 * builder.getHardwareLength();
       if(builder.getHardwareType().equals(KnownHardwareType.Ethernet)) {
-        builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, offset + 64, 8 * builder.getHardwareLength())));
-        builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, offset+indexDstHardAdd, 8 * builder.getHardwareLength())));
+        builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset + 64, 8 * builder.getHardwareLength())));
+        builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, bitOffset+indexDstHardAdd, 8 * builder.getHardwareLength())));
       } else {
         _logger.debug("Unknown HardwareType -- sourceHardwareAddress and destinationHardwareAddress are not decoded");
       }
