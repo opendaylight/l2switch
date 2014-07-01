@@ -127,4 +127,12 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
   public NotificationListener getConsumedNotificationListener() {
     return this;
   }
+
+  @Override
+  public boolean canDecode(PacketReceived packetReceived) {
+    if(packetReceived==null || packetReceived.getPayload()==null)
+      return false;
+
+    return true;
+  }
 }

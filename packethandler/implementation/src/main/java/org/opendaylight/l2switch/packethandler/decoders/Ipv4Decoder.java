@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketOverEthernetReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketOverEthernetReceivedBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
@@ -100,5 +101,13 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketOverRawRece
   @Override
   public void onEthernetPacketOverRawReceived(EthernetPacketOverRawReceived notification) {
     decodeAndPublish(notification);
+  }
+
+  @Override
+  public boolean canDecode(EthernetPacketOverRawReceived ethernetPacketOverRawReceived) {
+    if(ethernetPacketOverRawReceived==null || ethernetPacketOverRawReceived.getEthernetPacket()==null)
+      return false;
+
+    return KnownEtherType.Ipv4.equals(ethernetPacketOverRawReceived.getEthernetPacket().getEthertype());
   }
 }

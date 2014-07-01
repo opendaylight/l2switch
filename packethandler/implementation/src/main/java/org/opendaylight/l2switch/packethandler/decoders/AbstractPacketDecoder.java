@@ -53,7 +53,10 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
    * on successful decoding.
    */
   public void decodeAndPublish(ConsumedPacketNotification consumedPacketNotification) {
-    ProducedPacketNotification packetNotification = decode(consumedPacketNotification);
+    ProducedPacketNotification packetNotification=null;
+    if(consumedPacketNotification!= null && canDecode(consumedPacketNotification)) {
+      packetNotification = decode(consumedPacketNotification);
+    }
     if(packetNotification != null) {
       notificationProviderService.publish(packetNotification);
     }
@@ -68,6 +71,8 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
 
 
   public abstract NotificationListener getConsumedNotificationListener();
+
+  public abstract boolean canDecode(ConsumedPacketNotification consumedPacketNotification);
 
 
   @Override
