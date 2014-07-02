@@ -61,7 +61,9 @@
           <instructions>
             <Export-Package>org.opendaylight.l2switch.packethandler.decoders,</Export-Package>
             <Import-Package>*</Import-Package>
+            <Bundle-Activator>org.opendaylight.l2switch.packethandler.PacketHandlerProvider</Bundle-Activator>
           </instructions>
+          <manifestLocation>${project.build.directory}/META-INF</manifestLocation>
         </configuration>
       </plugin>
     </plugins>
