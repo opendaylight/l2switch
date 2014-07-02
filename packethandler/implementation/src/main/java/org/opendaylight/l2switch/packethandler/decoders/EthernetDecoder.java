@@ -51,6 +51,18 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     byte[] data = packetReceived.getPayload();
     EthernetPacketOverRawReceivedBuilder builder = new EthernetPacketOverRawReceivedBuilder();
 
+    // Save original rawPacket & set the payloadOffset/payloadLength fields
+    builder.setRawPacket(new RawPacketBuilder()
+      .setIngress(packetReceived.getIngress())
+      .setConnectionCookie(packetReceived.getConnectionCookie())
+      .setFlowCookie(packetReceived.getFlowCookie())
+      .setTableId(packetReceived.getTableId())
+      .setPacketInReason(packetReceived.getPacketInReason())
+      .setMatch(new MatchBuilder(packetReceived.getMatch()).build())
+      .setPayloadOffset(0)
+      .setPayloadLength(data.length)
+      .build());
+
     try {
       EthernetPacketBuilder epBuilder = new EthernetPacketBuilder();
 
@@ -105,6 +117,8 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
       // Determine start & end of payload
       int payloadStart = ( 112 + extraHeaderBits) / NetUtils.NumBitsInAByte;
       int payloadEnd = data.length - 4;
+      epBuilder.setPayloadOffset(payloadStart);
+      epBuilder.setPayloadLength(payloadEnd-payloadStart);
 
       // Deserialize the CRC
       epBuilder.setCrc(BitBufferHelper.getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NumBitsInAByte, 32)));
@@ -114,18 +128,6 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
       // Set Payload field
       builder.setPayload(data);
-
-      // Save original rawPacket & set the payloadOffset/payloadLength fields
-      builder.setRawPacket(new RawPacketBuilder()
-        .setIngress(packetReceived.getIngress())
-        .setConnectionCookie(packetReceived.getConnectionCookie())
-        .setFlowCookie(packetReceived.getFlowCookie())
-        .setTableId(packetReceived.getTableId())
-        .setPacketInReason(packetReceived.getPacketInReason())
-        .setMatch(new MatchBuilder(packetReceived.getMatch()).build())
-        .setPayloadOffset(payloadStart)
-        .setPayloadLength(payloadEnd - payloadStart)
-        .build());
     } catch(BufferException be) {
       _logger.info("Exception during decoding raw packet to ethernet.");
     }

@@ -40,8 +40,8 @@ public class EthernetDecoderTest {
     assertNull(notification.getEthernetPacket().getHeader8021q());
     assertEquals(notification.getEthernetPacket().getDestinationMac().getValue(), "01:23:45:67:89:ab");
     assertEquals(notification.getEthernetPacket().getSourceMac().getValue(), "cd:ef:01:23:45:67");
-    assertEquals(14, notification.getRawPacket().getPayloadOffset().intValue());
-    assertEquals(14, notification.getRawPacket().getPayloadLength().intValue());
+    assertEquals(14, notification.getEthernetPacket().getPayloadOffset().intValue());
+    assertEquals(14, notification.getEthernetPacket().getPayloadLength().intValue());
     assertEquals(2566839482L, notification.getEthernetPacket().getCrc().longValue());
     assertTrue(Arrays.equals(packet, notification.getPayload()));
   }
