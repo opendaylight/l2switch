@@ -66,7 +66,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Bundle-Activator>org.opendaylight.l2switch.ipv6decoder.Ipv6DecoderProvider</Bundle-Activator>
+            <Bundle-Activator>org.opendaylight.l2switch.L2SwitchProvider</Bundle-Activator>
           </instructions>
           <manifestLocation>${project.build.directory}/META-INF</manifestLocation>
         </configuration>
