@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_54c2de34",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "can be renamed as AddressObservationWriter?\n\nBtw, Should this be RPC, that resides in AddressTracker/implementation?",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b4d00af7",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "missing documentation for ipaddress",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_54d97e20",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "use logger instead of SOPs?",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b4c9ea5a",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "You may observe either ip or mac so either could be null.",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_944146ab",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "need null check for addresses",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b43eca26",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addresstracker/AddressTracker.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "it would be good to do some refactoring so that you build the address only ones.\nRight about here, you should have figure out firstSeen, lastSeen timestamps, and list should be ready to add an element. \n\nAlso need to consider the cases if only IP or MAC is observed. \n\nAnd then you may get IP+MAC but the existing observation may have same MAC with null IP. So you would update IP and TimeStamp. Not sure if same is true for inverse case (i.e. for a MAC+IP you have entry that matches IP and MAC is null. Not sure if really possible.)",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d4810ec4",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/packet/PacketHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "I think this class should be part of AddressTracker package. no?",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_54473ebc",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/packet/PacketHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-02T22:14:10Z",
+      "side": 1,
+      "message": "can be renameD as AddressObserver?",
+      "revId": "031d8c65917ae37f81dfd707512fbfd9830bd651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
