@@ -15,6 +15,7 @@ import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
 import org.opendaylight.l2switch.addressobserver.AddressObserver;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
+import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.l2switch.topology.NetworkGraphDijkstra;
 import org.opendaylight.l2switch.topology.NetworkGraphService;
@@ -54,6 +55,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     PacketProcessingService packetProcessingService =
       consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
     PacketDispatcher packetDispatcher = new PacketDispatcher();
+    packetDispatcher.setInventoryReader(new InventoryReader(dataService));
     packetDispatcher.setPacketProcessingService(packetProcessingService);
     packetDispatcher.setFlowWriterService(flowWriterService);
 

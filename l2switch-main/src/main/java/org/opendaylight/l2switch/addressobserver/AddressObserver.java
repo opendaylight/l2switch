@@ -41,7 +41,8 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
     addressObservationWriter.addAddress(packetReceived.getEthernetOverRawPacket().getEthernetPacket().getSourceMac(),
       new IpAddress(packetReceived.getArpPacket().getSourceProtocolAddress().toCharArray()),
       packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
-    //SendPacketOut
+
+    //packetDispatcher.sendPacketOut(packetReceived.getPayload(), packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
   }
 
   /**
