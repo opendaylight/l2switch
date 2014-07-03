@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -52,10 +53,6 @@ public class AddressTracker {
    * @param nodeConnectorRef  The NodeConnectorRef of the new L2Address object
    */
   public void addAddress(MacAddress macAddress, IpAddress ipAddress, NodeConnectorRef nodeConnectorRef) {
-    System.out.println("====");
-    System.out.println(macAddress);
-    System.out.println(ipAddress);
-    System.out.println(nodeConnectorRef);
     if(macAddress == null || ipAddress == null || nodeConnectorRef == null) {
       return;
     }
@@ -67,7 +64,7 @@ public class AddressTracker {
     AddressCapableNodeConnector acnc = (AddressCapableNodeConnector)nc.getAugmentation(AddressCapableNodeConnector.class);
 
     // Address observations exist
-    if (acnc != null) {
+    if (acnc != null  &&  acnc.getAddresses() != null) {
       List<Addresses> addresses = acnc.getAddresses();
       // Search for this mac-ip pair in the existing address observations & update last-seen timestamp
       for (int i = 0; i < addresses.size(); i++) {
@@ -103,6 +100,7 @@ public class AddressTracker {
         .setIp(ipAddress)
         .setFirstSeen(now)
         .setLastSeen(now)
+        .setKey(new AddressesKey(now))
         .build());
       builder.setAddresses(addresses);
 
@@ -115,17 +113,5 @@ public class AddressTracker {
     final DataModificationTransaction it = dataService.beginTransaction();
     it.putOperationalData(nodeConnectorRef.getValue(), ncBuilder.build());
     it.commit();
-
-    /*InstanceIdentifier<?> path = InstanceIdentifier.<Nodes>builder(Nodes.class)
-      .<Node, NodeKey>child(Node.class, new NodeKey(new NodeId("openflow:-1")))
-      .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("openflow:-1:-1"))).toInstance();
-    final DataModificationTransaction it = dataService.beginTransaction();
-    it.putOperationalData(path, ncBuilder.build());
-    it.commit();
-    //System.out.println(it);
-    //NodeConnector nc2 = (NodeConnector)dataService.readOperationalData(path);
-    //System.out.println(nc2);
-    */
-
   }
 }

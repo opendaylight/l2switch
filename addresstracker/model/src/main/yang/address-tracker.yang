@@ -30,6 +30,7 @@ module address-tracker {
 
   grouping address-node-connector {
     list addresses {
+      key "first-seen";
       leaf mac {
         type yang:mac-address;
         description "MAC address";
