@@ -11,10 +11,11 @@ import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
-import org.opendaylight.l2switch.addresstracker.AddressTracker;
+import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
+import org.opendaylight.l2switch.addressobserver.AddressObserver;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
-import org.opendaylight.l2switch.packet.PacketHandler;
+import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.l2switch.topology.NetworkGraphDijkstra;
 import org.opendaylight.l2switch.topology.NetworkGraphService;
 import org.opendaylight.l2switch.topology.TopologyLinkDataChangeHandler;
@@ -40,30 +41,29 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
    */
   @Override
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
-    // Setup AddressTracker
-    DataBrokerService dataService = consumerContext.<DataBrokerService>getSALService(DataBrokerService.class);
-    AddressTracker addressTracker = new AddressTracker(dataService);
-
     // Setup FlowWriterService
+    DataBrokerService dataService = consumerContext.<DataBrokerService>getSALService(DataBrokerService.class);
     NetworkGraphService networkGraphService = new NetworkGraphDijkstra();
     FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService, networkGraphService);
-
-    // Setup PacketHandler
-    PacketProcessingService packetProcessingService =
-      consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
-    PacketHandler packetHandler = new PacketHandler();
-    packetHandler.setAddressTracker(addressTracker);
-    packetHandler.setPacketProcessingService(packetProcessingService);
-    packetHandler.setFlowWriterService(flowWriterService);
-
-    // Register PacketHandler for notifications
-    NotificationService notificationService =
-      consumerContext.<NotificationService>getSALService(NotificationService.class);
-    this.listenerRegistration = notificationService.registerNotificationListener(packetHandler);
 
     // Register Topology DataChangeListener
     this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
     topologyLinkDataChangeHandler.registerAsDataChangeListener();
+
+    // Setup PacketDispatcher
+    PacketProcessingService packetProcessingService =
+      consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
+    PacketDispatcher packetDispatcher = new PacketDispatcher();
+    packetDispatcher.setPacketProcessingService(packetProcessingService);
+    packetDispatcher.setFlowWriterService(flowWriterService);
+
+    // Setup AddressObserver & AddressObservationWriter
+    AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
+    AddressObserver addressObserver = new AddressObserver(addressObservationWriter, packetDispatcher);
+
+    // Register AddressObserver for notifications
+    NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
+    this.listenerRegistration = notificationService.registerNotificationListener(addressObserver);
   }
 
   /**
