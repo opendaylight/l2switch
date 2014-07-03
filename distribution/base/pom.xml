@@ -46,6 +46,20 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- address tracker -->
+    <dependency>
+      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+      <artifactId>addresstracker-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- l2switch main -->
+    <dependency>
+      <groupId>org.opendaylight.l2switch.main</groupId>
+      <artifactId>main-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
