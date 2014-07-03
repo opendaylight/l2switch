@@ -48,8 +48,17 @@ public class AddressObservationWriter {
     if(macAddress == null || ipAddress == null || nodeConnectorRef == null) {
       return;
     }
+
+    // Initialize builders
     long now = new Date().getTime();
-    NodeConnectorBuilder ncBuilder = null;
+    final AddressCapableNodeConnectorBuilder acncBuilder = new AddressCapableNodeConnectorBuilder();
+    final AddressesBuilder addressBuilder = new AddressesBuilder()
+      .setIp(ipAddress)
+      .setMac(macAddress)
+      .setFirstSeen(now)
+      .setLastSeen(now)
+      .setKey(new AddressesKey(now));
+    List<Addresses> addresses = null;
 
     // Read existing address observations from data tree
     NodeConnector nc = (NodeConnector)dataService.readOperationalData(nodeConnectorRef.getValue());
@@ -57,49 +66,28 @@ public class AddressObservationWriter {
 
     // Address observations exist
     if (acnc != null  &&  acnc.getAddresses() != null) {
-      List<Addresses> addresses = acnc.getAddresses();
       // Search for this mac-ip pair in the existing address observations & update last-seen timestamp
+      addresses = acnc.getAddresses();
       for (int i = 0; i < addresses.size(); i++) {
         if (addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
-          addresses.add(new AddressesBuilder()
-            .setIp(ipAddress)
-            .setMac(macAddress)
-            .setFirstSeen(addresses.get(i).getFirstSeen())
-            .setLastSeen(now)
-            .build());
+          addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
+            .setKey(addresses.get(i).getKey());
           addresses.remove(i);
-          return;
+          break;
         }
       }
-
-      // This mac-ip pair is not part of the list, so add it to the end of the list
-      addresses.add(new AddressesBuilder()
-        .setMac(macAddress)
-        .setIp(ipAddress)
-        .setFirstSeen(now)
-        .setLastSeen(now)
-        .build());
-
-      ncBuilder = new NodeConnectorBuilder(nc).setKey(nc.getKey());
     }
     // Address observations don't exist, so create the list
     else {
-      // Create AddressCapableNodeConnector
-      final AddressCapableNodeConnectorBuilder builder = new AddressCapableNodeConnectorBuilder();
-      ArrayList<Addresses> addresses = new ArrayList<>();
-      addresses.add(new AddressesBuilder()
-        .setMac(macAddress)
-        .setIp(ipAddress)
-        .setFirstSeen(now)
-        .setLastSeen(now)
-        .setKey(new AddressesKey(now))
-        .build());
-      builder.setAddresses(addresses);
-
-      // Add as an augmentation
-      ncBuilder = new NodeConnectorBuilder(nc).setKey(nc.getKey())
-        .addAugmentation(AddressCapableNodeConnector.class, builder.build());
+      addresses = new ArrayList<>();
     }
+
+    // Add as an augmentation
+    addresses.add(addressBuilder.build());
+    acncBuilder.setAddresses(addresses);
+    NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder(nc)
+      .setKey(nc.getKey())
+      .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
 
     // Update this NodeConnector in the MD-SAL data tree
     final DataModificationTransaction it = dataService.beginTransaction();
