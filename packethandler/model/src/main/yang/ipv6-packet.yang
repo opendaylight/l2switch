@@ -1,0 +1,107 @@
+module ipv6-packet {
+  yang-version 1;
+  namespace "urn:opendaylight:packet:ipv6";
+  prefix ipv6;
+
+  import ietf-inet-types {
+    prefix inet;
+    revision-date 2010-09-24;
+  }
+
+  import base-packet {
+    prefix bpacket;
+    revision-date 2014-05-28;
+  }
+
+  import ipv4-packet {
+    prefix ipv4;
+    revision-date 2014-05-28;
+  }
+
+  import ethernet-packet {
+    prefix ethernet;
+    revision-date 2014-05-28;
+  }
+
+  revision 2014-05-28 {
+    description
+      "IPv6 packet module draft.";
+  }
+
+  grouping ipv6-packet-fields {
+    leaf version {
+      type uint8;
+    }
+
+    leaf dscp {
+      type inet:dscp;
+      description "Differentiated Code Services Point";
+    }
+
+    leaf ecn {
+      type uint8;
+      description "Explicit Congestion Notification";
+    }
+
+    leaf flow-label {
+      type uint32;
+      description "Flow label";
+    }
+
+    leaf ipv6-length {
+      type uint16;
+      description "Payload size including any extension headers, in octets";
+    }
+
+    leaf next-header {
+      type ipv4:known-ip-protocols;
+      description "Type of the next header or Transport layer protocol used by the payload";
+    }
+
+    leaf hop-limit {
+      type uint8;
+      description "Hop Limit, the IPv6 version of Time to live";
+    }
+
+    leaf source-ipv6 {
+      type inet:ipv6-address;
+    }
+
+    leaf destination-ipv6 {
+      type inet:ipv6-address;
+    }
+
+    list extension-headers {
+      leaf type {
+        type ipv4:known-ip-protocols;
+        description "Type of this extension header";
+      }
+
+      leaf length {
+        type uint16;
+        description "Length of this extension header, in octets";
+      }
+
+      leaf data {
+        type binary;
+        description "Data for this extension header";
+      }
+    }
+
+    uses bpacket:packet-fields;
+  }
+
+  grouping ipv6-packet-over-ethernet-fields {
+    container ipv6-packet {
+      uses ipv6-packet-fields;
+    }
+    container ethernet-over-raw-packet {
+     uses ethernet:ethernet-packet-over-raw-fields;
+    }
+  }
+
+  notification ipv6-packet-over-ethernet-received {
+    uses bpacket:packet-payload;
+    uses ipv6-packet-over-ethernet-fields;
+  }
+}

@@ -58,6 +58,7 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
         .add(new EthernetDecoder(notificationProviderService))
         .add(new ArpDecoder(notificationProviderService))
         .build();
+    //ToDo: Add ipv4 and ipv6
   }
 
   private void closeDecoders() throws Exception {
