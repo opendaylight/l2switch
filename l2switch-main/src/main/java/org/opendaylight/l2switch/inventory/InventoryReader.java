@@ -64,6 +64,24 @@ public class InventoryReader {
     Nodes nodes = (Nodes)dataService.readOperationalData(nodesInsIdBuilder.toInstance());
     if (nodes != null) {
       for (Node node : nodes.getNode()) {
+        ArrayList<NodeConnectorRef> nodeConnectorRefs = new ArrayList<NodeConnectorRef>();
+        List<NodeConnector> nodeConnectors = node.getNodeConnector();
+        if (nodeConnectors != null) {
+          for (NodeConnector nodeConnector : nodeConnectors) {
+            NodeConnectorRef ncRef = new NodeConnectorRef(
+              InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
+
+            if (nodeConnector.getKey().toString().contains("LOCAL")) {
+              controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
+            }
+            else {
+              nodeConnectorRefs.add(ncRef);
+            }
+          }
+        }
+        switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
+        /*
         Node completeNode = (Node)dataService.readOperationalData(InstanceIdentifierUtils.createNodePath(node.getId()));
         ArrayList<NodeConnectorRef> nodeConnectors = new ArrayList<NodeConnectorRef>();
         for (NodeConnector nodeConnector : completeNode.getNodeConnector()) {
@@ -81,7 +99,10 @@ public class InventoryReader {
           }
         }
         switchNodeConnectors.put(node.getId().getValue(), nodeConnectors);
+        */
       }
+
+
     }
   }
 

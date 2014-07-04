@@ -13,6 +13,8 @@ import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.*;
@@ -58,9 +60,16 @@ public class PacketDispatcher  {
       }
     }
 
-    // Flood this packet from the original node
+    // Flood this packet from the original node, except for the ingress
     NodeConnectorRef pktIngress = inventoryReader.getControllerSwitchConnectors().get(nodeId);
     List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
+    for (NodeConnectorRef ncRef : nodeConnectors) {
+      if (ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue().equals(
+        ingress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
+        nodeConnectors.remove(ncRef);
+        break;
+      }
+    }
     for (NodeConnectorRef ncRef : nodeConnectors) {
       sendPacketOut(payload, pktIngress, ncRef);
     }
