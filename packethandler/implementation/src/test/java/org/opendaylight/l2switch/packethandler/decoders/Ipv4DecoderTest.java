@@ -7,46 +7,98 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Arrays;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.EthernetPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketOverEthernetReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
 public class Ipv4DecoderTest {
-  /*Ipv4Decoder ipv4Decoder = new Ipv4Decoder();
 
   @Test
   public void testDecode() throws Exception {
-    byte[] payload = {
-      0x45, // Version = 4,  IHL = 5
-      0x00, // DSCP =0, ECN = 0
-      0x00, 0x1E, // Total Length -- 30
-      0x01, 0x1E, // Identification -- 286
-      0x00, 0x00, // Flags = all off & Fragment offset = 0
-      0x12, 0x11, // TTL = 18, Protocol = UDP
-      0x00, 0x00, // Checksum = 0
-      (byte)0xc0, (byte)0xa8, 0x00, 0x01, // Src IP Address
-      0x01, 0x02, 0x03, 0x04, // Dest IP Address
-      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10 // Data
+
+    byte[] eth_payload = {
+          0x01, 0x23, 0x66, 0x67, (byte) 0x89, (byte) 0xab,
+          (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+          0x08, 0x00,
+          0x45, // Version = 4,  IHL = 5
+          0x00, // DSCP =0, ECN = 0
+          0x00, 0x1E, // Total Length -- 30
+          0x01, 0x1E, // Identification -- 286
+          0x00, 0x00, // Flags = all off & Fragment offset = 0
+          0x12, 0x11, // TTL = 18, Protocol = UDP
+          0x00, 0x00, // Checksum = 0
+          (byte)0xc0, (byte)0xa8, 0x00, 0x01, // Src IP Address
+          0x01, 0x02, 0x03, 0x04, // Dest IP Address
+          0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, // Data
+          (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba // CRC
     };
-    Ipv4Packet ipv4packet = (Ipv4Packet)ipv4Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(4, ipv4packet.getVersion().intValue());
-    assertEquals(5, ipv4packet.getIhl().intValue());
-    assertEquals(30, ipv4packet.getIpv4Length().intValue());
-    assertEquals(0, ipv4packet.getDscp().intValue());
-    assertEquals(0, ipv4packet.getEcn().intValue());
-    assertEquals(30, ipv4packet.getIpv4Length().intValue());
-    assertEquals(286, ipv4packet.getId().intValue());
-    assertFalse(ipv4packet.isReservedFlag());
-    assertFalse(ipv4packet.isDfFlag());
-    assertFalse(ipv4packet.isMfFlag());
-    assertEquals(0, ipv4packet.getFragmentOffset().intValue());
-    assertEquals(18, ipv4packet.getTtl().intValue());
-    assertEquals(KnownIpProtocols.Udp, ipv4packet.getProtocol());
-    assertEquals(0, ipv4packet.getChecksum().intValue());
-    assertEquals("192.168.0.1", ipv4packet.getSourceIpv4());
-    assertEquals("1.2.3.4", ipv4packet.getDestinationIpv4());
-    assertTrue(Arrays.equals(ipv4packet.getIpv4Payload(), Arrays.copyOfRange(payload, 20, payload.length)));
+
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    RawPacket rawPacket = Mockito.mock(RawPacket.class);
+    EthernetPacketBuilder ethernetPacketBuilder = new EthernetPacketBuilder();
+    ethernetPacketBuilder.setPayloadLength(30);
+    ethernetPacketBuilder.setPayloadOffset(14);
+
+    Ipv4PacketOverEthernetReceived notification = new Ipv4Decoder(npServiceMock).decode
+          (new EthernetPacketOverRawReceivedBuilder().setEthernetPacket(ethernetPacketBuilder.build())
+                  .setRawPacket(rawPacket)
+                  .setPayload(eth_payload)
+                  .build());
+
+    assertEquals(4, notification.getIpv4Packet().getVersion().intValue());
+    assertEquals(5, notification.getIpv4Packet().getIhl().intValue());
+    assertEquals(30, notification.getIpv4Packet().getIpv4Length().intValue());
+    assertEquals(0, notification.getIpv4Packet().getDscp().intValue());
+    assertEquals(0, notification.getIpv4Packet().getEcn().intValue());
+    assertEquals(30, notification.getIpv4Packet().getIpv4Length().intValue());
+    assertEquals(286, notification.getIpv4Packet().getId().intValue());
+    assertFalse(notification.getIpv4Packet().isReservedFlag());
+    assertFalse(notification.getIpv4Packet().isDfFlag());
+    assertFalse(notification.getIpv4Packet().isMfFlag());
+    assertEquals(0, notification.getIpv4Packet().getFragmentOffset().intValue());
+    assertEquals(18, notification.getIpv4Packet().getTtl().intValue());
+    assertEquals(KnownIpProtocols.Udp, notification.getIpv4Packet().getProtocol());
+    assertEquals(0, notification.getIpv4Packet().getChecksum().intValue());
+
+    Ipv4Address src_address = new Ipv4Address("192.168.0.1");
+    Ipv4Address dst_address = new Ipv4Address("1.2.3.4");
+    assertEquals(src_address, notification.getIpv4Packet().getSourceIpv4());
+    assertEquals(dst_address, notification.getIpv4Packet().getDestinationIpv4());
+
+    byte[] ipv4_payload = {
+          0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10
+    };
+    assertEquals(10, notification.getIpv4Packet().getPayloadLength().intValue());
+    assertEquals(34, notification.getIpv4Packet().getPayloadOffset().intValue());
+
+    int ipv4PayloadEnd = notification.getIpv4Packet().getPayloadOffset() +
+            notification.getIpv4Packet().getPayloadLength();
+    assertTrue(Arrays.equals(ipv4_payload, Arrays.copyOfRange(notification.getPayload(),
+            notification.getIpv4Packet().getPayloadOffset(), ipv4PayloadEnd)));
+
   }
+
 
   @Test
   public void testDecode_WithDiffServAndFlagsAndOffset() throws Exception {
-    byte[] payload = {
+
+   byte[] eth_payload = {
+      0x01, 0x23, 0x66, 0x67, (byte) 0x89, (byte) 0xab, //src mac
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67, //dst mac
+      (byte) 0x81, 0x00,
+      0x08, 0x00, // EtherType
       0x45, // Version = 4,  IHL = 5
       (byte)0xff, // DSCP =63, ECN = 3
       0x00, 0x1E, // Total Length -- 30
@@ -56,29 +108,53 @@ public class Ipv4DecoderTest {
       (byte)0x00, 0x00, // Checksum = 0
       (byte)0xc0, (byte)0xa8, 0x00, 0x01, // Src IP Address
       0x01, 0x02, 0x03, 0x04, // Dest IP Address
-      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10 // Data
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, // Data
+      (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba // CRC
     };
-    Ipv4Packet ipv4packet = (Ipv4Packet)ipv4Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(4, ipv4packet.getVersion().intValue());
-    assertEquals(5, ipv4packet.getIhl().intValue());
-    assertEquals(30, ipv4packet.getIpv4Length().intValue());
-    assertEquals(63, ipv4packet.getDscp().intValue());
-    assertEquals(3, ipv4packet.getEcn().intValue());
-    assertEquals(30, ipv4packet.getIpv4Length().intValue());
-    assertEquals(286, ipv4packet.getId().intValue());
-    assertTrue(ipv4packet.isReservedFlag());
-    assertTrue(ipv4packet.isDfFlag());
-    assertTrue(ipv4packet.isMfFlag());
-    assertEquals(4096, ipv4packet.getFragmentOffset().intValue());
-    assertEquals(18, ipv4packet.getTtl().intValue());
-    assertEquals(KnownIpProtocols.Tcp, ipv4packet.getProtocol());
-    assertEquals(0, ipv4packet.getChecksum().intValue());
-    assertEquals("192.168.0.1", ipv4packet.getSourceIpv4());
-    assertEquals("1.2.3.4", ipv4packet.getDestinationIpv4());
-    assertTrue(Arrays.equals(ipv4packet.getIpv4Payload(), Arrays.copyOfRange(payload, 20, payload.length)));
+
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    RawPacket rawPacket = Mockito.mock(RawPacket.class);
+    EthernetPacketBuilder ethernetPacketBuilder = new EthernetPacketBuilder();
+    ethernetPacketBuilder.setPayloadLength(30);
+    ethernetPacketBuilder.setPayloadOffset(16);
+
+    Ipv4PacketOverEthernetReceived notification = new Ipv4Decoder(npServiceMock).decode
+          (new EthernetPacketOverRawReceivedBuilder().setEthernetPacket(ethernetPacketBuilder.build())
+                  .setRawPacket(rawPacket)
+                  .setPayload(eth_payload)
+                  .build());
+
+    assertEquals(4, notification.getIpv4Packet().getVersion().intValue());
+    assertEquals(5, notification.getIpv4Packet().getIhl().intValue());
+    assertEquals(30, notification.getIpv4Packet().getIpv4Length().intValue());
+    assertEquals(63, notification.getIpv4Packet().getDscp().intValue());
+    assertEquals(3, notification.getIpv4Packet().getEcn().intValue());
+    assertEquals(30, notification.getIpv4Packet().getIpv4Length().intValue());
+    assertEquals(286, notification.getIpv4Packet().getId().intValue());
+    assertTrue(notification.getIpv4Packet().isReservedFlag());
+    assertTrue(notification.getIpv4Packet().isDfFlag());
+    assertTrue(notification.getIpv4Packet().isMfFlag());
+    assertEquals(4096, notification.getIpv4Packet().getFragmentOffset().intValue());
+    assertEquals(18, notification.getIpv4Packet().getTtl().intValue());
+    assertEquals(KnownIpProtocols.Tcp, notification.getIpv4Packet().getProtocol());
+    assertEquals(0, notification.getIpv4Packet().getChecksum().intValue());
+
+    Ipv4Address src_address = new Ipv4Address("192.168.0.1");
+    Ipv4Address dst_address = new Ipv4Address("1.2.3.4");
+    assertEquals(src_address, notification.getIpv4Packet().getSourceIpv4());
+    assertEquals(dst_address, notification.getIpv4Packet().getDestinationIpv4());
+
+    byte [] ipv4_payload = {
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13 // Data
+    };
+
+    int ipv4PayloadEnd = notification.getIpv4Packet().getPayloadOffset() +
+            notification.getIpv4Packet().getPayloadLength();
+    assertTrue(Arrays.equals(ipv4_payload, Arrays.copyOfRange(notification.getPayload(),
+              notification.getIpv4Packet().getPayloadOffset(), ipv4PayloadEnd)));
   }
 
-  @Test
+ /* @Test
   public void testDecode_AlternatingBits() throws Exception {
     byte[] payload = {
       (byte)0xf5, // Version = 15,  IHL = 5
@@ -91,6 +167,7 @@ public class Ipv4DecoderTest {
       (byte)0x00, (byte)0x00, 0x00, 0x00, // Src IP Address
       (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, // Dest IP Address
       0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10 // Data
+
     };
     Ipv4Packet ipv4packet = (Ipv4Packet)ipv4Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
     assertEquals(15, ipv4packet.getVersion().intValue());
@@ -110,6 +187,6 @@ public class Ipv4DecoderTest {
     assertEquals("0.0.0.0", ipv4packet.getSourceIpv4());
     assertEquals("255.255.255.255", ipv4packet.getDestinationIpv4());
     assertTrue(Arrays.equals(ipv4packet.getIpv4Payload(), Arrays.copyOfRange(payload, 20, payload.length)));
-  }
-  */
+  }*/
+
 }
