@@ -64,14 +64,10 @@ public class PacketDispatcher  {
     NodeConnectorRef pktIngress = inventoryReader.getControllerSwitchConnectors().get(nodeId);
     List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
     for (NodeConnectorRef ncRef : nodeConnectors) {
-      if (ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue().equals(
+      if (!ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue().equals(
         ingress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
-        nodeConnectors.remove(ncRef);
-        break;
+        sendPacketOut(payload, pktIngress, ncRef);
       }
-    }
-    for (NodeConnectorRef ncRef : nodeConnectors) {
-      sendPacketOut(payload, pktIngress, ncRef);
     }
   }
 
