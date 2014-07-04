@@ -63,26 +63,25 @@ public class InventoryReader {
     InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
     Nodes nodes = (Nodes)dataService.readOperationalData(nodesInsIdBuilder.toInstance());
     if (nodes != null) {
+      // Get NodeConnectors for each node
       for (Node node : nodes.getNode()) {
-        Node completeNode = (Node)dataService.readOperationalData(InstanceIdentifierUtils.createNodePath(node.getId()));
-        ArrayList<NodeConnectorRef> nodeConnectors = new ArrayList<NodeConnectorRef>();
-        for (NodeConnector nodeConnector : completeNode.getNodeConnector()) {
-          NodeConnectorRef ncRef = new NodeConnectorRef(
-            InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-              .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
-
-          // Regular node connectors have "-" in their name for mininet, i.e. "s1-eth1"
-          if (nodeConnector.getAugmentation(FlowCapableNodeConnector.class).getName().contains("-")) {
-            nodeConnectors.add(ncRef);
-          }
-          // Controller-to-switch internal node connectors are just "s1" or "s2" in mininet
-          else {
-            controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
+        ArrayList<NodeConnectorRef> nodeConnectorRefs = new ArrayList<NodeConnectorRef>();
+        List<NodeConnector> nodeConnectors = node.getNodeConnector();
+        if (nodeConnectors != null) {
+          for (NodeConnector nodeConnector : nodeConnectors) {
+            NodeConnectorRef ncRef = new NodeConnectorRef(
+              InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
+            if (nodeConnector.getKey().toString().contains("LOCAL")) {
+              controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
+            }
+            else {
+              nodeConnectorRefs.add(ncRef);
+            }
           }
         }
-        switchNodeConnectors.put(node.getId().getValue(), nodeConnectors);
+        switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
       }
     }
   }
-
 }
