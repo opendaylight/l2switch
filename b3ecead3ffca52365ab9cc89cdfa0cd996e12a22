@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_1b71dedf",
+        "filename": "packethandler/implementation/src/test/java/org/opendaylight/l2switch/packethandler/decoders/Ipv4DecoderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-07T20:21:46Z",
+      "side": 1,
+      "message": "@Alex: please check if this test is required\n\n@Aarti: Please either remove the test or enable it. Lets not have a commented code after this check-in.",
+      "revId": "b3ecead3ffca52365ab9cc89cdfa0cd996e12a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
