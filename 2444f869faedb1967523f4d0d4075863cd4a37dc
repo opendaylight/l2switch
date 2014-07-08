@@ -1,0 +1,7 @@
+Code-Review+2: Amit Mandke <ammandke@cisco.com>
+Verified+1: jenkins-l2switch <jenkins-l2switch@opendaylight.org>
+Submitted-by: Amit Mandke <ammandke@cisco.com>
+Submitted-at: Tue, 08 Jul 2014 00:30:27 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/8769
+Project: l2switch
+Branch: refs/heads/master
