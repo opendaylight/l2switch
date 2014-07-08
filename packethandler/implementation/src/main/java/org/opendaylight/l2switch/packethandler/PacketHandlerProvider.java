@@ -14,6 +14,7 @@ import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class PacketHandlerProvider extends AbstractBindingAwareProvider
     decoders = new ImmutableSet.Builder<AbstractPacketDecoder>()
         .add(new EthernetDecoder(notificationProviderService))
         .add(new ArpDecoder(notificationProviderService))
+        .add(new Ipv4Decoder(notificationProviderService))
         .build();
     //ToDo: Add ipv4 and ipv6
   }
