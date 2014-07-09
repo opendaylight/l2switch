@@ -26,6 +26,7 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
   private final static Logger _logger = LoggerFactory.getLogger(AddressObserver.class);
   private AddressObservationWriter addressObservationWriter;
   private PacketDispatcher packetDispatcher;
+  private final String IPV4_IP_TO_IGNORE ="0.0.0.0";
 
   public AddressObserver(AddressObservationWriter addressObservationWriter, PacketDispatcher packetDispatcher) {
     this.addressObservationWriter = addressObservationWriter;
@@ -50,10 +51,12 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
    */
   @Override
   public void onIpv4PacketOverEthernetReceived(Ipv4PacketOverEthernetReceived packetReceived) {
-    addressObservationWriter.addAddress(packetReceived.getEthernetOverRawPacket().getEthernetPacket().getSourceMac(),
-      new IpAddress(packetReceived.getIpv4Packet().getSourceIpv4()),
-      packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
-    packetDispatcher.sendPacketOut(packetReceived.getPayload(), packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
+    if(!IPV4_IP_TO_IGNORE.equals(packetReceived.getIpv4Packet().getSourceIpv4().getValue())) {
+      addressObservationWriter.addAddress(packetReceived.getEthernetOverRawPacket().getEthernetPacket().getSourceMac(),
+          new IpAddress(packetReceived.getIpv4Packet().getSourceIpv4().getValue().toCharArray()),
+          packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
+      packetDispatcher.sendPacketOut(packetReceived.getPayload(), packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
+    }
   }
 
   // ToDo Ipv6 handler

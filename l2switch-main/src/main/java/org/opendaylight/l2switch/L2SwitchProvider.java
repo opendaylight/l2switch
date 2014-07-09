@@ -7,14 +7,12 @@
  */
 package org.opendaylight.l2switch;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
-import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
 import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
 import org.opendaylight.l2switch.addressobserver.AddressObserver;
-import org.opendaylight.l2switch.flow.FlowWriterService;
-import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.l2switch.topology.NetworkGraphDijkstra;
@@ -38,26 +36,27 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
 
   /**
    * Setup the L2Switch.
+   *
    * @param consumerContext The context of the L2Switch.
    */
   @Override
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     // Setup FlowWriterService
-    DataBrokerService dataService = consumerContext.<DataBrokerService>getSALService(DataBrokerService.class);
+    DataBroker dataService = consumerContext.<DataBroker>getSALService(DataBroker.class);
     NetworkGraphService networkGraphService = new NetworkGraphDijkstra();
-    FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService, networkGraphService);
+    //FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService, networkGraphService);
 
     // Register Topology DataChangeListener
-    this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
-    topologyLinkDataChangeHandler.registerAsDataChangeListener();
+    //this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
+    //topologyLinkDataChangeHandler.registerAsDataChangeListener();
 
     // Setup PacketDispatcher
     PacketProcessingService packetProcessingService =
-      consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
+        consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
     PacketDispatcher packetDispatcher = new PacketDispatcher();
     packetDispatcher.setInventoryReader(new InventoryReader(dataService));
     packetDispatcher.setPacketProcessingService(packetProcessingService);
-    packetDispatcher.setFlowWriterService(flowWriterService);
+    //packetDispatcher.setFlowWriterService(flowWriterService);
 
     // Setup AddressObserver & AddressObservationWriter
     AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
@@ -73,7 +72,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
    */
   @Override
   public void close() throws Exception {
-    if (listenerRegistration != null) {
+    if(listenerRegistration != null) {
       listenerRegistration.close();
     }
   }
