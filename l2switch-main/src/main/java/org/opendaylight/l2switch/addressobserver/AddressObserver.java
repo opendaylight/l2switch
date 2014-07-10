@@ -18,6 +18,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +29,13 @@ import org.slf4j.LoggerFactory;
  * store these address observations for each node-connector.
  * These packets are returned to the network after the addresses are learned.
  */
-public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
+public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
 
   private final static Logger _logger = LoggerFactory.getLogger(AddressObserver.class);
   private AddressObservationWriter addressObservationWriter;
   private PacketDispatcher packetDispatcher;
   private final String IPV4_IP_TO_IGNORE ="0.0.0.0";
+  private final String IPV6_IP_TO_IGNORE ="0:0:0:0:0:0:0:0";
 
   public AddressObserver(AddressObservationWriter addressObservationWriter, PacketDispatcher packetDispatcher) {
     this.addressObservationWriter = addressObservationWriter;
@@ -108,6 +112,39 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
     }
   }
 
-  // ToDo Ipv6 handler
+  /**
+   * The handler function for IPv6 packets.
+   * @param packetReceived  The incoming packet.
+   */
+  @Override
+  public void onIpv6PacketReceived(Ipv6PacketReceived packetReceived) {
+    if(packetReceived==null || packetReceived.getPacketChain()==null) {
+      return;
+    }
 
+    RawPacket rawPacket = null;
+    EthernetPacket ethernetPacket = null;
+    Ipv6Packet ipv6Packet = null;
+    for (PacketChain packetChain : packetReceived.getPacketChain()) {
+      if (packetChain.getPacket() instanceof RawPacket) {
+        rawPacket = (RawPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof EthernetPacket) {
+        ethernetPacket = (EthernetPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof Ipv6Packet) {
+        ipv6Packet = (Ipv6Packet)packetChain.getPacket();
+      }
+    }
+    if (rawPacket==null || ethernetPacket==null || ipv6Packet==null) {
+      return;
+    }
+
+    if(!IPV6_IP_TO_IGNORE.equals(ipv6Packet.getSourceIpv6().getValue())) {
+      addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
+        new IpAddress(ipv6Packet.getSourceIpv6().getValue().toCharArray()),
+        rawPacket.getIngress());
+      packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
+    }
+  }
 }
