@@ -144,4 +144,37 @@ public class EthernetDecoderTest {
     assertEquals(168496141L, ethernetPacket.getCrc().longValue());
     assertTrue(Arrays.equals(packet, notification.getPayload()));
   }
+
+  // This test is from a Mininet VM, taken from a wireshark dump
+  @Test
+  public void testDecode_Ipv6Udp() throws Exception {
+    byte[] packet = {
+      // Ethernet start
+      0x33, 0x33, 0x00, 0x00, 0x00, (byte)0xfb, (byte)0xa2, (byte)0xe6, (byte)0xda, 0x67, (byte)0xef, (byte)0x95,
+      (byte)0x86, (byte)0xdd,
+      // IPv6 packet start
+      0x60, 0x00, 0x00, 0x00, 0x00, 0x35, 0x11, (byte)0xff, (byte)0xfe, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte)0xa0, (byte)0xe6,
+      (byte)0xda, (byte)0xff, (byte)0xfe, 0x67, (byte)0xef, (byte)0x95, (byte)0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, (byte)0xfb,
+      // UDP start
+      0x14, (byte)0xe9, 0x14, (byte)0xe9, 0x00, 0x35, 0x6b, (byte)0xd4, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x5f, 0x69, 0x70, 0x70, 0x73,
+      0x04, 0x5f, 0x74, 0x63, 0x70, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x0c, 0x00, 0x01,
+      0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
+    };
+    NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+    EthernetPacketReceived notification = new EthernetDecoder(mock).decode(new PacketReceivedBuilder()
+      .setPayload(packet)
+      .setMatch(new MatchBuilder().build())
+      .build());
+    EthernetPacket ethernetPacket = (EthernetPacket)notification.getPacketChain().get(1).getPacket();
+    assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv6);
+    assertNull(ethernetPacket.getEthernetLength());
+    assertNull(ethernetPacket.getHeader8021q());
+    assertEquals("33:33:00:00:00:fb", ethernetPacket.getDestinationMac().getValue());
+    assertEquals("a2:e6:da:67:ef:95", ethernetPacket.getSourceMac().getValue());
+    assertEquals(14, ethernetPacket.getPayloadOffset().intValue());
+    // Wirehshark didn't include a CRC, so not testing for length & crc fields
+    assertTrue(Arrays.equals(packet, notification.getPayload()));
+  }
 }

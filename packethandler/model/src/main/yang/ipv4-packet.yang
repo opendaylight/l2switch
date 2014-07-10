@@ -133,6 +133,22 @@ module ipv4-packet {
         value 132;
         description "Stream Control Transmission Protocol";
       }
+      enum "fibre-channel" {
+        value 133;
+        description "Fibre Channel";
+      }
+      enum "ipv6-mobility" {
+        value 135;
+        description "IPv6 Mobility Header";
+      }
+      enum "experimentation1" {
+        value 253;
+        description "Use for experimentation and testing, RFC3692";
+      }
+      enum "experimentation2" {
+        value 254;
+        description "Use for experimentation and testing, RFC3692";
+      }
     }
   }
 

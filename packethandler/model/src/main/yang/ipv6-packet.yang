@@ -72,7 +72,7 @@ module ipv6-packet {
     }
 
     list extension-headers {
-      leaf type {
+      leaf next-header {
         type ipv4:known-ip-protocols;
         description "Type of this extension header";
       }
