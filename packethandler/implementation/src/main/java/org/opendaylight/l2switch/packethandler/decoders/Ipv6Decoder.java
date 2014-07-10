@@ -76,36 +76,34 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
       builder.setHopLimit(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 56, 8)));
       builder.setSourceIpv6(Ipv6Address.getDefaultInstance(InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
       builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
+      builder.setPayloadOffset((320 + bitOffset)/NetUtils.NumBitsInAByte);
+      builder.setPayloadLength(builder.getIpv6Length());
 
       // Decode the optional "extension headers"
       List<ExtensionHeaders> extensionHeaders = new ArrayList<ExtensionHeaders>();
-      int extraHeaderBits = 0;
-      while (builder.getNextHeader() != null && !builder.getNextHeader().equals(KnownIpProtocols.Tcp) &&
-        !builder.getNextHeader().equals(KnownIpProtocols.Udp)) {
+      KnownIpProtocols nextHeader = builder.getNextHeader();
+      int extHeaderOffset = 0;
+      while (nextHeader != null && !nextHeader.equals(KnownIpProtocols.Tcp) &&
+        !nextHeader.equals(KnownIpProtocols.Udp)) {
         // Set the extension header's type & length & data
-        int octetLength = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 328 + extraHeaderBits + bitOffset, 8));
-        int start = ( 336 + extraHeaderBits + bitOffset) / NetUtils.NumBitsInAByte;
+        short nextHeaderType = BitBufferHelper.getShort(BitBufferHelper.getBits(data, 320 + extHeaderOffset + bitOffset, 8));
+        nextHeader = KnownIpProtocols.forValue(nextHeaderType);
+        int octetLength = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 328 + extHeaderOffset + bitOffset, 8));
+        int start = ( 336 + extHeaderOffset + bitOffset) / NetUtils.NumBitsInAByte;
         int end = start + 6 + octetLength;
 
         extensionHeaders.add(new ExtensionHeadersBuilder()
-          .setType(builder.getNextHeader())
+          .setNextHeader(nextHeader)
           .setLength(octetLength)
           .setData(Arrays.copyOfRange(data, start, end))
           .build());
 
         // Update the NextHeader field
-        builder.setNextHeader(KnownIpProtocols.forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, 320 + extraHeaderBits + bitOffset, 8))));
-        extraHeaderBits += 64 + octetLength * NetUtils.NumBitsInAByte;
+        extHeaderOffset += 64 + octetLength * NetUtils.NumBitsInAByte;
       }
       if (!extensionHeaders.isEmpty()) {
         builder.setExtensionHeaders(extensionHeaders);
       }
-
-      // Decode the IPv6 Payload
-      int start = ( 320 + extraHeaderBits + bitOffset) / NetUtils.NumBitsInAByte;
-      int end = data.length - 4;
-      builder.setPayloadOffset(start);
-      builder.setPayloadLength(end - start);
     }
     catch (BufferException | UnknownHostException e) {
       _logger.debug("Exception while decoding IPv4 packet", e.getMessage());
