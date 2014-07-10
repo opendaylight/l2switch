@@ -153,6 +153,24 @@
       "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_57f652fa",
+        "filename": "packethandler/model/src/main/yang/ipv4-packet.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 2106
+      },
+      "writtenOn": "2014-07-10T19:54:36Z",
+      "side": 1,
+      "message": "Hmmm... But each layer\u0027s offset is relative to its header. So, to get at the payload, a recipient would have to add the offset\u0027s of all the headers which, I think, would require it to know the API to all of the headers. This sounds like a problem/complication.\nIt would be better to a) just send the payload (i.e. each layer sends its data only payload) OR b) send the raw payload, but have each layer provide the total offset. In both cases the recipient has easy access to the payload.",
+      "parentUuid": "fa82b9bf_d4002004",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
