@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_144a0826",
+        "filename": "packethandler/model/src/main/yang/ipv4-packet.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 2106
+      },
+      "writtenOn": "2014-07-10T10:25:21Z",
+      "side": 1,
+      "message": "Shouldn\u0027t the IP packet\u0027s payload be also in the notification?\nThe current payload seems to be the base packet... Or is it so that the packet-payload from the base model is simply re-used here and in instance terms the \"payload\" would be directly the IP packet\u0027s payload. If so, this is grand.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
