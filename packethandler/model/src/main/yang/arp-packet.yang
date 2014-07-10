@@ -102,17 +102,14 @@ module arp-packet {
     uses bpacket:packet-fields;
   }
 
-  grouping arp-packet-over-ethernet-fields {
-    container arp-packet {
-      uses arp-packet-fields;
+  notification arp-packet-received {
+    uses bpacket:packet-chain-grp {
+      augment "bpacket:packet-chain/bpacket:packet" {
+        case arp-packet {
+          uses arp-packet-fields;
+        }
+      }
     }
-    container ethernet-over-raw-packet {
-     uses ethernet:ethernet-packet-over-raw-fields;
-    }
-  }
-
-  notification arp-packet-over-ethernet-received {
     uses bpacket:packet-payload;
-    uses arp-packet-over-ethernet-fields;
   }
 }

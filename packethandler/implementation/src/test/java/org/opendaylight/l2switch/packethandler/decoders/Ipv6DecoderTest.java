@@ -7,13 +7,34 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertNull;
+
+
 public class Ipv6DecoderTest {
-  /*
-    Ipv6Decoder ipv6Decoder = new Ipv6Decoder();
 
   @Test
   public void testDecode() throws Exception {
     byte[] payload = {
+      0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+      (byte)0x86, (byte)0xdd, // Ethernet EtherType
       0x60, // Version = 6,  DSCP = 3
       (byte)0xf0, 0x00, 0x01, // ECN = 3, FlowLabel = 1
       0x00, 0x05, // Length = 5
@@ -23,25 +44,44 @@ public class Ipv6DecoderTest {
       (byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, 0x76, 0x54, 0x32, 0x10, // Src IP Address (part2)
       (byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, 0x76, 0x54, 0x32, 0x10, // Dest IP Address (part1)
       0x01, 0x23, 0x45, 0x67, (byte)0x89, (byte)0xab, (byte)0xcd, (byte)0xef, // Dest IP Address (part2)
-      0x01, 0x02, 0x03, 0x04, 0x05 // Data
+      0x01, 0x02, 0x03, 0x04, 0x05, // Data
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
     };
-    Ipv6Packet ipv6packet = (Ipv6Packet)ipv6Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(6, ipv6packet.getVersion().intValue());
-    assertEquals(3, ipv6packet.getDscp().getValue().intValue());
-    assertEquals(3, ipv6packet.getEcn().intValue());
-    assertEquals(1, ipv6packet.getFlowLabel().intValue());
-    assertEquals(5, ipv6packet.getIpv6Length().intValue());
-    assertEquals(KnownIpProtocols.Udp, ipv6packet.getNextHeader());
-    assertEquals(15, ipv6packet.getHopLimit().intValue());
-    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6packet.getSourceIpv6());
-    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6packet.getDestinationIpv6());
-    assertNull(ipv6packet.getExtensionHeaders());
-    assertTrue(Arrays.equals(ipv6packet.getIpv6Payload(), Arrays.copyOfRange(payload, 40, payload.length)));
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
+
+    Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(payload)
+      .build());
+    Ipv6Packet ipv6Packet = (Ipv6Packet)notification.getPacketChain().get(2).getPacket();
+    assertEquals(6, ipv6Packet.getVersion().intValue());
+    assertEquals(3, ipv6Packet.getDscp().getValue().intValue());
+    assertEquals(3, ipv6Packet.getEcn().intValue());
+    assertEquals(1, ipv6Packet.getFlowLabel().intValue());
+    assertEquals(5, ipv6Packet.getIpv6Length().intValue());
+    assertEquals(KnownIpProtocols.Udp, ipv6Packet.getNextHeader());
+    assertEquals(15, ipv6Packet.getHopLimit().intValue());
+    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
+    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
+    assertNull(ipv6Packet.getExtensionHeaders());
+    assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
+    assertEquals(5, ipv6Packet.getPayloadLength().intValue());
+    assertTrue(Arrays.equals(payload, notification.getPayload()));
   }
 
   @Test
   public void testDecode_ExtensionHeader() throws Exception {
     byte[] payload = {
+      0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+      (byte)0x86, (byte)0xdd, // Ethernet EtherType
       0x60, // Version = 6,  DSCP = 3
       (byte)0xf0, 0x00, 0x01, // ECN = 3, FlowLabel = 1
       0x00, 0x0d, // Length = 13
@@ -52,27 +92,46 @@ public class Ipv6DecoderTest {
       (byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, 0x76, 0x54, 0x32, 0x10, // Dest IP Address (part1)
       0x01, 0x23, 0x45, 0x67, (byte)0x89, (byte)0xab, (byte)0xcd, (byte)0xef, // Dest IP Address (part2)
       0x11, 0x00, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, // Extension header
-      0x01, 0x02, 0x03, 0x04, 0x05 // Data
-    };
-    Ipv6Packet ipv6packet = (Ipv6Packet)ipv6Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(6, ipv6packet.getVersion().intValue());
-    assertEquals(3, ipv6packet.getDscp().getValue().intValue());
-    assertEquals(3, ipv6packet.getEcn().intValue());
-    assertEquals(1, ipv6packet.getFlowLabel().intValue());
-    assertEquals(13, ipv6packet.getIpv6Length().intValue());
-    assertEquals(KnownIpProtocols.Udp, ipv6packet.getNextHeader());
-    assertEquals(15, ipv6packet.getHopLimit().intValue());
-    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6packet.getSourceIpv6());
-    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6packet.getDestinationIpv6());
-    assertEquals(KnownIpProtocols.Hopopt, ipv6packet.getExtensionHeaders().get(0).getType());
-    assertEquals(0, ipv6packet.getExtensionHeaders().get(0).getLength().intValue());
-    assertTrue(Arrays.equals(ipv6packet.getExtensionHeaders().get(0).getData(), Arrays.copyOfRange(payload, 42, 48)));
-    assertTrue(Arrays.equals(ipv6packet.getIpv6Payload(), Arrays.copyOfRange(payload, 48, payload.length)));
+      0x01, 0x02, 0x03, 0x04, 0x05, // Data
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
+    };  // 22 + 32 + 2 = 56
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
+
+    Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(payload)
+      .build());
+    Ipv6Packet ipv6Packet = (Ipv6Packet)notification.getPacketChain().get(2).getPacket();
+    assertEquals(6, ipv6Packet.getVersion().intValue());
+    assertEquals(3, ipv6Packet.getDscp().getValue().intValue());
+    assertEquals(3, ipv6Packet.getEcn().intValue());
+    assertEquals(1, ipv6Packet.getFlowLabel().intValue());
+    assertEquals(13, ipv6Packet.getIpv6Length().intValue());
+    assertEquals(KnownIpProtocols.Udp, ipv6Packet.getNextHeader());
+    assertEquals(15, ipv6Packet.getHopLimit().intValue());
+    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
+    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
+    assertEquals(KnownIpProtocols.Hopopt, ipv6Packet.getExtensionHeaders().get(0).getType());
+    assertEquals(0, ipv6Packet.getExtensionHeaders().get(0).getLength().intValue()); //42,48
+    assertTrue(Arrays.equals(ipv6Packet.getExtensionHeaders().get(0).getData(), Arrays.copyOfRange(payload, 56, 62)));
+    assertEquals(62, ipv6Packet.getPayloadOffset().intValue());
+    assertEquals(5, ipv6Packet.getPayloadLength().intValue());
+    assertTrue(Arrays.equals(payload, notification.getPayload()));
   }
 
   @Test
   public void testDecode_ExtensionHeaders() throws Exception {
     byte[] payload = {
+      0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+      (byte)0x86, (byte)0xdd, // Ethernet EtherType
       0x60, // Version = 6,  DSCP = 3
       (byte)0xf0, 0x00, 0x01, // ECN = 3, FlowLabel = 1
       0x00, 0x15, // Length = 21
@@ -84,31 +143,49 @@ public class Ipv6DecoderTest {
       0x01, 0x23, 0x45, 0x67, (byte)0x89, (byte)0xab, (byte)0xcd, (byte)0xef, // Dest IP Address (part2)
       0x2b, 0x00, (byte)0xab, (byte)0xcd, (byte)0xef, (byte)0x12, (byte)0x34, (byte)0x56, // Extension header
       0x11, 0x00, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, // Extension header
-      0x01, 0x02, 0x03, 0x04, 0x05 // Data
+      0x01, 0x02, 0x03, 0x04, 0x05, // Data
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
     };
-    Ipv6Packet ipv6packet = (Ipv6Packet)ipv6Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(6, ipv6packet.getVersion().intValue());
-    assertEquals(3, ipv6packet.getDscp().getValue().intValue());
-    assertEquals(3, ipv6packet.getEcn().intValue());
-    assertEquals(1, ipv6packet.getFlowLabel().intValue());
-    assertEquals(21, ipv6packet.getIpv6Length().intValue());
-    assertEquals(KnownIpProtocols.Udp, ipv6packet.getNextHeader());
-    assertEquals(15, ipv6packet.getHopLimit().intValue());
-    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6packet.getSourceIpv6());
-    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6packet.getDestinationIpv6());
-    assertEquals(KnownIpProtocols.Hopopt, ipv6packet.getExtensionHeaders().get(0).getType());
-    assertEquals(0, ipv6packet.getExtensionHeaders().get(0).getLength().intValue());
-    assertTrue(Arrays.equals(ipv6packet.getExtensionHeaders().get(0).getData(), Arrays.copyOfRange(payload, 42, 48)));
-    assertEquals(KnownIpProtocols.Ipv6Route, ipv6packet.getExtensionHeaders().get(1).getType());
-    assertEquals(0, ipv6packet.getExtensionHeaders().get(1).getLength().intValue());
-    assertTrue(Arrays.equals(ipv6packet.getExtensionHeaders().get(1).getData(), Arrays.copyOfRange(payload, 50, 56)));
-    assertTrue(Arrays.equals(ipv6packet.getIpv6Payload(), Arrays.copyOfRange(payload, 56, payload.length)));
-  }
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
 
+    Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(payload)
+      .build());
+    Ipv6Packet ipv6Packet = (Ipv6Packet)notification.getPacketChain().get(2).getPacket();
+    assertEquals(6, ipv6Packet.getVersion().intValue());
+    assertEquals(3, ipv6Packet.getDscp().getValue().intValue());
+    assertEquals(3, ipv6Packet.getEcn().intValue());
+    assertEquals(1, ipv6Packet.getFlowLabel().intValue());
+    assertEquals(21, ipv6Packet.getIpv6Length().intValue());
+    assertEquals(KnownIpProtocols.Udp, ipv6Packet.getNextHeader());
+    assertEquals(15, ipv6Packet.getHopLimit().intValue());
+    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
+    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
+    assertEquals(KnownIpProtocols.Hopopt, ipv6Packet.getExtensionHeaders().get(0).getType());
+    assertEquals(0, ipv6Packet.getExtensionHeaders().get(0).getLength().intValue());  //4248, 5056
+    assertTrue(Arrays.equals(ipv6Packet.getExtensionHeaders().get(0).getData(), Arrays.copyOfRange(payload, 56, 62)));
+    assertEquals(KnownIpProtocols.Ipv6Route, ipv6Packet.getExtensionHeaders().get(1).getType());
+    assertEquals(0, ipv6Packet.getExtensionHeaders().get(1).getLength().intValue());
+    assertTrue(Arrays.equals(ipv6Packet.getExtensionHeaders().get(1).getData(), Arrays.copyOfRange(payload, 64, 70)));
+    assertEquals(70, ipv6Packet.getPayloadOffset().intValue());
+    assertEquals(5, ipv6Packet.getPayloadLength().intValue());
+    assertTrue(Arrays.equals(payload, notification.getPayload()));
+  }
 
   @Test
   public void testDecode_AlternatingBits() throws Exception {
     byte[] payload = {
+      0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+      (byte)0x86, (byte)0xdd, // Ethernet EtherType
       0x60, // Version = 6,  DSCP = 0
       (byte)0x30, 0x00, 0x00, // ECN = 3, FlowLabel = 0
       0x00, 0x07, // Length = 7
@@ -118,20 +195,36 @@ public class Ipv6DecoderTest {
       (byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, 0x76, 0x54, 0x32, 0x10, // Src IP Address (part2)
       (byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, 0x76, 0x54, 0x32, 0x10, // Dest IP Address (part1)
       0x01, 0x23, 0x45, 0x67, (byte)0x89, (byte)0xab, (byte)0xcd, (byte)0xef, // Dest IP Address (part2)
-      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 // Data
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // Data
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
     };
-    Ipv6Packet ipv6packet = (Ipv6Packet)ipv6Decoder.decode(new EthernetPacketBuilder().setEthernetPayload(payload).build());
-    assertEquals(6, ipv6packet.getVersion().intValue());
-    assertEquals(0, ipv6packet.getDscp().getValue().intValue());
-    assertEquals(3, ipv6packet.getEcn().intValue());
-    assertEquals(0, ipv6packet.getFlowLabel().intValue());
-    assertEquals(7, ipv6packet.getIpv6Length().intValue());
-    assertEquals(KnownIpProtocols.Tcp, ipv6packet.getNextHeader());
-    assertEquals(15, ipv6packet.getHopLimit().intValue());
-    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6packet.getSourceIpv6());
-    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6packet.getDestinationIpv6());
-    assertNull(ipv6packet.getExtensionHeaders());
-    assertTrue(Arrays.equals(ipv6packet.getIpv6Payload(), Arrays.copyOfRange(payload, 40, payload.length)));
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
+
+    Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(payload)
+      .build());
+    Ipv6Packet ipv6Packet = (Ipv6Packet)notification.getPacketChain().get(2).getPacket();
+    assertEquals(6, ipv6Packet.getVersion().intValue());
+    assertEquals(0, ipv6Packet.getDscp().getValue().intValue());
+    assertEquals(3, ipv6Packet.getEcn().intValue());
+    assertEquals(0, ipv6Packet.getFlowLabel().intValue());
+    assertEquals(7, ipv6Packet.getIpv6Length().intValue());
+    assertEquals(KnownIpProtocols.Tcp, ipv6Packet.getNextHeader());
+    assertEquals(15, ipv6Packet.getHopLimit().intValue());
+    assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
+    assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
+    assertNull(ipv6Packet.getExtensionHeaders());
+    assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
+    assertEquals(7, ipv6Packet.getPayloadLength().intValue());
+    assertTrue(Arrays.equals(payload, notification.getPayload()));
   }
-   */
+
 }

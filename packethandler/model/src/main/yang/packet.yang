@@ -55,4 +55,13 @@ module base-packet {
     uses packet-fields;
   }
 
+  grouping packet-chain-grp {
+    list packet-chain {
+      choice packet {
+         case raw-packet {
+           uses raw-packet-fields;
+         }
+      }
+    }
+  }
 }
