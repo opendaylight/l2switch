@@ -278,17 +278,17 @@ module ethernet-packet {
     uses bpacket:packet-fields;
   }
 
-  grouping ethernet-packet-over-raw-fields {
-    container ethernet-packet {
-      uses ethernet-packet-fields;
-    }
-    container raw-packet {
-     uses bpacket:raw-packet-fields;
-    }
+  identity ethernet-packet {
+    base "bpacket:base-packet";
   }
-
-  notification ethernet-packet-over-raw-received {
+  notification ethernet-packet-received {
+    uses bpacket:packet-chain-grp {
+      augment "bpacket:packet-chain/bpacket:packet" {
+        case ethernet-packet {
+          uses ethernet-packet-fields;
+        }
+      }
+    }
     uses bpacket:packet-payload;
-    uses ethernet-packet-over-raw-fields;
   }
 }

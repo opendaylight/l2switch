@@ -10,9 +10,14 @@ package org.opendaylight.l2switch.addressobserver;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketOverEthernetReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +43,33 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
    * @param packetReceived  The incoming packet.
    */
   @Override
-  public void onArpPacketOverEthernetReceived(ArpPacketOverEthernetReceived packetReceived) {
-    addressObservationWriter.addAddress(packetReceived.getEthernetOverRawPacket().getEthernetPacket().getSourceMac(),
-      new IpAddress(packetReceived.getArpPacket().getSourceProtocolAddress().toCharArray()),
-      packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
-    packetDispatcher.sendPacketOut(packetReceived.getPayload(), packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
+  public void onArpPacketReceived(ArpPacketReceived packetReceived) {
+    if(packetReceived==null || packetReceived.getPacketChain()==null) {
+      return;
+    }
+
+    RawPacket rawPacket = null;
+    EthernetPacket ethernetPacket = null;
+    ArpPacket arpPacket = null;
+    for (PacketChain packetChain : packetReceived.getPacketChain()) {
+      if (packetChain.getPacket() instanceof RawPacket) {
+        rawPacket = (RawPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof EthernetPacket) {
+        ethernetPacket = (EthernetPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof ArpPacket) {
+        arpPacket = (ArpPacket)packetChain.getPacket();
+      }
+    }
+    if (rawPacket==null || ethernetPacket==null || arpPacket==null) {
+      return;
+    }
+
+    addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
+      new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()),
+      rawPacket.getIngress());
+    packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
   }
 
   /**
@@ -50,12 +77,34 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener {
    * @param packetReceived  The incoming packet.
    */
   @Override
-  public void onIpv4PacketOverEthernetReceived(Ipv4PacketOverEthernetReceived packetReceived) {
-    if(!IPV4_IP_TO_IGNORE.equals(packetReceived.getIpv4Packet().getSourceIpv4().getValue())) {
-      addressObservationWriter.addAddress(packetReceived.getEthernetOverRawPacket().getEthernetPacket().getSourceMac(),
-          new IpAddress(packetReceived.getIpv4Packet().getSourceIpv4().getValue().toCharArray()),
-          packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
-      packetDispatcher.sendPacketOut(packetReceived.getPayload(), packetReceived.getEthernetOverRawPacket().getRawPacket().getIngress());
+  public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
+    if(packetReceived==null || packetReceived.getPacketChain()==null) {
+      return;
+    }
+
+    RawPacket rawPacket = null;
+    EthernetPacket ethernetPacket = null;
+    Ipv4Packet ipv4Packet = null;
+    for (PacketChain packetChain : packetReceived.getPacketChain()) {
+      if (packetChain.getPacket() instanceof RawPacket) {
+        rawPacket = (RawPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof EthernetPacket) {
+        ethernetPacket = (EthernetPacket)packetChain.getPacket();
+      }
+      else if (packetChain.getPacket() instanceof Ipv4Packet) {
+        ipv4Packet = (Ipv4Packet)packetChain.getPacket();
+      }
+    }
+    if (rawPacket==null || ethernetPacket==null || ipv4Packet==null) {
+      return;
+    }
+
+    if(!IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
+      addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
+        new IpAddress(ipv4Packet.getSourceIpv4().getValue().toCharArray()),
+        rawPacket.getIngress());
+      packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
     }
   }
 
