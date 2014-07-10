@@ -9,10 +9,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketOverEthernetReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketOverEthernetReceivedBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * IPv6 Packet Decoder
  */
-public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketOverRawReceived, Ipv6PacketOverEthernetReceived>
+public class Ipv6Decoder /*extends AbstractPacketDecoder<EthernetPacketOverRawReceived, Ipv6PacketOverEthernetReceived>
   implements EthernetPacketListener {
 
   private static final Logger _logger = LoggerFactory.getLogger(Ipv6Decoder.class);
@@ -32,7 +29,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketOverRawRece
   /**
    * Decode an EthernetPacket into an Ipv4Packet
    */
-  @Override
+/*  @Override
   public Ipv6PacketOverEthernetReceived decode(EthernetPacketOverRawReceived ethernetPacketOverRawReceived) {
 
     Ipv6PacketOverEthernetReceivedBuilder builder = new Ipv6PacketOverEthernetReceivedBuilder();
@@ -88,7 +85,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketOverRawRece
       _logger.debug("Exception while decoding IPv4 packet", e.getMessage());
     }
     */
-    return builder.build();
+    /*return builder.build();
   }
 
 
@@ -109,4 +106,5 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketOverRawRece
 
     return KnownEtherType.Ipv6.equals(ethernetPacketOverRawReceived.getEthernetPacket().getEthertype());
   }
-}
+}*/
+{}

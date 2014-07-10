@@ -10,13 +10,18 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownOperation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.EthernetPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
+
+import java.util.ArrayList;
 
 import static junit.framework.Assert.*;
 
@@ -37,20 +42,30 @@ public class ArpDecoderTest {
       0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
     };
     NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
-    ArpPacketOverEthernetReceived notification = new ArpDecoder(mock).decode(new EthernetPacketOverRawReceivedBuilder()
-      .setEthernetPacket(new EthernetPacketBuilder().setPayloadOffset(5).setPayloadLength(33).build())
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setOrder((byte)0)
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setOrder((byte)1)
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(5).setPayloadLength(33).build())
+      .build());
+    ArpPacketReceived notification = new ArpDecoder(mock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
       .setPayload(packet)
       .build());
 
-    assertEquals(KnownHardwareType.Ethernet, notification.getArpPacket().getHardwareType());
-    assertEquals(KnownEtherType.Ipv4, notification.getArpPacket().getProtocolType());
-    assertEquals(6, notification.getArpPacket().getHardwareLength().intValue());
-    assertEquals(4, notification.getArpPacket().getProtocolLength().intValue());
-    assertEquals(KnownOperation.Request, notification.getArpPacket().getOperation());
-    assertEquals("01:23:45:67:89:ab", notification.getArpPacket().getSourceHardwareAddress());
-    assertEquals("192.168.0.1", notification.getArpPacket().getSourceProtocolAddress());
-    assertEquals("cd:ef:01:23:45:67", notification.getArpPacket().getDestinationHardwareAddress());
-    assertEquals("1.2.3.4", notification.getArpPacket().getDestinationProtocolAddress());
+    ArpPacket arpPacket = (ArpPacket)notification.getPacketChain().get(2).getPacket();
+    assertEquals(KnownHardwareType.Ethernet, arpPacket.getHardwareType());
+    assertEquals(KnownEtherType.Ipv4, arpPacket.getProtocolType());
+    assertEquals(6, arpPacket.getHardwareLength().intValue());
+    assertEquals(4, arpPacket.getProtocolLength().intValue());
+    assertEquals(KnownOperation.Request, arpPacket.getOperation());
+    assertEquals("01:23:45:67:89:ab", arpPacket.getSourceHardwareAddress());
+    assertEquals("192.168.0.1", arpPacket.getSourceProtocolAddress());
+    assertEquals("cd:ef:01:23:45:67", arpPacket.getDestinationHardwareAddress());
+    assertEquals("1.2.3.4", arpPacket.getDestinationProtocolAddress());
   }
 
   /*
