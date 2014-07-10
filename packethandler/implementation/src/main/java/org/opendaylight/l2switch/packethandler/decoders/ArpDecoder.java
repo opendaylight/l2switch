@@ -12,47 +12,49 @@ import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.HexEncode;
 import org.opendaylight.controller.sal.utils.NetUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketOverEthernetReceivedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownOperation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.over.ethernet.fields.ArpPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.over.ethernet.fields.EthernetOverRawPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.over.ethernet.fields.EthernetOverRawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * ARP (Address Resolution Protocol) Packet Decoder
  */
-public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketOverRawReceived, ArpPacketOverEthernetReceived>
+public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, ArpPacketReceived>
     implements EthernetPacketListener {
 
   private static final Logger _logger = LoggerFactory.getLogger(ArpDecoder.class);
 
   public ArpDecoder(NotificationProviderService notificationProviderService) {
-    super(ArpPacketOverEthernetReceived.class, notificationProviderService);
+    super(ArpPacketReceived.class, notificationProviderService);
   }
 
   /**
    * Decode an EthernetPacket into an ArpPacket
    */
   @Override
-  public ArpPacketOverEthernetReceived decode(EthernetPacketOverRawReceived ethernetPacketOverRawReceived) {
-    ArpPacketOverEthernetReceivedBuilder arpReceivedBuilder = new ArpPacketOverEthernetReceivedBuilder();
+  public ArpPacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
+    ArpPacketReceivedBuilder arpReceivedBuilder = new ArpPacketReceivedBuilder();
 
-    byte[] data = ethernetPacketOverRawReceived.getPayload();
-    int bitOffset = ethernetPacketOverRawReceived.getEthernetPacket().getPayloadOffset() * NetUtils.NumBitsInAByte;
+    // Find the latest packet in the packet-chain, which is an EthernetPacket
+    List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
+    EthernetPacket ethernetPacket = (EthernetPacket)packetChainList.get(packetChainList.size()-1).getPacket();
+    int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
+    byte[] data = ethernetPacketReceived.getPayload();
 
     ArpPacketBuilder builder = new ArpPacketBuilder();
-
     try {
       // Decode the hardware-type (HTYPE) and protocol-type (PTYPE) fields
       builder.setHardwareType(KnownHardwareType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 0, 16))));
@@ -87,18 +89,13 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketOverRawRecei
     }
 
     //build arp
-    arpReceivedBuilder.setArpPacket(builder.build());
-
-    // extract ethernet over raw context from the consumed notification and set it and set it in Produced notification
-    EthernetOverRawPacketBuilder ethernetOverRawPacketBuilder =  new EthernetOverRawPacketBuilder();
-    ethernetOverRawPacketBuilder.setRawPacket(ethernetPacketOverRawReceived.getRawPacket());
-    ethernetOverRawPacketBuilder.setEthernetPacket(ethernetPacketOverRawReceived.getEthernetPacket());
-
-    //set the context of previous decoded fields
-    arpReceivedBuilder.setEthernetOverRawPacket(ethernetOverRawPacketBuilder.build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(builder.build())
+      .build());
+    arpReceivedBuilder.setPacketChain(packetChainList);
 
     // carry forward the original payload.
-    arpReceivedBuilder.setPayload(ethernetPacketOverRawReceived.getPayload());
+    arpReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
 
     return arpReceivedBuilder.build();
   }
@@ -109,14 +106,24 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketOverRawRecei
   }
 
   @Override
-  public void onEthernetPacketOverRawReceived(EthernetPacketOverRawReceived notification) {
+  public void onEthernetPacketReceived(EthernetPacketReceived notification) {
     decodeAndPublish(notification);
   }
 
   @Override
-  public boolean canDecode(EthernetPacketOverRawReceived ethernetPacketOverRawReceived) {
-    if(ethernetPacketOverRawReceived==null || ethernetPacketOverRawReceived.getEthernetPacket()==null)
+  public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
+    if(ethernetPacketReceived==null || ethernetPacketReceived.getPacketChain()==null)
       return false;
-    return KnownEtherType.Arp.equals(ethernetPacketOverRawReceived.getEthernetPacket().getEthertype());
+
+    // Only decode the latest packet in the chain
+    EthernetPacket ethernetPacket = null;
+    if (!ethernetPacketReceived.getPacketChain().isEmpty()) {
+      Packet packet = ethernetPacketReceived.getPacketChain().get(ethernetPacketReceived.getPacketChain().size()-1).getPacket();
+      if (packet instanceof  EthernetPacket) {
+        ethernetPacket = (EthernetPacket)packet;
+      }
+    }
+
+    return ethernetPacket!=null && KnownEtherType.Arp.equals(ethernetPacket.getEthertype());
   }
 }
