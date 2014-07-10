@@ -13,12 +13,15 @@ import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.HexEncode;
 import org.opendaylight.controller.sal.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.raw.packet.fields.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021qBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.EthernetPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.over.raw.fields.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
@@ -30,7 +33,7 @@ import java.util.ArrayList;
 /**
  * Ethernet Packet Decoder
  */
-public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketOverRawReceived> implements PacketProcessingListener {
+public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketReceived> implements PacketProcessingListener {
   private static final Logger _logger = LoggerFactory.getLogger(EthernetDecoder.class);
   public static final Integer LENGTH_MAX = 1500;
   public static final Integer ETHERTYPE_MIN = 1536;
@@ -38,7 +41,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
   public static final Integer ETHERTYPE_QINQ = 0x9100;
 
   public EthernetDecoder(NotificationProviderService notificationProviderService) {
-    super(EthernetPacketOverRawReceived.class, notificationProviderService);
+    super(EthernetPacketReceived.class, notificationProviderService);
   }
 
   @Override
@@ -54,20 +57,25 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
    * @throws org.opendaylight.controller.sal.packet.BufferException
    */
   @Override
-  public EthernetPacketOverRawReceived decode(PacketReceived packetReceived) {
+  public EthernetPacketReceived decode(PacketReceived packetReceived) {
     byte[] data = packetReceived.getPayload();
-    EthernetPacketOverRawReceivedBuilder builder = new EthernetPacketOverRawReceivedBuilder();
+    EthernetPacketReceivedBuilder builder = new EthernetPacketReceivedBuilder();
 
     // Save original rawPacket & set the payloadOffset/payloadLength fields
-    builder.setRawPacket(new RawPacketBuilder()
-      .setIngress(packetReceived.getIngress())
-      .setConnectionCookie(packetReceived.getConnectionCookie())
-      .setFlowCookie(packetReceived.getFlowCookie())
-      .setTableId(packetReceived.getTableId())
-      .setPacketInReason(packetReceived.getPacketInReason())
-      .setMatch(new MatchBuilder(packetReceived.getMatch()).build())
-      .setPayloadOffset(0)
-      .setPayloadLength(data.length)
+    ArrayList<PacketChain> packetChain = new ArrayList<PacketChain>();
+    packetChain.add(new PacketChainBuilder()
+      .setOrder((byte) 0)
+      .setKey(new PacketChainKey((byte) 0))
+      .setPacket(new RawPacketBuilder()
+        .setIngress(packetReceived.getIngress())
+        .setConnectionCookie(packetReceived.getConnectionCookie())
+        .setFlowCookie(packetReceived.getFlowCookie())
+        .setTableId(packetReceived.getTableId())
+        .setPacketInReason(packetReceived.getPacketInReason())
+        .setMatch(new MatchBuilder(packetReceived.getMatch()).build())
+        .setPayloadOffset(0)
+        .setPayloadLength(data.length)
+        .build())
       .build());
 
     try {
@@ -131,7 +139,11 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
       epBuilder.setCrc(BitBufferHelper.getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NumBitsInAByte, 32)));
 
       // Set EthernetPacket field
-      builder.setEthernetPacket(epBuilder.build());
+      packetChain.add(new PacketChainBuilder()
+        .setOrder((byte) 1)
+        .setKey(new PacketChainKey((byte) 1))
+        .setPacket(epBuilder.build())
+        .build());
 
       // Set Payload field
       builder.setPayload(data);
@@ -146,6 +158,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             HexEncode.bytesToHexString(hdrFieldBytes),
             startOffset, numBits });
       }*/
+    builder.setPacketChain(packetChain);
     return builder.build();
   }
 

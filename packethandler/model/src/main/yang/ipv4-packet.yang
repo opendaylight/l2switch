@@ -217,17 +217,17 @@ module ipv4-packet {
     uses bpacket:packet-fields;
   }
 
-  grouping ipv4-packet-over-ethernet-fields {
-    container ipv4-packet {
-      uses ipv4-packet-fields;
-    }
-    container ethernet-over-raw-packet {
-     uses ethernet:ethernet-packet-over-raw-fields;
-    }
+  identity ipv4-packet {
+    base "bpacket:base-packet";
   }
-
-  notification ipv4-packet-over-ethernet-received {
+  notification ipv4-packet-received {
+    uses bpacket:packet-chain-grp {
+      augment "bpacket:packet-chain/bpacket:packet" {
+        case ipv4-packet {
+          uses ipv4-packet-fields;
+        }
+      }
+    }
     uses bpacket:packet-payload;
-    uses ipv4-packet-over-ethernet-fields;
   }
 }

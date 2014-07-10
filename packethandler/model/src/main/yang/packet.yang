@@ -55,4 +55,18 @@ module base-packet {
     uses packet-fields;
   }
 
+  identity base-packet {
+    description "Base identity from which all packet identifiers  are derived.";
+  }
+  grouping packet-chain-grp {
+    list packet-chain {
+      key "order";
+      leaf order {type int8;}
+      choice packet {
+         case raw-packet {
+           uses raw-packet-fields;
+         }
+      }
+    }
+  }
 }

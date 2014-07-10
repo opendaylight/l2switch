@@ -10,8 +10,9 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketOverRawReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
 
@@ -31,18 +32,19 @@ public class EthernetDecoderTest {
       (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba
     };
     NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
-    EthernetPacketOverRawReceived notification = new EthernetDecoder(mock).decode(new PacketReceivedBuilder()
+    EthernetPacketReceived notification = new EthernetDecoder(mock).decode(new PacketReceivedBuilder()
       .setPayload(packet)
       .setMatch(new MatchBuilder().build())
       .build());
-    assertEquals(notification.getEthernetPacket().getEthertype(), KnownEtherType.Ipv4);
-    assertNull(notification.getEthernetPacket().getEthernetLength());
-    assertNull(notification.getEthernetPacket().getHeader8021q());
-    assertEquals(notification.getEthernetPacket().getDestinationMac().getValue(), "01:23:45:67:89:ab");
-    assertEquals(notification.getEthernetPacket().getSourceMac().getValue(), "cd:ef:01:23:45:67");
-    assertEquals(14, notification.getEthernetPacket().getPayloadOffset().intValue());
-    assertEquals(14, notification.getEthernetPacket().getPayloadLength().intValue());
-    assertEquals(2566839482L, notification.getEthernetPacket().getCrc().longValue());
+    EthernetPacket ethernetPacket = (EthernetPacket)notification.getPacketChain().get(1).getPacket();
+    assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv4);
+    assertNull(ethernetPacket.getEthernetLength());
+    assertNull(ethernetPacket.getHeader8021q());
+    assertEquals(ethernetPacket.getDestinationMac().getValue(), "01:23:45:67:89:ab");
+    assertEquals(ethernetPacket.getSourceMac().getValue(), "cd:ef:01:23:45:67");
+    assertEquals(14, ethernetPacket.getPayloadOffset().intValue());
+    assertEquals(14, ethernetPacket.getPayloadLength().intValue());
+    assertEquals(2566839482L, ethernetPacket.getCrc().longValue());
     assertTrue(Arrays.equals(packet, notification.getPayload()));
   }
 /*

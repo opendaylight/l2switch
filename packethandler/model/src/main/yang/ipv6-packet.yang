@@ -91,17 +91,18 @@ module ipv6-packet {
     uses bpacket:packet-fields;
   }
 
-  grouping ipv6-packet-over-ethernet-fields {
-    container ipv6-packet {
-      uses ipv6-packet-fields;
-    }
-    container ethernet-over-raw-packet {
-     uses ethernet:ethernet-packet-over-raw-fields;
-    }
-  }
 
-  notification ipv6-packet-over-ethernet-received {
+  identity ipv6-packet {
+    base "bpacket:base-packet";
+  }
+  notification ipv6-packet-received {
+    uses bpacket:packet-chain-grp {
+      augment "bpacket:packet-chain/bpacket:packet" {
+        case ipv6-packet {
+          uses ipv6-packet-fields;
+        }
+      }
+    }
     uses bpacket:packet-payload;
-    uses ipv6-packet-over-ethernet-fields;
   }
 }
