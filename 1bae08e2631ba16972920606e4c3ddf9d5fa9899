@@ -2,6 +2,125 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa82b9bf_b748fe5c",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/ArpDecoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "this \"packetChain.getPacket() instanceof EthernetPacket\" is better check, to cast a packet to Ethernet.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_17676aea",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/ArpDecoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "only this check is enough.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d7458243",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/Ipv4Decoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "this \"packetChain.getPacket() instanceof EthernetPacket\" is better check, to cast a packet to Ethernet.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f769a6be",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/Ipv4Decoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "only this check is good enough",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7776f6a5",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/Ipv6Decoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "this \"packetChain.getPacket() instanceof EthernetPacket\" is better check, to cast a packet to Ethernet.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_376ceecf",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/Ipv6Decoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "Do we need both checks?",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_577172a6",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/Ipv6Decoder.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "This check is good enough?",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_144a0826",
         "filename": "packethandler/model/src/main/yang/ipv4-packet.yang",
         "patchSetId": 5
@@ -13,6 +132,24 @@
       "writtenOn": "2014-07-10T10:25:21Z",
       "side": 1,
       "message": "Shouldn\u0027t the IP packet\u0027s payload be also in the notification?\nThe current payload seems to be the base packet... Or is it so that the packet-payload from the base model is simply re-used here and in instance terms the \"payload\" would be directly the IP packet\u0027s payload. If so, this is grand.",
+      "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d4002004",
+        "filename": "packethandler/model/src/main/yang/ipv4-packet.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-10T19:02:16Z",
+      "side": 1,
+      "message": "Here we are carrying same payload that we received in first packet in event it self. The ipv4-packe-fields would have payload-offset and payload-length that would  allow to extract the ipv4 payload from the base packet payload.\nEssentially each layer carries the pointers to their own payload. However the notification carries entire payload.",
+      "parentUuid": "fa82b9bf_144a0826",
       "revId": "1bae08e2631ba16972920606e4c3ddf9d5fa9899",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
