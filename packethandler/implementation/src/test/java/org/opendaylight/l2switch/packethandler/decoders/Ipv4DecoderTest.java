@@ -65,7 +65,7 @@ public class Ipv4DecoderTest {
     assertEquals(4, ipv4Packet.getVersion().intValue());
     assertEquals(5, ipv4Packet.getIhl().intValue());
     assertEquals(30, ipv4Packet.getIpv4Length().intValue());
-    assertEquals(0, ipv4Packet.getDscp().intValue());
+    assertEquals(0, ipv4Packet.getDscp().getValue().intValue());
     assertEquals(0, ipv4Packet.getEcn().intValue());
     assertEquals(30, ipv4Packet.getIpv4Length().intValue());
     assertEquals(286, ipv4Packet.getId().intValue());
@@ -123,7 +123,7 @@ public class Ipv4DecoderTest {
     assertEquals(4, ipv4Packet.getVersion().intValue());
     assertEquals(5, ipv4Packet.getIhl().intValue());
     assertEquals(30, ipv4Packet.getIpv4Length().intValue());
-    assertEquals(63, ipv4Packet.getDscp().intValue());
+    assertEquals(63, ipv4Packet.getDscp().getValue().intValue());
     assertEquals(3, ipv4Packet.getEcn().intValue());
     assertEquals(30, ipv4Packet.getIpv4Length().intValue());
     assertEquals(286, ipv4Packet.getId().intValue());
@@ -182,7 +182,7 @@ public class Ipv4DecoderTest {
     assertEquals(15, ipv4Packet.getVersion().intValue());
     assertEquals(5, ipv4Packet.getIhl().intValue());
     assertEquals(0, ipv4Packet.getIpv4Length().intValue());
-    assertEquals(3, ipv4Packet.getDscp().intValue());
+    assertEquals(3, ipv4Packet.getDscp().getValue().intValue());
     assertEquals(3, ipv4Packet.getEcn().intValue());
     assertEquals(0, ipv4Packet.getIpv4Length().intValue());
     assertEquals(65535, ipv4Packet.getId().intValue());
@@ -231,7 +231,7 @@ public class Ipv4DecoderTest {
     Ipv4Packet ipv4Packet = (Ipv4Packet)notification.getPacketChain().get(2).getPacket();
     assertEquals(4, ipv4Packet.getVersion().intValue());
     assertEquals(5, ipv4Packet.getIhl().intValue());
-    assertEquals(4, ipv4Packet.getDscp().intValue());
+    assertEquals(4, ipv4Packet.getDscp().getValue().intValue());
     assertEquals(0, ipv4Packet.getEcn().intValue());
     assertEquals(328, ipv4Packet.getIpv4Length().intValue());
     assertEquals(0, ipv4Packet.getId().intValue());

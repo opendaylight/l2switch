@@ -163,7 +163,7 @@ module ipv4-packet {
     }
 
     leaf dscp {
-      type uint8;
+      type inet:dscp;
       description "Differentiated Code Services Point";
     }
 

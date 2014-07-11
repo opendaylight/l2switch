@@ -15,6 +15,7 @@ import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.packet.BitBufferHelper;
 import org.opendaylight.controller.sal.packet.BufferException;
 import org.opendaylight.controller.sal.utils.NetUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -64,7 +65,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
       }
 
       builder.setIhl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 4, 4)));
-      builder.setDscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 6)));
+      builder.setDscp(new Dscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 6))));
       builder.setEcn(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 14, 2)));
       builder.setIpv4Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
       builder.setId(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
