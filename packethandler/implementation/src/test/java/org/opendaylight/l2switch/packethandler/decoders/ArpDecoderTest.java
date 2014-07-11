@@ -104,4 +104,39 @@ public class ArpDecoderTest {
     assertEquals("cd:ef:01:23:45:67", arpPacket.getDestinationHardwareAddress());
     assertEquals("1.2.3.4", arpPacket.getDestinationProtocolAddress());
   }
+
+  // This test is from a Mininet VM, from a wireshark dump
+  @Test
+  public void testDecode_Broadcast() throws Exception {
+    byte[] packet = {
+      //Ethernet start
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x08, 0x06,
+      // Arp start
+      0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, 0x01, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x0a, 0x00, 0x00, 0x01,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x02
+    };
+    NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
+    ArpPacketReceived notification = new ArpDecoder(mock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(packet)
+      .build());
+
+    ArpPacket arpPacket = (ArpPacket)notification.getPacketChain().get(2).getPacket();
+    assertEquals(KnownHardwareType.Ethernet, arpPacket.getHardwareType());
+    assertEquals(KnownEtherType.Ipv4, arpPacket.getProtocolType());
+    assertEquals(6, arpPacket.getHardwareLength().intValue());
+    assertEquals(4, arpPacket.getProtocolLength().intValue());
+    assertEquals(KnownOperation.Request, arpPacket.getOperation());
+    assertEquals("ba:43:52:ce:09:f4", arpPacket.getSourceHardwareAddress());
+    assertEquals("10.0.0.1", arpPacket.getSourceProtocolAddress());
+    assertEquals("00:00:00:00:00:00", arpPacket.getDestinationHardwareAddress());
+    assertEquals("10.0.0.2", arpPacket.getDestinationProtocolAddress());
+  }
 }

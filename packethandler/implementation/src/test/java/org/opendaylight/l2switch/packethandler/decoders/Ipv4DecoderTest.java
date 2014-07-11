@@ -202,4 +202,53 @@ public class Ipv4DecoderTest {
     assertEquals(38, ipv4Packet.getPayloadOffset().intValue());
     assertTrue(Arrays.equals(eth_payload, notification.getPayload()));
   }
+
+  // This test is from a Mininet VM, taken from a wireshark dump
+  @Test
+  public void testDecode_Udp() throws Exception {
+    byte[] eth_payload = {
+      // Eth start
+      (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, 0x06, 0x27, 0x25, 0x06, (byte)0x81, (byte)0x81, 0x08, 0x00,
+      // Ipv4 start
+      0x45, 0x10, 0x01, 0x48, 0x00, 0x00, 0x00, 0x00, (byte)0x80, 0x11, 0x39, (byte)0x96, 0x00, 0x00, 0x00, 0x00, (byte)0xff, (byte)0xff,
+      (byte)0xff, (byte)0xff,
+      // Udp start
+      0x00, 0x44, 0x00, 0x43, 0x01, 0x34, 0x2d, (byte)0xf5, 0x01, 0x01, 0x06, 0x00, (byte)0xdf, (byte)0xcc
+    };
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+    ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new RawPacketBuilder().build())
+      .build());
+    packetChainList.add(new PacketChainBuilder()
+      .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+      .build());
+
+    Ipv4PacketReceived notification = new Ipv4Decoder(npServiceMock).decode(new EthernetPacketReceivedBuilder()
+      .setPacketChain(packetChainList)
+      .setPayload(eth_payload)
+      .build());
+    Ipv4Packet ipv4Packet = (Ipv4Packet)notification.getPacketChain().get(2).getPacket();
+    assertEquals(4, ipv4Packet.getVersion().intValue());
+    assertEquals(5, ipv4Packet.getIhl().intValue());
+    assertEquals(4, ipv4Packet.getDscp().intValue());
+    assertEquals(0, ipv4Packet.getEcn().intValue());
+    assertEquals(328, ipv4Packet.getIpv4Length().intValue());
+    assertEquals(0, ipv4Packet.getId().intValue());
+    assertFalse(ipv4Packet.isReservedFlag());
+    assertFalse(ipv4Packet.isDfFlag());
+    assertFalse(ipv4Packet.isMfFlag());
+    assertEquals(0, ipv4Packet.getFragmentOffset().intValue());
+    assertEquals(128, ipv4Packet.getTtl().intValue());
+    assertEquals(KnownIpProtocols.Udp, ipv4Packet.getProtocol());
+    assertEquals(14742, ipv4Packet.getChecksum().intValue());
+
+    Ipv4Address src_address = new Ipv4Address("0.0.0.0");
+    Ipv4Address dst_address = new Ipv4Address("255.255.255.255");
+    assertEquals(src_address, ipv4Packet.getSourceIpv4());
+    assertEquals(dst_address, ipv4Packet.getDestinationIpv4());
+    assertEquals(34, ipv4Packet.getPayloadOffset().intValue());
+    // Not testing payloadLength because wireshark does not show crc
+    assertTrue(Arrays.equals(eth_payload, notification.getPayload()));
+  }
 }
