@@ -19,6 +19,10 @@ module address-tracker {
     prefix inv;
     revision-date 2013-08-19;
   }
+  import ethernet-packet {
+    prefix ethernet;
+    revision-date 2014-05-28;
+  }
 
   description
     "Address Tracker Data Model";
@@ -40,7 +44,7 @@ module address-tracker {
         description "IPv4 or IPv6 address";
       }
       leaf vlan {
-        type uint16;
+        type ethernet:vlan-id;
         description "VLAN id";
       }
       leaf first-seen {
