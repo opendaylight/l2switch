@@ -15,9 +15,6 @@ import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
 import org.opendaylight.l2switch.addressobserver.AddressObserver;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
-import org.opendaylight.l2switch.topology.NetworkGraphDijkstra;
-import org.opendaylight.l2switch.topology.NetworkGraphService;
-import org.opendaylight.l2switch.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
@@ -32,7 +29,6 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
 
   private final static Logger _logger = LoggerFactory.getLogger(L2SwitchProvider.class);
   private Registration<NotificationListener> listenerRegistration;
-  private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
   /**
    * Setup the L2Switch.
@@ -43,12 +39,8 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     // Setup FlowWriterService
     DataBroker dataService = consumerContext.<DataBroker>getSALService(DataBroker.class);
-    NetworkGraphService networkGraphService = new NetworkGraphDijkstra();
     //FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService, networkGraphService);
 
-    // Register Topology DataChangeListener
-    //this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
-    //topologyLinkDataChangeHandler.registerAsDataChangeListener();
 
     // Setup PacketDispatcher
     PacketProcessingService packetProcessingService =

@@ -5,9 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.l2switch.topology;
+package org.opendaylight.l2switch.loopremover.topology;
 
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 
 import java.util.List;
@@ -21,12 +20,14 @@ public interface NetworkGraphService {
 
   /**
    * Adds links to existing graph or creates new graph with given links if graph was not initialized.
+   *
    * @param links
    */
   public void addLinks(List<Link> links);
 
   /**
    * removes links from existing graph.
+   *
    * @param links
    */
   public void removeLinks(List<Link> links);
@@ -37,7 +38,20 @@ public interface NetworkGraphService {
    * @param destinationNodeId
    * @return
    */
-  public List<Link> getPath(NodeId sourceNodeId, NodeId destinationNodeId);
+  //public List<Link> getPath(NodeId sourceNodeId, NodeId destinationNodeId);
+
+  /**
+   * Forms MST(minimum spanning tree) from network graph and returns links that are not in MST.
+   *
+   * @return
+   */
+  public List<Link> getLinksInMst();
+
+  /**
+   * returns all the links in current network graph.
+   * @return
+   */
+  public List<Link> getAllLinks();
 
   /**
    * Clears the prebuilt graph, in case same service instance is required to process a new graph.

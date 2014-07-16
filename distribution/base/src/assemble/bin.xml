@@ -63,6 +63,7 @@
         <exclude>opendaylight/plugins/org.opendaylight.controller.web*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.devices.web*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.protocol_plugins.openflow*.jar</exclude>
+        <exclude>opendaylight/plugins/org.opendaylight.openflowplugin.test-provider*.jar</exclude>
         <exclude>opendaylight/configuration/initial/99-netconf-connector.xml</exclude>
       </excludes>
     </fileSet>

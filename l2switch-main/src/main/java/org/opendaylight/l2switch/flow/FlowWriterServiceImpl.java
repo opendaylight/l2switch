@@ -9,11 +9,10 @@ package org.opendaylight.l2switch.flow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.l2switch.topology.NetworkGraphService;
+//import org.opendaylight.l2switch.topology.NetworkGraphService;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -64,18 +63,18 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
   private static final Logger _logger = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
-  private final DataBrokerService dataBrokerService;
-  private final NetworkGraphService networkGraphService;
+  private final DataBrokerService dataBrokerService=null;
+  //private final NetworkGraphService networkGraphService;
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
 
-  public FlowWriterServiceImpl(DataBrokerService dataBrokerService, NetworkGraphService networkGraphService) {
+  /*public FlowWriterServiceImpl(DataBrokerService dataBrokerService, NetworkGraphService networkGraphService) {
     Preconditions.checkNotNull(dataBrokerService, "dataBrokerService should not be null.");
     Preconditions.checkNotNull(networkGraphService, "networkGraphService should not be null.");
     this.dataBrokerService = dataBrokerService;
     this.networkGraphService = networkGraphService;
-  }
+  }*/
 
   /**
    * Writes a flow that forwards packets to destPort if destination mac in packet is destMac and
@@ -149,7 +148,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     addMacToMacFlow(sourceMac, destMac, destNodeConnectorRef);
 
     if(!sourceNodeId.equals(destNodeId)) {
-      List<Link> linksInBeween = networkGraphService.getPath(sourceNodeId, destNodeId);
+      List<Link> linksInBeween = null;//networkGraphService.getPath(sourceNodeId, destNodeId);
 
       if(linksInBeween != null) {
         // assumes the list order is maintained and starts with link that has source as source node
