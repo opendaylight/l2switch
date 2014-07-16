@@ -11,14 +11,15 @@
   <modules>
     <module>parent</module>
     <module>packethandler</module>
-    <module>distribution/base</module>
     <module>l2switch-main</module>
     <!--module>ethernetdecoder</module>
     <module>arpdecoder</module>
     <module>ipv4decoder</module>
     <module>ipv6decoder</module-->
     <module>addresstracker</module>
+    <module>loopremover</module>
     <module>l2switch-controller-config</module>
+    <module>distribution/base</module>
   </modules>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
