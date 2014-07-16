@@ -60,12 +60,14 @@ public class PacketDispatcher  {
       }
     }
 
-    // Flood this packet from the original node, except for the ingress
+    // Flood this packet from the original node
     NodeConnectorRef pktIngress = inventoryReader.getControllerSwitchConnectors().get(nodeId);
     List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
     for (NodeConnectorRef ncRef : nodeConnectors) {
-      if (!ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue().equals(
-        ingress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
+      String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue();
+      // Don't flood on discarding node connectors & ingress
+      if (!inventoryReader.getDiscardingNodeConnectors().contains(ncId) &&
+        !ncId.equals(ingress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
         sendPacketOut(payload, pktIngress, ncRef);
       }
     }
