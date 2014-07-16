@@ -17,6 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -38,6 +41,7 @@ public class InventoryReader {
   private HashMap<String, NodeConnectorRef> controllerSwitchConnectors;
   // Key: SwitchId, Value: List of node connectors on this switch
   private HashMap<String, List<NodeConnectorRef>> switchNodeConnectors;
+  private HashSet<String> discardingNodeConnectors;
 
   /**
    * Construct an InventoryService object with the specified inputs.
@@ -48,6 +52,7 @@ public class InventoryReader {
     this.dataService = dataService;
     controllerSwitchConnectors = new HashMap<String, NodeConnectorRef>();
     switchNodeConnectors = new HashMap<String, List<NodeConnectorRef>>();
+    discardingNodeConnectors = new HashSet<String>();
   }
 
   public HashMap<String, NodeConnectorRef> getControllerSwitchConnectors() {
@@ -56,6 +61,10 @@ public class InventoryReader {
 
   public HashMap<String, List<NodeConnectorRef>> getSwitchNodeConnectors() {
     return switchNodeConnectors;
+  }
+
+  public HashSet<String> getDiscardingNodeConnectors() {
+    return discardingNodeConnectors;
   }
 
   /**
@@ -101,6 +110,23 @@ public class InventoryReader {
               controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
             } else {
               nodeConnectorRefs.add(ncRef);
+            }
+
+            // Read STP status for this NodeConnector
+            try {
+              readOnlyTransaction = dataService.newReadOnlyTransaction();
+              Optional<DataObject> dataObjectOptional =
+                readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION, ncRef.getValue()).get();
+              if(dataObjectOptional.isPresent()) {
+                NodeConnector configNodeConnector = (NodeConnector) dataObjectOptional.get();
+                StpStatusAwareNodeConnector saNodeConnector = configNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
+                if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
+                  discardingNodeConnectors.add(nodeConnector.getId().getValue());
+                }
+              }
+            } catch(InterruptedException|ExecutionException e) {
+              _logger.error("Failed to read nodes from Configuration data store.");
+              throw new RuntimeException("Failed to read nodes from Configuration data store.", e);
             }
           }
         }
