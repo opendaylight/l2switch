@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_4971cea6",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addressobserver/AddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-17T18:27:55Z",
+      "side": 1,
+      "message": "If this is not being used, please remove its reference.",
+      "revId": "e60e6c1ac757a54861bb0cbce58c24091a77db6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e969c2be",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/inventory/InventoryReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-17T18:27:55Z",
+      "side": 1,
+      "message": "Check needs to be made with respect to node connector stp status. Address list of \u0027active\u0027 ports should be considered. What do you think?",
+      "revId": "e60e6c1ac757a54861bb0cbce58c24091a77db6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_096746ea",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/packet/PacketDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-07-17T18:27:55Z",
+      "side": 1,
+      "message": "is this commented by mistake? or it is not working yet?",
+      "revId": "e60e6c1ac757a54861bb0cbce58c24091a77db6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
