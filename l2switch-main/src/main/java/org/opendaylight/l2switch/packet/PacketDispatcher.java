@@ -51,8 +51,7 @@ public class PacketDispatcher  {
     inventoryReader.readInventory();
     NodeConnectorRef destNodeConnector = inventoryReader.getDestinationNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
     if (destNodeConnector != null) {
-      //System.out.println("About to add a flow from " + ingress + " to " + destNodeConnector);
-      //flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
+      flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
       String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
       sendPacketOut(payload, inventoryReader.getControllerSwitchConnectors().get(nodeId), destNodeConnector);
     }

@@ -9,11 +9,6 @@ package org.opendaylight.l2switch.flow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -22,12 +17,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
@@ -37,8 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatch;
@@ -49,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -58,14 +62,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
   private static final Logger _logger = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
-  private DataBroker dataService;
+  private SalFlowService salFlowService;
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
 
-  public FlowWriterServiceImpl(DataBroker dataService) {
-    Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
-    this.dataService = dataService;
+  public FlowWriterServiceImpl(SalFlowService salFlowService) {
+    Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
+    this.salFlowService = salFlowService;
   }
 
   /**
@@ -130,6 +134,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
       return;
 
     }
+
     // add destMac-To-sourceMac flow on source port
     addMacToMacFlow(destMac, sourceMac, sourceNodeConnectorRef);
 
@@ -232,13 +237,18 @@ public class FlowWriterServiceImpl implements FlowWriterService {
    * modifies provided flow path with supplied body.
    *
    * @param flowPath
-   * @param flowBody
+   * @param flow
    * @return transaction commit
    */
-  private ListenableFuture<RpcResult<TransactionStatus>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath,
-                                                                     Flow flowBody) {
-    WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
-    writeTransaction.put(LogicalDatastoreType.CONFIGURATION, flowPath, flowBody);
-    return writeTransaction.commit();
+  private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath,
+                                                                     Flow flow) {
+    final InstanceIdentifier<Table> tableInstanceId = flowPath.<Table> firstIdentifierOf(Table.class);
+    final InstanceIdentifier<Node> nodeInstanceId = flowPath.<Node> firstIdentifierOf(Node.class);
+    final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
+    builder.setNode(new NodeRef(nodeInstanceId));
+    builder.setFlowRef(new FlowRef(flowPath));
+    builder.setFlowTable(new FlowTableRef(tableInstanceId));
+    builder.setTransactionUri(new Uri(flow.getId().getValue()));
+    return salFlowService.addFlow(builder.build());
   }
 }

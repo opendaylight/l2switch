@@ -17,6 +17,7 @@ import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
@@ -41,7 +42,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     // Setup FlowWriterService
     DataBroker dataService = consumerContext.<DataBroker>getSALService(DataBroker.class);
-    FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService);
+    FlowWriterService flowWriterService = new FlowWriterServiceImpl(consumerContext.getRpcService(SalFlowService.class));
 
     // Setup InventoryReader
     InventoryReader inventoryReader = new InventoryReader(dataService);
@@ -56,7 +57,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
 
     // Setup AddressObserver & AddressObservationWriter
     AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
-    AddressObserver addressObserver = new AddressObserver(inventoryReader, addressObservationWriter, packetDispatcher);
+    AddressObserver addressObserver = new AddressObserver(addressObservationWriter, packetDispatcher);
 
     // Register AddressObserver for notifications
     NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
