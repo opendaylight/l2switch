@@ -9,10 +9,11 @@ package org.opendaylight.l2switch.flow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataBrokerService;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-//import org.opendaylight.l2switch.topology.NetworkGraphService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -38,22 +39,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -63,18 +58,15 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
   private static final Logger _logger = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
-  private final DataBrokerService dataBrokerService=null;
-  //private final NetworkGraphService networkGraphService;
+  private DataBroker dataService;
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
 
-  /*public FlowWriterServiceImpl(DataBrokerService dataBrokerService, NetworkGraphService networkGraphService) {
-    Preconditions.checkNotNull(dataBrokerService, "dataBrokerService should not be null.");
-    Preconditions.checkNotNull(networkGraphService, "networkGraphService should not be null.");
-    this.dataBrokerService = dataBrokerService;
-    this.networkGraphService = networkGraphService;
-  }*/
+  public FlowWriterServiceImpl(DataBroker dataService) {
+    Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
+    this.dataService = dataService;
+  }
 
   /**
    * Writes a flow that forwards packets to destPort if destination mac in packet is destMac and
@@ -124,10 +116,10 @@ public class FlowWriterServiceImpl implements FlowWriterService {
    * @param destNodeConnectorRef
    */
   @Override
-  public void addMacToMacFlowsUsingShortestPath(MacAddress sourceMac,
-                                                NodeConnectorRef sourceNodeConnectorRef,
-                                                MacAddress destMac,
-                                                NodeConnectorRef destNodeConnectorRef) {
+  public void addBidirectionalMacToMacFlows(MacAddress sourceMac,
+                                            NodeConnectorRef sourceNodeConnectorRef,
+                                            MacAddress destMac,
+                                            NodeConnectorRef destNodeConnectorRef) {
     Preconditions.checkNotNull(sourceMac, "Source mac address should not be null.");
     Preconditions.checkNotNull(sourceNodeConnectorRef, "Source port should not be null.");
     Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
@@ -138,46 +130,11 @@ public class FlowWriterServiceImpl implements FlowWriterService {
       return;
 
     }
-    NodeId sourceNodeId = new NodeId(sourceNodeConnectorRef.getValue().firstKeyOf(Node.class, NodeKey.class).getId().getValue());
-    NodeId destNodeId = new NodeId(destNodeConnectorRef.getValue().firstKeyOf(Node.class, NodeKey.class).getId().getValue());
-
     // add destMac-To-sourceMac flow on source port
     addMacToMacFlow(destMac, sourceMac, sourceNodeConnectorRef);
 
     // add sourceMac-To-destMac flow on destination port
     addMacToMacFlow(sourceMac, destMac, destNodeConnectorRef);
-
-    if(!sourceNodeId.equals(destNodeId)) {
-      List<Link> linksInBeween = null;//networkGraphService.getPath(sourceNodeId, destNodeId);
-
-      if(linksInBeween != null) {
-        // assumes the list order is maintained and starts with link that has source as source node
-        for(Link link : linksInBeween) {
-          // add sourceMac-To-destMac flow on source port
-          addMacToMacFlow(sourceMac, destMac, getSourceNodeConnectorRef(link));
-
-          // add destMac-To-sourceMac flow on destination port
-          addMacToMacFlow(destMac, sourceMac, getDestNodeConnectorRef(link));
-        }
-      }
-    }
-  }
-
-  private NodeConnectorRef getSourceNodeConnectorRef(Link link) {
-    InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier
-        = InstanceIdentifierUtils.createNodeConnectorIdentifier(
-        link.getSource().getSourceNode().getValue(),
-        link.getSource().getSourceTp().getValue());
-    return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
-  }
-
-  private NodeConnectorRef getDestNodeConnectorRef(Link link) {
-    InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier
-        = InstanceIdentifierUtils.createNodeConnectorIdentifier(
-        link.getDestination().getDestNode().getValue(),
-        link.getDestination().getDestTp().getValue());
-
-    return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
   }
 
   /**
@@ -278,10 +235,10 @@ public class FlowWriterServiceImpl implements FlowWriterService {
    * @param flowBody
    * @return transaction commit
    */
-  private Future<RpcResult<TransactionStatus>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath,
+  private ListenableFuture<RpcResult<TransactionStatus>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath,
                                                                      Flow flowBody) {
-    DataModificationTransaction addFlowTransaction = dataBrokerService.beginTransaction();
-    addFlowTransaction.putConfigurationData(flowPath, flowBody);
-    return addFlowTransaction.commit();
+    WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
+    writeTransaction.put(LogicalDatastoreType.CONFIGURATION, flowPath, flowBody);
+    return writeTransaction.commit();
   }
 }

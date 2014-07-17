@@ -36,7 +36,7 @@ public interface FlowWriterService {
    * @param destMac
    * @param destNodeConnectorRef
    */
-  public void addMacToMacFlowsUsingShortestPath(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef, MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
+  public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef, MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
 
 
 }

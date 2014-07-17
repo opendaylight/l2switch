@@ -11,6 +11,7 @@ package org.opendaylight.l2switch.packet;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -46,10 +47,21 @@ public class PacketDispatcher  {
     this.inventoryReader = inventoryReader;
   }
 
-  public void sendPacketOut(byte[] payload, NodeConnectorRef ingress) {
-    // Read inventory for all the node connectors
+  public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
     inventoryReader.readInventory();
+    NodeConnectorRef destNodeConnector = inventoryReader.getDestinationNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
+    if (destNodeConnector != null) {
+      //System.out.println("About to add a flow from " + ingress + " to " + destNodeConnector);
+      //flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
+      String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
+      sendPacketOut(payload, inventoryReader.getControllerSwitchConnectors().get(nodeId), destNodeConnector);
+    }
+    else {
+      floodPacket(payload, ingress);
+    }
+  }
 
+  public void floodPacket(byte[] payload, NodeConnectorRef ingress) {
     // Get the name of the node
     String nodeId = "";
     InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(ingress.getValue());

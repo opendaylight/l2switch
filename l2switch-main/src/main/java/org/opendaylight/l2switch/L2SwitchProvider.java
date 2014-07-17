@@ -13,6 +13,8 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
 import org.opendaylight.l2switch.addressobserver.AddressObserver;
+import org.opendaylight.l2switch.flow.FlowWriterService;
+import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -39,20 +41,22 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     // Setup FlowWriterService
     DataBroker dataService = consumerContext.<DataBroker>getSALService(DataBroker.class);
-    //FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService, networkGraphService);
+    FlowWriterService flowWriterService = new FlowWriterServiceImpl(dataService);
 
+    // Setup InventoryReader
+    InventoryReader inventoryReader = new InventoryReader(dataService);
 
     // Setup PacketDispatcher
     PacketProcessingService packetProcessingService =
         consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
     PacketDispatcher packetDispatcher = new PacketDispatcher();
-    packetDispatcher.setInventoryReader(new InventoryReader(dataService));
+    packetDispatcher.setInventoryReader(inventoryReader);
     packetDispatcher.setPacketProcessingService(packetProcessingService);
-    //packetDispatcher.setFlowWriterService(flowWriterService);
+    packetDispatcher.setFlowWriterService(flowWriterService);
 
     // Setup AddressObserver & AddressObservationWriter
     AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
-    AddressObserver addressObserver = new AddressObserver(addressObservationWriter, packetDispatcher);
+    AddressObserver addressObserver = new AddressObserver(inventoryReader, addressObservationWriter, packetDispatcher);
 
     // Register AddressObserver for notifications
     NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);

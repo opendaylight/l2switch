@@ -7,8 +7,12 @@
  */
 package org.opendaylight.l2switch.addressobserver;
 
+import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
@@ -32,12 +36,14 @@ import org.slf4j.LoggerFactory;
 public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
 
   private final static Logger _logger = LoggerFactory.getLogger(AddressObserver.class);
+  private InventoryReader inventoryReader;
   private AddressObservationWriter addressObservationWriter;
   private PacketDispatcher packetDispatcher;
   private final String IPV4_IP_TO_IGNORE ="0.0.0.0";
   private final String IPV6_IP_TO_IGNORE ="0:0:0:0:0:0:0:0";
 
-  public AddressObserver(AddressObservationWriter addressObservationWriter, PacketDispatcher packetDispatcher) {
+  public AddressObserver(InventoryReader inventoryReader, AddressObservationWriter addressObservationWriter, PacketDispatcher packetDispatcher) {
+    this.inventoryReader = inventoryReader;
     this.addressObservationWriter = addressObservationWriter;
     this.packetDispatcher = packetDispatcher;
   }
@@ -73,7 +79,7 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
     addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
       new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()),
       rawPacket.getIngress());
-    packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
+    packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
   }
 
   /**
@@ -108,7 +114,7 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
       addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
         new IpAddress(ipv4Packet.getSourceIpv4().getValue().toCharArray()),
         rawPacket.getIngress());
-      packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
+      packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }
   }
 
@@ -144,7 +150,7 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
       addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
         new IpAddress(ipv6Packet.getSourceIpv6().getValue().toCharArray()),
         rawPacket.getIngress());
-      packetDispatcher.sendPacketOut(packetReceived.getPayload(), rawPacket.getIngress());
+      packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }
   }
 }
