@@ -71,9 +71,8 @@ public class InventoryReader {
   }
 
   /**
-   * Get the External NodeConnectors of the network, which are the NodeConnectors connected to hosts.
-   *
-   * @return The list of external node connectors.
+   * Read the Inventory data tree to find information about the Nodes & NodeConnectors.
+   * Create the list of NodeConnectors for a given switch.  Also determine the STP status of each NodeConnector.
    */
   public void readInventory() {
     // Only run once for now
@@ -138,8 +137,14 @@ public class InventoryReader {
     }
   }
 
-  public NodeConnectorRef getDestinationNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress destMac) {
-    if (nodeInsId == null || destMac == null) {
+  /**
+   * Get the NodeConnector on the specified node with the specified MacAddress observation.
+   * @param nodeInsId InstanceIdentifier for the node on which to search for.
+   * @param macAddress MacAddress to be searched for.
+   * @return NodeConnectorRef that pertains to the NodeConnector containing the MacAddress observation.
+   */
+  public NodeConnectorRef getNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress macAddress) {
+    if (nodeInsId == null || macAddress == null) {
       return null;
     }
 
@@ -152,15 +157,18 @@ public class InventoryReader {
       if(dataObjectOptional.isPresent()) {
         Node node = (Node)dataObjectOptional.get();
         for (NodeConnector nc : node.getNodeConnector()) {
-          AddressCapableNodeConnector acnc = (AddressCapableNodeConnector)nc.getAugmentation(AddressCapableNodeConnector.class);
-          if (acnc != null) {
-            List<Addresses> addressesList = acnc.getAddresses();
-            for (Addresses add : addressesList) {
-              if (destMac.equals(add.getMac())) {
-                if (add.getLastSeen() > latest) {
-                  destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.getKey()));
-                  latest = add.getLastSeen();
-                  break;
+          // Don't look for mac in discarding node connectors
+          if (!discardingNodeConnectors.contains(nc.getId().getValue())) {
+            AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
+            if (acnc != null) {
+              List<Addresses> addressesList = acnc.getAddresses();
+              for (Addresses add : addressesList) {
+                if (macAddress.equals(add.getMac())) {
+                  if (add.getLastSeen() > latest) {
+                    destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.getKey()));
+                    latest = add.getLastSeen();
+                    break;
+                  }
                 }
               }
             }

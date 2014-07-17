@@ -47,9 +47,16 @@ public class PacketDispatcher  {
     this.inventoryReader = inventoryReader;
   }
 
+  /**
+   * Dispatches the packet in the appropriate way - flood or unicast.
+   * @param payload The payload to be sent.
+   * @param ingress The NodeConnector where the payload came from.
+   * @param srcMac The source MacAddress of the packet.
+   * @param destMac The destination MacAddress of the packet.
+   */
   public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
     inventoryReader.readInventory();
-    NodeConnectorRef destNodeConnector = inventoryReader.getDestinationNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
+    NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
     if (destNodeConnector != null) {
       flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
       String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
@@ -60,6 +67,11 @@ public class PacketDispatcher  {
     }
   }
 
+  /**
+   * Floods the packet.
+   * @param payload The payload to be sent.
+   * @param ingress The NodeConnector where the payload came from.
+   */
   public void floodPacket(byte[] payload, NodeConnectorRef ingress) {
     // Get the name of the node
     String nodeId = "";
