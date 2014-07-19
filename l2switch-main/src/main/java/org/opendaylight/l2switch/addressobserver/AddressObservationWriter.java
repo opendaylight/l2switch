@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class AddressObservationWriter {
 
       NodeConnector nc = null;
       try {
-        Optional<DataObject> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {

@@ -46,6 +46,12 @@ public class InventoryReader {
   private HashMap<String, List<NodeConnectorRef>> switchNodeConnectors;
   private HashSet<String> discardingNodeConnectors;
 
+  public void setRefreshData(boolean refreshData) {
+    this.refreshData = refreshData;
+  }
+
+  private boolean refreshData = false;
+
   /**
    * Construct an InventoryService object with the specified inputs.
    *
@@ -76,64 +82,68 @@ public class InventoryReader {
    */
   public void readInventory() {
     // Only run once for now
-    if(controllerSwitchConnectors.size() > 0 || switchNodeConnectors.size() > 0) {
+    if(!refreshData) {
       return;
     }
+    synchronized(this) {
+      if(!refreshData)
+        return;
+      // Read Inventory
+      InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
+      Nodes nodes = null;
+      ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
 
-    // Read Inventory
-    InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
-    Nodes nodes = null;
-    ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
+      try {
+        Optional<Nodes> dataObjectOptional = null;
+        dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.toInstance()).get();
+        if(dataObjectOptional.isPresent())
+          nodes = (Nodes) dataObjectOptional.get();
+      } catch(InterruptedException e) {
+        _logger.error("Failed to read nodes from Operation data store.");
+        throw new RuntimeException("Failed to read nodes from Operation data store.", e);
+      } catch(ExecutionException e) {
+        _logger.error("Failed to read nodes from Operation data store.");
+        throw new RuntimeException("Failed to read nodes from Operation data store.", e);
+      }
 
-    try {
-      Optional<DataObject> dataObjectOptional = null;
-      dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.toInstance()).get();
-      if(dataObjectOptional.isPresent())
-        nodes = (Nodes) dataObjectOptional.get();
-    } catch(InterruptedException e) {
-      _logger.error("Failed to read nodes from Operation data store.");
-      throw new RuntimeException("Failed to read nodes from Operation data store.", e);
-    } catch(ExecutionException e) {
-      _logger.error("Failed to read nodes from Operation data store.");
-      throw new RuntimeException("Failed to read nodes from Operation data store.", e);
-    }
-
-    if(nodes != null) {
-      // Get NodeConnectors for each node
-      for(Node node : nodes.getNode()) {
-        ArrayList<NodeConnectorRef> nodeConnectorRefs = new ArrayList<NodeConnectorRef>();
-        List<NodeConnector> nodeConnectors = node.getNodeConnector();
-        if(nodeConnectors != null) {
-          for(NodeConnector nodeConnector : nodeConnectors) {
-            NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
-            if(nodeConnector.getKey().toString().contains("LOCAL")) {
-              controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
-            } else {
-              nodeConnectorRefs.add(ncRef);
-            }
-
-            // Read STP status for this NodeConnector
-            try {
-              readOnlyTransaction = dataService.newReadOnlyTransaction();
-              Optional<DataObject> dataObjectOptional =
-                readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION, ncRef.getValue()).get();
-              if(dataObjectOptional.isPresent()) {
-                NodeConnector configNodeConnector = (NodeConnector) dataObjectOptional.get();
-                StpStatusAwareNodeConnector saNodeConnector = configNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
-                if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
-                  discardingNodeConnectors.add(nodeConnector.getId().getValue());
-                }
+      if(nodes != null) {
+        // Get NodeConnectors for each node
+        for(Node node : nodes.getNode()) {
+          ArrayList<NodeConnectorRef> nodeConnectorRefs = new ArrayList<NodeConnectorRef>();
+          List<NodeConnector> nodeConnectors = node.getNodeConnector();
+          if(nodeConnectors != null) {
+            for(NodeConnector nodeConnector : nodeConnectors) {
+              NodeConnectorRef ncRef = new NodeConnectorRef(
+                  InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                      .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
+              if(nodeConnector.getKey().toString().contains("LOCAL")) {
+                controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
+              } else {
+                nodeConnectorRefs.add(ncRef);
               }
-            } catch(InterruptedException|ExecutionException e) {
-              _logger.error("Failed to read nodes from Configuration data store.");
-              throw new RuntimeException("Failed to read nodes from Configuration data store.", e);
+
+              // Read STP status for this NodeConnector
+              try {
+                readOnlyTransaction = dataService.newReadOnlyTransaction();
+                Optional<NodeConnector> dataObjectOptional =
+                    readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>) ncRef.getValue()).get();
+                if(dataObjectOptional.isPresent()) {
+                  NodeConnector configNodeConnector = (NodeConnector) dataObjectOptional.get();
+                  StpStatusAwareNodeConnector saNodeConnector = configNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
+                  if(saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
+                    discardingNodeConnectors.add(nodeConnector.getId().getValue());
+                  }
+                }
+              } catch(InterruptedException | ExecutionException e) {
+                _logger.error("Failed to read nodes from Configuration data store.");
+                throw new RuntimeException("Failed to read nodes from Configuration data store.", e);
+              }
             }
           }
+          switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
         }
-        switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
       }
+      refreshData = false;
     }
   }
 
@@ -152,7 +162,7 @@ public class InventoryReader {
     long latest = -1;
     ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
     try {
-      Optional<DataObject> dataObjectOptional = null;
+      Optional<Node> dataObjectOptional = null;
       dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId).get();
       if(dataObjectOptional.isPresent()) {
         Node node = (Node)dataObjectOptional.get();
