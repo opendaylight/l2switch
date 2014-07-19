@@ -58,7 +58,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   private static final Logger _logger = LoggerFactory.getLogger(TopologyLinkDataChangeHandler.class);
   private static final String DEFAULT_TOPOLOGY_ID = "flow:1";
 
-  private final ExecutorService topologyDataChangeEventProcessor = Executors.newFixedThreadPool(1);
+  private final ExecutorService topologyDataChangeEventProcessor = Executors.newCachedThreadPool();
 
   private final NetworkGraphService networkGraphService;
   private final DataBroker dataBroker;
@@ -230,7 +230,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     private void checkIfExistAndUpdateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef, StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
       NodeConnector nc = null;
       try {
-        Optional<DataObject> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
@@ -287,7 +287,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       Node node = null;
       InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifierUtils.generateNodeInstanceIdentifier(nodeConnectorRef);
       try {
-        Optional<DataObject> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodeInstanceIdentifier).get();
+        Optional<Node> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodeInstanceIdentifier).get();
         if(dataObjectOptional.isPresent())
           node = (Node) dataObjectOptional.get();
       } catch(Exception e) {
@@ -332,7 +332,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       Nodes nodes = null;
       InstanceIdentifier<Nodes> nodesInstanceIdentifier = nodeConnectorRef.getValue().firstIdentifierOf(Nodes.class);
       try {
-        Optional<DataObject> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodesInstanceIdentifier).get();
+        Optional<Nodes> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodesInstanceIdentifier).get();
         if(dataObjectOptional.isPresent())
           nodes = (Nodes) dataObjectOptional.get();
       } catch(Exception e) {

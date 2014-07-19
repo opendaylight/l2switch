@@ -26,12 +26,11 @@
       <scope>provided</scope>
     </dependency>
 
-    <!--TODO:dependency>
+    <dependency>
       <groupId>org.opendaylight.dlux</groupId>
       <artifactId>dlux-web</artifactId>
       <version>${dlux.version}</version>
-      <scope>provided</scope>
-    </dependency-->
+    </dependency>
 
     <!-- packet handler -->
     <dependency>

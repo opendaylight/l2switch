@@ -56,42 +56,52 @@ public class PacketDispatcher  {
    */
   public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
     inventoryReader.readInventory();
+
+    String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
+    NodeConnectorRef srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
+
+    if(srcConnectorRef==null) {
+      refreshInventoryReader();
+      srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
+    }
     NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
     if (destNodeConnector != null) {
       flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
-      String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
-      sendPacketOut(payload, inventoryReader.getControllerSwitchConnectors().get(nodeId), destNodeConnector);
     }
-    else {
-      floodPacket(payload, ingress);
+    if(srcConnectorRef!=null) {
+      if(destNodeConnector != null) {
+        sendPacketOut(payload, srcConnectorRef, destNodeConnector);
+      } else {
+        floodPacket(nodeId, payload, ingress, srcConnectorRef);
+      }
+    } else{
+      _logger.info("Cannot send packet out or flood as controller node connector is not available for node {}.", nodeId);
     }
   }
 
   /**
    * Floods the packet.
    * @param payload The payload to be sent.
-   * @param ingress The NodeConnector where the payload came from.
+   * @param origIngress The NodeConnector where the payload came from.
    */
-  public void floodPacket(byte[] payload, NodeConnectorRef ingress) {
-    // Get the name of the node
-    String nodeId = "";
-    InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(ingress.getValue());
-    if (nodePath != null) {
-      NodeKey nodeKey = InstanceIdentifierUtils.getNodeKey(nodePath);
-      if (nodeKey != null) {
-        nodeId = nodeKey.getId().getValue();
+  public void floodPacket(String nodeId, byte[] payload, NodeConnectorRef origIngress, NodeConnectorRef controllerNodeConnector) {
+
+    List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
+
+    if(nodeConnectors==null) {
+      refreshInventoryReader();
+      nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
+      if(nodeConnectors == null) {
+        _logger.info("Cannot flood packets, as inventory doesn't have any node connectors for node {}", nodeId);
+        return;
       }
     }
-
-    // Flood this packet from the original node
-    NodeConnectorRef pktIngress = inventoryReader.getControllerSwitchConnectors().get(nodeId);
-    List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
     for (NodeConnectorRef ncRef : nodeConnectors) {
       String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue();
-      // Don't flood on discarding node connectors & ingress
+      // Don't flood on discarding node connectors & origIngress
       if (!inventoryReader.getDiscardingNodeConnectors().contains(ncId) &&
-        !ncId.equals(ingress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
-        sendPacketOut(payload, pktIngress, ncRef);
+        !ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
+        sendPacketOut(payload, controllerNodeConnector, ncRef);
       }
     }
   }
@@ -112,5 +122,10 @@ public class PacketDispatcher  {
       .setIngress(ingress) //
       .build();
     packetProcessingService.transmitPacket(input);
+  }
+
+  private void refreshInventoryReader() {
+    inventoryReader.setRefreshData(true);
+    inventoryReader.readInventory();
   }
 }
