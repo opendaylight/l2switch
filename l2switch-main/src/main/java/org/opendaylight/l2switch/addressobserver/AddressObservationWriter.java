@@ -135,7 +135,7 @@ public class AddressObservationWriter {
           .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
 
       // Update this NodeConnector in the MD-SAL data tree
-      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, nodeConnectorRef.getValue(), ncBuilder.build());
+      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), ncBuilder.build());
       readWriteTransaction.commit();
     }
   }

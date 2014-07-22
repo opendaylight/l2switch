@@ -246,7 +246,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         nodeConnectorBuilder = new NodeConnectorBuilder(nc)
             .setKey(nc.getKey())
             .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector);
-        readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION, nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
+        readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
         _logger.info("Updated node connector in configuration {}", nodeConnectorRef);
       } else {
 
