@@ -230,13 +230,13 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     private void checkIfExistAndUpdateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef, StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
       NodeConnector nc = null;
       try {
-        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
         _logger.error("Error reading node connector {}", nodeConnectorRef.getValue());
         readWriteTransaction.commit();
-        throw new RuntimeException("Error reading from configuration store, node connector : " + nodeConnectorRef, e);
+        throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef, e);
       }
       NodeConnectorBuilder nodeConnectorBuilder;
       if(nc != null) {
@@ -246,8 +246,8 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         nodeConnectorBuilder = new NodeConnectorBuilder(nc)
             .setKey(nc.getKey())
             .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector);
-        readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
-        _logger.info("Updated node connector in configuration {}", nodeConnectorRef);
+        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
+        _logger.info("Updated node connector in operational {}", nodeConnectorRef);
       } else {
 
         NodeConnectorKey nodeConnectorKey = InstanceIdentifierUtils.getNodeConnectorKey(nodeConnectorRef.getValue());
@@ -287,13 +287,13 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       Node node = null;
       InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifierUtils.generateNodeInstanceIdentifier(nodeConnectorRef);
       try {
-        Optional<Node> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodeInstanceIdentifier).get();
+        Optional<Node> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier).get();
         if(dataObjectOptional.isPresent())
           node = (Node) dataObjectOptional.get();
       } catch(Exception e) {
         _logger.error("Error reading node {}", nodeInstanceIdentifier);
         readWriteTransaction.commit();
-        throw new RuntimeException("Error reading from configuration store, node  : " + nodeInstanceIdentifier, e);
+        throw new RuntimeException("Error reading from operational store, node  : " + nodeInstanceIdentifier, e);
       }
       if(node != null) {
         List<NodeConnector> nodeConnectors = node.getNodeConnector();
@@ -304,8 +304,8 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         NodeBuilder nodeBuilder = new NodeBuilder(node)
             .setNodeConnector(nodeConnectors);
         node = nodeBuilder.build();
-        readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION, nodeInstanceIdentifier, node);
-        _logger.info("Updated node {}  in configuration store with node id {}", node, nodeInstanceIdentifier);
+        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier, node);
+        _logger.info("Updated node {}  in operational store with node id {}", node, nodeInstanceIdentifier);
       } else {
         NodeKey nodeKey = nodeConnectorRef.getValue().firstKeyOf(Node.class, NodeKey.class);
         List<NodeConnector> nodeConnectors = new ArrayList<>();
@@ -332,13 +332,13 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       Nodes nodes = null;
       InstanceIdentifier<Nodes> nodesInstanceIdentifier = nodeConnectorRef.getValue().firstIdentifierOf(Nodes.class);
       try {
-        Optional<Nodes> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.CONFIGURATION, nodesInstanceIdentifier).get();
+        Optional<Nodes> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier).get();
         if(dataObjectOptional.isPresent())
           nodes = (Nodes) dataObjectOptional.get();
       } catch(Exception e) {
         _logger.error("Error reading nodes  {}", nodesInstanceIdentifier);
         readWriteTransaction.commit();
-        throw new RuntimeException("Error reading from configuration store, nodes  : " + nodesInstanceIdentifier, e);
+        throw new RuntimeException("Error reading from operational store, nodes  : " + nodesInstanceIdentifier, e);
       }
       if(nodes != null) {
         nodesList = nodes.getNode();
@@ -350,8 +350,8 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       NodesBuilder nodesBuilder = new NodesBuilder()
           .setNode(nodesList);
       nodes = nodesBuilder.build();
-      readWriteTransaction.put(LogicalDatastoreType.CONFIGURATION, nodesInstanceIdentifier, nodes);
-      _logger.info("Updated nodes {}  in configuration store with nodes id {}", nodes, nodesInstanceIdentifier);
+      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier, nodes);
+      _logger.info("Updated nodes {}  in operational store with nodes id {}", nodes, nodesInstanceIdentifier);
     }
   }
 }

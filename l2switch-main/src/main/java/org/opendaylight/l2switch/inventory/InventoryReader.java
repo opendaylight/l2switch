@@ -126,7 +126,7 @@ public class InventoryReader {
               try {
                 readOnlyTransaction = dataService.newReadOnlyTransaction();
                 Optional<NodeConnector> dataObjectOptional =
-                    readOnlyTransaction.read(LogicalDatastoreType.CONFIGURATION, (InstanceIdentifier<NodeConnector>) ncRef.getValue()).get();
+                    readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) ncRef.getValue()).get();
                 if(dataObjectOptional.isPresent()) {
                   NodeConnector configNodeConnector = (NodeConnector) dataObjectOptional.get();
                   StpStatusAwareNodeConnector saNodeConnector = configNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
@@ -135,8 +135,8 @@ public class InventoryReader {
                   }
                 }
               } catch(InterruptedException | ExecutionException e) {
-                _logger.error("Failed to read nodes from Configuration data store.");
-                throw new RuntimeException("Failed to read nodes from Configuration data store.", e);
+                _logger.error("Failed to read nodes from Operational data store.");
+                throw new RuntimeException("Failed to read nodes from Operational data store.", e);
               }
             }
           }
