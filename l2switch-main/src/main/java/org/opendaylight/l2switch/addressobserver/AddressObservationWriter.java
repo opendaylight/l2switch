@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
@@ -130,8 +131,11 @@ public class AddressObservationWriter {
       // Add as an augmentation
       addresses.add(addressBuilder.build());
       acncBuilder.setAddresses(addresses);
-      NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder(nc)
+      //NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder(nc)  //ToDo: Uncomment after Bug-1407 is fixed
+      NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder()  //ToDo: Remove after Bug-1407 is fixed
           .setKey(nc.getKey())
+          .setId(nc.getId())
+          .addAugmentation(FlowCapableNodeConnector.class, nc.getAugmentation(FlowCapableNodeConnector.class)) //ToDo: Remove after Bug-1407 is fixed
           .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
 
       // Update this NodeConnector in the MD-SAL data tree
