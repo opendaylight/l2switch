@@ -12,6 +12,7 @@
     <module>parent</module>
     <module>packethandler</module>
     <module>addresstracker</module>
+    <module>hosttracker</module>
     <module>loopremover</module>
     <module>l2switch-main</module>
     <module>l2switch-controller-config</module>

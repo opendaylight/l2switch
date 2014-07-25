@@ -1,0 +1,37 @@
+module host-tracker-service {
+    namespace "urn:opendaylight:mdhosttracker";
+    prefix ht;
+
+    import ietf-yang-types {prefix yang;}
+    import address-tracker {prefix at;}
+    import opendaylight-inventory {prefix inv;}
+
+    revision 2014-06-24 {
+        description
+            "draft based on address-tracker 2014-06-17";
+    }
+
+    typedef host-id {
+        description "This is opaque and unique, but don't assume anything about it other than that";
+        type string;
+    }
+
+    grouping host {
+        uses at:address-node-connector;
+        leaf-list attachment-point {
+            type inv:node-connector-ref;
+        }
+        leaf id {
+            type host-id;
+            description "unique host identifier";
+        }
+    }
+
+    container hosts {
+        list host {
+            key "id";
+            uses host;
+        }
+    }
+
+}
