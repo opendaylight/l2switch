@@ -25,7 +25,7 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
   private NotificationProviderService notificationProviderService;
 
 
-  protected Registration<NotificationListener> listenerRegistration;
+  protected Registration listenerRegistration;
 
   /**
    * Constructor to
