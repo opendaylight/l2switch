@@ -31,7 +31,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     implements AutoCloseable {
 
   private final static Logger _logger = LoggerFactory.getLogger(L2SwitchProvider.class);
-  private Registration<NotificationListener> listenerRegistration;
+  private Registration listenerRegistration;
 
   /**
    * Setup the L2Switch.
