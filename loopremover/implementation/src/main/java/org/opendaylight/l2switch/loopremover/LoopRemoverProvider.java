@@ -18,7 +18,7 @@ public class LoopRemoverProvider extends AbstractBindingAwareConsumer
     implements AutoCloseable {
 
   private final static Logger _logger = LoggerFactory.getLogger(LoopRemoverProvider.class);
-  private Registration<DataChangeListener> listenerRegistration;
+  private Registration listenerRegistration;
   private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
   /**
