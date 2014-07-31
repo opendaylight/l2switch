@@ -15,7 +15,7 @@ public class HostTrackerProvider extends AbstractBindingAwareProvider
 
     private static final Logger log = LoggerFactory.getLogger(HostTrackerProvider.class);
 
-    HostTrackerImpl mdHostTrackerImpl;
+    HostTrackerProvider mdHostTrackerImpl;
 
     public HostTrackerProvider() {
 //        betterHostTrackerImpl = new BetterHostTrackerImpl();

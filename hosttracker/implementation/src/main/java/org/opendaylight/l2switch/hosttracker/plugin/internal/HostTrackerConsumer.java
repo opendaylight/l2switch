@@ -1,8 +1,8 @@
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +25,7 @@ public class HostTrackerConsumer extends AbstractBindingAwareConsumer
     public void onSessionInitialized(ConsumerContext session) {
         log.trace("onSessionInitialized");
         DataBroker dataService = session.<DataBroker>getSALService(DataBroker.class);
+        //ITopologyManager topologyManager = (ITopologyManager) ServiceHelper.getInstance(ITopologyManager.class, GlobalConstants.DEFAULT.toString(), this);
         mdHostTrackerImpl = new HostTrackerImpl(dataService);
         mdHostTrackerImpl.registerAsDataChangeListener();
     }

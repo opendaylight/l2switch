@@ -1,6 +1,6 @@
 module host-tracker-service {
-    namespace "urn:opendaylight:mdhosttracker";
-    prefix ht;
+    namespace "urn:opendaylight:host-tracker";
+    prefix host-track;
 
     import ietf-yang-types {prefix yang;}
     import address-tracker {prefix at;}
@@ -12,11 +12,12 @@ module host-tracker-service {
     }
 
     typedef host-id {
-        description "This is opaque and unique, but don't assume anything about it other than that";
+        description "This is opaque and unique, but don't assume anything about it other than that!";
         type string;
     }
 
     grouping host {
+        description "List of address node connectors attached to this host";
         uses at:address-node-connector;
         leaf-list attachment-point {
             type inv:node-connector-ref;
@@ -28,6 +29,7 @@ module host-tracker-service {
     }
 
     container hosts {
+        description "List of hosts found on the topology";
         list host {
             key "id";
             uses host;

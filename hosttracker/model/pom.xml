@@ -42,6 +42,7 @@
             <plugin>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>yang-maven-plugin</artifactId>
+                <version>${yangtools.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.opendaylight.yangtools</groupId>
@@ -62,7 +63,7 @@
                             <goal>generate-sources</goal>
                         </goals>
                         <configuration>
-							
+
                             <yangFilesRootDir>src/main/yang</yangFilesRootDir>
                             <codeGenerators>
                                 <generator>
@@ -115,46 +116,16 @@
                             <configuration>
                                 <sources>
                                     <source>src/main/yang</source>
-                                    <source>src/main/yang-gen-code</source>
+                                    <source>${codeGeneratorPath}</source>
+                                    <source>${jmxGeneratorPath}</source>
+                                    <source>${salGeneratorPath}</source>
                                 </sources>
                             </configuration>
                         </execution>
                     </executions>
                 </plugin>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            org.opendaylight.yangtools
-                                        </groupId>
-                                        <artifactId>
-                                            yang-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [0.6.2-v20140706000052_355f1d0,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>
-                                                generate-sources
-                                            </goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore></ignore>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+    <name>hosttracker-model</name>
 </project>
