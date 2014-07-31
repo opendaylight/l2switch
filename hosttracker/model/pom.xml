@@ -62,7 +62,7 @@
                             <goal>generate-sources</goal>
                         </goals>
                         <configuration>
-							
+
                             <yangFilesRootDir>src/main/yang</yangFilesRootDir>
                             <codeGenerators>
                                 <generator>
@@ -115,7 +115,9 @@
                             <configuration>
                                 <sources>
                                     <source>src/main/yang</source>
-                                    <source>src/main/yang-gen-code</source>
+                                    <source>${codeGeneratorPath}</source>
+                                    <source>${jmxGeneratorPath}</source>
+                                    <source>${salGeneratorPath}</source>
                                 </sources>
                             </configuration>
                         </execution>
@@ -157,4 +159,5 @@
             </plugins>
         </pluginManagement>
     </build>
+    <name>hosttracker-model</name>
 </project>
