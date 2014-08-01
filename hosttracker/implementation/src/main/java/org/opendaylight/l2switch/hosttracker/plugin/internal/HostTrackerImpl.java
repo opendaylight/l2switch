@@ -144,6 +144,8 @@ public class HostTrackerImpl implements DataChangeListener {
         Host host = createHost(addrs, nodeConnector);
         if (hosts.containsKey(host.getKey())) {
             host = updateHost(addrs, nodeConnector);
+          //TODO:Fix this once update host returns expected value
+          return;
         }
         hosts.put(host.getKey(), host);
 
