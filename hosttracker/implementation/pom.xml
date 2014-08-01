@@ -78,5 +78,10 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools.model</groupId>
+            <artifactId>ietf-topology</artifactId>
+            <version>2013.10.21.2-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
