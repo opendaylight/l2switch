@@ -26,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -86,7 +87,8 @@ public class AddressObservationWriter {
           .setMac(macAddress)
           .setFirstSeen(now)
           .setLastSeen(now)
-          .setKey(new AddressesKey(now));
+          //FIXME: fix to use an internally generated key that is guaranteed to be unique
+          .setKey(new AddressesKey(bigIntFromMacAddr(macAddress)));
       List<Addresses> addresses = null;
 
       // Read existing address observations from data tree
@@ -139,5 +141,8 @@ public class AddressObservationWriter {
       readWriteTransaction.commit();
     }
   }
-}
 
+  private BigInteger bigIntFromMacAddr(MacAddress addr) {
+    return new BigInteger(addr.getValue().replace(":", ""), 16);
+  }
+}

@@ -34,7 +34,11 @@ module address-tracker {
 
   grouping address-node-connector {
     list addresses {
-      key "first-seen";
+      key id;
+      leaf id {
+        description "A 64-bit key for this observation. This is opaque and should not be interpreted.";
+        type uint64;
+      }
       leaf mac {
         type yang:mac-address;
         description "MAC address";
