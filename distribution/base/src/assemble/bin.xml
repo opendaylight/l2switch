@@ -48,7 +48,7 @@
         <exclude>opendaylight/plugins/org.opendaylight.controller.sal.implementation*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.sal.connection.implementation*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.sal.networkconfiguration.implementation*.jar</exclude>
-        <exclude>opendaylight/plugins/org.opendaylight.controller.sal-remote*.jar</exclude>
+        <!-- <exclude>opendaylight/plugins/org.opendaylight.controller.sal-remote*.jar</exclude> -->
         <exclude>opendaylight/plugins/org.opendaylight.controller.sal-restconf-broker*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.statisticsmanager*.jar</exclude>
         <exclude>opendaylight/plugins/org.opendaylight.controller.statistics.northbound*.jar</exclude>
