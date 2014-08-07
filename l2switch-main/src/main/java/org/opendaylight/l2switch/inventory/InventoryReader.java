@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -116,31 +117,23 @@ public class InventoryReader {
               NodeConnectorRef ncRef = new NodeConnectorRef(
                   InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
                       .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
-              if(nodeConnector.getKey().toString().contains("LOCAL")) {
-                controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
-              } else {
+              if(!nodeConnector.getKey().toString().contains("LOCAL")) {
                 nodeConnectorRefs.add(ncRef);
               }
-
               // Read STP status for this NodeConnector
-              try {
-                readOnlyTransaction = dataService.newReadOnlyTransaction();
-                Optional<NodeConnector> dataObjectOptional =
-                    readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) ncRef.getValue()).get();
-                if(dataObjectOptional.isPresent()) {
-                  NodeConnector configNodeConnector = (NodeConnector) dataObjectOptional.get();
-                  StpStatusAwareNodeConnector saNodeConnector = configNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
-                  if(saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
-                    discardingNodeConnectors.add(nodeConnector.getId().getValue());
-                  }
-                }
-              } catch(InterruptedException | ExecutionException e) {
-                _logger.error("Failed to read nodes from Operational data store.");
-                throw new RuntimeException("Failed to read nodes from Operational data store.", e);
+              StpStatusAwareNodeConnector saNodeConnector = nodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
+              if(saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
+                discardingNodeConnectors.add(nodeConnector.getId().getValue());
               }
             }
           }
+
           switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
+          NodeConnectorRef ncRef = new NodeConnectorRef(
+              InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
+                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(node.getId()+":LOCAL"))).toInstance());
+          _logger.info("Local port for node {} is {}",node.getKey(),ncRef);
+          controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
         }
       }
       refreshData = false;

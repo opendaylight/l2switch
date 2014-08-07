@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * store these address observations for each node-connector.
  * These packets are returned to the network after the addresses are learned.
  */
-public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
+public class AddressObserver implements ArpPacketListener {//, Ipv4PacketListener, Ipv6PacketListener {
 
   private final static Logger _logger = LoggerFactory.getLogger(AddressObserver.class);
   private AddressObservationWriter addressObservationWriter;
@@ -80,7 +80,7 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
    * The handler function for IPv4 packets.
    * @param packetReceived  The incoming packet.
    */
-  @Override
+ /* @Override
   public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
     if(packetReceived==null || packetReceived.getPacketChain()==null) {
       return;
@@ -111,12 +111,12 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
       packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }
   }
-
+*/
   /**
    * The handler function for IPv6 packets.
    * @param packetReceived  The incoming packet.
    */
-  @Override
+  /*@Override
   public void onIpv6PacketReceived(Ipv6PacketReceived packetReceived) {
     if(packetReceived==null || packetReceived.getPacketChain()==null) {
       return;
@@ -147,4 +147,5 @@ public class AddressObserver implements ArpPacketListener, Ipv4PacketListener, I
       packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }
   }
+  */
 }
