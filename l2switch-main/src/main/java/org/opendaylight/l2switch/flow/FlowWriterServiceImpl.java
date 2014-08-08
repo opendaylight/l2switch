@@ -101,7 +101,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
 
     // build a flow that target given mac id
-    Flow flowBody = createMacToMacFlow(flowTableKey.getId(), 0, sourceMac, destMac, destNodeConnectorRef);
+    Flow flowBody = createMacToMacFlow(flowTableKey.getId(), 10, sourceMac, destMac, destNodeConnectorRef);
 
     // commit the flow in config data
     writeFlowToConfigData(flowPath, flowBody);

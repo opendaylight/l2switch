@@ -15,6 +15,7 @@ import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
 import org.opendaylight.l2switch.addressobserver.AddressObserver;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
+import org.opendaylight.l2switch.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
@@ -31,7 +32,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     implements AutoCloseable {
 
   private final static Logger _logger = LoggerFactory.getLogger(L2SwitchProvider.class);
-  private Registration listenerRegistration;
+  private Registration listenerRegistration,invListenerReg;
 
   /**
    * Setup the L2Switch.
@@ -42,7 +43,11 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
   public void onSessionInitialized(BindingAwareBroker.ConsumerContext consumerContext) {
     // Setup FlowWriterService
     DataBroker dataService = consumerContext.<DataBroker>getSALService(DataBroker.class);
-    FlowWriterService flowWriterService = new FlowWriterServiceImpl(consumerContext.getRpcService(SalFlowService.class));
+    NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
+    SalFlowService  salFlowService = consumerContext.getRpcService(SalFlowService.class);
+
+
+    FlowWriterService flowWriterService = new FlowWriterServiceImpl(salFlowService);
 
     // Setup InventoryReader
     InventoryReader inventoryReader = new InventoryReader(dataService);
@@ -55,12 +60,17 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     packetDispatcher.setPacketProcessingService(packetProcessingService);
     packetDispatcher.setFlowWriterService(flowWriterService);
 
+    //Write initial flows
+    InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
+    //initialFlowWriter.registerAsNodeDataListener(dataService);
+    invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+
     // Setup AddressObserver & AddressObservationWriter
     AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
     AddressObserver addressObserver = new AddressObserver(addressObservationWriter, packetDispatcher);
 
     // Register AddressObserver for notifications
-    NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
+
     this.listenerRegistration = notificationService.registerNotificationListener(addressObserver);
   }
 
@@ -71,6 +81,9 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
   public void close() throws Exception {
     if(listenerRegistration != null) {
       listenerRegistration.close();
+    }
+    if(invListenerReg!=null) {
+      invListenerReg.close();
     }
   }
 }
