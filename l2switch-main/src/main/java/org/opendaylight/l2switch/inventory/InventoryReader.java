@@ -131,8 +131,8 @@ public class InventoryReader {
           switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
           NodeConnectorRef ncRef = new NodeConnectorRef(
               InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(node.getId()+":LOCAL"))).toInstance());
-          _logger.info("Local port for node {} is {}",node.getKey(),ncRef);
+                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(node.getId().getValue()+":LOCAL"))).toInstance());
+          _logger.debug("Local port for node {} is {}",node.getKey(),ncRef);
           controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
         }
       }

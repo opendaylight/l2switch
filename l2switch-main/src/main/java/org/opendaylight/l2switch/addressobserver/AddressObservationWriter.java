@@ -101,11 +101,11 @@ public class AddressObservationWriter {
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
         _logger.error("Error reading node connector {}", nodeConnectorRef.getValue());
-        readWriteTransaction.commit();
+        readWriteTransaction.submit();
         throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef, e);
       }
       if(nc == null) {
-        readWriteTransaction.commit();
+        readWriteTransaction.submit();
         return;
       }
       AddressCapableNodeConnector acnc = (AddressCapableNodeConnector) nc.getAugmentation(AddressCapableNodeConnector.class);
@@ -138,7 +138,7 @@ public class AddressObservationWriter {
 
       // Update this NodeConnector in the MD-SAL data tree
       readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), ncBuilder.build());
-      readWriteTransaction.commit();
+      readWriteTransaction.submit();
     }
   }
 
