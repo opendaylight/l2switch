@@ -8,6 +8,7 @@
 package org.opendaylight.l2switch.addressobserver;
 
 import com.google.common.base.Optional;
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -21,17 +22,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * AddressObservationWriter manages the MD-SAL data tree for address observations (mac, ip) on each node-connector.
@@ -39,6 +39,8 @@ import java.util.Map;
 public class AddressObservationWriter {
 
   private Logger _logger = LoggerFactory.getLogger(AddressObservationWriter.class);
+  
+  private AtomicLong iD = new AtomicLong(0);
 
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
@@ -86,9 +88,7 @@ public class AddressObservationWriter {
           .setIp(ipAddress)
           .setMac(macAddress)
           .setFirstSeen(now)
-          .setLastSeen(now)
-          //FIXME: fix to use an internally generated key that is guaranteed to be unique
-          .setKey(new AddressesKey(bigIntFromMacAddr(macAddress)));
+          .setLastSeen(now);
       List<Addresses> addresses = null;
 
       // Read existing address observations from data tree
@@ -117,7 +117,7 @@ public class AddressObservationWriter {
         addresses = acnc.getAddresses();
         for(int i = 0; i < addresses.size(); i++) {
           if(addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
-            addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
+            addressBuilder.setLastSeen(addresses.get(i).getLastSeen())
                 .setKey(addresses.get(i).getKey());
             addresses.remove(i);
             break;
@@ -129,6 +129,10 @@ public class AddressObservationWriter {
         addresses = new ArrayList<>();
       }
 
+      if(addressBuilder.getKey() == null){
+          addressBuilder.setKey(new AddressesKey(BigInteger.valueOf(iD.getAndIncrement())));
+      }
+      
       // Add as an augmentation
       addresses.add(addressBuilder.build());
       acncBuilder.setAddresses(addresses);
@@ -140,9 +144,5 @@ public class AddressObservationWriter {
       readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), ncBuilder.build());
       readWriteTransaction.commit();
     }
-  }
-
-  private BigInteger bigIntFromMacAddr(MacAddress addr) {
-    return new BigInteger(addr.getValue().replace(":", ""), 16);
   }
 }
