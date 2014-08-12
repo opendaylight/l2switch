@@ -11,7 +11,11 @@ import com.google.common.collect.ImmutableSet;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.l2switch.packethandler.decoders.*;
+import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
+import org.opendaylight.l2switch.packethandler.decoders.Ipv6Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

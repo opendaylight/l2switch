@@ -7,7 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import com.google.common.collect.ImmutableMap;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;

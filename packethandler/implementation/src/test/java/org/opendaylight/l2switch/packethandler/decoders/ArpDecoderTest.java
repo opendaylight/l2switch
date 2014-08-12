@@ -7,6 +7,10 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -20,10 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
-
-import java.util.ArrayList;
-
-import static junit.framework.Assert.*;
 
 public class ArpDecoderTest {
 

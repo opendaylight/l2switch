@@ -7,19 +7,21 @@
  */
 package org.opendaylight.l2switch.loopremover.topology;
 
-import com.google.common.base.Preconditions;
-import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.base.Preconditions;
+
+import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
+import edu.uci.ics.jung.graph.DelegateTree;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
 /**
  * Implementation of NetworkGraphService{@link org.opendaylight.l2switch.loopremover.topology.NetworkGraphService}.

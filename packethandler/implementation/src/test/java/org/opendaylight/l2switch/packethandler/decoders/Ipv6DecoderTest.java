@@ -22,9 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 
 public class Ipv6DecoderTest {
@@ -179,7 +179,7 @@ public class Ipv6DecoderTest {
     assertEquals(21, ipv6Packet.getPayloadLength().intValue());
     assertTrue(Arrays.equals(payload, notification.getPayload()));
   }
-  
+
   // This test is from a Mininet VM, taken from a wireshark dump
   @Test
   public void testDecode_Udp() throws Exception {
