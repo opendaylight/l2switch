@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f37c21ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-08-12T15:38:54Z",
+      "side": 1,
+      "message": "Probably makes sense to wrap this at 80 characters.",
+      "revId": "e20589aa8b744cf0138f98ddc324ed1396bcca75",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b38219c6",
+        "filename": "distribution/base/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-08-12T15:38:54Z",
+      "side": 1,
+      "message": "Trailing whitespace.",
+      "revId": "e20589aa8b744cf0138f98ddc324ed1396bcca75",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
