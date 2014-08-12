@@ -147,7 +147,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${checkstyle.version}</version>
                 <configuration>
-                  <failsOnError>false</failsOnError>
+                  <failsOnError>true</failsOnError>
                   <configLocation>controller/checkstyle.xml</configLocation>
                   <consoleOutput>true</consoleOutput>
                   <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -337,10 +337,10 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
           </plugin>
-          <!-- <plugin>
+          <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-checkstyle-plugin</artifactId>
-          </plugin> -->
+          </plugin>
       </plugins>
   </build>
 

@@ -7,26 +7,26 @@ module host-tracker-service {
     import opendaylight-inventory {prefix inv;}
     import network-topology {prefix "topo"; revision-date "2013-10-21"; }
     import yang-ext {prefix ext;}
-    
+
     revision 2014-06-24 {
         description
             "draft based on address-tracker 2014-06-17";
     }
 
     typedef host-id {
-    	type string;
+        type string;
     }
-    
+
     grouping host {
         description "List of addresses and attachment points";
         uses at:address-node-connector;
         leaf id {
-          type host-id; 
+            type host-id;
         }
         list attachment-points {
-          description "the assumption is that all address can be reached at all attachment points";
-          uses topo:tp-attributes;
-          key tp-id;
+            description "the assumption is that all address can be reached at all attachment points";
+            uses topo:tp-attributes;
+            key tp-id;
         }
     }
 

@@ -64,7 +64,7 @@
       <artifactId>hosttracker-model</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.opendaylight.l2switch.hosttracker</groupId>
       <artifactId>hosttracker-impl</artifactId>

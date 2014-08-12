@@ -1,7 +1,6 @@
 package org.opendaylight.l2switch.loopremover;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
