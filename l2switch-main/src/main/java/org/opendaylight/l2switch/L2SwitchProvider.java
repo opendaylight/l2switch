@@ -11,16 +11,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
-import org.opendaylight.l2switch.addressobserver.AddressObservationWriter;
-import org.opendaylight.l2switch.addressobserver.AddressObserver;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.inventory.InventoryReader;
+import org.opendaylight.l2switch.packet.ArpPacketHandler;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +53,13 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     packetDispatcher.setPacketProcessingService(packetProcessingService);
     packetDispatcher.setFlowWriterService(flowWriterService);
 
-    // Setup AddressObserver & AddressObservationWriter
-    AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
-    AddressObserver addressObserver = new AddressObserver(addressObservationWriter, packetDispatcher);
+    // Setup ArpPacketHandler
+    ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
 
-    // Register AddressObserver for notifications
+
+    // Register ArpPacketHandler
     NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
-    this.listenerRegistration = notificationService.registerNotificationListener(addressObserver);
+    this.listenerRegistration = notificationService.registerNotificationListener(arpPacketHandler);
   }
 
   /**
