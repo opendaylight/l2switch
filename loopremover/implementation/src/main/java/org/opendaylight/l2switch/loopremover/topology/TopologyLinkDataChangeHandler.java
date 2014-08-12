@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
@@ -43,8 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Listens to data change events on topology links
@@ -58,9 +60,12 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   private static final Logger _logger = LoggerFactory.getLogger(TopologyLinkDataChangeHandler.class);
   private static final String DEFAULT_TOPOLOGY_ID = "flow:1";
 
-  private final ExecutorService topologyDataChangeEventProcessor = Executors.newCachedThreadPool();
+  private final ScheduledExecutorService topologyDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
 
   private final NetworkGraphService networkGraphService;
+  private boolean networkGraphRefreshScheduled = false;
+  private final long DEFAULT_GRAPH_REFRESH_DELAY = 10;
+
   private final DataBroker dataBroker;
   boolean doneOnce = false;
 
@@ -91,76 +96,80 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   }
 
   @Override
-  public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> instanceIdentifierDataObjectAsyncDataChangeEvent) {
-    if(instanceIdentifierDataObjectAsyncDataChangeEvent == null) {
+  public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent) {
+    if(dataChangeEvent == null) {
       return;
     }
+    Map<InstanceIdentifier<?>, DataObject> createdData = dataChangeEvent.getCreatedData();
+    Set<InstanceIdentifier<?>> removedPaths = dataChangeEvent.getRemovedPaths();
+    Map<InstanceIdentifier<?>, DataObject> originalData = dataChangeEvent.getOriginalData();
+    boolean isGraphUpdated = false;
 
-    topologyDataChangeEventProcessor.submit(new TopologyDataChangeEventProcessor(instanceIdentifierDataObjectAsyncDataChangeEvent));
+    if(createdData != null && !createdData.isEmpty()) {
+      isGraphUpdated = true;
+    }
+
+    if(removedPaths != null && !removedPaths.isEmpty() && originalData != null && !originalData.isEmpty()) {
+      isGraphUpdated = true;
+    }
+
+    if(!isGraphUpdated) {
+      return;
+    }
+    if(!networkGraphRefreshScheduled) {
+      synchronized(this) {
+        if(!networkGraphRefreshScheduled) {
+          topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), DEFAULT_GRAPH_REFRESH_DELAY, TimeUnit.SECONDS);
+          networkGraphRefreshScheduled = true;
+          _logger.debug("Scheduled Graph for refresh.");
+        }
+      }
+    }else {
+      _logger.debug("Already scheduled for network graph refresh.");
+    }
   }
+
 
   /**
    *
    */
   private class TopologyDataChangeEventProcessor implements Runnable {
-    AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> instanceIdentifierDataObjectAsyncDataChangeEvent;
-
-
-    public TopologyDataChangeEventProcessor(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent) {
-      this.instanceIdentifierDataObjectAsyncDataChangeEvent = dataChangeEvent;
-    }
 
     @Override
     public void run() {
-
-      if(instanceIdentifierDataObjectAsyncDataChangeEvent == null) {
+      _logger.debug("In network graph refresh thread.");
+      networkGraphRefreshScheduled = false;
+      networkGraphService.clear();
+      List<Link> links = getLinksFromTopology();
+      if(links == null || links.isEmpty()) {
         return;
       }
-      Map<InstanceIdentifier<?>, DataObject> createdData = instanceIdentifierDataObjectAsyncDataChangeEvent.getCreatedData();
-      Set<InstanceIdentifier<?>> removedPaths = instanceIdentifierDataObjectAsyncDataChangeEvent.getRemovedPaths();
-      Map<InstanceIdentifier<?>, DataObject> originalData = instanceIdentifierDataObjectAsyncDataChangeEvent.getOriginalData();
-      boolean isGraphUpdated = false;
-      ReadWriteTransaction readWriteTransaction = null;
+      networkGraphService.addLinks(links);
+      ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
+      updateNodeConnectorStatus(readWriteTransaction);
+      readWriteTransaction.submit();
+      _logger.debug("Done with network graph refresh thread.");
+    }
 
-      if(createdData != null && !createdData.isEmpty()) {
-        List<Link> links = new ArrayList<>();
-        for(InstanceIdentifier<?> instanceId : createdData.keySet()) {
-          if(Link.class.isAssignableFrom(instanceId.getTargetType())) {
-            links.add((Link) createdData.get(instanceId));
-          }
+    private List<Link> getLinksFromTopology() {
+      InstanceIdentifier<Topology> topologyInstanceIdentifier = InstanceIdentifierUtils.generateTopologyInstanceIdentifier(DEFAULT_TOPOLOGY_ID);
+      Topology topology = null;
+      ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
+      try {
+        Optional<Topology> topologyOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, topologyInstanceIdentifier).get();
+        if(topologyOptional.isPresent()) {
+          topology = topologyOptional.get();
         }
-        if(!links.isEmpty()) {
-          networkGraphService.addLinks(links);
-          isGraphUpdated = true;
-        }
+      } catch(Exception e) {
+        _logger.error("Error reading topology {}", topologyInstanceIdentifier);
+        readOnlyTransaction.close();
+        throw new RuntimeException("Error reading from operational store, topology : " + topologyInstanceIdentifier, e);
       }
-
-      List<Link> removedLinks = null;
-      if(removedPaths != null && !removedPaths.isEmpty() && originalData != null && !originalData.isEmpty()) {
-        removedLinks = new ArrayList<>();
-        for(InstanceIdentifier<?> instanceId : removedPaths) {
-          if(Link.class.isAssignableFrom(instanceId.getTargetType())) {
-            Link link = (Link) originalData.get(instanceId);
-            removedLinks.add(link);
-          }
-        }
-        if(!removedLinks.isEmpty()) {
-          networkGraphService.removeLinks(removedLinks);
-          isGraphUpdated = true;
-        }
+      readOnlyTransaction.close();
+      if(topology == null) {
+        return null;
       }
-
-      if(isGraphUpdated) {
-        readWriteTransaction = dataBroker.newReadWriteTransaction();
-        if(removedLinks != null && !removedLinks.isEmpty()) {
-          for(Link link : removedLinks) {
-            updateNodeConnector(readWriteTransaction, getSourceNodeConnectorRef(link), StpStatus.Discarding);
-            updateNodeConnector(readWriteTransaction, getDestNodeConnectorRef(link), StpStatus.Discarding);
-          }
-        }
-        updateNodeConnectorStatus(readWriteTransaction);
-        readWriteTransaction.submit();
-      }
+      return topology.getLink();
     }
 
     /**
@@ -228,7 +237,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     private void checkIfExistAndUpdateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef, StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
       NodeConnector nc = null;
       try {
-        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
@@ -244,7 +253,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         nodeConnectorBuilder = new NodeConnectorBuilder(nc)
             .setKey(nc.getKey())
             .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector);
-        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
+        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
         _logger.debug("Updated node connector in operational {}", nodeConnectorRef);
       } else {
 
