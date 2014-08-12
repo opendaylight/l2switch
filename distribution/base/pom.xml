@@ -52,6 +52,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+      <artifactId>addresstracker-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- host tracker -->
     <dependency>
       <groupId>org.opendaylight.l2switch.hosttracker</groupId>

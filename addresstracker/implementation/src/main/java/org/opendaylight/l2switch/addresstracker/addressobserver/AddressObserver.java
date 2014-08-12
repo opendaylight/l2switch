@@ -5,9 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.l2switch.addressobserver;
+package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
@@ -15,12 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,14 +25,12 @@ import org.slf4j.LoggerFactory;
 public class AddressObserver implements ArpPacketListener {//, Ipv4PacketListener, Ipv6PacketListener {
 
   private final static Logger _logger = LoggerFactory.getLogger(AddressObserver.class);
-  private AddressObservationWriter addressObservationWriter;
-  private PacketDispatcher packetDispatcher;
+  private org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter;
   private final String IPV4_IP_TO_IGNORE ="0.0.0.0";
   private final String IPV6_IP_TO_IGNORE ="0:0:0:0:0:0:0:0";
 
-  public AddressObserver(AddressObservationWriter addressObservationWriter, PacketDispatcher packetDispatcher) {
+  public AddressObserver(org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter) {
     this.addressObservationWriter = addressObservationWriter;
-    this.packetDispatcher = packetDispatcher;
   }
 
   /**
@@ -71,9 +62,8 @@ public class AddressObserver implements ArpPacketListener {//, Ipv4PacketListene
     }
 
     addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
-      new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()),
-      rawPacket.getIngress());
-    packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
+        new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()),
+        rawPacket.getIngress());
   }
 
   /**
