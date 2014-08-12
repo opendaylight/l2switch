@@ -106,32 +106,5 @@
         </configuration>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <!--add generated source folders as source folders in eclipse -->
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.8</version>
-          <executions>
-            <execution>
-              <id>add-source</id>
-              <goals>
-                <goal>add-source</goal>
-              </goals>
-              <phase>generate-sources</phase>
-              <configuration>
-                <sources>
-                  <source>src/main/yang</source>
-                  <source>${codeGeneratorPath}</source>
-                  <source>${jmxGeneratorPath}</source>
-                  <source>${salGeneratorPath}</source>
-                </sources>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 </project>
