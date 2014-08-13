@@ -8,6 +8,14 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,13 +33,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * AddressObservationWriter manages the MD-SAL data tree for address observations (mac, ip) on each node-connector.
@@ -88,8 +89,7 @@ public class AddressObservationWriter {
           .setIp(ipAddress)
           .setMac(macAddress)
           .setFirstSeen(now)
-          .setLastSeen(now)
-          .setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
+          .setLastSeen(now);
       List<Addresses> addresses = null;
 
       // Read existing address observations from data tree
@@ -130,6 +130,10 @@ public class AddressObservationWriter {
         addresses = new ArrayList<>();
       }
 
+      if (addressBuilder.getKey() == null) {
+        addressBuilder.setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
+      }
+
       // Add as an augmentation
       addresses.add(addressBuilder.build());
       acncBuilder.setAddresses(addresses);
@@ -142,5 +146,4 @@ public class AddressObservationWriter {
       readWriteTransaction.submit();
     }
   }
-
 }
