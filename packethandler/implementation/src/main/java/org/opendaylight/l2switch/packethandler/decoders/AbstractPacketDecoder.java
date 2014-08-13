@@ -43,7 +43,7 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
    * @param aClass
    */
   @Override
-  public void onNotificationSubscribtion(Class<? extends Notification> aClass) {
+  public synchronized void onNotificationSubscribtion(Class<? extends Notification> aClass) {
     if (aClass !=null && aClass.equals(producedPacketNotificationType)) {
       if(listenerRegistration == null) {
         NotificationListener notificationListener = getConsumedNotificationListener();
