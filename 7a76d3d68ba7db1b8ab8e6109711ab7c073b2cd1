@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_248f9d76",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-08-13T21:29:51Z",
+      "side": 1,
+      "message": "This class is moved in address tracker could you please resubmit the change there?",
+      "revId": "7a76d3d68ba7db1b8ab8e6109711ab7c073b2cd1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_04f059fc",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-08-13T21:29:51Z",
+      "side": 1,
+      "message": "This needs to be first seen as the logic here is you want to carry forward the first seen value from your previous observation. As you are making a new observation of same mac and Ip, keep the first seen as same as before. The last seen value changes.\n\nSo this change is not required. Rather it is incorrect.",
+      "revId": "7a76d3d68ba7db1b8ab8e6109711ab7c073b2cd1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
