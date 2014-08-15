@@ -17,6 +17,7 @@
     <module>l2switch-main</module>
     <module>l2switch-controller-config</module>
     <module>distribution/base</module>
+    <module>features</module>
   </modules>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
