@@ -11,12 +11,13 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareConsumer;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
+import org.opendaylight.l2switch.arphandler.ReactiveFlowWriter;
 import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.flow.InitialFlowWriter;
-import org.opendaylight.l2switch.flow.ReactiveFlowWriter;
+import org.opendaylight.l2switch.flow.ProactiveFloodFlowWriter;
 import org.opendaylight.l2switch.inventory.InventoryReader;
-import org.opendaylight.l2switch.packet.ArpPacketHandler;
+import org.opendaylight.l2switch.arphandler.ArpPacketHandler;
 import org.opendaylight.l2switch.packet.PacketDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -31,7 +32,7 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     implements AutoCloseable {
 
   private final static Logger _logger = LoggerFactory.getLogger(L2SwitchProvider.class);
-  private Registration listenerRegistration = null, invListenerReg = null, reactFlowWriterReg = null;
+  private Registration listenerRegistration = null, invListenerReg = null, reactFlowWriterReg = null, floodListenerReg = null;
 
   /**
    * Setup the L2Switch.
@@ -45,7 +46,6 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     NotificationService notificationService = consumerContext.<NotificationService>getSALService(NotificationService.class);
     SalFlowService salFlowService = consumerContext.getRpcService(SalFlowService.class);
 
-
     FlowWriterService flowWriterService = new FlowWriterServiceImpl(salFlowService);
 
     // Setup InventoryReader
@@ -53,25 +53,42 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
 
     // Setup PacketDispatcher
     PacketProcessingService packetProcessingService =
-        consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
+      consumerContext.<PacketProcessingService>getRpcService(PacketProcessingService.class);
     PacketDispatcher packetDispatcher = new PacketDispatcher();
     packetDispatcher.setInventoryReader(inventoryReader);
     packetDispatcher.setPacketProcessingService(packetProcessingService);
-
-    // Setup ArpPacketHandler
-    ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
-
-    // Register ArpPacketHandler
-    this.listenerRegistration = notificationService.registerNotificationListener(arpPacketHandler);
-
-    //Setup reactive flow writer
-    ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
-    reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
 
     //Write initial flows
     InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
     //initialFlowWriter.registerAsNodeDataListener(dataService);
     invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+
+    if (isProactiveMode()) {
+      //Setup proactive flow writer, which writes flood flows
+      ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataService, salFlowService);
+      floodListenerReg = floodFlowWriter.registerAsDataChangeListener();
+    }
+    else {
+      // Setup ArpPacketHandler
+      ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
+
+      // Register ArpPacketHandler
+      this.listenerRegistration = notificationService.registerNotificationListener(arpPacketHandler);
+
+      //Setup reactive flow writer
+      ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
+      reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
+    }
+  }
+
+  /**
+   * Reads config subsystem to determine the L2Switch mode (proactive or reactive)
+   * @return True if the L2Switch is in proactive mode
+   */
+  private boolean isProactiveMode() {
+    // Config Subsystem integration to be done
+    // For now, proactive mode is always enabled for performance
+    return true;
   }
 
   /**
@@ -87,6 +104,9 @@ public class L2SwitchProvider extends AbstractBindingAwareConsumer
     }
     if(reactFlowWriterReg != null) {
       reactFlowWriterReg.close();
+    }
+    if(floodListenerReg!=null) {
+      floodListenerReg.close();
     }
   }
 }
