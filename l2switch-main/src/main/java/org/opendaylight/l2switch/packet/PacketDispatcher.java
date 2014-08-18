@@ -8,7 +8,6 @@
 
 package org.opendaylight.l2switch.packet;
 
-import org.opendaylight.l2switch.flow.FlowWriterService;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -35,14 +34,9 @@ public class PacketDispatcher  {
   private final static Logger _logger = LoggerFactory.getLogger(PacketDispatcher.class);
   private InventoryReader inventoryReader;
   private PacketProcessingService packetProcessingService;
-  private FlowWriterService flowWriterService;
 
   public void setPacketProcessingService(PacketProcessingService packetProcessingService) {
     this.packetProcessingService = packetProcessingService;
-  }
-
-  public void setFlowWriterService(FlowWriterService flowWriterService) {
-    this.flowWriterService = flowWriterService;
   }
 
   public void setInventoryReader(InventoryReader inventoryReader) {
@@ -67,9 +61,6 @@ public class PacketDispatcher  {
       srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
     }
     NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
-    if (destNodeConnector != null) {
-      flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
-    }
     if(srcConnectorRef!=null) {
       if(destNodeConnector != null) {
         sendPacketOut(payload, srcConnectorRef, destNodeConnector);
