@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_950ed28a",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/flow/ProactiveFloodFlowWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-08-18T22:26:49Z",
+      "side": 1,
+      "message": "this should be part of arphandler package",
+      "revId": "7c1bfd3bffec1fb0077a0d99a527085c69578e4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
