@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f5c2be32",
+        "filename": "features/hosttracker/src/main/resources/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2014-08-18T20:59:44Z",
+      "side": 1,
+      "message": "This should be features-mdsal. Also this is optional to have a repository. But certainly a good practice.",
+      "revId": "2705e6a7ac6bbe9075956fa0183ce15c1171210b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
