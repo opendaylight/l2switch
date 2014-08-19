@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="l2switch-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
+  <feature name='odl-l2switch-packethandler' description="OpenDaylight :: L2Switch :: PacketHandler" version='${project.version}'>
+    <feature version="${openflow.plugin.version}">odl-openflowplugin</feature>
+    <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-model/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-impl/${project.version}</bundle>
+  </feature>
+  <feature name='odl-l2switch-addresstracker' description="OpenDaylight :: L2Switch :: AddressTracker" version='${project.version}'>
+    <feature version="${project.version}">odl-l2switch-packethandler</feature>
+    <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-impl/${project.version}</bundle>
+  </feature>
+  <feature name='odl-l2switch-loopremover' description="OpenDaylight :: L2Switch :: LoopRemover" version='${project.version}'>
+    <!--TODO: This(odl-mdsal-all dependency) need to change to md-sal-topology-manager or something similar once available-->
+    <feature version="${mdsal.version}">odl-mdsal-all</feature>
+    <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-model/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-impl/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.controller.thirdparty/net.sf.jung2/2.0.1</bundle>
+  </feature>
+  <feature name='odl-l2switch-hosttracker' description="OpenDaylight :: L2Switch :: HostTracker" version='${project.version}'>
+    <feature version="${project.version}">odl-l2switch-addresstracker</feature>
+    <bundle>mvn:org.opendaylight.l2switch.hosttracker/hosttracker-model/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.l2switch.hosttracker/hosttracker-impl/${project.version}</bundle>
+  </feature>
+  <feature name='odl-l2switch-main' description="OpenDaylight :: L2Switch :: Main" version='${project.version}'>
+    <feature version="${project.version}">odl-l2switch-hosttracker</feature>
+    <feature version="${project.version}">odl-l2switch-loopremover</feature>
+    <bundle>mvn:org.opendaylight.l2switch.main/main-impl/${project.version}</bundle>
+  </feature>
+</features>
