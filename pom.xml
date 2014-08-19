@@ -17,6 +17,7 @@
     <module>l2switch-main</module>
     <module>l2switch-controller-config</module>
     <module>distribution/base</module>
+    <module>distribution/karaf</module>
     <module>features</module>
   </modules>
   <scm>
