@@ -23,6 +23,7 @@
     <config.version>0.2.5-SNAPSHOT</config.version>
     <openflow.plugin.version>0.0.3-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.1.0-SNAPSHOT</dlux.version>
+    <karaf.version>3.0.1</karaf.version>
   </properties>
 
   <dependencyManagement>
