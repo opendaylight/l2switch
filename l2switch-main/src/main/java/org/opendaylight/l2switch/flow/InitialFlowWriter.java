@@ -133,7 +133,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
       //add lldpToController flow
       flowId = getFlowInstanceId(tableId);
-      writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(FLOW_TABLE_ID, 1));
+      writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(FLOW_TABLE_ID, 100));
 
       //add arpToController flow
       flowId = getFlowInstanceId(tableId);
