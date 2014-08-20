@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_50b37509",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/arphandler/PacketDispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-20T20:56:23Z",
+      "side": 1,
+      "message": "Are we sure we want to move this to \"arphandler\" package?  It\u0027s true that currently, the PacketDispatcher class is only used for Arp.  In the future, it it possible that PacketDispatcher would be used for other types of packets and we should leave it in its own \"packet\" or \"dispatch\" package?",
+      "revId": "e41e7bff9b6dac52b86afb7be2a1bd44e6d0e190",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b0c0c150",
+        "filename": "l2switch-main/src/main/java/org/opendaylight/l2switch/arphandler/ProactiveFloodFlowWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-20T20:56:23Z",
+      "side": 1,
+      "message": "Can you rename to \"flood\"?",
+      "revId": "e41e7bff9b6dac52b86afb7be2a1bd44e6d0e190",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
