@@ -162,7 +162,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
    * @param destMac
    * @param destPort
    * @return {@link org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder}
-   *         builds flow that forwards all packets with destMac to given port
+   * builds flow that forwards all packets with destMac to given port
    */
   private Flow createMacToMacFlow(Short tableId, int priority,
                                   MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destPort) {
@@ -224,8 +224,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             .build()) //
         .setPriority(priority) //
         .setBufferId(0L) //
-        .setHardTimeout(0) //
-        .setIdleTimeout(0) //
+        .setHardTimeout(3600) //
+        .setIdleTimeout(300) //
         .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
         .setFlags(new FlowModFlags(false, false, false, false, false));
 
@@ -241,9 +241,9 @@ public class FlowWriterServiceImpl implements FlowWriterService {
    * @return transaction commit
    */
   private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath,
-                                                                     Flow flow) {
-    final InstanceIdentifier<Table> tableInstanceId = flowPath.<Table> firstIdentifierOf(Table.class);
-    final InstanceIdentifier<Node> nodeInstanceId = flowPath.<Node> firstIdentifierOf(Node.class);
+                                                                 Flow flow) {
+    final InstanceIdentifier<Table> tableInstanceId = flowPath.<Table>firstIdentifierOf(Table.class);
+    final InstanceIdentifier<Node> nodeInstanceId = flowPath.<Node>firstIdentifierOf(Node.class);
     final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
     builder.setNode(new NodeRef(nodeInstanceId));
     builder.setFlowRef(new FlowRef(flowPath));
