@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * PacketDispatcher sends packets out to the network.
  */
-public class PacketDispatcher  {
+public class PacketDispatcher {
 
   private final static Logger _logger = LoggerFactory.getLogger(PacketDispatcher.class);
   private InventoryReader inventoryReader;
@@ -45,9 +45,10 @@ public class PacketDispatcher  {
 
   /**
    * Dispatches the packet in the appropriate way - flood or unicast.
+   *
    * @param payload The payload to be sent.
    * @param ingress The NodeConnector where the payload came from.
-   * @param srcMac The source MacAddress of the packet.
+   * @param srcMac  The source MacAddress of the packet.
    * @param destMac The destination MacAddress of the packet.
    */
   public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
@@ -56,32 +57,33 @@ public class PacketDispatcher  {
     String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class, NodeKey.class).getId().getValue();
     NodeConnectorRef srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
 
-    if(srcConnectorRef==null) {
+    if(srcConnectorRef == null) {
       refreshInventoryReader();
       srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
     }
     NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
-    if(srcConnectorRef!=null) {
+    if(srcConnectorRef != null) {
       if(destNodeConnector != null) {
         sendPacketOut(payload, srcConnectorRef, destNodeConnector);
       } else {
         floodPacket(nodeId, payload, ingress, srcConnectorRef);
       }
-    } else{
+    } else {
       _logger.info("Cannot send packet out or flood as controller node connector is not available for node {}.", nodeId);
     }
   }
 
   /**
    * Floods the packet.
-   * @param payload The payload to be sent.
+   *
+   * @param payload     The payload to be sent.
    * @param origIngress The NodeConnector where the payload came from.
    */
   public void floodPacket(String nodeId, byte[] payload, NodeConnectorRef origIngress, NodeConnectorRef controllerNodeConnector) {
 
     List<NodeConnectorRef> nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
 
-    if(nodeConnectors==null) {
+    if(nodeConnectors == null) {
       refreshInventoryReader();
       nodeConnectors = inventoryReader.getSwitchNodeConnectors().get(nodeId);
       if(nodeConnectors == null) {
@@ -89,11 +91,10 @@ public class PacketDispatcher  {
         return;
       }
     }
-    for (NodeConnectorRef ncRef : nodeConnectors) {
+    for(NodeConnectorRef ncRef : nodeConnectors) {
       String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue();
       // Don't flood on discarding node connectors & origIngress
-      if (!inventoryReader.getDiscardingNodeConnectors().contains(ncId) &&
-        !ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
+      if(!ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
         sendPacketOut(payload, controllerNodeConnector, ncRef);
       }
     }
@@ -101,19 +102,20 @@ public class PacketDispatcher  {
 
   /**
    * Sends the specified packet on the specified port.
-   * @param payload  The payload to be sent.
-   * @param ingress  The NodeConnector where the payload came from.
+   *
+   * @param payload The payload to be sent.
+   * @param ingress The NodeConnector where the payload came from.
    * @param egress  The NodeConnector where the payload will go.
    */
   public void sendPacketOut(byte[] payload, NodeConnectorRef ingress, NodeConnectorRef egress) {
-    if (ingress == null || egress == null)  return;
+    if(ingress == null || egress == null) return;
     InstanceIdentifier<Node> egressNodePath = InstanceIdentifierUtils.getNodePath(egress.getValue());
     TransmitPacketInput input = new TransmitPacketInputBuilder() //
-      .setPayload(payload) //
-      .setNode(new NodeRef(egressNodePath)) //
-      .setEgress(egress) //
-      .setIngress(ingress) //
-      .build();
+        .setPayload(payload) //
+        .setNode(new NodeRef(egressNodePath)) //
+        .setEgress(egress) //
+        .setIngress(ingress) //
+        .build();
     packetProcessingService.transmitPacket(input);
   }
 

@@ -7,13 +7,7 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -31,7 +25,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * AddressObservationWriter manages the MD-SAL data tree for address observations (mac, ip) on each node-connector.
@@ -39,6 +39,8 @@ import com.google.common.base.Optional;
 public class AddressObservationWriter {
 
   private Logger _logger = LoggerFactory.getLogger(AddressObservationWriter.class);
+
+  private AtomicLong addressKey = new AtomicLong(0);
 
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
@@ -87,8 +89,7 @@ public class AddressObservationWriter {
           .setMac(macAddress)
           .setFirstSeen(now)
           .setLastSeen(now)
-          //FIXME: fix to use an internally generated key that is guaranteed to be unique
-          .setKey(new AddressesKey(bigIntFromMacAddr(macAddress)));
+          .setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
       List<Addresses> addresses = null;
 
       // Read existing address observations from data tree
@@ -96,7 +97,7 @@ public class AddressObservationWriter {
 
       NodeConnector nc = null;
       try {
-        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
@@ -137,12 +138,9 @@ public class AddressObservationWriter {
           .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
 
       // Update this NodeConnector in the MD-SAL data tree
-      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>)nodeConnectorRef.getValue(), ncBuilder.build());
+      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue(), ncBuilder.build());
       readWriteTransaction.submit();
     }
   }
 
-  private BigInteger bigIntFromMacAddr(MacAddress addr) {
-    return new BigInteger(addr.getValue().replace(":", ""), 16);
-  }
 }

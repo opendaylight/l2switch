@@ -97,7 +97,6 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
   @Override
   public void onNodeUpdated(NodeUpdated nodeUpdated) {
     initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdated));
-    _logger.info("Adding initial flows to {}", nodeUpdated.getNodeRef().getValue());
   }
 
   /**
@@ -123,7 +122,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
     }
 
     public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
-      _logger.info("adding initial flows for node {} ", nodeId);
+      _logger.debug("adding initial flows for node {} ", nodeId);
 
       InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
       InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
@@ -133,12 +132,12 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
       //add lldpToController flow
       flowId = getFlowInstanceId(tableId);
-      writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(FLOW_TABLE_ID, 1));
+      writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(FLOW_TABLE_ID, 100));
 
       //add arpToController flow
       flowId = getFlowInstanceId(tableId);
       writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(FLOW_TABLE_ID, 1));
-      _logger.info("Added initial flows for node {} ", nodeId);
+      _logger.debug("Added initial flows for node {} ", nodeId);
     }
 
     private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
