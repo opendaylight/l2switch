@@ -171,75 +171,66 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
           // Install a FloodFlow on each node
           List<NodeConnector> nodeConnectors = node.getNodeConnector();
           if(nodeConnectors != null) {
-            for(NodeConnector outerNodeConnector : nodeConnectors) {
-              StpStatusAwareNodeConnector outerSaNodeConnector = outerNodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
-              if(outerSaNodeConnector != null && StpStatus.Discarding.equals(outerSaNodeConnector.getStatus())) {
-                continue;
-              }
-              if(!outerNodeConnector.getId().toString().contains("LOCAL")) {
-                ArrayList<Action> outputActions = new ArrayList<Action>();
-                for(NodeConnector nodeConnector : nodeConnectors) {
-                  if(!nodeConnector.getId().toString().contains("LOCAL") && !outerNodeConnector.equals(nodeConnector)) {
-                    // NodeConnectors without STP status (external ports) and NodeConnectors that are "forwarding" will be flooded on
-                    StpStatusAwareNodeConnector saNodeConnector = nodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
-                    if(saNodeConnector == null || StpStatus.Forwarding.equals(saNodeConnector.getStatus())) {
-                      outputActions.add(new ActionBuilder() //
-                          .setOrder(0)
-                          .setAction(new OutputActionCaseBuilder() //
-                              .setOutputAction(new OutputActionBuilder() //
-                                  .setMaxLength(new Integer(0xffff)) //
-                                  .setOutputNodeConnector(nodeConnector.getId()) //
-                                  .build()) //
+            ArrayList<Action> outputActions = new ArrayList<Action>();
+            for(NodeConnector nodeConnector : nodeConnectors) {
+              if(!nodeConnector.getId().toString().contains("LOCAL")) {
+                // NodeConnectors without STP status (external ports) and NodeConnectors that are "forwarding" will be flooded on
+                StpStatusAwareNodeConnector saNodeConnector = nodeConnector.getAugmentation(StpStatusAwareNodeConnector.class);
+                if(saNodeConnector == null || StpStatus.Forwarding.equals(saNodeConnector.getStatus())) {
+                  outputActions.add(new ActionBuilder() //
+                      .setOrder(0)
+                      .setAction(new OutputActionCaseBuilder() //
+                          .setOutputAction(new OutputActionBuilder() //
+                              .setMaxLength(new Integer(0xffff)) //
+                              .setOutputNodeConnector(nodeConnector.getId()) //
                               .build()) //
-                          .build());
-                    }
-                  }
+                          .build()) //
+                      .build());
                 }
-
-                // Add controller port to outputActions
-                outputActions.add(new ActionBuilder()
-                    .setOrder(0)
-                    .setKey(new ActionKey(0))
-                    .setAction(new OutputActionCaseBuilder()
-                        .setOutputAction(new OutputActionBuilder()
-                            .setMaxLength(new Integer(0xffff))
-                            .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
-                            .build())
-                        .build())
-                    .build());
-
-                // Create an Apply Action
-                ApplyActions applyActions = new ApplyActionsBuilder().setAction(outputActions).build();
-
-                // Wrap our Apply Action in an Instruction
-                Instruction applyActionsInstruction = new InstructionBuilder() //
-                    .setOrder(0)
-                    .setInstruction(new ApplyActionsCaseBuilder()//
-                        .setApplyActions(applyActions) //
-                        .build()) //
-                    .build();
-
-                FlowBuilder floodFlowBuilder = createBaseFlowForPortMatch(outerNodeConnector);
-                floodFlowBuilder.setInstructions(new InstructionsBuilder() //
-                    .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                    .build()); //
-
-                writeFlowToSwitch(node.getId(), floodFlowBuilder.build());
               }
             }
+
+            // Add controller port to outputActions
+            outputActions.add(new ActionBuilder()
+                .setOrder(0)
+                .setKey(new ActionKey(0))
+                .setAction(new OutputActionCaseBuilder()
+                    .setOutputAction(new OutputActionBuilder()
+                        .setMaxLength(new Integer(0xffff))
+                        .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
+                        .build())
+                    .build())
+                .build());
+
+            // Create an Apply Action
+            ApplyActions applyActions = new ApplyActionsBuilder().setAction(outputActions).build();
+
+            // Wrap our Apply Action in an Instruction
+            Instruction applyActionsInstruction = new InstructionBuilder() //
+                .setOrder(0)
+                .setInstruction(new ApplyActionsCaseBuilder()//
+                    .setApplyActions(applyActions) //
+                    .build()) //
+                .build();
+
+            FlowBuilder floodFlowBuilder = createBaseFlow();
+            floodFlowBuilder.setInstructions(new InstructionsBuilder() //
+                .setInstruction(ImmutableList.of(applyActionsInstruction)) //
+                .build()); //
+
+            writeFlowToSwitch(node.getId(), floodFlowBuilder.build());
           }
         }
       }
     }
 
-    private FlowBuilder createBaseFlowForPortMatch(NodeConnector nc) {
+    private FlowBuilder createBaseFlow() {
       FlowBuilder floodFlow = new FlowBuilder()
           .setTableId(FLOW_TABLE_ID)
           .setFlowName("flood");
       floodFlow.setId(new FlowId(Long.toString(floodFlow.hashCode())));
 
       Match match = new MatchBuilder()
-          .setInPort(nc.getId())
           .build();
 
       floodFlow
