@@ -106,11 +106,30 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     boolean isGraphUpdated = false;
 
     if(createdData != null && !createdData.isEmpty()) {
-      isGraphUpdated = true;
+      Set<InstanceIdentifier<?>> linksIds = createdData.keySet();
+      for(InstanceIdentifier<?> linkId : linksIds) {
+        if(Link.class.isAssignableFrom(linkId.getTargetType())) {
+          Link link = (Link) createdData.get(linkId);
+          if(!(link.getLinkId().getValue().contains("host"))) {
+            isGraphUpdated = true;
+            _logger.debug("Graph is updated! Added Link {}", link.getLinkId().getValue());
+            break;
+          }
+        }
+      }
     }
 
     if(removedPaths != null && !removedPaths.isEmpty() && originalData != null && !originalData.isEmpty()) {
-      isGraphUpdated = true;
+      for(InstanceIdentifier<?> instanceId : removedPaths) {
+        if(Link.class.isAssignableFrom(instanceId.getTargetType())) {
+          Link link = (Link) originalData.get(instanceId);
+          if(!(link.getLinkId().getValue().contains("host"))) {
+            isGraphUpdated = true;
+            _logger.debug("Graph is updated! Removed Link {}", link.getLinkId().getValue());
+            break;
+          }
+        }
+      }
     }
 
     if(!isGraphUpdated) {
@@ -124,7 +143,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
           _logger.debug("Scheduled Graph for refresh.");
         }
       }
-    }else {
+    } else {
       _logger.debug("Already scheduled for network graph refresh.");
     }
   }
@@ -169,7 +188,17 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       if(topology == null) {
         return null;
       }
-      return topology.getLink();
+      List<Link> links = topology.getLink();
+      if(links == null || links.isEmpty()) {
+        return null;
+      }
+      List<Link> internalLinks = new ArrayList<>();
+      for(Link link:links) {
+        if(!(link.getLinkId().getValue().contains("host"))) {
+          internalLinks.add(link);
+        }
+      }
+      return internalLinks;
     }
 
     /**
