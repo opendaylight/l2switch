@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f07ac9b8",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-21T03:49:07Z",
+      "side": 1,
+      "message": "I agree that this check should be done, but will this ever return false?",
+      "revId": "0f40b37dc58b9fd98eccc146f187a85d2a17eb2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_904d7d9c",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-21T03:49:07Z",
+      "side": 1,
+      "message": "Same comment as above.",
+      "revId": "0f40b37dc58b9fd98eccc146f187a85d2a17eb2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
