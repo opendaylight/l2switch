@@ -8,16 +8,9 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
@@ -33,6 +26,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 
 /**
  * AddressObservationWriter manages the MD-SAL data tree for address observations (mac, ip) on each node-connector.
@@ -42,6 +43,8 @@ public class AddressObservationWriter {
   private Logger _logger = LoggerFactory.getLogger(AddressObservationWriter.class);
 
   private AtomicLong addressKey = new AtomicLong(0);
+
+  private final long ADDRESS_REWRITE_INTERVAL = 15 * 60 * 1000; //fifteen minutes TODO: Get this from config
 
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
@@ -93,20 +96,20 @@ public class AddressObservationWriter {
       List<Addresses> addresses = null;
 
       // Read existing address observations from data tree
-      ReadWriteTransaction readWriteTransaction = dataService.newReadWriteTransaction();
+      ReadOnlyTransaction readTransaction = dataService.newReadOnlyTransaction();
 
       NodeConnector nc = null;
       try {
-        Optional<NodeConnector> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
+        Optional<NodeConnector> dataObjectOptional = readTransaction.read(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
         if(dataObjectOptional.isPresent())
           nc = (NodeConnector) dataObjectOptional.get();
       } catch(Exception e) {
         _logger.error("Error reading node connector {}", nodeConnectorRef.getValue());
-        readWriteTransaction.submit();
+        readTransaction.close();
         throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef, e);
       }
+      readTransaction.close();
       if(nc == null) {
-        readWriteTransaction.submit();
         return;
       }
       AddressCapableNodeConnector acnc = (AddressCapableNodeConnector) nc.getAugmentation(AddressCapableNodeConnector.class);
@@ -118,10 +121,14 @@ public class AddressObservationWriter {
         addresses = acnc.getAddresses();
         for(int i = 0; i < addresses.size(); i++) {
           if(addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
-            addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
-                .setKey(addresses.get(i).getKey());
-            addresses.remove(i);
-            break;
+            if((now - addresses.get(i).getLastSeen()) > ADDRESS_REWRITE_INTERVAL) {
+              addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
+                  .setKey(addresses.get(i).getKey());
+              addresses.remove(i);
+              break;
+            } else {
+              return;
+            }
           }
         }
       }
@@ -130,7 +137,7 @@ public class AddressObservationWriter {
         addresses = new ArrayList<>();
       }
 
-      if (addressBuilder.getKey() == null) {
+      if(addressBuilder.getKey() == null) {
         addressBuilder.setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
       }
 
@@ -140,7 +147,7 @@ public class AddressObservationWriter {
       NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder(nc)
           .setKey(nc.getKey())
           .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
-
+      WriteTransaction readWriteTransaction = dataService.newWriteOnlyTransaction();
       // Update this NodeConnector in the MD-SAL data tree
       readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue(), ncBuilder.build());
       readWriteTransaction.submit();
