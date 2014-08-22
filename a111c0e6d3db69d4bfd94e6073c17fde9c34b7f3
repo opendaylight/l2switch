@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_bc95fa33",
+        "filename": "addresstracker/implementation/src/main/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-22T23:14:08Z",
+      "side": 1,
+      "message": "Variable name -- please change to writeTransaction or something like that.",
+      "revId": "a111c0e6d3db69d4bfd94e6073c17fde9c34b7f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
