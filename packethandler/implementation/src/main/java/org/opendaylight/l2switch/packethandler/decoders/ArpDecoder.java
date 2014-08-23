@@ -7,15 +7,11 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.packet.BitBufferHelper;
-import org.opendaylight.controller.sal.packet.BufferException;
-import org.opendaylight.controller.sal.utils.HexEncode;
-import org.opendaylight.controller.sal.utils.NetUtils;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
+import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
+import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
@@ -31,6 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * ARP (Address Resolution Protocol) Packet Decoder

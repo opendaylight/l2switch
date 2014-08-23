@@ -12,9 +12,9 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.packet.BitBufferHelper;
-import org.opendaylight.controller.sal.packet.BufferException;
-import org.opendaylight.controller.sal.utils.NetUtils;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
+import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
