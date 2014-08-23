@@ -12,8 +12,9 @@
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal</artifactId>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>

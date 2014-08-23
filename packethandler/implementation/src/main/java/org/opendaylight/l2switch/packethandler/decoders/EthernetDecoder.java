@@ -10,10 +10,10 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.util.ArrayList;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.packet.BitBufferHelper;
-import org.opendaylight.controller.sal.packet.BufferException;
-import org.opendaylight.controller.sal.utils.HexEncode;
-import org.opendaylight.controller.sal.utils.NetUtils;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
+import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
+import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
+import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;

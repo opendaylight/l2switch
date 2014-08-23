@@ -19,7 +19,6 @@
     <mdsal.version>1.1-SNAPSHOT</mdsal.version>
     <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
     <ietf-yang-types.version>2010.09.24.4-SNAPSHOT</ietf-yang-types.version>
-    <sal.version>0.8.1-SNAPSHOT</sal.version>
     <jung2.version>2.0.1</jung2.version>
     <config.version>0.2.5-SNAPSHOT</config.version>
     <openflow.plugin.version>0.0.3-SNAPSHOT</openflow.plugin.version>
@@ -29,11 +28,6 @@
   <dependencyManagement>
     <dependencies>
       <!-- SAL bundles -->
-      <dependency>
-        <groupId>org.opendaylight.controller</groupId>
-        <artifactId>sal</artifactId>
-        <version>${sal.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>sal-binding-api</artifactId>
