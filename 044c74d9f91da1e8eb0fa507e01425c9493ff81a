@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_e3151640",
+        "filename": "arphandler/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-26T22:49:28Z",
+      "side": 1,
+      "message": "did you want this to be \"arphandler\" instead of arphandler-impl?",
+      "revId": "044c74d9f91da1e8eb0fa507e01425c9493ff81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_63290689",
+        "filename": "distribution/base/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-08-26T22:49:28Z",
+      "side": 1,
+      "message": "change to \"arphandler\" if you make the other change",
+      "revId": "044c74d9f91da1e8eb0fa507e01425c9493ff81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
