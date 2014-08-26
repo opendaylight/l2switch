@@ -6,10 +6,9 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.l2switch.packet;
+package org.opendaylight.l2switch.arphandler.core;
 
-import org.opendaylight.l2switch.inventory.InventoryReader;
-import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
+import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -109,7 +108,7 @@ public class PacketDispatcher {
    */
   public void sendPacketOut(byte[] payload, NodeConnectorRef ingress, NodeConnectorRef egress) {
     if(ingress == null || egress == null) return;
-    InstanceIdentifier<Node> egressNodePath = InstanceIdentifierUtils.getNodePath(egress.getValue());
+    InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
     TransmitPacketInput input = new TransmitPacketInputBuilder() //
         .setPayload(payload) //
         .setNode(new NodeRef(egressNodePath)) //
@@ -123,4 +122,9 @@ public class PacketDispatcher {
     inventoryReader.setRefreshData(true);
     inventoryReader.readInventory();
   }
+
+  private InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
+    return nodeChild.firstIdentifierOf(Node.class);
+  }
+
 }

@@ -5,13 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.l2switch.flow;
+package org.opendaylight.l2switch.loopremover.flow;
 
 import com.google.common.collect.ImmutableList;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.DropActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -26,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalF
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.OutputPortValues;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
@@ -41,6 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -62,6 +68,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
   private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
   private final SalFlowService salFlowService;
   private final short FLOW_TABLE_ID = 0;//TODO:hard coded to 0 may need change if multiple tables are used.
+  private final int LLDP_ETHER_TYPE = 35020;
 
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
@@ -119,8 +126,8 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
       InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
       InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
 
-      //add drop all flow
-      writeFlowToController(nodeId, tableId, flowId, createDropAllFlow(FLOW_TABLE_ID, 0));
+      //add lldpToController flow
+      writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(FLOW_TABLE_ID, 100));
 
       _logger.debug("Added initial flows for node {} ", nodeId);
     }
@@ -142,26 +149,25 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
       return tableId.child(Flow.class, flowKey);
     }
 
-    private Flow createDropAllFlow(Short tableId, int priority) {
+    private Flow createLldpToControllerFlow(Short tableId, int priority) {
 
       // start building flow
-      FlowBuilder dropAll = new FlowBuilder() //
+      FlowBuilder lldpFlow = new FlowBuilder() //
           .setTableId(tableId) //
-          .setFlowName("dropall");
+          .setFlowName("lldptocntrl");
 
       // use its own hash code for id.
-      dropAll.setId(new FlowId(Long.toString(dropAll.hashCode())));
+      lldpFlow.setId(new FlowId(Long.toString(lldpFlow.hashCode())));
+      EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
+          .setEthernetType(new EthernetTypeBuilder()
+              .setType(new EtherType(Long.valueOf(LLDP_ETHER_TYPE))).build());
 
-      Match match = new MatchBuilder().build();
-
-
-      Action dropAllAction = new ActionBuilder() //
-          .setOrder(0)
-          .setAction(new DropActionCaseBuilder().build())
+      Match match = new MatchBuilder()
+          .setEthernetMatch(ethernetMatchBuilder.build())
           .build();
 
       // Create an Apply Action
-      ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(dropAllAction))
+      ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(getSendToControllerAction()))
           .build();
 
       // Wrap our Apply Action in an Instruction
@@ -173,7 +179,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
           .build();
 
       // Put our Instruction in a list of Instructions
-      dropAll
+      lldpFlow
           .setMatch(match) //
           .setInstructions(new InstructionsBuilder() //
               .setInstruction(ImmutableList.of(applyActionsInstruction)) //
@@ -185,7 +191,22 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
           .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
           .setFlags(new FlowModFlags(false, false, false, false, false));
 
-      return dropAll.build();
+      return lldpFlow.build();
+    }
+
+    private Action getSendToControllerAction() {
+      Action sendToController = new ActionBuilder()
+          .setOrder(0)
+          .setKey(new ActionKey(0))
+          .setAction(new OutputActionCaseBuilder()
+              .setOutputAction(new OutputActionBuilder()
+                  .setMaxLength(new Integer(0xffff))
+                  .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
+                  .build())
+              .build())
+          .build();
+
+      return sendToController;
     }
 
     private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,

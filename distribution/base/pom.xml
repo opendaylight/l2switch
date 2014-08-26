@@ -45,6 +45,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- arp handler -->
+    <dependency>
+      <groupId>org.opendaylight.l2switch.arphandler</groupId>
+      <artifactId>arphandler-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- address tracker -->
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
