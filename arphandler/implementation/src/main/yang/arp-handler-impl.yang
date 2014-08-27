@@ -1,0 +1,87 @@
+module arp-handler-impl {
+
+  yang-version 1;
+  namespace "urn:opendaylight:packet:arp-handler-impl";
+  prefix "arp-handler-impl";
+
+  import config { prefix config; revision-date 2013-04-05; }
+  import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+  description
+    "This module contains the base YANG definitions for
+    arphandler-impl implementation.";
+
+  revision 2014-05-28 {
+    description "Initial module draft.";
+  }
+
+  // This is the definition of the service implementation as a module identity.
+  identity arp-handler-impl {
+    base config:module-type;
+
+    // Specifies the prefix for generated java classes.
+    config:java-name-prefix ArpHandler;
+  }
+
+  // Augments the 'configuration' choice node under modules/module.
+  augment "/config:modules/config:module/config:configuration" {
+    case arp-handler-impl {
+      when "/config:modules/config:module/config:type = 'arp-handler-impl'";
+
+      leaf arp-flow-table-id {
+        type uint8;
+      }
+      leaf arp-flow-priority {
+        type uint16;
+      }
+      leaf arp-flow-hard-timeout {
+        type uint16;
+      }
+      leaf arp-flow-idle-timeout {
+        type uint16;
+      }
+      leaf flood-flow-table-id {
+        type uint8;
+      }
+      leaf flood-flow-priority {
+        type uint16;
+      }
+      leaf flood-flow-hard-timeout {
+        type uint16;
+      }
+      leaf flood-flow-idle-timeout {
+        type uint16;
+      }
+      leaf flood-flow-installation-delay {
+        type uint32;
+      }
+      leaf is-proactive-flood-mode {
+        type boolean;
+      }
+      container notification-service {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-notification-service;
+          }
+        }
+      }
+      container data-broker {
+        uses config:service-ref {
+          refine type {
+            mandatory false;
+            config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+      container rpc-registry {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-rpc-registry;
+          }
+        }
+      }
+    }
+  }
+}

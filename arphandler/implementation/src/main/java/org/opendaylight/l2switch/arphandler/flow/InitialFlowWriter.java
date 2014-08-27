@@ -68,7 +68,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
   private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
   private final SalFlowService salFlowService;
-  private final short FLOW_TABLE_ID = 0;//TODO:hard coded to 0 may need change if multiple tables are used.
+  private short flowTableId;
+  private int flowPriority;
+  private int flowIdleTimeout;
+  private int flowHardTimeout;
 
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
@@ -76,6 +79,22 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
   public InitialFlowWriter(SalFlowService salFlowService) {
     this.salFlowService = salFlowService;
+  }
+
+  public void setFlowTableId(short flowTableId) {
+    this.flowTableId = flowTableId;
+  }
+
+  public void setFlowPriority(int flowPriority) {
+    this.flowPriority = flowPriority;
+  }
+
+  public void setFlowIdleTimeout(int flowIdleTimeout) {
+    this.flowIdleTimeout = flowIdleTimeout;
+  }
+
+  public void setFlowHardTimeout(int flowHardTimeout) {
+    this.flowHardTimeout = flowHardTimeout;
   }
 
   @Override
@@ -128,13 +147,13 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
       //add arpToController flow
       flowId = getFlowInstanceId(tableId);
-      writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(FLOW_TABLE_ID, 1));
+      writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(flowTableId, flowPriority));
       _logger.debug("Added initial flows for node {} ", nodeId);
     }
 
     private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
       // get flow table key
-      TableKey flowTableKey = new TableKey(FLOW_TABLE_ID); //TODO: Hard coded Table Id 0, need to get it from Configuration data.
+      TableKey flowTableKey = new TableKey(flowTableId);
 
       return nodeId.builder()
           .augmentation(FlowCapableNode.class)
@@ -186,8 +205,8 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
               .build()) //
           .setPriority(priority) //
           .setBufferId(0L) //
-          .setHardTimeout(0) //
-          .setIdleTimeout(0) //
+          .setHardTimeout(flowHardTimeout) //
+          .setIdleTimeout(flowIdleTimeout) //
           .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
           .setFlags(new FlowModFlags(false, false, false, false, false));
 
