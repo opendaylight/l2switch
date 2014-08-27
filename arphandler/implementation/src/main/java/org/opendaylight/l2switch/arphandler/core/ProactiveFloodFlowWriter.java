@@ -82,14 +82,37 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
   private final SalFlowService salFlowService;
   private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
   private boolean flowRefreshScheduled = false;
-  private final long DEFAULT_DELAY = 2;
-  private final short FLOW_TABLE_ID = 0;//TODO:hard coded to 0 may need change if multiple tables are used.
+  private long flowInstallationDelay;
+  private short flowTableId;
+  private int flowPriority;
+  private int flowIdleTimeout;
+  private int flowHardTimeout;
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
   public ProactiveFloodFlowWriter(DataBroker dataBroker, SalFlowService salFlowService) {
     this.dataBroker = dataBroker;
     this.salFlowService = salFlowService;
+  }
+
+  public void setFlowInstallationDelay(long flowInstallationDelay) {
+    this.flowInstallationDelay = flowInstallationDelay;
+  }
+
+  public void setFlowTableId(short flowTableId) {
+    this.flowTableId = flowTableId;
+  }
+
+  public void setFlowPriority(int flowPriority) {
+    this.flowPriority = flowPriority;
+  }
+
+  public void setFlowIdleTimeout(int flowIdleTimeout) {
+    this.flowIdleTimeout = flowIdleTimeout;
+  }
+
+  public void setFlowHardTimeout(int flowHardTimeout) {
+    this.flowHardTimeout = flowHardTimeout;
   }
 
   /**
@@ -124,7 +147,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
     if(!flowRefreshScheduled) {
       synchronized(this) {
         if(!flowRefreshScheduled) {
-          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), DEFAULT_DELAY, TimeUnit.SECONDS);
+          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), flowInstallationDelay, TimeUnit.SECONDS);
           flowRefreshScheduled = true;
           _logger.debug("Scheduled Flows for refresh.");
         }
@@ -236,7 +259,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
 
     private FlowBuilder createBaseFlowForPortMatch(NodeConnector nc) {
       FlowBuilder floodFlow = new FlowBuilder()
-          .setTableId(FLOW_TABLE_ID)
+          .setTableId(flowTableId)
           .setFlowName("flood");
       floodFlow.setId(new FlowId(Long.toString(floodFlow.hashCode())));
 
@@ -246,10 +269,10 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
 
       floodFlow
           .setMatch(match) //
-          .setPriority(2) //
+          .setPriority(flowPriority) //
           .setBufferId(0L) //
-          .setHardTimeout(0) //
-          .setIdleTimeout(0) //
+          .setHardTimeout(flowHardTimeout) //
+          .setIdleTimeout(flowIdleTimeout) //
           .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
           .setFlags(new FlowModFlags(false, false, false, false, false));
       return floodFlow;
@@ -263,7 +286,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener {
       InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.<Nodes>builder(Nodes.class)
           .<Node, NodeKey>child(Node.class, new NodeKey(nodeId)).toInstance();
       InstanceIdentifier<Table> tableInstanceId = nodeInstanceId.<FlowCapableNode>augmentation(FlowCapableNode.class)
-          .<Table, TableKey>child(Table.class, new TableKey(FLOW_TABLE_ID));
+          .<Table, TableKey>child(Table.class, new TableKey(flowTableId));
       InstanceIdentifier<Flow> flowPath = tableInstanceId
           .<Flow, FlowKey>child(Flow.class, new FlowKey(new FlowId(String.valueOf(flowIdInc.getAndIncrement()))));
 
