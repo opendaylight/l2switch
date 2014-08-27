@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_9b7fd2aa",
+        "filename": "packethandler/implementation/src/main/resources/configuration/45-packet-handler.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-08-27T23:41:05Z",
+      "side": 1,
+      "message": "this can go in the l2switch-controller-config module.\n\nWe don\u0027t need a init config in each module.",
+      "revId": "6a552052fa1646518f9d07736c850d135769c9ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
