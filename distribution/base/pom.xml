@@ -45,10 +45,22 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.opendaylight.l2switch.packethandler</groupId>
+      <artifactId>packethandler-config</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- arp handler -->
     <dependency>
       <groupId>org.opendaylight.l2switch.arphandler</groupId>
       <artifactId>arphandler-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opendaylight.l2switch.arphandler</groupId>
+      <artifactId>arphandler-config</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -125,6 +137,28 @@
               <outputDirectory>${project.build.directory}/generated-resources</outputDirectory>
               <includeArtifactIds>distributions-openflowplugin-base</includeArtifactIds>
               <includeGroupIds>org.opendaylight.openflowplugin</includeGroupIds>
+              <excludeTransitive>true</excludeTransitive>
+              <ignorePermissions>false</ignorePermissions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.8</version>
+        <executions>
+          <execution>
+            <id>unpack-config-resources</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/generated-resources/opendaylight/configuration</outputDirectory>
+              <includeArtifactIds>arphandler-config,packethandler-config</includeArtifactIds>
+              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler</includeGroupIds>
+              <includes>**\/*-*.xml</includes>
               <excludeTransitive>true</excludeTransitive>
               <ignorePermissions>false</ignorePermissions>
             </configuration>

@@ -25,6 +25,7 @@
     <feature version="${project.version}">odl-l2switch-loopremover</feature>
     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.l2switch.arphandler/arphandler-impl/${project.version}</bundle>
+    <configfile finalname="${config.configfile.directory}/${config.arphandler.configfile}">mvn:org.opendaylight.l2switch.arphandler/arphandler-config/${project.version}/xml/config</configfile>
   </feature>
   <feature name='odl-l2switch-loopremover' description="OpenDaylight :: L2Switch :: LoopRemover" version='${project.version}'>
     <feature version="${openflow.plugin.version}">odl-openflowplugin-flow-services</feature>
@@ -36,5 +37,6 @@
     <feature version="${openflow.plugin.version}">odl-openflowplugin-southbound</feature>
     <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-model/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-impl/${project.version}</bundle>
+    <configfile finalname="${config.configfile.directory}/${config.packethandler.configfile}">mvn:org.opendaylight.l2switch.packethandler/packethandler-config/${project.version}/xml/config</configfile>
   </feature>
 </features>
