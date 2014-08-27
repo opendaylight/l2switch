@@ -82,6 +82,11 @@
       <artifactId>main-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.l2switch.arphandler</groupId>
+      <artifactId>arphandler-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- test to validate features.xml -->
     <dependency>
