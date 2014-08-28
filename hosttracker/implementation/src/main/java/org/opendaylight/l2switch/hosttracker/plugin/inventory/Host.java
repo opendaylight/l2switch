@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.Host
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
@@ -215,8 +214,7 @@ public class Host {
         host.setId(hId);
         List<AttachmentPoints> attachmentPoints = new ArrayList<>();
         if (nodeConnector != null) {
-            attachmentPoints.add(new AttachmentPointsBuilder()//
-                    .setTpId(new TpId(nodeConnector.getId().getValue())).build());
+            attachmentPoints.add(Utilities.createAPsfromNodeConnector(nodeConnector));
         }
         host.setAttachmentPoints(attachmentPoints);
         return host;
@@ -286,6 +284,27 @@ public class Host {
     }
 
     /**
+     * Creates a HostId based on the MAC values present in Addresses, if MAC is
+     * null then returns null.
+     *
+     * @param addrs Address containing a MAC address.
+     * @return A new HostId based on the MAC address present in addrs, null if
+     * addrs is null or MAC is null.
+     */
+    /**
+     *
+     * @param nodeId
+     * @return
+     */
+    public synchronized static HostId createHostId(NodeId nodeId) {
+        if (nodeId.getValue().startsWith(NODE_PREFIX)) {
+            return new HostId(nodeId.getValue());
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Creates links that have this Host's AttachmentPoints in the given
      * dstNode.
      *
@@ -307,6 +326,30 @@ public class Host {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the list of TerminationPoint from this host.
+     *
+     * @return the list of TerminationPoint from this host.
+     */
+    public synchronized List<TerminationPoint> getTerminationPoints() {
+        return this.nodeBuilder.getTerminationPoint();
+    }
+
+    /**
+     * If a host does not have any AttachmentPoints active it means it is an
+     * orphan.
+     *
+     * @return true if a host is an orphan, false otherwise.
+     */
+    public synchronized boolean isOrphan() {
+        for (Map.Entry<AttachmentPoints, InternalTP> next : switchToHostConnectors.entrySet()) {
+            if (next.getValue().isActive()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

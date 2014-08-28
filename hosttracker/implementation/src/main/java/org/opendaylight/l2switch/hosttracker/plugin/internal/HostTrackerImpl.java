@@ -10,10 +10,16 @@ package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +27,7 @@ import java.util.concurrent.Executors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,21 +38,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInventoryListener {
+public class HostTrackerImpl implements DataChangeListener, OpendaylightInventoryListener {
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
 
@@ -56,7 +69,9 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
 
     private NotificationService notificationService;
 
-    private ConcurrentHashMap<HostId, Host> hosts;
+    private final ConcurrentHashMap<HostId, Host> hosts;
+    private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
+    private ListenerRegistration<NotificationListener> notificationListener;
 
     HostTrackerImpl(DataBroker dataService, NotificationService notificationProviderService) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
@@ -116,7 +131,12 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
     }
 
     public void close() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.addrsNodeListerRegistration.close();
+        this.notificationListener.close();
+        synchronized (hosts) {
+            writeDatatoMDSAL(null, (List<Host>) this.hosts.values(), null, null);
+            this.hosts.clear();
+        }
     }
 
     public void registerAsDataChangeListener() {
@@ -126,8 +146,7 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
                 .child(NodeConnector.class) //
                 .augmentation(AddressCapableNodeConnector.class)//
                 .child(Addresses.class).build();
-        dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
-
+        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
         //Processing addresses that existed before we register as a data change listener.
 //        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
 //        InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
@@ -159,6 +178,7 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
             NodeConnector nodeConnector,
             Addresses addrs) {
         List<Host> hostsToMod = new ArrayList<>();
+        List<Host> hostsToRem = new ArrayList<>();
         List<Link> linksToRem = new ArrayList<>();
         List<Link> linksToAdd = new ArrayList<>();
         synchronized (hosts) {
@@ -167,7 +187,10 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
             if (hId != null) {
                 if (isNodeConnectorInternal(nodeConnector)) {
                     log.trace("NodeConnector is internal " + nodeConnector.getId().toString());
-                    removeLinksAttachedToNodeConnector(hostsToMod, linksToRem, node.getId(), nodeConnector);
+                    removeLinksAttachedToNodeConnector(hostsToMod, hostsToRem, linksToRem, node.getId(), nodeConnector);
+                    for (Host h : hostsToRem) {
+                        hosts.remove(h.getId());
+                    }
                 } else {
                     log.trace("NodeConnector is NOT internal " + nodeConnector.getId().toString());
                     Host host = new Host(addrs, nodeConnector);
@@ -184,7 +207,7 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
                 }
             }
         }
-        writeDatatoMDSAL(hostsToMod, linksToRem, linksToAdd);
+        writeDatatoMDSAL(hostsToMod, hostsToRem, linksToAdd, linksToRem);
     }
 
     /**
@@ -226,59 +249,159 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
         return false;
     }
 
-    private void writeDatatoMDSAL(List<Host> hosts, List<Link> linksToRemove, List<Link> linksToAdd) {
+    private void writeDatatoMDSAL(List<Host> hostsToMod, List<Host> hostsToRem, List<Link> linksToAdd, List<Link> linksToRemove) {
 
-        ReadWriteTransaction writeTx = dataService.newReadWriteTransaction();
+        final WriteTransaction writeTx = dataService.newWriteOnlyTransaction();
         if (linksToAdd != null) {
             for (Link l : linksToAdd) {
                 InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey());
+                log.trace("Writing link from MD_SAL: " + lIID.toString());
                 writeTx.put(LogicalDatastoreType.OPERATIONAL, lIID, l, true);
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
                 InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey());
+                log.trace("Removing link from MD_SAL: " + lIID.toString());
                 writeTx.delete(LogicalDatastoreType.OPERATIONAL, lIID);
             }
         }
-        if (hosts != null) {
-            for (Host h : hosts) {
+        if (hostsToMod != null) {
+            for (Host h : hostsToMod) {
                 Node ourHostNode = h.getHostNode();
                 InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(ourHostNode.getKey());
                 log.trace("Writing host node to MD_SAL: " + ourHostNode.toString());
                 writeTx.put(LogicalDatastoreType.OPERATIONAL, hnIID, ourHostNode, true);
             }
         }
-        writeTx.submit();
+        if (hostsToRem != null) {
+            for (Host h : hostsToRem) {
+                Node ourHostNode = h.getHostNode();
+                InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(ourHostNode.getKey());
+                log.trace("Removing host node from MD_SAL: " + ourHostNode.toString());
+                writeTx.delete(LogicalDatastoreType.OPERATIONAL, hnIID);
+            }
+        }
+        final CheckedFuture writeTxResultFuture = writeTx.submit();
+        Futures.addCallback(writeTxResultFuture, new FutureCallback() {
+            @Override
+            public void onSuccess(Object o) {
+                log.debug("Hosttracker write successful for tx :{}", writeTx.getIdentifier());
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.error("Hosttracker write transaction {} failed", writeTx.getIdentifier(), throwable.getCause());
+            }
+        });
     }
 
-    private void removeLinksAttachedToNodeConnector(List<Host> hostsToMod, List<Link> linksToRem, NodeId nodeId, NodeConnector nodeConnector) {
-        AttachmentPoints at = new AttachmentPointsBuilder()//
-                .setTpId(new TpId(nodeConnector.getId().getValue()))//
-                .build();
+    private void removeLinksAttachedToNodeConnector(List<Host> hostsToMod, List<Host> hostsToRem, List<Link> linksToRem, NodeId nodeId, NodeConnector nodeConnector) {
+        AttachmentPoints at = Utilities.createAPsfromNodeConnector(nodeConnector);
         for (Host h : hosts.values()) {
             List<Link> linksToRemove = h.removeAttachmentPoints(at, nodeId);
             if (!linksToRemove.isEmpty()) {
                 hostsToMod.add(h);
                 linksToRem.addAll(linksToRemove);
             }
+            if (h.isOrphan()) {
+                hostsToRem.add(h);
+            }
         }
     }
 
-    void registerAsNotificationListener() {
-//        this.notificationService.registerNotificationListener(this);
+    /**
+     * Returns a HashMap with the hosts attached to the given NodeId. The values
+     * of each key represent the links from the Host to the Node (<b>NOT from
+     * Node to Host</b>) that are connected to the given NodeId.
+     *
+     * @return A HashMap with its keys hosts and values their respective links
+     * that connect to the node with the given NodeId.
+     */
+    /**
+     *
+     * @param nodeId The nodeId to check which hosts are attached to it.
+     * @return
+     */
+    private HashMap<HostId, List<Link>> hostsAttachedToNode(NodeId nodeId) {
+
+        HashMap<HostId, List<Link>> hostsAttached = new HashMap<>();
+
+        InstanceIdentifier<NetworkTopology> ntII
+                = InstanceIdentifier.builder(NetworkTopology.class).build();
+        ReadOnlyTransaction rot = dataService.newReadOnlyTransaction();
+        ListenableFuture<Optional<NetworkTopology>> lfONT
+                = rot.read(LogicalDatastoreType.OPERATIONAL, ntII);
+        Optional<NetworkTopology> oNT;
+        try {
+            oNT = lfONT.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            return null;
+        }
+        if (oNT != null && oNT.isPresent()) {
+            NetworkTopology networkTopo = oNT.get();
+            for (Topology t : networkTopo.getTopology()) {
+                for (Link l : t.getLink()) {
+                    if ((l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX)
+                            && l.getDestination().getDestNode().equals(Utilities.inventoryNodeIdtoTopoNodeId(nodeId)))) {
+                        for (Host h : hosts.values()) {
+                            for (TerminationPoint tp : h.getTerminationPoints()) {
+                                if (tp.getTpId().equals(l.getSource().getSourceTp())) {
+                                    if (!hostsAttached.containsKey(h.getId())) {
+                                        hostsAttached.put(h.getId(), new ArrayList<Link>());
+                                    }
+                                    hostsAttached.get(h.getId()).add(l);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return hostsAttached;
     }
 
-//    @Override
-//    public void onNodeConnectorRemoved(NodeConnectorRemoved notification) {
-//        log.trace("onNodeConnectorRemoved");
-//        log.trace("Node Connector Remove " + notification.getNodeConnectorRef().toString());
-//
-//    }
-//
-//    @Override
-//    public void onNodeConnectorUpdated(NodeConnectorUpdated notification) {
-//        log.trace("onNodeConnectorUpdated");
+    void registerAsNotificationListener() {
+        this.notificationListener = this.notificationService.registerNotificationListener(this);
+    }
+
+    @Override
+    public void onNodeConnectorRemoved(NodeConnectorRemoved notification) {
+        log.trace("onNodeConnectorRemoved");
+        List<Host> hostsToMod = new ArrayList<>();
+        List<Host> hostsToRem = new ArrayList<>();
+        List<Link> linksToRem = new ArrayList<>();
+        List<Link> linksToAdd = new ArrayList<>();
+
+        InstanceIdentifier<?> ii = notification.getNodeConnectorRef().getValue();
+        InstanceIdentifier<NodeConnector> iinc = ii.firstIdentifierOf(NodeConnector.class);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
+                = ii.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
+        ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
+
+        ListenableFuture<Optional<NodeConnector>> futureNodeConnector = readTx.read(LogicalDatastoreType.OPERATIONAL, iinc);
+        ListenableFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode //
+                = readTx.read(LogicalDatastoreType.OPERATIONAL, iin);
+        try {
+            if (futureNodeConnector.get().isPresent()
+                    && futureNode.get().isPresent()) {
+                synchronized (hosts) {
+                    removeLinksAttachedToNodeConnector(hostsToMod, hostsToRem, linksToRem, futureNode.get().get().getId(), futureNodeConnector.get().get());
+                    for (Host h : hostsToRem) {
+                        hosts.remove(h.getId());
+                    }
+                    log.trace("Node Connector Remove " + notification.getNodeConnectorRef().toString());
+                }
+                writeDatatoMDSAL(hostsToMod, hostsToRem, linksToAdd, linksToRem);
+            }
+        } catch (ExecutionException | InterruptedException ex) {
+        }
+    }
+
+    @Override
+    public void onNodeConnectorUpdated(NodeConnectorUpdated notification) {
+        log.trace("onNodeConnectorUpdated");
 //        InstanceIdentifier<?> ii = notification.getNodeConnectorRef().getValue();
 //        InstanceIdentifier<NodeConnector> iinc = ii.firstIdentifierOf(NodeConnector.class);
 //        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
@@ -310,15 +433,49 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
 //            removeLinksAttachedToNodeConnector(hostsToMod, linksToRem, node.getId(), nodeConnector);
 //        }
 //        writeDatatoMDSAL(hostsToMod, linksToRem, linksToAdd);
-//    }
-//
-//    @Override
-//    public void onNodeRemoved(NodeRemoved notification) {
-//        log.trace("onNodeRemoved");
-//    }
-//
-//    @Override
-//    public void onNodeUpdated(NodeUpdated notification) {
-//        log.trace("onNodeUpdated");
-//    }
+    }
+
+    @Override
+    public void onNodeRemoved(NodeRemoved notification) {
+        log.trace("onNodeRemoved");
+        List<Host> hostsToMod = new ArrayList<>();
+        List<Host> hostsToRem = new ArrayList<>();
+        List<Link> linksToRem = new ArrayList<>();
+        List<Link> linksToAdd = new ArrayList<>();
+
+        InstanceIdentifier<?> ii = notification.getNodeRef().getValue();
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
+                = ii.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
+        ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
+
+        ListenableFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode //
+                = readTx.read(LogicalDatastoreType.OPERATIONAL, iin);
+        try {
+            if (futureNode.get().isPresent()) {
+                synchronized (hosts) {
+                    HashMap<HostId, List<Link>> hostsAttachedToNode = hostsAttachedToNode(futureNode.get().get().getId());
+
+                    Set<Map.Entry<HostId, List<Link>>> entrySet = hostsAttachedToNode.entrySet();
+                    for (Entry<HostId, List<Link>> entry : entrySet) {
+                        for (Link l : entry.getValue()) {
+                            AttachmentPoints ap = Utilities.createAPsfromTP(l.getDestination().getDestTp());
+                            hosts.get(entry.getKey()).removeAttachmentPoints(ap, futureNode.get().get().getId());
+                            linksToRem.add(l);
+                        }
+                        if (hosts.get(entry.getKey()).isOrphan()) {
+                            hostsToRem.add(hosts.get(entry.getKey()));
+                            hosts.remove(entry.getKey());
+                        }
+                    }
+                }
+                writeDatatoMDSAL(hostsToMod, hostsToRem, linksToAdd, linksToRem);
+            }
+        } catch (ExecutionException | InterruptedException ex) {
+        }
+    }
+
+    @Override
+    public void onNodeUpdated(NodeUpdated notification) {
+        log.trace("onNodeUpdated");
+    }
 }
