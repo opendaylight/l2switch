@@ -10,6 +10,10 @@ package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -71,5 +75,26 @@ public class Utilities {
                 .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
                 .child(Link.class, lk).build();
         return lIID;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId topoNodeIdToInventoryNodeId(NodeId nodeId) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId(nodeId.getValue());
+    }
+
+    public static NodeId inventoryNodeIdtoTopoNodeId(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId) {
+        return new NodeId(nodeId.getValue());
+    }
+
+    public static AttachmentPoints createAPsfromNodeConnector(NodeConnector nc) {
+        TpId tpId = new TpId(nc.getId().getValue());
+        return createAPsfromTP(tpId);
+    }
+
+    public static AttachmentPoints createAPsfromTP(TpId tpId) {
+        AttachmentPoints at = new AttachmentPointsBuilder()//
+                .setTpId(tpId)//
+                .setKey(new AttachmentPointsKey(tpId))//
+                .build();
+        return at;
     }
 }
