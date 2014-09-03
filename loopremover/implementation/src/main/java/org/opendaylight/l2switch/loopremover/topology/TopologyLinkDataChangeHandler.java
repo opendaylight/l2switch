@@ -64,7 +64,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
 
   private final NetworkGraphService networkGraphService;
   private boolean networkGraphRefreshScheduled = false;
-  private final long DEFAULT_GRAPH_REFRESH_DELAY = 10;
+  private long graphRefreshDelay;
 
   private final DataBroker dataBroker;
   boolean doneOnce = false;
@@ -80,6 +80,10 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     Preconditions.checkNotNull(networkGraphService, "networkGraphService should not be null.");
     this.dataBroker = dataBroker;
     this.networkGraphService = networkGraphService;
+  }
+
+  public void setGraphRefreshDelay(long graphRefreshDelay) {
+    this.graphRefreshDelay = graphRefreshDelay;
   }
 
   /**
@@ -138,7 +142,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     if(!networkGraphRefreshScheduled) {
       synchronized(this) {
         if(!networkGraphRefreshScheduled) {
-          topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), DEFAULT_GRAPH_REFRESH_DELAY, TimeUnit.SECONDS);
+          topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), graphRefreshDelay, TimeUnit.SECONDS);
           networkGraphRefreshScheduled = true;
           _logger.debug("Scheduled Graph for refresh.");
         }
