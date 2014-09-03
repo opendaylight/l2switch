@@ -156,8 +156,8 @@
             <phase>generate-resources</phase>
             <configuration>
               <outputDirectory>${project.build.directory}/generated-resources/opendaylight/configuration</outputDirectory>
-              <includeArtifactIds>arphandler-config,packethandler-config</includeArtifactIds>
-              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler</includeGroupIds>
+              <includeArtifactIds>arphandler-config,packethandler-config,loopremover-config</includeArtifactIds>
+              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler,org.opendaylight.l2switch.loopremover</includeGroupIds>
               <includes>**\/*-*.xml</includes>
               <excludeTransitive>true</excludeTransitive>
               <ignorePermissions>false</ignorePermissions>

@@ -81,6 +81,11 @@
         <artifactId>net.sf.jung2</artifactId>
         <version>${jung2.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>config-api</artifactId>
+        <version>${config.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
