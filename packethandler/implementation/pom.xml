@@ -43,7 +43,6 @@
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>config-api</artifactId>
-      <version>0.2.5-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
