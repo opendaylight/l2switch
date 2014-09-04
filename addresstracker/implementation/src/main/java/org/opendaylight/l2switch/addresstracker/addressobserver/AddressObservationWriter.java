@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,12 +145,14 @@ public class AddressObservationWriter {
       // Add as an augmentation
       addresses.add(addressBuilder.build());
       acncBuilder.setAddresses(addresses);
-      NodeConnectorBuilder ncBuilder = new NodeConnectorBuilder(nc)
-          .setKey(nc.getKey())
-          .addAugmentation(AddressCapableNodeConnector.class, acncBuilder.build());
+
+      //build Instance Id for AddressCapableNodeConnector
+      InstanceIdentifier<AddressCapableNodeConnector> addressCapableNcInstanceId =
+          ((InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue())
+              .augmentation(AddressCapableNodeConnector.class);
       WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
-      // Update this NodeConnector in the MD-SAL data tree
-      writeTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue(), ncBuilder.build());
+      // Update this AddressCapableNodeConnector in the MD-SAL data tree
+      writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
       writeTransaction.submit();
     }
   }
