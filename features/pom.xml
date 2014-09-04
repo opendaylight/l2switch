@@ -104,6 +104,13 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.l2switch.main</groupId>
+      <artifactId>main-config</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.l2switch.arphandler</groupId>
       <artifactId>arphandler-impl</artifactId>
       <version>${project.version}</version>

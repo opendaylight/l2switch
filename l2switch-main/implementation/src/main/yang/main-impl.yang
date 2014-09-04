@@ -1,0 +1,85 @@
+module main-impl {
+
+  yang-version 1;
+  namespace "urn:opendaylight:l2switch:main-impl";
+  prefix "main-impl";
+
+  import config { prefix config; revision-date 2013-04-05; }
+  import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+  description
+    "This module contains the base YANG definitions for
+    main-impl implementation.";
+
+  revision 2014-05-28 {
+    description "Initial module draft.";
+  }
+
+  // This is the definition of the service implementation as a module identity.
+  identity main-impl {
+    base config:module-type;
+
+    // Specifies the prefix for generated java classes.
+    config:java-name-prefix L2SwitchMain;
+  }
+
+  // Augments the 'configuration' choice node under modules/module.
+  augment "/config:modules/config:module/config:configuration" {
+    case main-impl {
+      when "/config:modules/config:module/config:type = 'main-impl'";
+
+      leaf is-learning-only-mode {
+        type boolean;
+      }
+      leaf dropall-flow-table-id {
+        type uint8;
+      }
+      leaf dropall-flow-priority {
+        type uint16;
+      }
+      leaf dropall-flow-hard-timeout {
+        type uint16;
+      }
+      leaf dropall-flow-idle-timeout {
+        type uint16;
+      }
+      leaf reactive-flow-table-id {
+        type uint8;
+      }
+      leaf reactive-flow-priority {
+        type uint16;
+      }
+      leaf reactive-flow-hard-timeout {
+        type uint16;
+      }
+      leaf reactive-flow-idle-timeout {
+        type uint16;
+      }
+
+      container notification-service {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-notification-service;
+          }
+        }
+      }
+      container data-broker {
+        uses config:service-ref {
+          refine type {
+            mandatory false;
+            config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+      container rpc-registry {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-rpc-registry;
+          }
+        }
+      }
+    }
+  }
+}

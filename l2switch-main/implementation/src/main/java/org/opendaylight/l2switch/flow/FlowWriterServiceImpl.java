@@ -63,14 +63,37 @@ import java.util.concurrent.atomic.AtomicLong;
 public class FlowWriterServiceImpl implements FlowWriterService {
   private static final Logger _logger = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
   private SalFlowService salFlowService;
+  private short flowTableId;
+  private int flowPriority;
+  private int flowIdleTimeout;
+  private int flowHardTimeout;
+
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
-  private final Integer HARD_TIMEOUT = new Integer(3600);
-  private final Integer IDLE_TIMEOUT = new Integer(1800);
+  private final Integer DEFAULT_TABLE_ID = new Integer(0);
+  private final Integer DEFAULT_PRIORITY = new Integer(10);
+  private final Integer DEFAULT_HARD_TIMEOUT = new Integer(3600);
+  private final Integer DEFAULT_IDLE_TIMEOUT = new Integer(1800);
 
   public FlowWriterServiceImpl(SalFlowService salFlowService) {
     Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
     this.salFlowService = salFlowService;
+  }
+
+  public void setFlowTableId(short flowTableId) {
+    this.flowTableId = flowTableId;
+  }
+
+  public void setFlowPriority(int flowPriority) {
+    this.flowPriority = flowPriority;
+  }
+
+  public void setFlowIdleTimeout(int flowIdleTimeout) {
+    this.flowIdleTimeout = flowIdleTimeout;
+  }
+
+  public void setFlowHardTimeout(int flowHardTimeout) {
+    this.flowHardTimeout = flowHardTimeout;
   }
 
   /**
@@ -96,13 +119,13 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     }
 
     // get flow table key
-    TableKey flowTableKey = new TableKey((short) 0); //TODO: Hard coded Table Id 0, need to get it from Configuration data.
+    TableKey flowTableKey = new TableKey((short) flowTableId);
 
     //build a flow path based on node connector to program flow
     InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
 
     // build a flow that target given mac id
-    Flow flowBody = createMacToMacFlow(flowTableKey.getId(), 10, sourceMac, destMac, destNodeConnectorRef);
+    Flow flowBody = createMacToMacFlow(flowTableKey.getId(), flowPriority, sourceMac, destMac, destNodeConnectorRef);
 
     // commit the flow in config data
     writeFlowToConfigData(flowPath, flowBody);
@@ -225,8 +248,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             .build()) //
         .setPriority(priority) //
         .setBufferId(0L) //
-        .setHardTimeout(HARD_TIMEOUT) //
-        .setIdleTimeout(IDLE_TIMEOUT) //
+        .setHardTimeout(flowHardTimeout) //
+        .setIdleTimeout(flowIdleTimeout) //
         .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
         .setFlags(new FlowModFlags(false, false, false, false, false));
 
