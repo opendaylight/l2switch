@@ -51,6 +51,13 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+      <artifactId>addresstracker-config</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
       <artifactId>addresstracker-impl</artifactId>
       <version>${project.version}</version>
     </dependency>

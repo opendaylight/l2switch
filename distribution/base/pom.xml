@@ -77,6 +77,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+      <artifactId>addresstracker-config</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+
     <!-- host tracker -->
     <dependency>
       <groupId>org.opendaylight.l2switch.hosttracker</groupId>
@@ -161,8 +168,8 @@
             <phase>generate-resources</phase>
             <configuration>
               <outputDirectory>${project.build.directory}/generated-resources/opendaylight/configuration</outputDirectory>
-              <includeArtifactIds>arphandler-config,packethandler-config,loopremover-config</includeArtifactIds>
-              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler,org.opendaylight.l2switch.loopremover</includeGroupIds>
+              <includeArtifactIds>arphandler-config,packethandler-config,loopremover-config,addresstracker-config</includeArtifactIds>
+              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler,org.opendaylight.l2switch.loopremover,org.opendaylight.l2switch.addresstracker</includeGroupIds>
               <includes>**\/*-*.xml</includes>
               <excludeTransitive>true</excludeTransitive>
               <ignorePermissions>false</ignorePermissions>

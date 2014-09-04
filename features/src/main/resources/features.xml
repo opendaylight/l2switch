@@ -19,6 +19,7 @@
     <feature version="${project.version}">odl-l2switch-arphandler</feature>
     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/${project.version}</bundle>
     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-impl/${project.version}</bundle>
+    <configfile finalname="${config.configfile.directory}/${config.addresstracker.configfile}">mvn:org.opendaylight.l2switch.addresstracker/addresstracker-config/${project.version}/xml/config</configfile>
   </feature>
   <feature name='odl-l2switch-arphandler' description="OpenDaylight :: L2Switch :: ArpHandler" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-packethandler</feature>

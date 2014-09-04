@@ -43,9 +43,7 @@ public class AddressObservationWriter {
   private Logger _logger = LoggerFactory.getLogger(AddressObservationWriter.class);
 
   private AtomicLong addressKey = new AtomicLong(0);
-
-  private final long ADDRESS_REWRITE_INTERVAL = 15 * 60 * 1000; //fifteen minutes TODO: Get this from config
-
+  private long timestampUpdateInterval;
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
 
@@ -60,6 +58,10 @@ public class AddressObservationWriter {
    */
   public AddressObservationWriter(DataBroker dataService) {
     this.dataService = dataService;
+  }
+
+  public void setTimestampUpdateInterval(long timestampUpdateInterval) {
+    this.timestampUpdateInterval = timestampUpdateInterval;
   }
 
   /**
@@ -121,7 +123,7 @@ public class AddressObservationWriter {
         addresses = acnc.getAddresses();
         for(int i = 0; i < addresses.size(); i++) {
           if(addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
-            if((now - addresses.get(i).getLastSeen()) > ADDRESS_REWRITE_INTERVAL) {
+            if((now - addresses.get(i).getLastSeen()) > timestampUpdateInterval) {
               addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
                   .setKey(addresses.get(i).getKey());
               addresses.remove(i);

@@ -1,0 +1,52 @@
+module address-tracker-impl {
+
+  yang-version 1;
+  namespace "urn:opendaylight:packet:address-tracker-impl";
+  prefix "address-tracker-impl";
+
+  import config { prefix config; revision-date 2013-04-05; }
+  import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+  description
+    "This module contains the base YANG definitions for
+    address-tracker-impl implementation.";
+
+  revision 2014-05-28 {
+    description "Initial module draft.";
+  }
+
+  // This is the definition of the service implementation as a module identity.
+  identity address-tracker-impl {
+    base config:module-type;
+
+    // Specifies the prefix for generated java classes.
+    config:java-name-prefix AddressTracker;
+  }
+
+  // Augments the 'configuration' choice node under modules/module.
+  augment "/config:modules/config:module/config:configuration" {
+    case address-tracker-impl {
+      when "/config:modules/config:module/config:type = 'address-tracker-impl'";
+
+      leaf timestamp-update-interval {
+        type uint32;
+      }
+      container notification-service {
+        uses config:service-ref {
+          refine type {
+            mandatory true;
+            config:required-identity mdsal:binding-notification-service;
+          }
+        }
+      }
+      container data-broker {
+        uses config:service-ref {
+          refine type {
+            mandatory false;
+            config:required-identity mdsal:binding-async-data-broker;
+          }
+        }
+      }
+    }
+  }
+}
