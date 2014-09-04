@@ -18,14 +18,8 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
@@ -197,7 +191,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         return null;
       }
       List<Link> internalLinks = new ArrayList<>();
-      for(Link link:links) {
+      for(Link link : links) {
         if(!(link.getLinkId().getValue().contains("host"))) {
           internalLinks.add(link);
         }
@@ -283,20 +277,18 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         if(sameStatusPresent(nc.getAugmentation(StpStatusAwareNodeConnector.class), stpStatusAwareNodeConnector.getStatus())) {
           return;
         }
-        nodeConnectorBuilder = new NodeConnectorBuilder(nc)
-            .setKey(nc.getKey())
-            .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector);
-        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue(), nodeConnectorBuilder.build());
-        _logger.debug("Updated node connector in operational {}", nodeConnectorRef);
-      } else {
 
-        NodeConnectorKey nodeConnectorKey = InstanceIdentifierUtils.getNodeConnectorKey(nodeConnectorRef.getValue());
-        nodeConnectorBuilder = new NodeConnectorBuilder()
-            .setKey(nodeConnectorKey)
-            .setId(nodeConnectorKey.getId())
-            .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector);
-        nc = nodeConnectorBuilder.build();
-        checkIfExistAndUpdateNode(readWriteTransaction, nodeConnectorRef, nc);
+        //build instance id for StpStatusAwareNodeConnector
+        InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNcInstanceId =
+            ((InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue())
+                .builder()
+                .augmentation(StpStatusAwareNodeConnector.class)
+                .build();
+        //update StpStatusAwareNodeConnector in operational store
+        readWriteTransaction.merge(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNcInstanceId, stpStatusAwareNodeConnector);
+        _logger.debug("Merged Stp Status aware node connector in operational {} with status {}", stpStatusAwareNcInstanceId, stpStatusAwareNodeConnector);
+      } else {
+        _logger.error("Unable to update Stp Status node connector {} note present in  operational store", nodeConnectorRef.getValue());
       }
     }
 
@@ -316,82 +308,6 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         return false;
 
       return true;
-    }
-
-    /**
-     * @param readWriteTransaction
-     * @param nodeConnectorRef
-     * @param nc
-     */
-    private void checkIfExistAndUpdateNode(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef, NodeConnector nc) {
-      Node node = null;
-      InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifierUtils.generateNodeInstanceIdentifier(nodeConnectorRef);
-      try {
-        Optional<Node> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier).get();
-        if(dataObjectOptional.isPresent())
-          node = (Node) dataObjectOptional.get();
-      } catch(Exception e) {
-        _logger.error("Error reading node {}", nodeInstanceIdentifier);
-        readWriteTransaction.submit();
-        throw new RuntimeException("Error reading from operational store, node  : " + nodeInstanceIdentifier, e);
-      }
-      if(node != null) {
-        List<NodeConnector> nodeConnectors = node.getNodeConnector();
-        if(nodeConnectors == null) {
-          nodeConnectors = new ArrayList<>();
-        }
-        nodeConnectors.add(nc);
-        NodeBuilder nodeBuilder = new NodeBuilder(node)
-            .setNodeConnector(nodeConnectors);
-        node = nodeBuilder.build();
-        readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier, node);
-        _logger.debug("Updated node {}  in operational store with node id {}", node, nodeInstanceIdentifier);
-      } else {
-        NodeKey nodeKey = nodeConnectorRef.getValue().firstKeyOf(Node.class, NodeKey.class);
-        List<NodeConnector> nodeConnectors = new ArrayList<>();
-        nodeConnectors.add(nc);
-        NodeBuilder nodeBuilder = new NodeBuilder()
-            .setKey(nodeKey)
-            .setId(nodeKey.getId())
-            .setNodeConnector(nodeConnectors);
-        node = nodeBuilder.build();
-
-        checkIfExistsAndUpdateNodes(readWriteTransaction, nodeConnectorRef, node);
-      }
-    }
-
-    /**
-     * @param readWriteTransaction
-     * @param nodeConnectorRef
-     * @param node
-     */
-    private void checkIfExistsAndUpdateNodes(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef, Node node) {
-
-      List<Node> nodesList = null;
-
-      Nodes nodes = null;
-      InstanceIdentifier<Nodes> nodesInstanceIdentifier = nodeConnectorRef.getValue().firstIdentifierOf(Nodes.class);
-      try {
-        Optional<Nodes> dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier).get();
-        if(dataObjectOptional.isPresent())
-          nodes = (Nodes) dataObjectOptional.get();
-      } catch(Exception e) {
-        _logger.error("Error reading nodes  {}", nodesInstanceIdentifier);
-        readWriteTransaction.submit();
-        throw new RuntimeException("Error reading from operational store, nodes  : " + nodesInstanceIdentifier, e);
-      }
-      if(nodes != null) {
-        nodesList = nodes.getNode();
-      }
-      if(nodesList == null) {
-        nodesList = new ArrayList<>();
-      }
-      nodesList.add(node);
-      NodesBuilder nodesBuilder = new NodesBuilder()
-          .setNode(nodesList);
-      nodes = nodesBuilder.build();
-      readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier, nodes);
-      _logger.debug("Updated nodes {}  in operational store with nodes id {}", nodes, nodesInstanceIdentifier);
     }
   }
 }
