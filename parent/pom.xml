@@ -160,7 +160,7 @@
                   <includeTestSourceDirectory>true</includeTestSourceDirectory>
                   <sourceDirectory>${project.basedir}</sourceDirectory>
                   <includes>**\/*.java,**\/*.yang,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat</includes>
-                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,\/,**\/xtend-gen\/,**\/yang-gen-code\/</excludes>
+                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,\/,**\/xtend-gen\/,**\/yang-gen-code\/,**\/${codeGeneratorPath}\/,**\/${configCodeGeneratorPath}\/,</excludes>
                 </configuration>
                 <dependencies>
                   <dependency>

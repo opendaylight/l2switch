@@ -48,12 +48,18 @@ public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.openday
     InventoryReader inventoryReader = new InventoryReader(dataService);
 
     // Write initial flows
-    InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-    initialFlowWriter.setFlowTableId(getDropallFlowTableId());
-    initialFlowWriter.setFlowPriority(getDropallFlowPriority());
-    initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
-    initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
-    invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+    if (getIsInstallDropallFlow()) {
+      _logger.info("L2Switch will install a dropall flow on each switch");
+      InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
+      initialFlowWriter.setFlowTableId(getDropallFlowTableId());
+      initialFlowWriter.setFlowPriority(getDropallFlowPriority());
+      initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
+      initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
+      invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+    }
+    else {
+      _logger.info("Dropall flows will not be installed");
+    }
 
     if (getIsLearningOnlyMode()) {
       _logger.info("L2Switch is in Learning Only Mode");

@@ -92,7 +92,7 @@
                   <codeGeneratorClass>
                     org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
                   </codeGeneratorClass>
-                  <outputBaseDir>${project.build.directory}/generated-sources/config</outputBaseDir>
+                  <outputBaseDir>${configCodeGeneratorPath}</outputBaseDir>
                   <additionalConfiguration>
                     <namespaceToPackage1>
                       urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
@@ -103,7 +103,7 @@
                   <codeGeneratorClass>
                     org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl
                   </codeGeneratorClass>
-                  <outputBaseDir>${project.build.directory}/generated-sources/sal</outputBaseDir>
+                  <outputBaseDir>${codeGeneratorPath}</outputBaseDir>
                 </generator>
               </codeGenerators>
               <inspectDependencies>true</inspectDependencies>

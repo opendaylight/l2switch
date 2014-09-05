@@ -31,6 +31,9 @@ module main-impl {
       leaf is-learning-only-mode {
         type boolean;
       }
+      leaf is-install-dropall-flow {
+        type boolean;
+      }
       leaf dropall-flow-table-id {
         type uint8;
       }
