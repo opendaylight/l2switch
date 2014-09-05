@@ -31,6 +31,9 @@ module address-tracker-impl {
       leaf timestamp-update-interval {
         type uint32;
       }
+      leaf  observe-addresses-from{
+        type string;
+      }
       container notification-service {
         uses config:service-ref {
           refine type {

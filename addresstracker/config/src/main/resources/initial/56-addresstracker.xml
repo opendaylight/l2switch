@@ -17,6 +17,9 @@
           </type>
           <name>adress-tracker-impl</name>
           <timestamp-update-interval>900000</timestamp-update-interval>
+          <observe-addresses-from>arp</observe-addresses-from>
+          <!-- all possible values for observe-addresses-from (give comma separated values)
+            <observe-addresses-from>arp,ipv,ipv6</observe-addresses-from>-->
 
           <notification-service>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
