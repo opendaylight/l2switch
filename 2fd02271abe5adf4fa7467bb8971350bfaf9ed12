@@ -16,6 +16,24 @@
       "revId": "2fd02271abe5adf4fa7467bb8971350bfaf9ed12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f5e5d78",
+        "filename": "addresstracker/implementation/src/main/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-09-08T19:13:28Z",
+      "side": 1,
+      "message": "Thanks for the suggestion, doing it for both changes.",
+      "parentUuid": "fa82b9bf_1973b116",
+      "revId": "2fd02271abe5adf4fa7467bb8971350bfaf9ed12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
