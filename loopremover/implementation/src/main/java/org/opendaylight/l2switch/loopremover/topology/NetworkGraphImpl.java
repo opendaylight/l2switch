@@ -128,17 +128,21 @@ public class NetworkGraphImpl implements NetworkGraphService {
   @Override
   public synchronized List<Link> getLinksInMst() {
     List<Link> linksInMst = new ArrayList<>();
-    PrimMinimumSpanningTree<NodeId, Link> networkMst = new PrimMinimumSpanningTree<>(DelegateTree.<NodeId, Link>getFactory());
-    Graph<NodeId, Link> mstGraph = networkMst.transform(networkGraph);
-    Collection<Link> mstLinks = mstGraph.getEdges();
-    linksInMst.addAll(mstLinks);
+    if (networkGraph != null) {
+      PrimMinimumSpanningTree<NodeId, Link> networkMst = new PrimMinimumSpanningTree<>(DelegateTree.<NodeId, Link>getFactory());
+      Graph<NodeId, Link> mstGraph = networkMst.transform(networkGraph);
+      Collection<Link> mstLinks = mstGraph.getEdges();
+      linksInMst.addAll(mstLinks);
+    }
     return linksInMst;
   }
 
   @Override
   public List<Link> getAllLinks() {
     List<Link> allLinks = new ArrayList<>();
-    allLinks.addAll(networkGraph.getEdges());
+    if (networkGraph != null) {
+      allLinks.addAll(networkGraph.getEdges());
+    }
     return allLinks;
   }
 }
