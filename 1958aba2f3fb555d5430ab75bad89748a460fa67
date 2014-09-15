@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa82b9bf_f2ba946d",
+        "filename": "addresstracker/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-15T22:00:23Z",
+      "side": 1,
+      "message": "Sorry for not observing this earlier, is there a reason why you\u0027ve chosen odlparent as the parent too?\n\nAll the sub-modules of model \u0026 implementation \u0026 config point to:\n  \u003cparent\u003e\n    \u003cgroupId\u003eorg.opendaylight.l2switch\u003c/groupId\u003e\n    \u003cartifactId\u003el2switch-parent\u003c/artifactId\u003e\n    \u003cversion\u003e0.1.0-SNAPSHOT\u003c/version\u003e\n    \u003crelativePath\u003e../../parent\u003c/relativePath\u003e\n  \u003c/parent\u003e",
+      "revId": "1958aba2f3fb555d5430ab75bad89748a460fa67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b2508c5f",
         "filename": "pom.xml",
         "patchSetId": 3
@@ -31,6 +48,24 @@
       "side": 1,
       "message": "It is defined here because this pom does not have a logical parent (i.e. no \"parent\" tag). So we would have to change this pom\u0027s parent structure if we wanted to define it somewhere else at which point we should really consider moving the SCM, repositories and other tags.\n\nI think there needs to be a push post helium to come and clean up the logical pom /parent structures for all projects which can help to consolidate  and prevent this type of confusion",
       "parentUuid": "fa82b9bf_b2508c5f",
+      "revId": "1958aba2f3fb555d5430ab75bad89748a460fa67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b285ecae",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-15T22:00:23Z",
+      "side": 1,
+      "message": "Thanks for explaining that to me.  Yeah, it does make sense to define it here.",
+      "parentUuid": "fa82b9bf_b2d72cbf",
       "revId": "1958aba2f3fb555d5430ab75bad89748a460fa67",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
