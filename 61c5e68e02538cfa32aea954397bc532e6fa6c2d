@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_12885821",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "Probably want javadoc at the top here which says that this expects somebody else will listen for changes in the host notes can call the putLocally and removeLocally functions to keep this up to date.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b2916c54",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "The name should be ConcurrentClusterAwareHostHashMap since it bakes in the fact that they\u0027re hosts when it does the put with the transaction.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_92946845",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "Is it sufficient to only override put and remove? I\u0027m not sure.\n\nIt seems like the right thing to do is to have this implement the ConcurrentMap interface and then have a local backing ConcurrentHashMap where you send most operations.\n\nThat way you can also add unimplemented methods that throw exceptions instead of possibly silently do things you don\u0027t expect.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_328d5c32",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "Presumably we need to have some logic to deal with whether this succeeds or not.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d28190fc",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "Presumably we need to have some logic to deal with whether this succeeds or not.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f2861413",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/ConcurrentClusterAwareHashMap.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-15T18:56:26Z",
+      "side": 1,
+      "message": "It probably makes sense to move this to the constructor and make sure that it\u0027s not null otherwise we should be checking if it\u0027s null everywhere we use it.",
+      "revId": "61c5e68e02538cfa32aea954397bc532e6fa6c2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
