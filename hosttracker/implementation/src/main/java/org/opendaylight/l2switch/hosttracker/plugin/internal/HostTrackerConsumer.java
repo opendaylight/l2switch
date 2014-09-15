@@ -33,9 +33,8 @@ public class HostTrackerConsumer extends AbstractBindingAwareConsumer
         NotificationService notificationService
                 = session.<NotificationService>getSALService(NotificationService.class);
         //ITopologyManager topologyManager = (ITopologyManager) ServiceHelper.getInstance(ITopologyManager.class, GlobalConstants.DEFAULT.toString(), this);
-        mdHostTrackerImpl = new HostTrackerImpl(dataService, notificationService);
+        mdHostTrackerImpl = new HostTrackerImpl(dataService);
         mdHostTrackerImpl.registerAsDataChangeListener();
-        mdHostTrackerImpl.registerAsNotificationListener();
         simpleAddressObserver = new SimpleAddressObserver(mdHostTrackerImpl, notificationService);
 //        simpleAddressObserver.registerAsNotificationListener();
     }

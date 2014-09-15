@@ -9,7 +9,7 @@
 package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 
 public class Compare {
 
@@ -22,7 +22,7 @@ public class Compare {
                 || (addr1.getIp() != null && addr1.getIp().equals(addr2.getIp())));
     }
 
-    public static boolean AttachmentPoints(AttachmentPoints atp1, AttachmentPoints atp2) {
+    public static boolean AttachmentPointsBuilder(AttachmentPointsBuilder atp1, AttachmentPointsBuilder atp2) {
         return (atp1.getTpId() == null && atp2.getTpId() == null)
                 || (atp1.getTpId() != null && atp1.getTpId().equals(atp2.getTpId()));
     }
