@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -36,7 +35,7 @@ public class Utilities {
      * As defined on
      * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
      */
-    private static final String TOPOLOGY_NAME = "flow:1";
+    public static final String TOPOLOGY_NAME = "flow:1";
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
         List<Link> links = new ArrayList();
@@ -77,24 +76,15 @@ public class Utilities {
         return lIID;
     }
 
-    public static org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId topoNodeIdToInventoryNodeId(NodeId nodeId) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId(nodeId.getValue());
-    }
-
-    public static NodeId inventoryNodeIdtoTopoNodeId(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId) {
-        return new NodeId(nodeId.getValue());
-    }
-
-    public static AttachmentPoints createAPsfromNodeConnector(NodeConnector nc) {
+    public static AttachmentPointsBuilder createAPsfromNodeConnector(NodeConnector nc) {
         TpId tpId = new TpId(nc.getId().getValue());
         return createAPsfromTP(tpId);
     }
 
-    public static AttachmentPoints createAPsfromTP(TpId tpId) {
-        AttachmentPoints at = new AttachmentPointsBuilder()//
+    public static AttachmentPointsBuilder createAPsfromTP(TpId tpId) {
+        AttachmentPointsBuilder at = new AttachmentPointsBuilder()//
                 .setTpId(tpId)//
-                .setKey(new AttachmentPointsKey(tpId))//
-                .build();
+                .setKey(new AttachmentPointsKey(tpId));
         return at;
     }
 }
