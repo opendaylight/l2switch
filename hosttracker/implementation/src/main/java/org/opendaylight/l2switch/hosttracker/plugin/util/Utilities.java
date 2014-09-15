@@ -36,7 +36,7 @@ public class Utilities {
      * As defined on
      * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
      */
-    private static final String TOPOLOGY_NAME = "flow:1";
+    public static final String TOPOLOGY_NAME = "flow:1";
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
         List<Link> links = new ArrayList();

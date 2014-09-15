@@ -47,8 +47,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
@@ -69,15 +71,17 @@ public class HostTrackerImpl implements DataChangeListener, OpendaylightInventor
 
     private NotificationService notificationService;
 
-    private final ConcurrentHashMap<HostId, Host> hosts;
+    private final ConcurrentClusterAwareHashMap<HostId, Host> hosts;
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
     private ListenerRegistration<NotificationListener> notificationListener;
+    private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
     HostTrackerImpl(DataBroker dataService, NotificationService notificationProviderService) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
         this.dataService = dataService;
         this.notificationService = notificationProviderService;
-        this.hosts = new ConcurrentHashMap<>();
+        this.hosts = new ConcurrentClusterAwareHashMap<>();
+        this.hosts.setDataBroker(dataService);
     }
 
     void packetReceived(Addresses addrs, InstanceIdentifier<?> ii) {
@@ -112,11 +116,27 @@ public class HostTrackerImpl implements DataChangeListener, OpendaylightInventor
                 }
                 Map<InstanceIdentifier<?>, DataObject> updatedData = change.getUpdatedData();
                 Map<InstanceIdentifier<?>, DataObject> createdData = change.getCreatedData();
+                Set<InstanceIdentifier<?>> deletedData = change.getRemovedPaths();
+
+                for (InstanceIdentifier<?> iid : deletedData) {
+                    synchronized (hosts) {
+                        try {
+                            InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
+                            hosts.removeLocally(iiN);
+                        } catch (ClassCastException ex) {
+                        }
+                    }
+                }
+
                 for (Map.Entry<InstanceIdentifier<?>, DataObject> entrySet : updatedData.entrySet()) {
                     InstanceIdentifier<?> key = entrySet.getKey();
                     final DataObject dataObject = entrySet.getValue();
                     if (dataObject instanceof Addresses) {
                         packetReceived((Addresses) dataObject, key);
+                    } else if (dataObject instanceof Node) {
+                        synchronized (hosts) {
+                            hosts.putLocally(null, null);
+                        }
                     }
                 }
                 for (Map.Entry<InstanceIdentifier<?>, DataObject> entrySet : createdData.entrySet()) {
@@ -124,6 +144,10 @@ public class HostTrackerImpl implements DataChangeListener, OpendaylightInventor
                     final DataObject dataObject = entrySet.getValue();
                     if (dataObject instanceof Addresses) {
                         packetReceived((Addresses) dataObject, key);
+                    } else if (dataObject instanceof Node) {
+                        synchronized (hosts) {
+                            hosts.putLocally(null, null);
+                        }
                     }
                 }
             }
@@ -132,6 +156,7 @@ public class HostTrackerImpl implements DataChangeListener, OpendaylightInventor
 
     public void close() {
         this.addrsNodeListerRegistration.close();
+        this.hostNodeListerRegistration.close();
         this.notificationListener.close();
         synchronized (hosts) {
             writeDatatoMDSAL(null, (List<Host>) this.hosts.values(), null, null);
@@ -147,6 +172,12 @@ public class HostTrackerImpl implements DataChangeListener, OpendaylightInventor
                 .augmentation(AddressCapableNodeConnector.class)//
                 .child(Addresses.class).build();
         this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
+
+        InstanceIdentifier<Node> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
+                .child(Topology.class, new TopologyKey(new TopologyId(Utilities.TOPOLOGY_NAME)))//
+                .child(Node.class).build();
+        this.hostNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, hostNodes, this, DataChangeScope.SUBTREE);
+
         //Processing addresses that existed before we register as a data change listener.
 //        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
 //        InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
