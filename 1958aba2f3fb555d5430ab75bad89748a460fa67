@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_b2508c5f",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-15T20:59:45Z",
+      "side": 1,
+      "message": "Is there a reason that this property is defined in this pom.xml instead of parent/pom.xml?  If there isn\u0027t a particular reason, could you amend this patch \u0026 move it to parent/pom.xml?  Patch otherwise looks good.",
+      "revId": "1958aba2f3fb555d5430ab75bad89748a460fa67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
