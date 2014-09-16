@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_0dffd902",
+        "filename": "addresstracker/implementation/src/test/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriterTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-16T00:08:09Z",
+      "side": 1,
+      "message": "Future test:  (1) testAddAddress with null input, (2) testAddAddress for timestampUpdateInterval",
+      "revId": "4842eb2e3688d57f4b667684ca57414859e45b04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6d19c578",
+        "filename": "addresstracker/implementation/src/test/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObserverUsingArpTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-16T00:08:09Z",
+      "side": 1,
+      "message": "Future test: Null inputs",
+      "revId": "4842eb2e3688d57f4b667684ca57414859e45b04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_4d1c016b",
+        "filename": "addresstracker/implementation/src/test/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObserverUsingIpv4Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-16T00:08:09Z",
+      "side": 1,
+      "message": "Future tests: (1) Null inputs (2) IPv4_address_to_ignore field",
+      "revId": "4842eb2e3688d57f4b667684ca57414859e45b04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8d120957",
+        "filename": "addresstracker/implementation/src/test/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObserverUsingIpv6Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 989
+      },
+      "writtenOn": "2014-09-16T00:08:09Z",
+      "side": 1,
+      "message": "FutureTests:  (1) Null inputs (2) IPV6_to_ignore field",
+      "revId": "4842eb2e3688d57f4b667684ca57414859e45b04",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
