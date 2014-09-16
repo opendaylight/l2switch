@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_2d0addd2",
+        "filename": "addresstracker/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1840
+      },
+      "writtenOn": "2014-09-16T08:46:02Z",
+      "side": 1,
+      "message": "No particular reason other than I knew what was in odlparent etc. That said it does look like the l2switch parent is more appropriate so I pushed a patch.",
+      "parentUuid": "fa82b9bf_f2ba946d",
+      "revId": "1958aba2f3fb555d5430ab75bad89748a460fa67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b2508c5f",
         "filename": "pom.xml",
         "patchSetId": 3
