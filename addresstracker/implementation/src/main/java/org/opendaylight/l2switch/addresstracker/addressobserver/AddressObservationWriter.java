@@ -8,10 +8,12 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
@@ -31,6 +33,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -45,6 +50,7 @@ public class AddressObservationWriter {
   private long timestampUpdateInterval;
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
+  private Map<NodeConnectorLock, CheckedFuture<Void, TransactionCommitFailedException>> futureMap = new HashMap<>();
 
   private class NodeConnectorLock {
 
@@ -86,6 +92,17 @@ public class AddressObservationWriter {
     }
 
     synchronized(nodeConnectorLock) {
+      // Ensure previous transaction finished writing to the db
+      CheckedFuture<Void, TransactionCommitFailedException> future = futureMap.get(nodeConnectorLock);
+      if (future != null) {
+        try {
+          future.get(2, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException|ExecutionException|TimeoutException e) {
+          _logger.error("Exception while waiting for previous transaction to finish", e);
+        }
+      }
+
       // Initialize builders
       long now = new Date().getTime();
       final AddressCapableNodeConnectorBuilder acncBuilder = new AddressCapableNodeConnectorBuilder();
@@ -153,7 +170,7 @@ public class AddressObservationWriter {
       WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
       // Update this AddressCapableNodeConnector in the MD-SAL data tree
       writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
-      writeTransaction.submit();
+      futureMap.put(nodeConnectorLock, writeTransaction.submit());
     }
   }
 }
