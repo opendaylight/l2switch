@@ -53,8 +53,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Adds default flows on all switches. Registers as ODL Inventory listener so that
- * it can add flows once a new node i.e. switch is added
+ * Adds a flow, which drops all packets, on all switches.
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
  */
 public class InitialFlowWriter implements OpendaylightInventoryListener {
   private final Logger _logger = LoggerFactory.getLogger(InitialFlowWriter.class);
@@ -135,6 +135,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
     }
 
+    /**
+     * Adds a flow, which drops all packets, on the specifide node.
+     * @param nodeId The node to install the flow on.
+     */
     public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
       _logger.debug("adding initial flows for node {} ", nodeId);
 
@@ -149,7 +153,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
     private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
       // get flow table key
-      TableKey flowTableKey = new TableKey(flowTableId); //TODO: Hard coded Table Id 0, need to get it from Configuration data.
+      TableKey flowTableKey = new TableKey(flowTableId);
 
       return nodeId.builder()
           .augmentation(FlowCapableNode.class)

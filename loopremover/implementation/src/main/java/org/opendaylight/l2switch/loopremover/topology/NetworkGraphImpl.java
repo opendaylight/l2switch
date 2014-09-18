@@ -40,7 +40,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
   /**
    * Adds links to existing graph or creates new directed graph with given links if graph was not initialized.
    *
-   * @param links
+   * @param links The links to add.
    */
   @Override
   public synchronized void addLinks(List<Link> links) {
@@ -69,9 +69,9 @@ public class NetworkGraphImpl implements NetworkGraphService {
   }
 
   /**
-   * removes links from existing graph.
+   * Removes links from existing graph.
    *
-   * @param links
+   * @param links The links to remove.
    */
   @Override
   public synchronized void removeLinks(List<Link> links) {
@@ -122,8 +122,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
 
   /**
    * Forms MST(minimum spanning tree) from network graph and returns links that are not in MST.
-   *
-   * @return
+   * @return The links in the MST (minimum spanning tree)
    */
   @Override
   public synchronized List<Link> getLinksInMst() {
@@ -137,6 +136,10 @@ public class NetworkGraphImpl implements NetworkGraphService {
     return linksInMst;
   }
 
+  /**
+   * Get all the links in the network.
+   * @return The links in the network.
+   */
   @Override
   public List<Link> getAllLinks() {
     List<Link> allLinks = new ArrayList<>();

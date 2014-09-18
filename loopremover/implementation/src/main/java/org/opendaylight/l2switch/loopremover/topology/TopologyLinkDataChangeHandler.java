@@ -61,14 +61,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   private long graphRefreshDelay;
 
   private final DataBroker dataBroker;
-  boolean doneOnce = false;
 
-  /**
-   * Uses default delay to refresh topology graph if this constructor is used.
-   *
-   * @param dataBroker
-   * @param networkGraphService
-   */
   public TopologyLinkDataChangeHandler(DataBroker dataBroker, NetworkGraphService networkGraphService) {
     Preconditions.checkNotNull(dataBroker, "dataBroker should not be null.");
     Preconditions.checkNotNull(networkGraphService, "networkGraphService should not be null.");
@@ -86,13 +79,16 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
    * under {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology}
    * operation data root.
    */
-
   public ListenerRegistration<DataChangeListener> registerAsDataChangeListener() {
     InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
         .child(Topology.class, new TopologyKey(new TopologyId(DEFAULT_TOPOLOGY_ID))).child(Link.class).toInstance();
     return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, linkInstance, this, AsyncDataBroker.DataChangeScope.BASE);
   }
 
+  /**
+   * Handler for onDataChanged events and schedules the building of the network graph.
+   * @param dataChangeEvent The data change event to process.
+   */
   @Override
   public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent) {
     if(dataChangeEvent == null) {

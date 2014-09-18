@@ -60,8 +60,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Adds default flows on all switches. Registers as ODL Inventory listener so that
- * it can add flows once a new node i.e. switch is added
+ * Adds a flow, which sends all ARP packets to the controller, on all switches.
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
  */
 public class InitialFlowWriter implements OpendaylightInventoryListener {
   private final Logger _logger = LoggerFactory.getLogger(InitialFlowWriter.class);
@@ -112,6 +112,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
     //do nothing
   }
 
+  /**
+   * Called when a node gets updated.
+   * @param nodeUpdated Notification for when a node gets updated.
+   */
   @Override
   public void onNodeUpdated(NodeUpdated nodeUpdated) {
     initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdated));
@@ -139,6 +143,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
     }
 
+    /**
+     * Adds a flow, which sends all ARP packets to the controller, to the specified node.
+     * @param nodeId The node to write the flow on.
+     */
     public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
       _logger.debug("adding initial flows for node {} ", nodeId);
 
