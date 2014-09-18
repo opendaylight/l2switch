@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.AbstractArpHandlerModule {
 
   private final static Logger _logger = LoggerFactory.getLogger(ArpHandlerModule.class);
-  private Registration listenerRegistration = null, floodListenerReg = null, invListenerReg = null;
+  private Registration listenerRegistration = null, floodTopoListenerReg = null, floodInvListenerReg = null, invListenerReg = null;
 
   public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
     super(identifier, dependencyResolver);
@@ -48,7 +48,8 @@ public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendayli
       floodFlowWriter.setFlowIdleTimeout(getFloodFlowIdleTimeout());
       floodFlowWriter.setFlowHardTimeout(getFloodFlowHardTimeout());
       floodFlowWriter.setFlowInstallationDelay(getFloodFlowInstallationDelay());
-      floodListenerReg = floodFlowWriter.registerAsDataChangeListener();
+      floodTopoListenerReg = floodFlowWriter.registerAsDataChangeListener();
+      floodInvListenerReg = notificationService.registerNotificationListener(floodFlowWriter);
     } else {
 
       //Write initial flows to send arp to controller
@@ -83,8 +84,11 @@ public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendayli
         if(listenerRegistration != null) {
           listenerRegistration.close();
         }
-        if(floodListenerReg != null) {
-          floodListenerReg.close();
+        if(floodTopoListenerReg != null) {
+          floodTopoListenerReg.close();
+        }
+        if(floodInvListenerReg != null) {
+          floodInvListenerReg.close();
         }
         if(invListenerReg != null) {
           invListenerReg.close();
