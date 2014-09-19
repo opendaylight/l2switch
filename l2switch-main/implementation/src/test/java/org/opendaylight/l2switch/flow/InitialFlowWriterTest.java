@@ -9,50 +9,71 @@ package org.opendaylight.l2switch.flow;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemovedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdatedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemovedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdatedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
-/**
- *
- */
 public class InitialFlowWriterTest {
-  private SalFlowService salFlowService;
-  private NodeUpdated nodeUpdated;
-  private AddFlowInput addFlowInput;
+
+  @MockitoAnnotations.Mock private SalFlowService salFlowService;
+  private InitialFlowWriter initialFlowWriter;
 
   @Before
-  public void init() {
-    salFlowService = mock(SalFlowService.class);
-    nodeUpdated = mock(NodeUpdated.class);
-    addFlowInput = mock(AddFlowInput.class);
-    NodeRef nodeRef = new NodeRef(getNodeId(new NodeId("openflow:1")));
-    when(nodeUpdated.getNodeRef()).thenReturn(nodeRef);
+  public void initMocks() {
+    MockitoAnnotations.initMocks(this);
+    initialFlowWriter = new InitialFlowWriter(salFlowService);
+  }
+
+
+  @Test
+  public void onNodeConnectorRemoved() throws Exception {
+    NodeConnectorRemoved nodeConnectorRemoved = new NodeConnectorRemovedBuilder().build();
+    initialFlowWriter.onNodeConnectorRemoved(nodeConnectorRemoved);
   }
 
   @Test
-  public void testOnNodeUpdated() throws Exception {
-    InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-    initialFlowWriter.onNodeUpdated(nodeUpdated);
-
-    verify(salFlowService,times(3));
-
+  public void onNodeConnectorUpdated() throws Exception {
+    NodeConnectorUpdated nodeConnectorUpdated = new NodeConnectorUpdatedBuilder().build();
+    initialFlowWriter.onNodeConnectorUpdated(nodeConnectorUpdated);
   }
 
-  private InstanceIdentifier<Node> getNodeId(final NodeId nodeId) {
-    return InstanceIdentifier.builder(Nodes.class) //
-        .child(Node.class, new NodeKey(nodeId)) //
-        .build();
+  @Test
+  public void onNodeRemoved() throws Exception {
+    NodeRemoved nodeRemoved = new NodeRemovedBuilder().build();
+    initialFlowWriter.onNodeRemoved(nodeRemoved);
+  }
+
+  @Test
+  public void onNodeUpdated_Null() throws Exception {
+    initialFlowWriter.onNodeUpdated(null);
+    Thread.sleep(250);
+    verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
+  }
+
+  @Test
+  public void onNodeUpdated_Valid() throws Exception {
+    InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(""))).toInstance();
+    NodeUpdated nodeUpdated = new NodeUpdatedBuilder().setNodeRef(new NodeRef(nodeInstanceIdentifier)).build();
+    initialFlowWriter.onNodeUpdated(nodeUpdated);
+    Thread.sleep(250);
+    verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
   }
 }
