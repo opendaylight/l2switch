@@ -27,6 +27,12 @@ module host-tracker-service {
             description "the assumption is that all address can be reached at all attachment points";
             uses topo:tp-attributes;
             key tp-id;
+            leaf corresponding-tp {
+                type topo:tp-ref;
+            }
+            leaf active {
+                type boolean;
+            }
         }
     }
 

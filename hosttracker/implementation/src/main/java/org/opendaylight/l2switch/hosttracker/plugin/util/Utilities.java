@@ -10,6 +10,9 @@ package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -32,7 +35,7 @@ public class Utilities {
      * As defined on
      * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
      */
-    private static final String TOPOLOGY_NAME = "flow:1";
+    public static final String TOPOLOGY_NAME = "flow:1";
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
         List<Link> links = new ArrayList();
@@ -71,5 +74,17 @@ public class Utilities {
                 .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
                 .child(Link.class, lk).build();
         return lIID;
+    }
+
+    public static AttachmentPointsBuilder createAPsfromNodeConnector(NodeConnector nc) {
+        TpId tpId = new TpId(nc.getId().getValue());
+        return createAPsfromTP(tpId);
+    }
+
+    public static AttachmentPointsBuilder createAPsfromTP(TpId tpId) {
+        AttachmentPointsBuilder at = new AttachmentPointsBuilder()//
+                .setTpId(tpId)//
+                .setKey(new AttachmentPointsKey(tpId));
+        return at;
     }
 }

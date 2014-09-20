@@ -9,10 +9,19 @@
 package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 
 public class Compare {
 
+    /**
+     * Compare two addresses. This method is different than equals since it only
+     * compares MAC, VLAN and IP Address.
+     *
+     * @param addr1 first Address to compare.
+     * @param addr2 second Address to compare.
+     * @return true if both have the same MAC, VLAN and IP Address, false
+     * otherwise.
+     */
     public static boolean Addresses(Addresses addr1, Addresses addr2) {
         return ((addr1.getMac() == null && addr2.getMac() == null)
                 || (addr1.getMac() != null && addr1.getMac().equals(addr2.getMac())))
@@ -22,7 +31,15 @@ public class Compare {
                 || (addr1.getIp() != null && addr1.getIp().equals(addr2.getIp())));
     }
 
-    public static boolean AttachmentPoints(AttachmentPoints atp1, AttachmentPoints atp2) {
+    /**
+     * Compares two AttachmentPointsBuilder. This method is different than
+     * equals since it only compares the TpId of both AttachmentPointsBuilder.
+     *
+     * @param atp1 first AttachmentPointsBuilder to compare.
+     * @param atp2 second AttachmentPointsBuilder to compare.
+     * @return true if both have the same TpId, false otherwise.
+     */
+    public static boolean AttachmentPointsBuilder(AttachmentPointsBuilder atp1, AttachmentPointsBuilder atp2) {
         return (atp1.getTpId() == null && atp2.getTpId() == null)
                 || (atp1.getTpId() != null && atp1.getTpId().equals(atp2.getTpId()));
     }
