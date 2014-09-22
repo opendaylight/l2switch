@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_4fd70eee",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "You probably only want to modify hosts if the writeTx is succseful.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2fdaca17",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "You probably only want to modify hosts if the writeTx is successful.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ef038274",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "You probably only want to modify hosts if the writeTx is successful.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_affd7a70",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/inventory/Host.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "The above javadoc block should be moved or removed.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ef2aa2e6",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/util/Utilities.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "Add a comment noting that this assumes inventory node IDs and topology node IDs are the same.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_4fee2eb6",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/util/Utilities.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "Add a comment noting that this assumes inventory node IDs and topology node IDs are the same.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2ff16a95",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/util/Utilities.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:21:54Z",
+      "side": 1,
+      "message": "Add a comment noting that this assumes NodeConnectorIds are the same as TpIds.",
+      "revId": "94b2dac380c1aab95a9b87636844bd4c99f311c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
