@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_af59fa8f",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/l2switch/host/tracker/impl/rev140528/HostTrackerModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2014-09-22T18:48:15Z",
+      "side": 1,
+      "message": "no need to create the instance if not registered as listener.",
+      "revId": "e537a3024f1f8a2c085aa8c992c6d84f9d53a83c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
