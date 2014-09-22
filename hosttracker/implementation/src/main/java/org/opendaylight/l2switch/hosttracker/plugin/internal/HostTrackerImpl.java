@@ -58,7 +58,7 @@ public class HostTrackerImpl implements DataChangeListener {//, OpendaylightInve
 
     private ConcurrentHashMap<HostId, Host> hosts;
 
-    HostTrackerImpl(DataBroker dataService, NotificationService notificationProviderService) {
+    public HostTrackerImpl(DataBroker dataService, NotificationService notificationProviderService) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
         this.dataService = dataService;
         this.notificationService = notificationProviderService;

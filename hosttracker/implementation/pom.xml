@@ -20,12 +20,56 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>
-                            org.opendaylight.l2switch.hosttracker.plugin.internal.HostTrackerConsumer
-                        </Bundle-Activator>
+                        <Import-Package>*</Import-Package>
                     </instructions>
-                    <manifestLocation>${project.basedir}/META-INF</manifestLocation>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
+                <version>${yangtools.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-sources</goal>
+                        </goals>
+                        <configuration>
+                            <codeGenerators>
+                                <generator>
+                                    <codeGeneratorClass>
+                                        org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
+                                    </codeGeneratorClass>
+                                    <outputBaseDir>${configCodeGeneratorPath}</outputBaseDir>
+                                    <additionalConfiguration>
+                                        <namespaceToPackage1>
+                                            urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
+                                        </namespaceToPackage1>
+                                    </additionalConfiguration>
+                                </generator>
+                                <generator>
+                                    <codeGeneratorClass>
+                                        org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl
+                                    </codeGeneratorClass>
+                                    <outputBaseDir>${codeGeneratorPath}</outputBaseDir>
+                                </generator>
+                            </codeGenerators>
+                            <inspectDependencies>true</inspectDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.opendaylight.controller</groupId>
+                        <artifactId>yang-jmx-generator-plugin</artifactId>
+                        <version>0.2.5-SNAPSHOT</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.opendaylight.yangtools</groupId>
+                        <artifactId>maven-sal-api-gen-plugin</artifactId>
+                        <version>${yangtools.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -76,6 +120,14 @@
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-topology</artifactId>
             <version>2013.10.21.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-config</artifactId>
         </dependency>
     </dependencies>
 </project>
