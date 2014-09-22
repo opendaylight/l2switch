@@ -113,6 +113,13 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+      <artifactId>hosttracker-config</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.l2switch.main</groupId>
       <artifactId>main-impl</artifactId>
       <version>${project.version}</version>
