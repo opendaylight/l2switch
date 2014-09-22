@@ -57,4 +57,59 @@ public class AddressObserverUsingIpv4Test {
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
             any(NodeConnectorRef.class));
     }
+
+    @Test
+    public void onIpv4PacketReceivedNullInputTest1() throws Exception {
+
+        Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(null).build();
+        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
+        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+
+        verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
+            any(NodeConnectorRef.class));
+
+    }
+
+    @Test
+    public void onIpv4PacketReceivedNullInputTest2() throws Exception {
+
+        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new RawPacketBuilder().build())
+            .build());
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .build());
+
+        Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
+        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
+        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+
+        verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
+            any(NodeConnectorRef.class));
+
+    }
+
+    @Test
+    public void onIpv4PacketReceivedNullInputTest3() throws Exception {
+
+        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new RawPacketBuilder().build())
+            .build());
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .build());
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new Ipv4PacketBuilder().setSourceIpv4(new Ipv4Address("0.0.0.0")).build())
+            .build());
+
+        Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
+        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
+        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+
+        verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
+            any(NodeConnectorRef.class));
+
+    }
 }
