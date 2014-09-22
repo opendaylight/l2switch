@@ -65,7 +65,7 @@ public class HostTrackerImpl implements DataChangeListener {
     private ListenerRegistration<NotificationListener> notificationListener;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
-    HostTrackerImpl(DataBroker dataService) {
+    public HostTrackerImpl(DataBroker dataService) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
         this.dataService = dataService;
         this.hosts = new ConcurrentClusterAwareHostHashMap<>(dataService);

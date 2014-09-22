@@ -97,7 +97,13 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- l2switch main -->
+    <dependency>
+      <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+      <artifactId>hosttracker-config</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+      <!-- l2switch main -->
     <dependency>
       <groupId>org.opendaylight.l2switch.main</groupId>
       <artifactId>main-impl</artifactId>
@@ -174,8 +180,8 @@
             <phase>generate-resources</phase>
             <configuration>
               <outputDirectory>${project.build.directory}/generated-resources/opendaylight/configuration</outputDirectory>
-              <includeArtifactIds>arphandler-config,packethandler-config,loopremover-config,addresstracker-config,main-config</includeArtifactIds>
-              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler,org.opendaylight.l2switch.loopremover,org.opendaylight.l2switch.addresstracker,org.opendaylight.l2switch.main</includeGroupIds>
+              <includeArtifactIds>arphandler-config,packethandler-config,loopremover-config,addresstracker-config,hosttracker-config,main-config</includeArtifactIds>
+              <includeGroupIds>org.opendaylight.l2switch.arphandler,org.opendaylight.l2switch.packethandler,org.opendaylight.l2switch.loopremover,org.opendaylight.l2switch.addresstracker,org.opendaylight.l2switch.hosttracker,org.opendaylight.l2switch.main</includeGroupIds>
               <includes>**\/*-*.xml</includes>
               <excludeTransitive>true</excludeTransitive>
               <ignorePermissions>false</ignorePermissions>
