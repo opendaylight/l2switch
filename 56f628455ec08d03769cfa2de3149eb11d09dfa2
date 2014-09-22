@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_af349a4a",
+        "filename": "hosttracker/implementation/src/test/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-22T17:33:19Z",
+      "side": 1,
+      "message": "I think this will need to be changed if we merge some of the other patches since it no longer throws that.",
+      "revId": "56f628455ec08d03769cfa2de3149eb11d09dfa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
