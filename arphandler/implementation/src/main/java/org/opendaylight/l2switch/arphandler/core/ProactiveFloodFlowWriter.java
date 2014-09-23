@@ -87,6 +87,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
   private final SalFlowService salFlowService;
   private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
   private boolean flowRefreshScheduled = false;
+  private boolean threadReschedule = false;
   private long flowInstallationDelay;
   private short flowTableId;
   private int flowPriority;
@@ -151,6 +152,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
       }
     } else {
       _logger.debug("Already scheduled for flow refresh.");
+      threadReschedule = true;
     }
   }
 
@@ -197,6 +199,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
       }
     } else {
       _logger.debug("Already scheduled for flow refresh.");
+      threadReschedule = true;
     }
   }
 
@@ -206,6 +209,13 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
     @Override
     public void run() {
       _logger.debug("In flow refresh thread.");
+      if (threadReschedule) {
+        _logger.debug("Rescheduling thread");
+        stpStatusDataChangeEventProcessor.schedule(this, flowInstallationDelay, TimeUnit.SECONDS);
+        threadReschedule = false;
+        return;
+      }
+
       flowRefreshScheduled = false;
       installFloodFlows();
     }

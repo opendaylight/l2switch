@@ -58,6 +58,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
 
   private final NetworkGraphService networkGraphService;
   private boolean networkGraphRefreshScheduled = false;
+  private boolean threadReschedule = false;
   private long graphRefreshDelay;
 
   private final DataBroker dataBroker;
@@ -139,6 +140,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       }
     } else {
       _logger.debug("Already scheduled for network graph refresh.");
+      threadReschedule = true;
     }
   }
 
@@ -150,6 +152,11 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
 
     @Override
     public void run() {
+      if (threadReschedule) {
+        topologyDataChangeEventProcessor.schedule(this, graphRefreshDelay, TimeUnit.SECONDS);
+        threadReschedule = false;
+        return;
+      }
       _logger.debug("In network graph refresh thread.");
       networkGraphRefreshScheduled = false;
       networkGraphService.clear();
