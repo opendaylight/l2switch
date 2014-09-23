@@ -183,19 +183,22 @@ public class HostTrackerImpl implements DataChangeListener {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
                 = ii.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
 
-        ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction();
-        ListenableFuture<Optional<NodeConnector>> futureNodeConnector = readTx.read(LogicalDatastoreType.OPERATIONAL, iinc);
-        ListenableFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode //
-                = readTx.read(LogicalDatastoreType.OPERATIONAL, iin);
+        ListenableFuture<Optional<NodeConnector>> futureNodeConnector;
+        ListenableFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode;
+        try (ReadOnlyTransaction readTx = dataService.newReadOnlyTransaction()) {
+            futureNodeConnector = readTx.read(LogicalDatastoreType.OPERATIONAL, iinc);
+            futureNode = readTx.read(LogicalDatastoreType.OPERATIONAL, iin);
+            readTx.close();
+        }
         try {
-            if (futureNodeConnector.get().isPresent()
-                    && futureNode.get().isPresent()) {
-                processHost(futureNode.get().get(),
-                        futureNodeConnector.get().get(),
-                        addrs);
+            Optional<NodeConnector> opNodeConnector = futureNodeConnector.get();
+            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> opNode = futureNode.get();
+            if (opNode != null && opNode.isPresent()
+                    && opNodeConnector != null && opNodeConnector.isPresent()) {
+                processHost(opNode.get(), opNodeConnector.get(), addrs);
             }
         } catch (ExecutionException | InterruptedException ex) {
-
+            log.error(ex.getLocalizedMessage());
         }
     }
 
@@ -249,9 +252,11 @@ public class HostTrackerImpl implements DataChangeListener {
         TpId tpId = new TpId(nodeConnector.getKey().getId().getValue());
         InstanceIdentifier<NetworkTopology> ntII
                 = InstanceIdentifier.builder(NetworkTopology.class).build();
-        ReadOnlyTransaction rot = dataService.newReadOnlyTransaction();
-        ListenableFuture<Optional<NetworkTopology>> lfONT
-                = rot.read(LogicalDatastoreType.OPERATIONAL, ntII);
+        ListenableFuture<Optional<NetworkTopology>> lfONT;
+        try (ReadOnlyTransaction rot = dataService.newReadOnlyTransaction()) {
+            lfONT = rot.read(LogicalDatastoreType.OPERATIONAL, ntII);
+            rot.close();
+        }
         Optional<NetworkTopology> oNT;
         try {
             oNT = lfONT.get();
@@ -347,5 +352,4 @@ public class HostTrackerImpl implements DataChangeListener {
             this.hosts.clear();
         }
     }
-
 }
