@@ -48,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,6 @@ public class HostTrackerImpl implements DataChangeListener {
 
     private final ConcurrentClusterAwareHostHashMap<HostId, Host> hosts;
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
-    private ListenerRegistration<NotificationListener> notificationListener;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
     HostTrackerImpl(DataBroker dataService) {
@@ -345,7 +343,6 @@ public class HostTrackerImpl implements DataChangeListener {
     public void close() {
         this.addrsNodeListerRegistration.close();
         this.hostNodeListerRegistration.close();
-        this.notificationListener.close();
         synchronized (hosts) {
             this.hosts.clear();
         }
