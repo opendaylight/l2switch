@@ -21,7 +21,7 @@
           <lldp-flow-priority>100</lldp-flow-priority>
           <lldp-flow-idle-timeout>0</lldp-flow-idle-timeout>
           <lldp-flow-hard-timeout>0</lldp-flow-hard-timeout>
-          <graph-refresh-delay>10</graph-refresh-delay>
+          <graph-refresh-delay>2</graph-refresh-delay>
 
           <notification-service>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
