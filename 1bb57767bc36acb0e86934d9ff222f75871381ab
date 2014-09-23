@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_4c187984",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-23T21:32:26Z",
+      "side": 1,
+      "message": "I *think* this if block should go outside the try/catch block.",
+      "revId": "1bb57767bc36acb0e86934d9ff222f75871381ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2c409555",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-23T21:32:26Z",
+      "side": 1,
+      "message": "Error is usually reserved for things where you expect that stable execution can\u0027t continue anymore. Warn is probably more appropriate.",
+      "revId": "1bb57767bc36acb0e86934d9ff222f75871381ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ac2b4593",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2014-09-23T21:32:26Z",
+      "side": 1,
+      "message": "Log a warning message here?",
+      "revId": "1bb57767bc36acb0e86934d9ff222f75871381ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
