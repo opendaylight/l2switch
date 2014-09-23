@@ -57,5 +57,35 @@ public class AddressObserverUsingArpTest {
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any(
             NodeConnectorRef.class));
     }
+
+    @Test
+    public void onArpPacketReceivedNullInputTest1() throws Exception {
+
+        ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(null).build();
+        AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
+        addressOberserverArp.onArpPacketReceived(arpReceived);
+
+        verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class), any(
+            NodeConnectorRef.class));
+    }
+
+    @Test
+    public void onArpPacketReceivedNullInputTest2() throws Exception {
+
+        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new RawPacketBuilder().build())
+            .build());
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .build());
+
+        ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
+        AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
+        addressOberserverArp.onArpPacketReceived(arpReceived);
+
+        verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class), any(
+            NodeConnectorRef.class));
+    }
 }
 

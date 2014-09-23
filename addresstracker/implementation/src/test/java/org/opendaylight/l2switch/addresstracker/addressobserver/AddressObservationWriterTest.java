@@ -89,7 +89,7 @@ public class AddressObservationWriterTest {
     }
 
     @Test
-    public void testaddAdress() throws Exception {
+    public void addAddressTest() throws Exception {
         AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
         addressObservationWriter.setTimestampUpdateInterval(20L);
         addressObservationWriter.addAddress(macAddress, ipAddress, realNcRef);
@@ -99,5 +99,19 @@ public class AddressObservationWriterTest {
         verify(writeTransaction, times(1)).merge(any(LogicalDatastoreType.class),
             any(InstanceIdentifier.class), any(AddressCapableNodeConnector.class));
         verify(writeTransaction, times(1)).submit();
+    }
+
+    @Test
+    public void addAddressNullTest() throws Exception {
+
+        AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
+        addressObservationWriter.setTimestampUpdateInterval(20L);
+        addressObservationWriter.addAddress(macAddress, null, realNcRef);
+        verify(readTransaction, times(0)).read(any(LogicalDatastoreType.class),
+            any(InstanceIdentifier.class));
+        verify(readTransaction, times(0)).close();
+        verify(writeTransaction, times(0)).merge(any(LogicalDatastoreType.class),
+            any(InstanceIdentifier.class), any(AddressCapableNodeConnector.class));
+        verify(writeTransaction, times(0)).submit();
     }
 }
