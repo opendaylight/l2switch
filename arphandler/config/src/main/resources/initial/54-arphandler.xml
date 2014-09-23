@@ -24,7 +24,7 @@
           <flood-flow-priority>2</flood-flow-priority>
           <flood-flow-idle-timeout>0</flood-flow-idle-timeout>
           <flood-flow-hard-timeout>0</flood-flow-hard-timeout>
-          <flood-flow-installation-delay>2</flood-flow-installation-delay>
+          <flood-flow-installation-delay>15</flood-flow-installation-delay>
           <is-proactive-flood-mode>true</is-proactive-flood-mode>
 
           <notification-service>
