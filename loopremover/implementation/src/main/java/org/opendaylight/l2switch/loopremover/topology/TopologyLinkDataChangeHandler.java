@@ -136,7 +136,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     if(!networkGraphRefreshScheduled) {
       synchronized(this) {
         if(!networkGraphRefreshScheduled) {
-          topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), graphRefreshDelay, TimeUnit.SECONDS);
+          topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), graphRefreshDelay, TimeUnit.MILLISECONDS);
           networkGraphRefreshScheduled = true;
           _logger.debug("Scheduled Graph for refresh.");
         }
@@ -156,7 +156,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     @Override
     public void run() {
       if (threadReschedule) {
-        topologyDataChangeEventProcessor.schedule(this, graphRefreshDelay, TimeUnit.SECONDS);
+        topologyDataChangeEventProcessor.schedule(this, graphRefreshDelay, TimeUnit.MILLISECONDS);
         threadReschedule = false;
         return;
       }

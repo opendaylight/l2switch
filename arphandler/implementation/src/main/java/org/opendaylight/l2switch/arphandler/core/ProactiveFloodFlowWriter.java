@@ -145,7 +145,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
     if(!flowRefreshScheduled) {
       synchronized(this) {
         if(!flowRefreshScheduled) {
-          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), flowInstallationDelay, TimeUnit.SECONDS);
+          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), flowInstallationDelay, TimeUnit.MILLISECONDS);
           flowRefreshScheduled = true;
           _logger.debug("Scheduled Flows for refresh.");
         }
@@ -192,7 +192,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
     if(!flowRefreshScheduled) {
       synchronized(this) {
         if(!flowRefreshScheduled) {
-          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), flowInstallationDelay, TimeUnit.SECONDS);
+          stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(), flowInstallationDelay, TimeUnit.MILLISECONDS);
           flowRefreshScheduled = true;
           _logger.debug("Scheduled Flows for refresh.");
         }
@@ -211,7 +211,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
       _logger.debug("In flow refresh thread.");
       if (threadReschedule) {
         _logger.debug("Rescheduling thread");
-        stpStatusDataChangeEventProcessor.schedule(this, flowInstallationDelay, TimeUnit.SECONDS);
+        stpStatusDataChangeEventProcessor.schedule(this, flowInstallationDelay, TimeUnit.MILLISECONDS);
         threadReschedule = false;
         return;
       }
