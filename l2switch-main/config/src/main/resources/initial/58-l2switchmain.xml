@@ -16,7 +16,7 @@
             prefix:main-impl
           </type>
           <name>main-impl</name>
-          <is-learning-only-mode>false</is-learning-only-mode>
+          <is-learning-only-mode>true</is-learning-only-mode>
           <is-install-dropall-flow>true</is-install-dropall-flow>
           <dropall-flow-table-id>0</dropall-flow-table-id>
           <dropall-flow-priority>0</dropall-flow-priority>
