@@ -25,6 +25,7 @@
     <dlux.version>0.1.0-SNAPSHOT</dlux.version>
     <karaf.version>3.0.1</karaf.version>
     <bundle.plugin.version>2.4.0</bundle.plugin.version>
+    <jacoco.version>0.6.2.201302030002</jacoco.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
@@ -256,7 +257,7 @@
                                   <pluginExecutionFilter>
                                       <groupId>org.jacoco</groupId>
                                       <artifactId>jacoco-maven-plugin</artifactId>
-                                      <versionRange>[0.0,)</versionRange>
+                                      <version>${jacoco.version}</version>
                                       <goals>
                                           <goal>prepare-agent</goal>
                                           <goal>pre-test</goal>
