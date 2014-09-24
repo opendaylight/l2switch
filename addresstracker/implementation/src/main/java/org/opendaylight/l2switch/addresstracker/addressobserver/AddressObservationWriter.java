@@ -34,8 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -96,9 +94,9 @@ public class AddressObservationWriter {
       CheckedFuture<Void, TransactionCommitFailedException> future = futureMap.get(nodeConnectorLock);
       if (future != null) {
         try {
-          future.get(2, TimeUnit.SECONDS);
+          future.get();
         }
-        catch (InterruptedException|ExecutionException|TimeoutException e) {
+        catch (InterruptedException|ExecutionException e) {
           _logger.error("Exception while waiting for previous transaction to finish", e);
         }
       }
