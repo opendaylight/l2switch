@@ -9,6 +9,9 @@ package org.opendaylight.l2switch.loopremover.topology;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -165,9 +168,21 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
         return;
       }
       networkGraphService.addLinks(links);
-      ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
+      final ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
       updateNodeConnectorStatus(readWriteTransaction);
       readWriteTransaction.submit();
+      final CheckedFuture writeTxResultFuture = readWriteTransaction.submit();
+      Futures.addCallback(writeTxResultFuture, new FutureCallback() {
+        @Override
+        public void onSuccess(Object o) {
+          _logger.debug("TopologyLinkDataChangeHandler write successful for tx :{}", readWriteTransaction.getIdentifier());
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+          _logger.error("TopologyLinkDataChangeHandler write transaction {} failed", readWriteTransaction.getIdentifier(), throwable.getCause());
+        }
+      });
       _logger.debug("Done with network graph refresh thread.");
     }
 
