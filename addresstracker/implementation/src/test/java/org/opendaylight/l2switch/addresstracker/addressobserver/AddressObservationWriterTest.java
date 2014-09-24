@@ -86,6 +86,7 @@ public class AddressObservationWriterTest {
 
         writeTransaction = mock(WriteTransaction.class);
         when(dataService.newWriteOnlyTransaction()).thenReturn(writeTransaction);
+        when(writeTransaction.submit()).thenReturn(mock(CheckedFuture.class));
     }
 
     @Test

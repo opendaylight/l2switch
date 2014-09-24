@@ -9,6 +9,8 @@ package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -48,7 +50,7 @@ public class AddressObservationWriter {
   private long timestampUpdateInterval;
   private DataBroker dataService;
   private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
-  private Map<NodeConnectorLock, CheckedFuture<Void, TransactionCommitFailedException>> futureMap = new HashMap<>();
+  private Map<NodeConnectorLock, CheckedFuture> futureMap = new HashMap<>();
 
   private class NodeConnectorLock {
 
@@ -165,10 +167,22 @@ public class AddressObservationWriter {
       InstanceIdentifier<AddressCapableNodeConnector> addressCapableNcInstanceId =
           ((InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue())
               .augmentation(AddressCapableNodeConnector.class);
-      WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
+      final WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
       // Update this AddressCapableNodeConnector in the MD-SAL data tree
       writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
-      futureMap.put(nodeConnectorLock, writeTransaction.submit());
+      final CheckedFuture writeTxResultFuture = writeTransaction.submit();
+      Futures.addCallback(writeTxResultFuture, new FutureCallback() {
+        @Override
+        public void onSuccess(Object o) {
+          _logger.debug("AddressObservationWriter write successful for tx :{}", writeTransaction.getIdentifier());
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+          _logger.error("AddressObservationWriter write transaction {} failed", writeTransaction.getIdentifier(), throwable.getCause());
+        }
+      });
+      futureMap.put(nodeConnectorLock, writeTxResultFuture);
     }
   }
 }
