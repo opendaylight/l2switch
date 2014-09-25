@@ -242,7 +242,15 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
         throw new RuntimeException("Failed to read nodes from Operation data store.", e);
       }
 
-      if(nodes != null) {
+      if(nodes == null) {
+        // Reschedule thread when the data store read had errors
+        _logger.debug("Rescheduling flow refresh thread because datastore read failed.");
+        if (!flowRefreshScheduled) {
+          flowRefreshScheduled = true;
+          stpStatusDataChangeEventProcessor.schedule(this, flowInstallationDelay, TimeUnit.MILLISECONDS);
+        }
+      }
+      else {
         for(Node node : nodes.getNode()) {
           // Install a FloodFlow on each node
           List<NodeConnector> nodeConnectors = node.getNodeConnector();
