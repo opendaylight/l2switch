@@ -269,12 +269,14 @@ public class HostTrackerImpl implements DataChangeListener {
         if (oNT != null && oNT.isPresent()) {
             NetworkTopology networkTopo = oNT.get();
             for (Topology t : networkTopo.getTopology()) {
-                for (Link l : t.getLink()) {
-                    if ((l.getSource().getSourceTp().equals(tpId)
-                            && !l.getDestination().getDestTp().getValue().startsWith(Host.NODE_PREFIX))
-                            || (l.getDestination().getDestTp().equals(tpId)
-                            && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX))) {
-                        return true;
+                if (t.getLink() != null) {
+                    for (Link l : t.getLink()) {
+                        if ((l.getSource().getSourceTp().equals(tpId)
+                                && !l.getDestination().getDestTp().getValue().startsWith(Host.NODE_PREFIX))
+                                || (l.getDestination().getDestTp().equals(tpId)
+                                && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX))) {
+                            return true;
+                        }
                     }
                 }
             }

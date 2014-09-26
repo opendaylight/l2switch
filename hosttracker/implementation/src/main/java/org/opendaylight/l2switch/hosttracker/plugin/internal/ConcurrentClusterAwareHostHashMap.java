@@ -108,6 +108,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      */
     public synchronized V putLocally(InstanceIdentifier<Node> ii, V value) {
         Host h = ((Host) value);
+        log.trace("Putting locally {}", h.getId());
         this.instanceIDs.put(ii, (K) h.getId());
         return this.hostHashMap.put((K) h.getId(), value);
     }
@@ -145,6 +146,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
         putLocally(buildNodeIID, (V) h);
         this.instanceIDs.put(buildNodeIID, (K) h.getId());
+        log.trace("Putting MD-SAL {}", hostNode.getNodeId());
         submit(writeTx);
     }
 
@@ -162,6 +164,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
             writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
             putLocally(buildNodeIID, (V) h);
             this.instanceIDs.put(buildNodeIID, (K) h.getId());
+            log.trace("Putting MD-SAL {}", hostNode.getNodeId());
         }
         submit(writeTx);
     }
@@ -179,6 +182,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey());
         final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+        log.trace("Putting MD-SAL {}", hostNode.getNodeId());
         submit(writeTx);
         return putLocally(buildNodeIID, host);
     }
