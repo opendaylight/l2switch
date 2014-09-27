@@ -59,6 +59,8 @@ public class HostTrackerImpl implements DataChangeListener {
 
     private final DataBroker dataService;
 
+    ExecutorService exec = Executors.newFixedThreadPool(CPUS);
+
     private final ConcurrentClusterAwareHostHashMap<HostId, Host> hosts;
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
@@ -119,7 +121,7 @@ public class HostTrackerImpl implements DataChangeListener {
 
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        ExecutorService exec = Executors.newFixedThreadPool(CPUS);
+
         exec.submit(new Runnable() {
             @Override
             public void run() {
