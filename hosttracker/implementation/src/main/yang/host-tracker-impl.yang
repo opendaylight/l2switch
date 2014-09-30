@@ -29,6 +29,9 @@ module host-tracker-impl {
     case host-tracker-impl {
       when "/config:modules/config:module/config:type = 'host-tracker-impl'";
 
+      leaf topology-id {
+        type string;
+      }
       container notification-service {
         uses config:service-ref {
           refine type {

@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K, V> {
 
     private final DataBroker dataService;
+    private final String topologyId;
 
     private static final Logger log = LoggerFactory.getLogger(ConcurrentClusterAwareHostHashMap.class);
 
@@ -57,8 +58,9 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      */
     private final ConcurrentHashMap<K, V> hostHashMap;
 
-    public ConcurrentClusterAwareHostHashMap(DataBroker dataService) {
+    public ConcurrentClusterAwareHostHashMap(DataBroker dataService, String topologyId) {
         this.dataService = dataService;
+        this.topologyId = topologyId;
         this.hostHashMap = new ConcurrentHashMap<>();
         this.instanceIDs = new ConcurrentHashMap<>();
     }
@@ -142,7 +144,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         Host h = (Host) this.hostHashMap.get((K) hostid);
         Node hostNode = h.getHostNode();
-        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey());
+        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
         writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
         putLocally(buildNodeIID, (V) h);
         this.instanceIDs.put(buildNodeIID, (K) h.getId());
@@ -160,7 +162,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         for (Host h : hosts) {
             Node hostNode = h.getHostNode();
-            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey());
+            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
             putLocally(buildNodeIID, (V) h);
             this.instanceIDs.put(buildNodeIID, (K) h.getId());
@@ -179,7 +181,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
     @Override
     public synchronized V put(K hostId, V host) {
         Node hostNode = ((Host) host).getHostNode();
-        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey());
+        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
         final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
         log.trace("Putting MD-SAL {}", hostNode.getNodeId());
@@ -199,7 +201,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         V removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = ((Host) removedValue).getHostNode();
-            InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey());
+            InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
             writeTx.delete(LogicalDatastoreType.OPERATIONAL, hnIID);
             this.instanceIDs.remove(hnIID);
@@ -316,7 +318,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
             Node hostNode = ((Host) e.getValue()).getHostNode();
-            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey());
+            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
             putLocally(buildNodeIID, e.getValue());
         }

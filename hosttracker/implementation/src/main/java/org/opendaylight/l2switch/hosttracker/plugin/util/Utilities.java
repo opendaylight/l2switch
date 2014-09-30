@@ -69,12 +69,26 @@ public class Utilities {
         return nIID;
     }
 
+    public static InstanceIdentifier<Node> buildNodeIID(NodeKey nk, String topologyId) {
+        InstanceIdentifier<Node> nIID = InstanceIdentifier.builder(NetworkTopology.class)//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
+                .child(Node.class, nk).build();
+        return nIID;
+    }
+
     public static InstanceIdentifier<Link> buildLinkIID(LinkKey lk) {
         InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
                 .child(Link.class, lk).build();
         return lIID;
     }
+
+  public static InstanceIdentifier<Link> buildLinkIID(LinkKey lk, String topologyId) {
+      InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
+                .child(Link.class, lk).build();
+      return lIID;
+  }
 
     public static AttachmentPointsBuilder createAPsfromNodeConnector(NodeConnector nc) {
         TpId tpId = new TpId(nc.getId().getValue());
