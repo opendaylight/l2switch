@@ -30,7 +30,6 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
-import static org.opendaylight.l2switch.hosttracker.plugin.util.Utilities.TOPOLOGY_NAME;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
@@ -55,9 +54,16 @@ public class HostTrackerImpl implements DataChangeListener {
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
 
+    /**
+     * As defined on
+     * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
+     */
+    private static final String TOPOLOGY_NAME = "flow:1";
+
     private static final Logger log = LoggerFactory.getLogger(HostTrackerImpl.class);
 
     private final DataBroker dataService;
+    private final String topologyId;
 
     ExecutorService exec = Executors.newFixedThreadPool(CPUS);
 
@@ -65,10 +71,15 @@ public class HostTrackerImpl implements DataChangeListener {
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
-    public HostTrackerImpl(DataBroker dataService) {
+    public HostTrackerImpl(DataBroker dataService, String topologyId) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
         this.dataService = dataService;
-        this.hosts = new ConcurrentClusterAwareHostHashMap<>(dataService);
+        if (topologyId == null || topologyId.isEmpty()) {
+            this.topologyId = TOPOLOGY_NAME;
+        } else {
+            this.topologyId = topologyId;
+        }
+        this.hosts = new ConcurrentClusterAwareHostHashMap<>(dataService, this.topologyId);
     }
 
     public void registerAsDataChangeListener() {
@@ -81,13 +92,13 @@ public class HostTrackerImpl implements DataChangeListener {
         this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
 
         InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
-                .child(Topology.class, new TopologyKey(new TopologyId(Utilities.TOPOLOGY_NAME)))//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Node.class)
                 .augmentation(HostNode.class).build();
         this.hostNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, hostNodes, this, DataChangeScope.SUBTREE);
 
         InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
-                .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Link.class).build();
 
         this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, lIID, this, DataChangeScope.BASE);
@@ -326,14 +337,14 @@ public class HostTrackerImpl implements DataChangeListener {
         final WriteTransaction writeTx = dataService.newWriteOnlyTransaction();
         if (linksToAdd != null) {
             for (Link l : linksToAdd) {
-                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey());
+                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 log.trace("Writing link from MD_SAL: " + lIID.toString());
                 writeTx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true);
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
-                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey());
+                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 log.trace("Removing link from MD_SAL: " + lIID.toString());
                 writeTx.delete(LogicalDatastoreType.OPERATIONAL, lIID);
             }

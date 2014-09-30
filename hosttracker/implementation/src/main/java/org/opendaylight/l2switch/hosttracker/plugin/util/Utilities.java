@@ -31,12 +31,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Utilities {
 
-    /**
-     * As defined on
-     * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
-     */
-    public static final String TOPOLOGY_NAME = "flow:1";
-
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
         List<Link> links = new ArrayList();
         LinkBuilder srcdst = new LinkBuilder()//
@@ -62,16 +56,16 @@ public class Utilities {
         return links;
     }
 
-    public static InstanceIdentifier<Node> buildNodeIID(NodeKey nk) {
+    public static InstanceIdentifier<Node> buildNodeIID(NodeKey nk, String topologyId) {
         InstanceIdentifier<Node> nIID = InstanceIdentifier.builder(NetworkTopology.class)//
-                .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Node.class, nk).build();
         return nIID;
     }
 
-    public static InstanceIdentifier<Link> buildLinkIID(LinkKey lk) {
+    public static InstanceIdentifier<Link> buildLinkIID(LinkKey lk, String topologyId) {
         InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
-                .child(Topology.class, new TopologyKey(new TopologyId(TOPOLOGY_NAME)))//
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Link.class, lk).build();
         return lIID;
     }
