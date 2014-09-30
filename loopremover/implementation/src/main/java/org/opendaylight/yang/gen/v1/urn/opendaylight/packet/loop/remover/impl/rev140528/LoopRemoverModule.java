@@ -53,6 +53,7 @@ public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendayl
     NetworkGraphService networkGraphService = new NetworkGraphImpl();
     this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
     topologyLinkDataChangeHandler.setGraphRefreshDelay(getGraphRefreshDelay());
+    topologyLinkDataChangeHandler.setTopologyId(getTopologyId());
     listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
 
     final class CloseResources implements AutoCloseable {

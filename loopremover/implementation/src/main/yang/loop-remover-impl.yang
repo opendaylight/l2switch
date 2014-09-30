@@ -46,6 +46,9 @@ module loop-remover-impl {
       leaf graph-refresh-delay {
         type uint32;
       }
+      leaf topology-id {
+        type string;
+      }
       container notification-service {
         uses config:service-ref {
           refine type {

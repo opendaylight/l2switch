@@ -22,6 +22,7 @@
           <lldp-flow-idle-timeout>0</lldp-flow-idle-timeout>
           <lldp-flow-hard-timeout>0</lldp-flow-hard-timeout>
           <graph-refresh-delay>1000</graph-refresh-delay>
+          <topology-id>flow:1</topology-id>
 
           <notification-service>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">

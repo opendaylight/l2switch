@@ -56,6 +56,7 @@ import java.util.concurrent.TimeUnit;
 public class TopologyLinkDataChangeHandler implements DataChangeListener {
   private static final Logger _logger = LoggerFactory.getLogger(TopologyLinkDataChangeHandler.class);
   private static final String DEFAULT_TOPOLOGY_ID = "flow:1";
+  private static final long DEFAULT_GRAPH_REFRESH_DELAY = 1000;
 
   private final ScheduledExecutorService topologyDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
 
@@ -63,6 +64,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   private boolean networkGraphRefreshScheduled = false;
   private boolean threadReschedule = false;
   private long graphRefreshDelay;
+  private String topologyId;
 
   private final DataBroker dataBroker;
 
@@ -74,7 +76,17 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
   }
 
   public void setGraphRefreshDelay(long graphRefreshDelay) {
-    this.graphRefreshDelay = graphRefreshDelay;
+    if (graphRefreshDelay < 0) {
+      this.graphRefreshDelay = DEFAULT_GRAPH_REFRESH_DELAY;
+    }
+    else this.graphRefreshDelay = graphRefreshDelay;
+  }
+
+  public void setTopologyId(String topologyId) {
+    if (topologyId == null || topologyId.isEmpty()) {
+      this.topologyId = DEFAULT_TOPOLOGY_ID;
+    }
+    else this.topologyId = topologyId;
   }
 
   /**
@@ -85,7 +97,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
    */
   public ListenerRegistration<DataChangeListener> registerAsDataChangeListener() {
     InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
-        .child(Topology.class, new TopologyKey(new TopologyId(DEFAULT_TOPOLOGY_ID))).child(Link.class).toInstance();
+        .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).toInstance();
     return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, linkInstance, this, AsyncDataBroker.DataChangeScope.BASE);
   }
 
@@ -186,7 +198,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
     }
 
     private List<Link> getLinksFromTopology() {
-      InstanceIdentifier<Topology> topologyInstanceIdentifier = InstanceIdentifierUtils.generateTopologyInstanceIdentifier(DEFAULT_TOPOLOGY_ID);
+      InstanceIdentifier<Topology> topologyInstanceIdentifier = InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
       Topology topology = null;
       ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
       try {
