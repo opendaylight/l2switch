@@ -7,21 +7,22 @@
  */
 package org.opendaylight.l2switch.loopremover.topology;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.base.Preconditions;
+import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
+import edu.uci.ics.jung.graph.DelegateTree;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
-import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
-import edu.uci.ics.jung.graph.DelegateTree;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of NetworkGraphService{@link org.opendaylight.l2switch.loopremover.topology.NetworkGraphService}.
@@ -33,6 +34,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
   private static final Logger _logger = LoggerFactory.getLogger(NetworkGraphImpl.class);
 
   Graph<NodeId, Link> networkGraph = null;
+  Set<String> linkAdded = new HashSet<>();
 
   //Enable following lines when shortest path functionality is required.
   //DijkstraShortestPath<NodeId, Link> shortestPath = null;
@@ -50,15 +52,18 @@ public class NetworkGraphImpl implements NetworkGraphService {
     }
 
     if(networkGraph == null) {
-      networkGraph = new UndirectedSparseGraph<>();
+      networkGraph = new SparseMultigraph<>();
     }
 
     for(Link link : links) {
+      if(linkAlreadyAdded(link)) {
+        continue;
+      }
       NodeId sourceNodeId = link.getSource().getSourceNode();
       NodeId destinationNodeId = link.getDestination().getDestNode();
       networkGraph.addVertex(sourceNodeId);
       networkGraph.addVertex(destinationNodeId);
-      networkGraph.addEdge(link, sourceNodeId, destinationNodeId);
+      networkGraph.addEdge(link, sourceNodeId, destinationNodeId, EdgeType.UNDIRECTED);
     }
 
     /*if(shortestPath == null) {
@@ -66,6 +71,21 @@ public class NetworkGraphImpl implements NetworkGraphService {
     } else {
       shortestPath.reset();
     }*/
+  }
+
+  private boolean linkAlreadyAdded(Link link) {
+    String linkAddedKey = null;
+    if(link.getDestination().getDestTp().hashCode() > link.getSource().getSourceTp().hashCode()) {
+      linkAddedKey = link.getSource().getSourceTp().getValue() + link.getDestination().getDestTp().getValue();
+    } else {
+      linkAddedKey = link.getDestination().getDestTp().getValue() + link.getSource().getSourceTp().getValue();
+    }
+    if(linkAdded.contains(linkAddedKey)) {
+      return true;
+    } else {
+      linkAdded.add(linkAddedKey);
+      return false;
+    }
   }
 
   /**
@@ -122,12 +142,13 @@ public class NetworkGraphImpl implements NetworkGraphService {
 
   /**
    * Forms MST(minimum spanning tree) from network graph and returns links that are not in MST.
+   *
    * @return The links in the MST (minimum spanning tree)
    */
   @Override
   public synchronized List<Link> getLinksInMst() {
     List<Link> linksInMst = new ArrayList<>();
-    if (networkGraph != null) {
+    if(networkGraph != null) {
       PrimMinimumSpanningTree<NodeId, Link> networkMst = new PrimMinimumSpanningTree<>(DelegateTree.<NodeId, Link>getFactory());
       Graph<NodeId, Link> mstGraph = networkMst.transform(networkGraph);
       Collection<Link> mstLinks = mstGraph.getEdges();
@@ -138,12 +159,13 @@ public class NetworkGraphImpl implements NetworkGraphService {
 
   /**
    * Get all the links in the network.
+   *
    * @return The links in the network.
    */
   @Override
   public List<Link> getAllLinks() {
     List<Link> allLinks = new ArrayList<>();
-    if (networkGraph != null) {
+    if(networkGraph != null) {
       allLinks.addAll(networkGraph.getEdges());
     }
     return allLinks;
