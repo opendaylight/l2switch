@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.1.0-Helium</version>
+    <version>0.1.1-SNAPSHOT</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <artifactId>distribution-karaf</artifactId>
@@ -14,8 +14,8 @@
     <maven>3.0</maven>
   </prerequisites>
   <properties>
-    <branding.version>1.0.0-Helium</branding.version>
-    <karaf.resources.version>1.4.2-Helium</karaf.resources.version>
+    <branding.version>1.0.1-SNAPSHOT</branding.version>
+    <karaf.resources.version>1.4.3-SNAPSHOT</karaf.resources.version>
     <karaf.version>3.0.1</karaf.version>
   </properties>
 

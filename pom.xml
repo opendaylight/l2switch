@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>l2switch</artifactId>
-  <version>0.1.0-Helium</version>
+  <version>0.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <prerequisites>
     <maven>3.0</maven>

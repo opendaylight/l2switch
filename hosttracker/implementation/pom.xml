@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.opendaylight.l2switch</groupId>
         <artifactId>l2switch-parent</artifactId>
-        <version>0.1.0-Helium</version>
+        <version>0.1.1-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
     <name>hosttracker-impl</name>
@@ -62,7 +62,7 @@
                     <dependency>
                         <groupId>org.opendaylight.controller</groupId>
                         <artifactId>yang-jmx-generator-plugin</artifactId>
-                        <version>0.2.5-Helium</version>
+                        <version>0.2.6-SNAPSHOT</version>
                     </dependency>
                     <dependency>
                         <groupId>org.opendaylight.yangtools</groupId>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-topology</artifactId>
-            <version>2013.10.21.2-Helium</version>
+            <version>2013.10.21.2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
