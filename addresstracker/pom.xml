@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0-Helium</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <artifactId>addresstracker.aggregator</artifactId>
   <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0-Helium</version>
   <packaging>pom</packaging>
 
   <modules>
