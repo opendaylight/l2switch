@@ -198,6 +198,7 @@
                               <sources>
                                   <source>src/main/yang</source>
                                   <source>${codeGeneratorPath}</source>
+                                  <source>${configCodeGeneratorPath}</source>
                               </sources>
                           </configuration>
                       </execution>
@@ -210,6 +211,7 @@
                       <filesets>
                           <fileset>
                               <directory>${codeGeneratorPath}</directory>
+                              <directory>${configCodeGeneratorPath}</directory>
                               <includes>
                                   <include>**</include>
                               </includes>
