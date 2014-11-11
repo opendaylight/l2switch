@@ -5,24 +5,24 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <version>1.4.3-Helium-SR1</version>
+    <version>1.4.4-SNAPSHOT</version>
   </parent>
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>l2switch-parent</artifactId>
-  <version>0.1.1-Helium-SR1</version>
+  <version>0.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
     <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
-    <mdsal.version>1.1.1-Helium-SR1</mdsal.version>
-    <yangtools.version>0.6.3-Helium-SR1</yangtools.version>
-    <ietf-yang-types.version>2010.09.24.4.1-Helium-SR1</ietf-yang-types.version>
+    <mdsal.version>1.1.2-SNAPSHOT</mdsal.version>
+    <yangtools.version>0.6.4-SNAPSHOT</yangtools.version>
+    <ietf-yang-types.version>2010.09.24.4.2-SNAPSHOT</ietf-yang-types.version>
     <jung2.version>2.0.1</jung2.version>
-    <config.version>0.2.6-Helium-SR1</config.version>
-    <openflow.plugin.version>0.0.4-Helium-SR1</openflow.plugin.version>
-    <dlux.version>0.1.1-Helium-SR1</dlux.version>
+    <config.version>0.2.7-SNAPSHOT</config.version>
+    <openflow.plugin.version>0.0.5-SNAPSHOT</openflow.plugin.version>
+    <dlux.version>0.1.2-SNAPSHOT</dlux.version>
     <karaf.version>3.0.1</karaf.version>
     <bundle.plugin.version>2.4.0</bundle.plugin.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
@@ -167,7 +167,7 @@
                   <dependency>
                     <groupId>org.opendaylight.controller</groupId>
                     <artifactId>checkstyle</artifactId>
-                    <version>0.0.4-Helium-SR1</version>
+                    <version>0.0.5-SNAPSHOT</version>
                   </dependency>
                 </dependencies>
                 <executions>
