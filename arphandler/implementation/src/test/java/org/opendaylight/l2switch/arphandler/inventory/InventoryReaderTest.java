@@ -91,7 +91,7 @@ public class InventoryReaderTest {
     when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
     assertNotNull(inventoryReader.getNodeConnector(
-      InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).toInstance(), 
+      InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).toInstance(),
       new MacAddress("aa:bb:cc:dd:ee:ff")));
     verify(readOnlyTransaction, times(1)).close();
   }
