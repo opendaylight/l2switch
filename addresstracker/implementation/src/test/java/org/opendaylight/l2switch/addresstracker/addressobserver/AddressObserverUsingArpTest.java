@@ -44,7 +44,7 @@ public class AddressObserverUsingArpTest {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new ArpPacketBuilder().setSourceProtocolAddress("1.2.3.4").build())
@@ -77,7 +77,7 @@ public class AddressObserverUsingArpTest {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
 
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
