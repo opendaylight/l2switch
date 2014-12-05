@@ -58,6 +58,7 @@ public class TopologyLinkDataChangeHandlerTest {
   public void initMocks() {
     MockitoAnnotations.initMocks(this);
     topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataBroker, networkGraphService);
+    topologyLinkDataChangeHandler.setTopologyId(null);
     topologyLinkDataChangeHandler.setGraphRefreshDelay(0);
   }
 

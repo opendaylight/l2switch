@@ -44,7 +44,7 @@ public class AddressObserverUsingIpv4Test {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new Ipv4PacketBuilder().setSourceIpv4(new Ipv4Address("1.2.3.4")).build())
@@ -78,7 +78,7 @@ public class AddressObserverUsingIpv4Test {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
@@ -98,7 +98,7 @@ public class AddressObserverUsingIpv4Test {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new Ipv4PacketBuilder().setSourceIpv4(new Ipv4Address("0.0.0.0")).build())
