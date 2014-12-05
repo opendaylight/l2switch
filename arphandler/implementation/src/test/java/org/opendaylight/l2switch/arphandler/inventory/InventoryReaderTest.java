@@ -71,7 +71,7 @@ public class InventoryReaderTest {
   @Test
   public void testGetNodeConnector() throws Exception {
     List<Addresses> addressesList = new ArrayList<Addresses>();
-    addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("")).build());
+    addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build());
     AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build();
     StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build();
     NodeConnector nodeConnector = new NodeConnectorBuilder()
@@ -91,8 +91,8 @@ public class InventoryReaderTest {
     when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
     assertNotNull(inventoryReader.getNodeConnector(
-      InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(""))).toInstance(),
-      new MacAddress("")));
+      InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).toInstance(), 
+      new MacAddress("aa:bb:cc:dd:ee:ff")));
     verify(readOnlyTransaction, times(1)).close();
   }
 
