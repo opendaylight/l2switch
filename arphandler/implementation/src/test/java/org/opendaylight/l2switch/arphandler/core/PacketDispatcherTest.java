@@ -49,9 +49,13 @@ public class PacketDispatcherTest {
 
   @Test
   public void testSendPacketOut() throws Exception {
+    InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class)
+      .child(Node.class)
+      .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
+      .toInstance();
     packetDispatcher.sendPacketOut(null,
-      new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)),
-      new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)));
+      new NodeConnectorRef(ncInsId1),
+      new NodeConnectorRef(ncInsId1));
     verify(packetProcessingService, times(1)).transmitPacket(any(TransmitPacketInput.class));
   }
 

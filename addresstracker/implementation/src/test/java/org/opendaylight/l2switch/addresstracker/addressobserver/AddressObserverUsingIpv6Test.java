@@ -44,7 +44,7 @@ public class AddressObserverUsingIpv6Test {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new Ipv6PacketBuilder().setSourceIpv6(new Ipv6Address("123:4567:89ab:cdef:fedc:ba98:7654:3210")).build())
@@ -77,7 +77,7 @@ public class AddressObserverUsingIpv6Test {
             .setPacket(new RawPacketBuilder().build())
             .build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("")).build())
+            .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
             .build());
 
         Ipv6PacketReceived ipv6PktReceived = new Ipv6PacketReceivedBuilder().setPacketChain(packetChainList).build();
