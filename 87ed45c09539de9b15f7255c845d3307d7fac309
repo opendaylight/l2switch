@@ -1,0 +1,7 @@
+Verified+1: jenkins-l2switch <jenkins-l2switch@opendaylight.org>
+Code-Review+2: Amit Mandke <ammandke@cisco.com>
+Submitted-by: Amit Mandke <ammandke@cisco.com>
+Submitted-at: Mon, 08 Dec 2014 18:09:48 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/13397
+Project: l2switch
+Branch: refs/heads/stable/helium
