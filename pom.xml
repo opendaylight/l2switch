@@ -5,6 +5,7 @@
   <artifactId>l2switch</artifactId>
   <version>0.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>l2switch</name> <!-- Used by Sonar to set project name -->
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
