@@ -97,7 +97,7 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
    */
   public ListenerRegistration<DataChangeListener> registerAsDataChangeListener() {
     InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
-        .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).toInstance();
+        .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).build();
     return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, linkInstance, this, AsyncDataBroker.DataChangeScope.BASE);
   }
 

@@ -50,7 +50,7 @@ public class ReactiveFlowWriterTest {
         MockitoAnnotations.initMocks(this);
         reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
 
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class).toInstance();
+        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class).build();
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
         packetChainList = new ArrayList<PacketChain>();
         packetChainList.add(new PacketChainBuilder()

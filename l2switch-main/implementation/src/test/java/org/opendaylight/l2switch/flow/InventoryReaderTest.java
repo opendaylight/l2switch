@@ -68,7 +68,7 @@ public class InventoryReaderTest {
     public void getNodeConnectorTest() throws Exception{
 
         nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(
-            Node.class, new NodeKey(new NodeId("node-id"))).toInstance();
+            Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class),
             any(InstanceIdentifier.class))).thenReturn(checkedFuture);

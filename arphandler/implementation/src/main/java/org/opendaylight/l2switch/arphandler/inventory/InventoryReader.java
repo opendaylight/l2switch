@@ -88,7 +88,7 @@ public class InventoryReader {
 
       try {
         Optional<Nodes> dataObjectOptional = null;
-        dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.toInstance()).get();
+        dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
         if(dataObjectOptional.isPresent())
           nodes = (Nodes) dataObjectOptional.get();
       } catch(InterruptedException e) {
@@ -118,7 +118,7 @@ public class InventoryReader {
               }
               NodeConnectorRef ncRef = new NodeConnectorRef(
                   InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                      .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).toInstance());
+                      .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey()).build());
               nodeConnectorRefs.add(ncRef);
             }
           }
@@ -126,7 +126,7 @@ public class InventoryReader {
           switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
           NodeConnectorRef ncRef = new NodeConnectorRef(
               InstanceIdentifier.<Nodes>builder(Nodes.class).<Node, NodeKey>child(Node.class, node.getKey())
-                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL"))).toInstance());
+                  .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL"))).build());
           _logger.debug("Local port for node {} is {}", node.getKey(), ncRef);
           controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
         }

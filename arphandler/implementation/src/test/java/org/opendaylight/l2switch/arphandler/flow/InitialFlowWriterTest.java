@@ -71,7 +71,7 @@ public class InitialFlowWriterTest {
 
   @Test
   public void onNodeUpdated_Valid() throws Exception {
-    InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(""))).toInstance();
+    InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(""))).build();
     NodeUpdated nodeUpdated = new NodeUpdatedBuilder().setNodeRef(new NodeRef(nodeInstanceIdentifier)).build();
     initialFlowWriter.onNodeUpdated(nodeUpdated);
     Thread.sleep(250);

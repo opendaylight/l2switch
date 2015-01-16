@@ -47,7 +47,7 @@ public class FlowWriterServiceImplTest {
 
         nodeConnectorInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(
             Node.class, new NodeKey(new NodeId("node-id"))).child(
-            NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).toInstance();
+            NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
         nodeConnectorRef = new NodeConnectorRef(nodeConnectorInstanceIdentifier);
 
         MacAddress sourceMac = new MacAddress("00:00:ac:f0:01:01");

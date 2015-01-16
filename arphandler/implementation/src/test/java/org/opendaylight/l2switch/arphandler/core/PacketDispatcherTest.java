@@ -52,7 +52,7 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class)
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-      .toInstance();
+      .build();
     packetDispatcher.sendPacketOut(null,
       new NodeConnectorRef(ncInsId1),
       new NodeConnectorRef(ncInsId1));
@@ -81,11 +81,11 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class)
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-      .toInstance();
+      .build();
     InstanceIdentifier<NodeConnector> ncInsId2 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class)
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2")))
-      .toInstance();
+      .build();
     nodeConnectors.add(new NodeConnectorRef(ncInsId1));
     nodeConnectors.add(new NodeConnectorRef(ncInsId1));
     nodeConnectors.add(new NodeConnectorRef(ncInsId2));
@@ -122,7 +122,7 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class, new NodeKey(new NodeId("1")))
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-      .toInstance();
+      .build();
     HashMap<String, NodeConnectorRef> controllerSwitchConnectors = Mockito.mock(HashMap.class);
     when(controllerSwitchConnectors.get(any(String.class))).thenReturn(null);
     when(inventoryReader.getControllerSwitchConnectors()).thenReturn(controllerSwitchConnectors);
@@ -141,7 +141,7 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class, new NodeKey(new NodeId("1")))
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-      .toInstance();
+      .build();
     NodeConnectorRef ncRef1 = new NodeConnectorRef(ncInsId1);
     HashMap<String, NodeConnectorRef> controllerSwitchConnectors = Mockito.mock(HashMap.class);
     when(controllerSwitchConnectors.get(any(String.class))).thenReturn(ncRef1);
@@ -162,7 +162,7 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class, new NodeKey(new NodeId("1")))
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-      .toInstance();
+      .build();
     NodeConnectorRef ncRef1 = new NodeConnectorRef(ncInsId1);
     HashMap<String, NodeConnectorRef> controllerSwitchConnectors = Mockito.mock(HashMap.class);
     when(controllerSwitchConnectors.get(any(String.class))).thenReturn(ncRef1);
@@ -173,7 +173,7 @@ public class PacketDispatcherTest {
     InstanceIdentifier<NodeConnector> ncInsId2 = InstanceIdentifier.builder(Nodes.class)
       .child(Node.class, new NodeKey(new NodeId("2")))
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2")))
-      .toInstance();
+      .build();
     nodeConnectors.add(new NodeConnectorRef(ncInsId1));
     nodeConnectors.add(new NodeConnectorRef(ncInsId1));
     nodeConnectors.add(new NodeConnectorRef(ncInsId2));

@@ -167,7 +167,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
         .<Node>child(Node.class)
         .<NodeConnector>child(NodeConnector.class)
         .<StpStatusAwareNodeConnector>augmentation(StpStatusAwareNodeConnector.class)
-        .toInstance();
+        .build();
     return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, this, AsyncDataBroker.DataChangeScope.BASE);
   }
 
@@ -229,7 +229,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
         InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier.<Nodes>builder(Nodes.class);
         ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
         Optional<Nodes> dataObjectOptional = null;
-        dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.toInstance()).get();
+        dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
         if(dataObjectOptional.isPresent()) {
           nodes = (Nodes) dataObjectOptional.get();
         }
@@ -345,7 +345,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
      */
     private Future<RpcResult<AddFlowOutput>> writeFlowToSwitch(NodeId nodeId, Flow flow) {
       InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.<Nodes>builder(Nodes.class)
-          .<Node, NodeKey>child(Node.class, new NodeKey(nodeId)).toInstance();
+          .<Node, NodeKey>child(Node.class, new NodeKey(nodeId)).build();
       InstanceIdentifier<Table> tableInstanceId = nodeInstanceId.<FlowCapableNode>augmentation(FlowCapableNode.class)
           .<Table, TableKey>child(Table.class, new TableKey(flowTableId));
       InstanceIdentifier<Flow> flowPath = tableInstanceId

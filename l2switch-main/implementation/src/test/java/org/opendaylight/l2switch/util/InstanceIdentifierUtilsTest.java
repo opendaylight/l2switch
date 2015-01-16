@@ -33,13 +33,13 @@ public class InstanceIdentifierUtilsTest {
 
   @Test
   public void testGenerateNodeInstanceIdentifier() throws Exception {
-    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).toInstance());
+    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
     assertNotNull(InstanceIdentifierUtils.generateNodeInstanceIdentifier(ncRef));
   }
 
   @Test
   public void testGenerateFlowTableInstanceIdentifier() throws Exception {
-    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).toInstance());
+    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
     InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef, new TableKey(NUM_ID_1));
     assertNotNull(tableInsId);
     assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
@@ -50,7 +50,7 @@ public class InstanceIdentifierUtilsTest {
     NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
       .child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
       .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1)))
-      .toInstance());
+      .build());
     InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(
       ncRef,
       new TableKey(NUM_ID_1),
