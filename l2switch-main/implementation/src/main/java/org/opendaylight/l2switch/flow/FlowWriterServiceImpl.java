@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.flow;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
+import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
@@ -247,7 +248,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             .setInstruction(ImmutableList.of(applyActionsInstruction)) //
             .build()) //
         .setPriority(priority) //
-        .setBufferId(0L) //
+        .setBufferId(OFConstants.OFP_NO_BUFFER) //
         .setHardTimeout(flowHardTimeout) //
         .setIdleTimeout(flowIdleTimeout) //
         .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
