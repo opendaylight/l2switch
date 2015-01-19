@@ -7,7 +7,13 @@
  */
 package org.opendaylight.l2switch.loopremover.flow;
 
-import com.google.common.collect.ImmutableList;
+import java.math.BigInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
@@ -52,11 +58,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Adds a flow, which sends all LLDP packets to the controller, on all switches.
@@ -212,7 +214,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
               .setInstruction(ImmutableList.of(applyActionsInstruction)) //
               .build()) //
           .setPriority(priority) //
-          .setBufferId(0L) //
+          .setBufferId(OFConstants.OFP_NO_BUFFER) //
           .setHardTimeout(flowHardTimeout) //
           .setIdleTimeout(flowIdleTimeout) //
           .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
