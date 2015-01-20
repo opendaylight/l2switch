@@ -20,4 +20,4 @@ yang-gen-code
 yang-gen-config
 .externalToolBuilders
 maven-eclipse.xml
-
+.DS_Store
