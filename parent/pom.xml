@@ -73,9 +73,9 @@
         <version>${ietf-yang-types.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.opendaylight.controller.model</groupId>
+        <groupId>org.opendaylight.openflowplugin.model</groupId>
         <artifactId>model-flow-service</artifactId>
-        <version>${mdsal.version}</version>
+        <version>${openflow.plugin.version}</version>
       </dependency>
       <dependency>
         <groupId>org.opendaylight.controller.thirdparty</groupId>
