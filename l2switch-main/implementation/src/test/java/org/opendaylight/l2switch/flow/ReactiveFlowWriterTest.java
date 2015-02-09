@@ -75,9 +75,8 @@ public class ReactiveFlowWriterTest {
     @Test
     public void writeFlowsTest() {
 
-        ArpPacketReceived arpPacketReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class))).thenReturn(destNodeConnectorRef);
-        reactiveFlowWriter.writeFlows(arpPacketReceived.getPayload(), nodeConnectorRef, new MacAddress("00:00:00:00:00:01"), new MacAddress("00:00:00:00:00:02"));
+        reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"), new MacAddress("00:00:00:00:00:02"));
 
         verify(inventoryReader, times(1)).getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class));
         verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class), any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
