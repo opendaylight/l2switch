@@ -55,8 +55,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
     }
     MacAddress destMac = ethernetPacket.getDestinationMac();
     if(!MAC_TO_IGNORE.equals(destMac)) {
-      writeFlows(packetReceived.getPayload(),
-          rawPacket.getIngress(),
+      writeFlows(rawPacket.getIngress(),
           ethernetPacket.getSourceMac(),
           ethernetPacket.getDestinationMac());
     }
@@ -65,12 +64,11 @@ public class ReactiveFlowWriter implements ArpPacketListener {
   /**
    * Invokes flow writer service to write  bidirectional mac-mac flows on a switch.
    *
-   * @param payload The payload to be sent.
    * @param ingress The NodeConnector where the payload came from.
    * @param srcMac  The source MacAddress of the packet.
    * @param destMac The destination MacAddress of the packet.
    */
-  public void writeFlows(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
+  public void writeFlows(NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
     NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
     if(destNodeConnector != null) {
       flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
