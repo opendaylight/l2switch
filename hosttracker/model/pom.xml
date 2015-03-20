@@ -4,7 +4,7 @@
     <parent>
         <artifactId>hosttracker.aggregator</artifactId>
         <groupId>org.opendaylight.l2switch.hosttracker</groupId>
-        <version>0.1.3-Helium-SR3</version>
+        <version>0.1.4-SNAPSHOT</version>
     </parent>
     <artifactId>hosttracker-model</artifactId>
     <packaging>bundle</packaging>
@@ -13,13 +13,13 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.addresstracker</groupId>
             <artifactId>addresstracker-model</artifactId>
-            <version>0.1.3-Helium-SR3</version>
+            <version>0.1.4-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.l2switch.addresstracker</groupId>
             <artifactId>addresstracker-model</artifactId>
-            <version>0.1.3-Helium-SR3</version>
+            <version>0.1.4-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

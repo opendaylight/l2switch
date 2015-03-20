@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.1.3-Helium-SR3</version>
+    <version>0.1.4-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <groupId>org.opendaylight.l2switch.loopremover</groupId>
   <artifactId>loopremover.aggregator</artifactId>
-  <version>0.1.3-Helium-SR3</version>
+  <version>0.1.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
