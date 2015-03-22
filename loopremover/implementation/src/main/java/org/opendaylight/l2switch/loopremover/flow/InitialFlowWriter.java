@@ -229,7 +229,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
           .setKey(new ActionKey(0))
           .setAction(new OutputActionCaseBuilder()
               .setOutputAction(new OutputActionBuilder()
-                  .setMaxLength(new Integer(0xffff))
+                  .setMaxLength(0xffff)
                   .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
                   .build())
               .build())

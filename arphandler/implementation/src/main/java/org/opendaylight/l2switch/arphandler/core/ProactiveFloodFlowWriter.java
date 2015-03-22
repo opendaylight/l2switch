@@ -273,7 +273,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                           .setOrder(0)
                           .setAction(new OutputActionCaseBuilder() //
                               .setOutputAction(new OutputActionBuilder() //
-                                  .setMaxLength(new Integer(0xffff)) //
+                                  .setMaxLength(0xffff) //
                                   .setOutputNodeConnector(nodeConnector.getId()) //
                                   .build()) //
                               .build()) //
@@ -289,7 +289,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                       .setKey(new ActionKey(0))
                       .setAction(new OutputActionCaseBuilder()
                           .setOutputAction(new OutputActionBuilder()
-                              .setMaxLength(new Integer(0xffff))
+                              .setMaxLength(0xffff)
                               .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
                               .build())
                           .build())

@@ -71,10 +71,10 @@ public class FlowWriterServiceImpl implements FlowWriterService {
 
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
-  private final Integer DEFAULT_TABLE_ID = new Integer(0);
-  private final Integer DEFAULT_PRIORITY = new Integer(10);
-  private final Integer DEFAULT_HARD_TIMEOUT = new Integer(3600);
-  private final Integer DEFAULT_IDLE_TIMEOUT = new Integer(1800);
+  private final Integer DEFAULT_TABLE_ID = 0;
+  private final Integer DEFAULT_PRIORITY = 10;
+  private final Integer DEFAULT_HARD_TIMEOUT = 3600;
+  private final Integer DEFAULT_IDLE_TIMEOUT = 1800;
 
   public FlowWriterServiceImpl(SalFlowService salFlowService) {
     Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
@@ -223,7 +223,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         .setOrder(0)
         .setAction(new OutputActionCaseBuilder() //
             .setOutputAction(new OutputActionBuilder() //
-                .setMaxLength(new Integer(0xffff)) //
+                .setMaxLength(0xffff) //
                 .setOutputNodeConnector(destPortUri) //
                 .build()) //
             .build()) //
