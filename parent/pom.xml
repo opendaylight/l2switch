@@ -24,8 +24,6 @@
     <config.version>0.3.0-SNAPSHOT</config.version>
     <openflow.plugin.version>0.1.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.2.0-SNAPSHOT</dlux.version>
-    <karaf.version>3.0.1</karaf.version>
-    <bundle.plugin.version>2.4.0</bundle.plugin.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
@@ -340,11 +338,6 @@
                           </pluginExecutions>
                       </lifecycleMappingMetadata>
                   </configuration>
-              </plugin>
-              <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>${bundle.plugin.version}</version>
               </plugin>
           </plugins>
       </pluginManagement>
