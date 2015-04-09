@@ -106,11 +106,11 @@ public class Host {
     private NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
         List<TerminationPoint> tps = new ArrayList<>();
         for (AttachmentPointsBuilder atb : apbs) {
-            TerminationPoint tp = createTerminationPoint(hostNode, atb);
+            TerminationPoint tp = createTerminationPoint(hostNode);
             tps.add(tp);
             atb.setCorrespondingTp(tp.getTpId());
         }
-        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode))//
+        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode))
                 .setTerminationPoint(tps);
         node.setKey(new NodeKey(node.getNodeId()));
 
@@ -129,16 +129,15 @@ public class Host {
     }
 
     /**
-     * Creates a new TerminationPoint for this Host. The TerminationPoint will
-     * have the form of TP + ":" + AttachmentPoint
+     * Creates a new TerminationPoint for this Host.
      *
      * @param hn HostNodeBuilder containing an Id
      * @param atb AttachmentPointsBuilder containing a TpId
      * @return A new TerminationPoint with an unique TpId
      */
-    private TerminationPoint createTerminationPoint(HostNodeBuilder hn, AttachmentPointsBuilder atb) {
-        TerminationPoint tp = new TerminationPointBuilder()//
-                .setTpId(new TpId(NODE_PREFIX + hn.getId().getValue() + ":" + atb.getTpId().getValue()))//
+    private TerminationPoint createTerminationPoint(HostNodeBuilder hn) {
+        TerminationPoint tp = new TerminationPointBuilder()
+                .setTpId(new TpId(NODE_PREFIX + hn.getId().getValue()))
                 .build();
         return tp;
     }
