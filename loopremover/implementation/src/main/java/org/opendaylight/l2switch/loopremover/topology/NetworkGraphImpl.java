@@ -137,6 +137,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
   @Override
   public synchronized void clear() {
     networkGraph = null;
+    linkAdded.clear();
     //shortestPath = null;
   }
 
