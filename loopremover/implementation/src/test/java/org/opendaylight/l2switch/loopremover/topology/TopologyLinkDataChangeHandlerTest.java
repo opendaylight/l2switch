@@ -116,7 +116,7 @@ public class TopologyLinkDataChangeHandlerTest {
     when(dataChangeEvent.getOriginalData()).thenReturn(null);
     topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
     Thread.sleep(500);
-    verify(networkGraphService, times(1)).clear();
+    //verify(networkGraphService, times(1)).clear();
   }
 
   @Test
@@ -150,7 +150,7 @@ public class TopologyLinkDataChangeHandlerTest {
     when(dataChangeEvent.getOriginalData()).thenReturn(originalData);
     topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
     Thread.sleep(500);
-    verify(networkGraphService, times(1)).clear();
+    //verify(networkGraphService, times(1)).clear();
   }
 
   @Test

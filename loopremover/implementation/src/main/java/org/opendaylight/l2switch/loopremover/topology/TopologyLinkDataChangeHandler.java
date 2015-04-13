@@ -174,7 +174,6 @@ public class TopologyLinkDataChangeHandler implements DataChangeListener {
       }
       _logger.debug("In network graph refresh thread.");
       networkGraphRefreshScheduled = false;
-      networkGraphService.clear();
       List<Link> links = getLinksFromTopology();
       if(links == null || links.isEmpty()) {
         return;
