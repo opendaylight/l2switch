@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_a652a711",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2015-04-15T19:10:51Z",
+      "side": 0,
+      "message": "Here the clear is needed as the logic currently builds the entire graph again. So what is the reason for not cleaning it?",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 34
+      },
+      "revId": "08a542f4590888f434b78050b0ff366007ded397",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
