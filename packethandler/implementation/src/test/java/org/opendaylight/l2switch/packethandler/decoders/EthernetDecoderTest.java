@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.K
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 
 public class EthernetDecoderTest {
 
@@ -50,6 +51,44 @@ public class EthernetDecoderTest {
     assertEquals(14, ethernetPacket.getPayloadLength().intValue());
     assertEquals(2566839482L, ethernetPacket.getCrc().longValue());
     assertTrue(Arrays.equals(packet, notification.getPayload()));
+  }
+
+  @Test
+  public void testDecode_IPv4EtherTypeTiming() throws Exception {
+
+    byte[] packet = {
+      0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
+      (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+      0x08, 0x00,
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
+      (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba
+    };
+
+    NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+
+    EthernetDecoder decoder = new EthernetDecoder(mock);
+
+    PacketReceived [] mock_packet =  new PacketReceived[10000];
+
+    for (int i = 0; i < 10000; i++) {
+        mock_packet[i] =  new PacketReceivedBuilder()
+                  .setPayload(packet)
+/*                  .setMatch(new MatchBuilder().build()) */
+                  .build();
+    }
+
+    long before = System.nanoTime();
+
+    for (int i = 0; i < 10000; i++) {
+        EthernetPacketReceived notification = decoder.decode(mock_packet[i]);
+    }
+
+    long after = System.nanoTime();
+
+    System.err.printf("TIMING: Ethernet %d nanoseconds for 10000 packet decodes, %f per decode\n",
+        after - before, (float)(after - before)/10000.0
+    );
+
   }
 
   @Test

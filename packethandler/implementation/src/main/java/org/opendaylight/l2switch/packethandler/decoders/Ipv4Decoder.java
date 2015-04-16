@@ -7,8 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -83,12 +81,8 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
       builder.setTtl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 64, 8)));
       builder.setProtocol(KnownIpProtocols.forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 72, 8))));
       builder.setChecksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 80, 16)));
-      builder.setSourceIpv4(Ipv4Address.getDefaultInstance(
-        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 96, 32))
-        .getHostAddress()));
-      builder.setDestinationIpv4(Ipv4Address.getDefaultInstance(
-        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 128, 32))
-        .getHostAddress()));
+      builder.setSourceIpv4(new Ipv4Address(BitBufferHelper.getBits(data, bitOffset + 96, 32)));
+      builder.setDestinationIpv4(new Ipv4Address(BitBufferHelper.getBits(data, bitOffset + 128, 32)));
 
       // Decode the optional "options" parameter
       int optionsSize = (builder.getIhl() - 5) * 32;
@@ -103,7 +97,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
       int end = start + payloadEndInBits / NetUtils.NumBitsInAByte;
       builder.setPayloadOffset(start);
       builder.setPayloadLength(end - start);
-    } catch (BufferException | UnknownHostException e) {
+    } catch (BufferException e) {
         _logger
             .debug("Exception while decoding IPv4 packet", e.getMessage());
     }

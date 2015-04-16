@@ -23,6 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -84,6 +86,62 @@ public class Ipv4DecoderTest {
     assertEquals(10, ipv4Packet.getPayloadLength().intValue());
     assertEquals(34, ipv4Packet.getPayloadOffset().intValue());
     assertTrue(Arrays.equals(eth_payload, notification.getPayload()));
+  }
+
+  @Test
+  public void testDecodeTiming() throws Exception {
+
+    byte[] eth_payload = {
+        0x01, 0x23, 0x66, 0x67, (byte) 0x89, (byte) 0xab,
+        (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
+        0x08, 0x00,
+        0x45, // Version = 4,  IHL = 5
+        0x00, // DSCP =0, ECN = 0
+        0x00, 0x1E, // Total Length -- 30
+        0x01, 0x1E, // Identification -- 286
+        0x00, 0x00, // Flags = all off & Fragment offset = 0
+        0x12, 0x11, // TTL = 18, Protocol = UDP
+        0x00, 0x00, // Checksum = 0
+        (byte) 0xc0, (byte) 0xa8, 0x00, 0x01, // Src IP Address
+        0x01, 0x02, 0x03, 0x04, // Dest IP Address
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, // Data
+        (byte) 0x98, (byte) 0xfe, (byte) 0xdc, (byte) 0xba // CRC
+    };
+
+
+
+    NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+
+    Ipv4Decoder decoder = new Ipv4Decoder(npServiceMock);
+
+    EthernetPacketReceived [] mock_packets = new EthernetPacketReceived[10000];
+
+    for (int i = 0; i < 10000; i++) {
+        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        packetChainList.add(new PacketChainBuilder()
+          .setPacket(new RawPacketBuilder().build())
+          .build());
+        packetChainList.add(new PacketChainBuilder()
+          .setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build())
+          .build());
+        mock_packets[i] =  new EthernetPacketReceivedBuilder()
+                  .setPacketChain(packetChainList)
+                  .setPayload(eth_payload)
+                  .build();
+    }
+
+    long before = System.nanoTime();
+
+    for (int i = 0; i < 10000; i++) {
+        Ipv4PacketReceived notification = decoder.decode(mock_packets[i]);
+    }
+
+    long after = System.nanoTime();
+
+    System.err.printf("TIMING: v4 %d nanoseconds for 10000 packet decodes, %f per decode\n",
+            after - before, (float) (after - before)/10000.0
+    );
+
   }
 
   @Test
