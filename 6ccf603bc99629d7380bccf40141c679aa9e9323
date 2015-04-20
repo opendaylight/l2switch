@@ -22,6 +22,29 @@
       "revId": "6ccf603bc99629d7380bccf40141c679aa9e9323",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_58ca9050",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2015-04-20T21:43:57Z",
+      "side": 0,
+      "message": "Due to the clear no links are returned and NodeConnectors are not updated with an StpStatus, causing problems for topologies with loops. I\u0027m not sure why the graph is not being rebuilt properly.",
+      "range": {
+        "startLine": 235,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 62
+      },
+      "revId": "6ccf603bc99629d7380bccf40141c679aa9e9323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
