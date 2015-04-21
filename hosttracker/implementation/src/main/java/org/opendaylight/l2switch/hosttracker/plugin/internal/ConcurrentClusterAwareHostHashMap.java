@@ -7,19 +7,14 @@
  */
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
@@ -42,8 +37,7 @@ import org.slf4j.LoggerFactory;
  * org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
  */
 public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K, V> {
-
-    private final DataBroker dataService;
+    private final OperationProcessor opProcessor;
     private final String topologyId;
 
     private static final Logger log = LoggerFactory.getLogger(ConcurrentClusterAwareHostHashMap.class);
@@ -57,9 +51,10 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      * The local Hosts' HashMap.
      */
     private final ConcurrentHashMap<K, V> hostHashMap;
+	
 
-    public ConcurrentClusterAwareHostHashMap(DataBroker dataService, String topologyId) {
-        this.dataService = dataService;
+    public ConcurrentClusterAwareHostHashMap(OperationProcessor opProcessor, String topologyId) {
+        this.opProcessor = opProcessor;
         this.topologyId = topologyId;
         this.hostHashMap = new ConcurrentHashMap<>();
         this.instanceIDs = new ConcurrentHashMap<>();
@@ -120,18 +115,21 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *
      * @param hosts the hosts to remove.
      */
-    public synchronized void removeAll(List<Host> hosts) {
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
-        for (Map.Entry<InstanceIdentifier<Node>, K> e : this.instanceIDs.entrySet()) {
+    public synchronized void removeAll(List<Host> hosts) {        
+        for (final Map.Entry<InstanceIdentifier<Node>, K> e : this.instanceIDs.entrySet()) {
             for (Host h : hosts) {
                 if (e.getValue().equals(h.getId())) {
-                    writeTx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
+                	this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+                		@Override
+                		public void applyOperation(ReadWriteTransaction tx) {
+                			tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
+                		}
+                	});
                     this.hostHashMap.remove(e.getValue());
                     break;
                 }
             }
         }
-        submit(writeTx);
     }
 
     /**
@@ -141,15 +139,18 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      * @param hostid the Host's hostId that will be merged into MD-SAL database.
      */
     public synchronized void submit(HostId hostid) {
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
-        Host h = (Host) this.hostHashMap.get((K) hostid);
-        Node hostNode = h.getHostNode();
-        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-        writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+        Host h = (Host) this.hostHashMap.get(hostid);
+        final Node hostNode = h.getHostNode();
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+			@Override
+			public void applyOperation(ReadWriteTransaction tx) {
+				tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+			}	
+        });
         putLocally(buildNodeIID, (V) h);
         this.instanceIDs.put(buildNodeIID, (K) h.getId());
-        log.trace("Putting MD-SAL {}", hostNode.getNodeId());
-        submit(writeTx);
+        log.trace("Enqueued for MD-SAL transaction {}", hostNode.getNodeId());
     }
 
     /**
@@ -159,16 +160,19 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      * @param hosts the hosts to be sent into MD-SAL database.
      */
     public synchronized void putAll(List<Host> hosts) {
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         for (Host h : hosts) {
-            Node hostNode = h.getHostNode();
-            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+            final Node hostNode = h.getHostNode();
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            this.opProcessor.enqueueOperation(new HostTrackerOperation () {
+				@Override
+				public void applyOperation(ReadWriteTransaction tx) {
+					tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+				}
+            });
             putLocally(buildNodeIID, (V) h);
             this.instanceIDs.put(buildNodeIID, (K) h.getId());
             log.trace("Putting MD-SAL {}", hostNode.getNodeId());
         }
-        submit(writeTx);
     }
 
     /**
@@ -180,12 +184,15 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      */
     @Override
     public synchronized V put(K hostId, V host) {
-        Node hostNode = ((Host) host).getHostNode();
-        InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
-        writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+        final Node hostNode = ((Host) host).getHostNode();
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        this.opProcessor.enqueueOperation(new HostTrackerOperation (){
+			@Override
+			public void applyOperation(ReadWriteTransaction tx) {
+				tx.merge(LogicalDatastoreType.OPERATIONAL,  buildNodeIID,  hostNode, true);
+			}	
+        });
         log.trace("Putting MD-SAL {}", hostNode.getNodeId());
-        submit(writeTx);
         return putLocally(buildNodeIID, host);
     }
 
@@ -201,11 +208,14 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         V removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = ((Host) removedValue).getHostNode();
-            InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
-            writeTx.delete(LogicalDatastoreType.OPERATIONAL, hnIID);
+            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+				@Override
+				public void applyOperation(ReadWriteTransaction tx) {
+					tx.delete(LogicalDatastoreType.OPERATIONAL,  hnIID);
+				}
+            });
             this.instanceIDs.remove(hnIID);
-            submit(writeTx);
         }
         return removedValue;
     }
@@ -315,14 +325,17 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      */
     @Override
     public synchronized void putAll(Map<? extends K, ? extends V> m) {
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
         for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
-            Node hostNode = ((Host) e.getValue()).getHostNode();
-            InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            writeTx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+            final Node hostNode = ((Host) e.getValue()).getHostNode();
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+				@Override
+				public void applyOperation(ReadWriteTransaction tx) {
+					tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
+				}
+            });
             putLocally(buildNodeIID, e.getValue());
         }
-        submit(writeTx);
     }
 
     /**
@@ -333,11 +346,14 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      */
     @Override
     public synchronized void clear() {
-        final WriteTransaction writeTx = this.dataService.newWriteOnlyTransaction();
-        for (Map.Entry<? extends InstanceIdentifier<Node>, ? extends K> e : this.instanceIDs.entrySet()) {
-            writeTx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
+        for (final Map.Entry<? extends InstanceIdentifier<Node>, ? extends K> e : this.instanceIDs.entrySet()) {
+            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+				@Override
+				public void applyOperation(ReadWriteTransaction tx) {
+					tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
+				}
+            });
         }
-        submit(writeTx);
         this.hostHashMap.clear();
     }
 
@@ -369,27 +385,6 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
     @Override
     public synchronized Set<Entry<K, V>> entrySet() {
         return this.hostHashMap.entrySet();
-    }
-
-    /**
-     * Submits and adds a callback to the result from the submition of the given
-     * WriteTransaction
-     *
-     * @param writeTx the WriteTransaction to submit
-     */
-    private void submit(final WriteTransaction writeTx) {
-        final CheckedFuture writeTxResultFuture = writeTx.submit();
-        Futures.addCallback(writeTxResultFuture, new FutureCallback() {
-            @Override
-            public void onSuccess(Object o) {
-                log.debug("ConcurrentHashMap write successful for tx :{}", writeTx.getIdentifier());
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                log.error("ConcurrentHashMap write transaction {} failed", writeTx.getIdentifier(), throwable.getCause());
-            }
-        });
     }
 
 }
