@@ -7,6 +7,8 @@
   <repository>mvn:org.opendaylight.dlux/features-dlux/${dlux.version}/xml/features</repository>
   <feature name='odl-l2switch-all' description="OpenDaylight :: L2Switch :: All" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-switch</feature>
+	<feature version="${project.version}">odl-l2switch-switch-rest</feature>
+	<feature version="${project.version}">odl-l2switch-switch-ui</feature>
   </feature>
   <feature name='odl-l2switch-switch' description="OpenDaylight :: L2Switch :: Switch" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-hosttracker</feature>
