@@ -160,8 +160,7 @@
         <configuration>
           <bootFeatures>
             <feature>standard</feature>
-            <feature>odl-l2switch-switch</feature>
-            <feature>odl-restconf</feature>
+            <feature>odl-l2switch-switch-ui</feature>
           </bootFeatures>
         </configuration>
         <executions>
