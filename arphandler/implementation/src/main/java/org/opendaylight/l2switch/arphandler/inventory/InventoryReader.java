@@ -70,7 +70,7 @@ public class InventoryReader {
   }
 
   /**
-   * Read the Inventory data tree to find information about the Nodes & NodeConnectors.
+   * Read the Inventory data tree to find information about the Nodes and NodeConnectors.
    * Create the list of NodeConnectors for a given switch.  Also determine the STP status of each NodeConnector.
    */
   public void readInventory() {

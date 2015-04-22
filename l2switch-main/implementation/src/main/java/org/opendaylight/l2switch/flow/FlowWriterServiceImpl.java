@@ -57,7 +57,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Implementation of FlowWriterService{@link org.opendaylight.controller.sample.l2switch.md.flow.FlowWriterService},
+ * Implementation of FlowWriterService{@link org.opendaylight.l2switch.flow.FlowWriterService},
  * that builds required flow and writes to configuration data store using provided DataBrokerService
  * {@link org.opendaylight.controller.sal.binding.api.data.DataBrokerService}
  */
@@ -134,8 +134,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
 
   /**
    * Writes mac-to-mac flow on all ports that are in the path between given source and destination ports.
-   * It uses path provided by NetworkGraphService
-   * {@link org.opendaylight.controller.sample.l2switch.md.topology.NetworkGraphService} to find a links
+   * It uses path provided by org.opendaylight.l2switch.loopremover.topology.NetworkGraphService
+   * to find a links
    * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
    * between given ports. And then writes appropriate flow on each port that is covered in that path.
    *

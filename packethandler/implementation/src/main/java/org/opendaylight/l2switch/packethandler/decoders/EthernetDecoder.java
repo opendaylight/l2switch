@@ -58,7 +58,6 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
    *
    * @param packetReceived -- data from wire to deserialize
    * @return
-   * @throws org.opendaylight.controller.sal.packet.BufferException
    */
   @Override
   public EthernetPacketReceived decode(PacketReceived packetReceived) {

@@ -66,10 +66,10 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
     }
 
     /**
-     * Removes, if exists, the Host with the given InstanceIdentifier<Node> from
+     * Removes, if exists, the Host with the given InstanceIdentifier&lt;Node&gt; from
      * this local HashMap. Ideally used for host data listener events.
      *
-     * @param iiN the InstanceIdentifier<Node> of the Host to remove.
+     * @param iiN the InstanceIdentifier&lt;Node&gt; of the Host to remove.
      * @return the removed Host if exits, null if it doesn't exist.
      */
     public synchronized V removeLocally(InstanceIdentifier<Node> iiN) {
@@ -103,7 +103,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      * Puts the given value (Host) only in this local HashMap. Ideally used for
      * host data listener events.
      *
-     * @param ii the value's (Host's) InstanceIdentifier<Node> f
+     * @param ii the value's (Host's) InstanceIdentifier&lt;Node&gt;
      * @param value the Host to store locally.
      * @return the previous value associated with <tt>key</tt>, or
      * <tt>null</tt> if there was no mapping for <tt>key</tt>
