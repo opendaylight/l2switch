@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_af2261b7",
+        "filename": "distribution/karaf/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2015-04-23T12:31:30Z",
+      "side": 1,
+      "message": "Does it make more sense to make this odl-l2switch-switch-ui?",
+      "revId": "0e7d015d3543b0a11ab97e225c2bd35d6158238b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_8f2525c4",
+        "filename": "features/src/main/resources/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2015-04-23T12:31:30Z",
+      "side": 1,
+      "message": "odl-l2switch-switch-ui implies odl-l2switch-switch-rest, so you shouldn\u0027t need this line.",
+      "revId": "0e7d015d3543b0a11ab97e225c2bd35d6158238b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa0d159_ef406958",
+        "filename": "features/src/main/resources/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2015-04-23T12:31:30Z",
+      "side": 1,
+      "message": "Avoid tabs, keep the indentation consistent.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 71
+      },
+      "revId": "0e7d015d3543b0a11ab97e225c2bd35d6158238b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
