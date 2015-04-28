@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3aa0d159_c772227c",
+        "filename": "features/src/main/resources/features.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2015-04-28T14:52:32Z",
+      "side": 1,
+      "message": "I think the Idea behind l2switch-all is deploying all the features of l2switch, usually it should not have feature from other projects/ repo, isn\u0027t that right?\nThat is why l2switch-all doesn\u0027t have rest or UI features so far.",
+      "range": {
+        "startLine": 9,
+        "startChar": 46,
+        "endLine": 9,
+        "endChar": 54
+      },
+      "revId": "42497b705fefc868c6fa79b28f004c7d41390bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
