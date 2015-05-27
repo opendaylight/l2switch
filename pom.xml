@@ -17,7 +17,6 @@
     <module>addresstracker</module>
     <module>hosttracker</module>
     <module>l2switch-main</module>
-    <module>distribution/base</module>
     <module>distribution/karaf</module>
     <module>features</module>
   </modules>
