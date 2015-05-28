@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Amit Mandke <ammandke@cisco.com>
+Submitted-by: Amit Mandke <ammandke@cisco.com>
+Submitted-at: Thu, 28 May 2015 17:10:09 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/21268
+Project: l2switch
+Branch: refs/heads/stable/lithium
