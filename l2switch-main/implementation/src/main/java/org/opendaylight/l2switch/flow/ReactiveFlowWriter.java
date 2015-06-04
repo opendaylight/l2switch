@@ -25,11 +25,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 public class ReactiveFlowWriter implements ArpPacketListener {
   private InventoryReader inventoryReader;
   private FlowWriterService flowWriterService;
-  private final MacAddress MAC_TO_IGNORE = new MacAddress("ff:ff:ff:ff:ff:ff");
 
   public ReactiveFlowWriter(InventoryReader inventoryReader, FlowWriterService flowWriterService) {
     this.inventoryReader = inventoryReader;
     this.flowWriterService = flowWriterService;
+  }
+
+  private boolean ignoreThisMac(MacAddress macToCheck) {
+    if (macToCheck == null) return true;
+    String [] octets = macToCheck.getValue().split(":");
+    short first_byte = Short.parseShort(octets[0]);
+    return ((first_byte & 1) == 1);
   }
 
   @Override
@@ -54,7 +60,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
       return;
     }
     MacAddress destMac = ethernetPacket.getDestinationMac();
-    if(!MAC_TO_IGNORE.equals(destMac)) {
+    if(!ignoreThisMac(destMac)) {
       writeFlows(rawPacket.getIngress(),
           ethernetPacket.getSourceMac(),
           ethernetPacket.getDestinationMac());
