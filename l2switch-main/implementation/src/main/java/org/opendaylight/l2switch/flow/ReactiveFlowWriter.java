@@ -31,6 +31,14 @@ public class ReactiveFlowWriter implements ArpPacketListener {
     this.flowWriterService = flowWriterService;
   }
 
+  /**
+   * Checks if a MAC should be considered for flow creation
+   *
+   * @param macToCheck MacAddress to consider
+   * @return true if a MacAddess is broadcast or multicast, false if
+   * the MacAddress is unicast (and thus legible for flow creation).
+   */
+
   private boolean ignoreThisMac(MacAddress macToCheck) {
     if (macToCheck == null) return true;
     String [] octets = macToCheck.getValue().split(":");
