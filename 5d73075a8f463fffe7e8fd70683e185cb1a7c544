@@ -16,6 +16,24 @@
       "revId": "5d73075a8f463fffe7e8fd70683e185cb1a7c544",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6a9dd7_0c5299dd",
+        "filename": "l2switch-main/implementation/src/main/java/org/opendaylight/l2switch/flow/ReactiveFlowWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 2774
+      },
+      "writtenOn": "2015-06-08T05:43:04Z",
+      "side": 1,
+      "message": "OK, fair point. \n\nThe check covers all non-unicast traffic (instead of just broadcast as it used to be).\n\nWill send a revised patch with a java doc (and or) comments.",
+      "parentUuid": "9a6a9dd7_69b6a78c",
+      "revId": "5d73075a8f463fffe7e8fd70683e185cb1a7c544",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
