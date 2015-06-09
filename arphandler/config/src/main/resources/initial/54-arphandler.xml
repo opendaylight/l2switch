@@ -26,6 +26,7 @@
           <flood-flow-hard-timeout>0</flood-flow-hard-timeout>
           <flood-flow-installation-delay>2000</flood-flow-installation-delay>
           <is-proactive-flood-mode>true</is-proactive-flood-mode>
+          <is-hybrid-mode>false</is-hybrid-mode>
 
           <notification-service>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">

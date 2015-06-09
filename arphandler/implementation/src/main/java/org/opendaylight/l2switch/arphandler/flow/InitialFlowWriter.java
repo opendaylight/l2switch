@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2015 Brocade Communications Systems, Inc.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -56,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -74,6 +77,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
   private int flowPriority;
   private int flowIdleTimeout;
   private int flowHardTimeout;
+  private boolean isHybridMode;
 
   private AtomicLong flowIdInc = new AtomicLong();
   private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
@@ -97,6 +101,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
   public void setFlowHardTimeout(int flowHardTimeout) {
     this.flowHardTimeout = flowHardTimeout;
+  }
+
+  public void setIsHybridMode(boolean isHybridMode) {
+    this.isHybridMode = isHybridMode;
   }
 
   @Override
@@ -195,8 +203,14 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
           .setEthernetMatch(ethernetMatchBuilder.build())
           .build();
 
+      List<Action> actions = new ArrayList<Action>();
+      actions.add(getSendToControllerAction());
+      if(isHybridMode) {
+        actions.add(getNormalAction());
+      }
+
       // Create an Apply Action
-      ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(getSendToControllerAction()))
+      ApplyActions applyActions = new ApplyActionsBuilder().setAction(actions)
           .build();
 
       // Wrap our Apply Action in an Instruction
@@ -234,8 +248,21 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
                   .build())
               .build())
           .build();
-
       return sendToController;
+    }
+
+    private Action getNormalAction() {
+      Action normal = new ActionBuilder()
+          .setOrder(0)
+          .setKey(new ActionKey(0))
+          .setAction(new OutputActionCaseBuilder()
+              .setOutputAction(new OutputActionBuilder()
+                  .setMaxLength(0xffff)
+                  .setOutputNodeConnector(new Uri(OutputPortValues.NORMAL.toString()))
+                  .build())
+              .build())
+          .build();
+      return normal;
     }
 
     private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
