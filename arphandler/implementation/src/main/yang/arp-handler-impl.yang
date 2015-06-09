@@ -58,6 +58,9 @@ module arp-handler-impl {
       leaf is-proactive-flood-mode {
         type boolean;
       }
+      leaf is-hybrid-mode {
+        type boolean;
+      }
       container notification-service {
         uses config:service-ref {
           refine type {

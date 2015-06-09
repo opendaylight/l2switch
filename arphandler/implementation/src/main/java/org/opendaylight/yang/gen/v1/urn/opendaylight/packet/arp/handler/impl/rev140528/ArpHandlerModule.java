@@ -59,6 +59,7 @@ public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendayli
       initialFlowWriter.setFlowPriority(getArpFlowPriority());
       initialFlowWriter.setFlowIdleTimeout(getArpFlowIdleTimeout());
       initialFlowWriter.setFlowHardTimeout(getArpFlowHardTimeout());
+      initialFlowWriter.setIsHybridMode(getIsHybridMode());
       invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
 
       // Setup InventoryReader
