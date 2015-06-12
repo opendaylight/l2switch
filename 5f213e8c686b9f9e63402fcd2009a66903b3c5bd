@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_5c6d8831",
+        "filename": "arphandler/implementation/src/main/java/org/opendaylight/l2switch/arphandler/flow/InitialFlowWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 48
+      },
+      "writtenOn": "2015-06-12T21:17:42Z",
+      "side": 1,
+      "message": "This function and the returned value static since it just returns an immutable object.",
+      "revId": "5f213e8c686b9f9e63402fcd2009a66903b3c5bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
