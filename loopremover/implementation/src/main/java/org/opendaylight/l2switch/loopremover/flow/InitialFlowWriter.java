@@ -7,12 +7,15 @@
  */
 package org.opendaylight.l2switch.loopremover.flow;
 
+import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
@@ -48,23 +51,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdatedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * Adds a flow, which sends all LLDP packets to the controller, on all switches.
  * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
  */
-public class InitialFlowWriter implements OpendaylightInventoryListener {
+public class InitialFlowWriter implements OpendaylightInventoryListener, DataChangeListener {
   private final Logger _logger = LoggerFactory.getLogger(InitialFlowWriter.class);
 
   private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
@@ -122,6 +125,22 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
   public void onNodeUpdated(NodeUpdated nodeUpdated) {
     initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdated));
   }
+
+    @Override
+    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+        _logger.trace("Node in inventory changed: {} created, {} updated, {} removed",
+                change.getCreatedData().size(), change.getUpdatedData().size(), change.getRemovedPaths().size());
+
+        // Iterate over created node connectors
+        for (Map.Entry<InstanceIdentifier<?>, DataObject> entry : change.getCreatedData().entrySet()) {
+            InstanceIdentifier<Node> nodeInstanceId =
+                    entry.getKey().firstIdentifierOf(Node.class);
+
+            NodeUpdatedBuilder nodeUpdatedBld = new NodeUpdatedBuilder();
+            nodeUpdatedBld.setNodeRef(new NodeRef(nodeInstanceId));
+            initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdatedBld.build()));
+        }
+    }
 
   /**
    * A private class to process the node updated event in separate thread. Allows to release the
