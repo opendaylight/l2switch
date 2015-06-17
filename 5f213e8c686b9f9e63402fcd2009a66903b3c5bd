@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Colin Dixon <colin@colindixon.com>
+Code-Review+2: Amit Mandke <ammandke@cisco.com>
+Submitted-by: Amit Mandke <ammandke@cisco.com>
+Submitted-at: Wed, 17 Jun 2015 19:37:14 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/22137
+Project: l2switch
+Branch: refs/heads/master
