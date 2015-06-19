@@ -10,9 +10,6 @@ package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +21,7 @@ import java.util.concurrent.Executors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -68,18 +65,22 @@ public class HostTrackerImpl implements DataChangeListener {
     ExecutorService exec = Executors.newFixedThreadPool(CPUS);
 
     private final ConcurrentClusterAwareHostHashMap<HostId, Host> hosts;
+    private final OperationProcessor opProcessor;
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
     public HostTrackerImpl(DataBroker dataService, String topologyId) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
         this.dataService = dataService;
+        this.opProcessor = new OperationProcessor(dataService);
+        Thread processorThread = new Thread(opProcessor);
+        processorThread.start();
         if (topologyId == null || topologyId.isEmpty()) {
             this.topologyId = TOPOLOGY_NAME;
         } else {
             this.topologyId = topologyId;
         }
-        this.hosts = new ConcurrentClusterAwareHostHashMap<>(dataService, this.topologyId);
+        this.hosts = new ConcurrentClusterAwareHostHashMap<>(opProcessor, this.topologyId);
     }
 
     public void registerAsDataChangeListener() {
@@ -332,35 +333,31 @@ public class HostTrackerImpl implements DataChangeListener {
         }
     }
 
-    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove) {
-
-        final WriteTransaction writeTx = dataService.newWriteOnlyTransaction();
+    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove){
         if (linksToAdd != null) {
-            for (Link l : linksToAdd) {
-                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
+            for (final Link l : linksToAdd) {
+                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 log.trace("Writing link from MD_SAL: " + lIID.toString());
-                writeTx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true);
+                opProcessor.enqueueOperation(new HostTrackerOperation() {
+                    @Override
+                    public void applyOperation(ReadWriteTransaction tx) {
+                        tx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true);
+                    }
+                });
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
-                InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
+                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 log.trace("Removing link from MD_SAL: " + lIID.toString());
-                writeTx.delete(LogicalDatastoreType.OPERATIONAL, lIID);
+                opProcessor.enqueueOperation(new HostTrackerOperation() {
+                    @Override
+                    public void applyOperation(ReadWriteTransaction tx) {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID);
+                    }
+                });
             }
         }
-        final CheckedFuture writeTxResultFuture = writeTx.submit();
-        Futures.addCallback(writeTxResultFuture, new FutureCallback() {
-            @Override
-            public void onSuccess(Object o) {
-                log.debug("Hosttracker write successful for tx :{}", writeTx.getIdentifier());
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                log.error("Hosttracker write transaction {} failed", writeTx.getIdentifier(), throwable.getCause());
-            }
-        });
     }
 
     public void close() {
