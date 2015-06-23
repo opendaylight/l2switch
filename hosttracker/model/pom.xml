@@ -4,7 +4,7 @@
     <parent>
         <artifactId>hosttracker.aggregator</artifactId>
         <groupId>org.opendaylight.l2switch.hosttracker</groupId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.0-Lithium</version>
     </parent>
     <artifactId>hosttracker-model</artifactId>
     <packaging>bundle</packaging>
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.addresstracker</groupId>
             <artifactId>addresstracker-model</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.2.0-Lithium</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
