@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.2.0-Lithium</version>
+    <version>0.2.1-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <artifactId>addresstracker.aggregator</artifactId>
   <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-  <version>0.2.0-Lithium</version>
+  <version>0.2.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
