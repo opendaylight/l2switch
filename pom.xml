@@ -20,29 +20,10 @@
     <module>distribution/karaf</module>
     <module>features</module>
   </modules>
-  <properties>
-      <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
-  </properties>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
     <developerConnection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</developerConnection>
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/L2_Switch:Main</url>
   </scm>
-  <distributionManagement>
-    <!-- OpenDayLight Released artifact -->
-    <repository>
-      <id>opendaylight-release</id>
-      <url>${nexusproxy}/repositories/opendaylight.release/</url>
-    </repository>
-    <!-- OpenDayLight Snapshot artifact -->
-    <snapshotRepository>
-      <id>opendaylight-snapshot</id>
-      <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
-    </snapshotRepository>
-    <site>
-      <id>${project.artifactId}-site</id>
-      <url>./</url>
-    </site>
-  </distributionManagement>
 </project>
