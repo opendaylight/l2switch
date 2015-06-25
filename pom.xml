@@ -19,6 +19,7 @@
     <module>l2switch-main</module>
     <module>distribution/karaf</module>
     <module>features</module>
+    <module>artifacts</module>
   </modules>
   <properties>
       <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
