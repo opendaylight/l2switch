@@ -19,6 +19,7 @@
     <module>l2switch-main</module>
     <module>distribution/karaf</module>
     <module>features</module>
+    <module>artifacts</module>
   </modules>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
