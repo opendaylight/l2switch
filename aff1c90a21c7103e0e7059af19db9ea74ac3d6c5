@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a7fa997_11361453",
+        "filename": "parent/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2015-06-29T13:24:57Z",
+      "side": 0,
+      "message": "This section currently does not exist in the global pom on the build servers so this change will break merge jobs. We only define repositories and pluginRepositories at the moment. Also from our example settings.xml:\n\n https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup#Edit_your_.7E.2F.m2.2Fsettings.xml\n\nWas there discussion / agreement on getting rid of this section?\n\n(While I do feel generally this is probably a good idea I don\u0027t want projects to be surprised by this change)",
+      "revId": "aff1c90a21c7103e0e7059af19db9ea74ac3d6c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
