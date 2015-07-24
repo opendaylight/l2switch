@@ -48,6 +48,7 @@
 
   <required-capabilities>
     <capability>urn:opendaylight:packet:arp-handler-impl?module=arp-handler-impl&amp;revision=2014-05-28</capability>
+    <capability>urn:opendaylight:l2switch:loopremover?module=stp-status-aware-node-connector&amp;revision=2014-07-14</capability>
   </required-capabilities>
 </snapshot>
 
