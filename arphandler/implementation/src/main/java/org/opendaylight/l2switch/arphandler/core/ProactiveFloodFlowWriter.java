@@ -170,7 +170,35 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
         .<NodeConnector>child(NodeConnector.class)
         .<StpStatusAwareNodeConnector>augmentation(StpStatusAwareNodeConnector.class)
         .toInstance();
-    return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, this, AsyncDataBroker.DataChangeScope.BASE);
+
+    boolean caughtEx = false;
+    boolean success = false;
+    ListenerRegistration<DataChangeListener> dcl = null;
+    int maxTries = 3000;
+
+    for (int i = 0; i < maxTries && !success ; i++ ) {
+      if (caughtEx) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e1) {
+          _logger.warn("Sleep interrupted: ", e1);
+        }
+      }
+
+      try {
+        dcl = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, this, AsyncDataBroker.DataChangeScope.BASE);
+        success = true;
+      } catch(IllegalArgumentException e) {
+        caughtEx = true;
+        _logger.warn("Caught exception on attempt " + i + " of " + maxTries + ": ", e);
+      }
+    }
+
+    if (!success) {
+     _logger.error("Unable to registerDataChangeListener after "+maxTries+" tries");
+    }
+
+    return dcl;
   }
 
   /**
