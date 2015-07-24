@@ -35,5 +35,6 @@
 
     <required-capabilities>
         <capability>urn:opendaylight:l2switch:host-tracker-impl?module=host-tracker-impl&amp;revision=2014-05-28</capability>
+        <capability>urn:opendaylight:l2switch:address-tracker?module=address-tracker&amp;revision=2014-06-17</capability>
     </required-capabilities>
 </snapshot>
