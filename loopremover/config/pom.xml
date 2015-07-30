@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.1.4-Helium-SR4</version>
+    <version>0.1.5-SNAPSHOT</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <groupId>org.opendaylight.l2switch.loopremover</groupId>
