@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_4610724e",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2015-08-06T22:05:51Z",
+      "side": 1,
+      "message": "static is okay. But naming for constant should use upper case according to google style guide.\nhttps://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines\n\nOr should we follow sonar warning?\nI couldn\u0027t find other source than the above link.",
+      "revId": "9dbc0c3662c4444a6122ffe82fb65942ac4d80f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
