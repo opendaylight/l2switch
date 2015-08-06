@@ -38,8 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
  */
 public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
 
-    private final String IPV4_IP_TO_IGNORE = "0.0.0.0";
-    private final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
+    private final static String ipv4_ip_to_ignore = "0.0.0.0";
+    private final static String ipv6_ip_to_ignore = "0:0:0:0:0:0:0:0";
 
     private HostTrackerImpl hostTrackerImpl;
     private NotificationService notificationService;
@@ -114,7 +114,7 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
             return;
         }
 
-        if (IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
+        if (ipv4_ip_to_ignore.equals(ipv4Packet.getSourceIpv4().getValue())) {
             return;
         }
 
@@ -154,7 +154,7 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         if (rawPacket == null || ethernetPacket == null || ipv6Packet == null) {
             return;
         }
-        if (IPV6_IP_TO_IGNORE.equals(ipv6Packet.getSourceIpv6().getValue())) {
+        if (ipv6_ip_to_ignore.equals(ipv6Packet.getSourceIpv6().getValue())) {
             return;
         }
 
