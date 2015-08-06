@@ -37,8 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
  */
 public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
 
-    private final String IPV4_IP_TO_IGNORE = "0.0.0.0";
-    private final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
+    private final static String IPV4_IP_TO_IGNORE = "0.0.0.0";
+    private final static String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
 
     private HostTrackerImpl hostTrackerImpl;
     private NotificationService notificationService;
