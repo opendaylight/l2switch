@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a7ca5a3_693bffeb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2015-08-07T19:34:32Z",
+      "side": 1,
+      "message": "This isn\u0027t true anymore. Please update this line to align with the actual modification.",
+      "revId": "51fbb466b0a2ab05736d828ae0a7ac7066c7e7fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
