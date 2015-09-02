@@ -296,30 +296,6 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-checkstyle-plugin</artifactId>
           </plugin>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>org.opendaylight.l2switch.*</include>
-              </includes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>pre-test</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>post-test</id>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-                <phase>test</phase>
-              </execution>
-            </executions>
-          </plugin>
       </plugins>
   </build>
 
