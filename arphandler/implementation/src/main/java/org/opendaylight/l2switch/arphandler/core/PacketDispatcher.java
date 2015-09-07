@@ -94,7 +94,7 @@ public class PacketDispatcher {
       String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue();
       // Don't flood on discarding node connectors & origIngress
       if(!ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue())) {
-        sendPacketOut(payload, controllerNodeConnector, ncRef);
+        sendPacketOut(payload, origIngress, ncRef);
       }
     }
   }
