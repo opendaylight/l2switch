@@ -220,6 +220,10 @@ module ethernet-packet {
         value 37120; // 0x9100
         description "Q-in-Q";
       }
+      enum "provider-bridging" {
+        value 34984; // 0x88A8
+        description "802.1ad provider bridging";
+      }
     }
   }
 
