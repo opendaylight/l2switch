@@ -235,7 +235,7 @@ module ipv4-packet {
 
   notification ipv4-packet-received {
     uses bpacket:packet-chain-grp {
-      augment "bpacket:packet-chain/bpacket:packet" {
+      augment "packet-chain/packet" {
         case ipv4-packet {
           uses ipv4-packet-fields;
         }

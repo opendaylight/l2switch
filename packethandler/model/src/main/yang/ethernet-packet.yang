@@ -284,7 +284,7 @@ module ethernet-packet {
 
   notification ethernet-packet-received {
     uses bpacket:packet-chain-grp {
-      augment "bpacket:packet-chain/bpacket:packet" {
+      augment "packet-chain/packet" {
         case ethernet-packet {
           uses ethernet-packet-fields;
         }

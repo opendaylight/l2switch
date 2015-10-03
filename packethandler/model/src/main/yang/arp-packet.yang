@@ -104,7 +104,7 @@ module arp-packet {
 
   notification arp-packet-received {
     uses bpacket:packet-chain-grp {
-      augment "bpacket:packet-chain/bpacket:packet" {
+      augment "packet-chain/packet" {
         case arp-packet {
           uses arp-packet-fields;
         }

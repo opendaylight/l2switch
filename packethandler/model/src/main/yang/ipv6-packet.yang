@@ -93,7 +93,7 @@ module ipv6-packet {
 
   notification ipv6-packet-received {
     uses bpacket:packet-chain-grp {
-      augment "bpacket:packet-chain/bpacket:packet" {
+      augment "packet-chain/packet" {
         case ipv6-packet {
           uses ipv6-packet-fields;
         }
