@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_4ae29aa0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2015-10-04T16:08:28Z",
+      "side": 1,
+      "message": "Minor nit. If you insert \"Bug: 4406\" above the Change-Id: line. Gerrit will automatically link back to Bugzilla.",
+      "revId": "87b0a045d82a959a06e512f1c52e99a31c0cc680",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
