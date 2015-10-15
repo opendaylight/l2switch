@@ -42,7 +42,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
   private boolean ignoreThisMac(MacAddress macToCheck) {
     if (macToCheck == null) return true;
     String [] octets = macToCheck.getValue().split(":");
-    short first_byte = Short.parseShort("0x" + octets[0]);
+    short first_byte = Short.parseShort("0x" + octets[0], 16);
 
     /* First bit in first byte for unicast and multicast is 1
      * Unicast and multicast are handled by flooding, they are
