@@ -1,7 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528.AbstractLoopRemoverModule {
 
   private final static Logger _logger = LoggerFactory.getLogger(LoopRemoverModule.class);
-  private Registration listenerRegistration = null, invListenerReg = null;
+  private Registration listenerRegistration = null, topoNodeListnerReg = null;
   private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
   public LoopRemoverModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -33,7 +32,6 @@ public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendayl
 
   @Override
   public java.lang.AutoCloseable createInstance() {
-    NotificationProviderService notificationService = getNotificationServiceDependency();
     DataBroker dataService = getDataBrokerDependency();
     RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
     SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
@@ -46,7 +44,7 @@ public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendayl
       initialFlowWriter.setFlowPriority(getLldpFlowPriority());
       initialFlowWriter.setFlowIdleTimeout(getLldpFlowIdleTimeout());
       initialFlowWriter.setFlowHardTimeout(getLldpFlowHardTimeout());
-      invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+      topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
     }
 
     // Register Topology DataChangeListener
@@ -62,8 +60,8 @@ public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendayl
         if(listenerRegistration != null) {
           listenerRegistration.close();
         }
-        if(invListenerReg != null) {
-          invListenerReg.close();
+        if(topoNodeListnerReg != null) {
+          topoNodeListnerReg.close();
         }
         _logger.info("LoopRemover (instance {}) torn down.", this);
       }
