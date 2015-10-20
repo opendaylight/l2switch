@@ -8,14 +8,21 @@
 
 package org.opendaylight.l2switch.arphandler.flow;
 
-import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
@@ -46,231 +53,235 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Adds a flow, which sends all ARP packets to the controller, on all switches.
- * Registers as ODL Inventory listener so that it can add flows once a new node
- * i.e. switch is added
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
  */
-public class InitialFlowWriter implements OpendaylightInventoryListener {
-    private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
+public class InitialFlowWriter implements DataChangeListener {
+  private final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
-    private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
-    private final SalFlowService salFlowService;
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
-    private boolean isHybridMode;
+  private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
+  private final SalFlowService salFlowService;
+  private short flowTableId;
+  private int flowPriority;
+  private int flowIdleTimeout;
+  private int flowHardTimeout;
+  private boolean isHybridMode;
 
-    private AtomicLong flowIdInc = new AtomicLong();
-    private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
+  private AtomicLong flowIdInc = new AtomicLong();
+  private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-    public InitialFlowWriter(SalFlowService salFlowService) {
-        this.salFlowService = salFlowService;
+
+  public InitialFlowWriter(SalFlowService salFlowService) {
+    this.salFlowService = salFlowService;
+  }
+
+  public void setFlowTableId(short flowTableId) {
+    this.flowTableId = flowTableId;
+  }
+
+  public void setFlowPriority(int flowPriority) {
+    this.flowPriority = flowPriority;
+  }
+
+  public void setFlowIdleTimeout(int flowIdleTimeout) {
+    this.flowIdleTimeout = flowIdleTimeout;
+  }
+
+  public void setFlowHardTimeout(int flowHardTimeout) {
+    this.flowHardTimeout = flowHardTimeout;
+  }
+
+  public void setIsHybridMode(boolean isHybridMode) {
+    this.isHybridMode = isHybridMode;
+  }
+
+  public ListenerRegistration<DataChangeListener> registerAsDataChangeListener(DataBroker dataBroker) {
+    InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+        .child(Node.class).build();
+    return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier, this, AsyncDataBroker.DataChangeScope.BASE);
+  }
+
+  @Override
+  public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> instanceIdentifierDataObjectAsyncDataChangeEvent) {
+    Map<InstanceIdentifier<?>, DataObject> createdData = instanceIdentifierDataObjectAsyncDataChangeEvent.getCreatedData();
+    if(createdData !=null && !createdData.isEmpty()) {
+      Set<InstanceIdentifier<?>> nodeIds = createdData.keySet();
+      if(nodeIds != null && !nodeIds.isEmpty()) {
+        initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeIds));
+      }
     }
+  }
 
-    public void setFlowTableId(short flowTableId) {
-        this.flowTableId = flowTableId;
-    }
+    /**
+   * A private class to process the node updated event in separate thread. Allows to release the
+   * thread that invoked the data node updated event. Avoids any thread lock it may cause.
+   */
+  private class InitialFlowWriterProcessor implements Runnable {
+    Set<InstanceIdentifier<?>> nodeIds = null;
 
-    public void setFlowPriority(int flowPriority) {
-        this.flowPriority = flowPriority;
-    }
-
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
-        this.flowIdleTimeout = flowIdleTimeout;
-    }
-
-    public void setFlowHardTimeout(int flowHardTimeout) {
-        this.flowHardTimeout = flowHardTimeout;
-    }
-
-    public void setIsHybridMode(boolean isHybridMode) {
-        this.isHybridMode = isHybridMode;
+    public InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+      this.nodeIds = nodeIds;
     }
 
     @Override
-    public void onNodeConnectorRemoved(NodeConnectorRemoved nodeConnectorRemoved) {
-        // do nothing
-    }
+    public void run() {
 
-    @Override
-    public void onNodeConnectorUpdated(NodeConnectorUpdated nodeConnectorUpdated) {
-        // do nothing
-    }
+      if(nodeIds == null) {
+        return;
+      }
 
-    @Override
-    public void onNodeRemoved(NodeRemoved nodeRemoved) {
-        // do nothing
+      for(InstanceIdentifier<?> nodeId : nodeIds) {
+        if(Node.class.isAssignableFrom(nodeId.getTargetType())) {
+          InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
+          if(invNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
+            addInitialFlows(invNodeId);
+          }
+        }
+      }
+
     }
 
     /**
-     * Called when a node gets updated.
-     *
-     * @param nodeUpdated
-     *            Notification for when a node gets updated.
+     * Adds a flow, which sends all ARP packets to the controller, to the specified node.
+     * @param nodeId The node to write the flow on.
      */
-    @Override
-    public void onNodeUpdated(NodeUpdated nodeUpdated) {
-        initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdated));
+    public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
+      LOG.debug("adding initial flows for node {} ", nodeId);
+
+      InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
+      InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
+
+      //add arpToController flow
+      writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(flowTableId, flowPriority));
+      LOG.debug("Added initial flows for node {} ", nodeId);
     }
 
-    /**
-     * A private class to process the node updated event in separate thread.
-     * Allows to release the thread that invoked the data node updated event.
-     * Avoids any thread lock it may cause.
-     */
-    private class InitialFlowWriterProcessor implements Runnable {
-        private NodeUpdated nodeUpdated;
+    private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
+      // get flow table key
+      TableKey flowTableKey = new TableKey(flowTableId);
 
-        public InitialFlowWriterProcessor(NodeUpdated nodeUpdated) {
-            this.nodeUpdated = nodeUpdated;
-        }
-
-        @Override
-        public void run() {
-
-            if (nodeUpdated == null) {
-                return;
-            }
-
-            addInitialFlows((InstanceIdentifier<Node>) nodeUpdated.getNodeRef().getValue());
-
-        }
-
-        /**
-         * Adds a flow, which sends all ARP packets to the controller, to the
-         * specified node.
-         *
-         * @param nodeId
-         *            The node to write the flow on.
-         */
-        public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
-            LOG.debug("adding initial flows for node {} ", nodeId);
-
-            InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
-            InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
-
-            // add arpToController flow
-            flowId = getFlowInstanceId(tableId);
-            writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(flowTableId, flowPriority));
-            LOG.debug("Added initial flows for node {} ", nodeId);
-        }
-
-        private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
-            // get flow table key
-            TableKey flowTableKey = new TableKey(flowTableId);
-
-            return nodeId.builder().augmentation(FlowCapableNode.class).child(Table.class, flowTableKey).build();
-        }
-
-        private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
-            // generate unique flow key
-            FlowId flowId = new FlowId(String.valueOf(flowIdInc.getAndIncrement()));
-            FlowKey flowKey = new FlowKey(flowId);
-            return tableId.child(Flow.class, flowKey);
-        }
-
-        private Flow createArpToControllerFlow(Short tableId, int priority) {
-
-            // start building flow
-            FlowBuilder arpFlow = new FlowBuilder() //
-                    .setTableId(tableId) //
-                    .setFlowName("arptocntrl");
-
-            // use its own hash code for id.
-            arpFlow.setId(new FlowId(Long.toString(arpFlow.hashCode())));
-            EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
-                    .setEthernetType(new EthernetTypeBuilder()
-                            .setType(new EtherType(Long.valueOf(KnownEtherType.Arp.getIntValue()))).build());
-
-            Match match = new MatchBuilder().setEthernetMatch(ethernetMatchBuilder.build()).build();
-
-            List<Action> actions = new ArrayList<Action>();
-            actions.add(getSendToControllerAction());
-            if (isHybridMode) {
-                actions.add(getNormalAction());
-            }
-
-            // Create an Apply Action
-            ApplyActions applyActions = new ApplyActionsBuilder() //
-                    .setAction(ImmutableList.copyOf(actions)) //
-                    .build();
-
-            // Wrap our Apply Action in an Instruction
-            Instruction applyActionsInstruction = new InstructionBuilder() //
-                    .setOrder(0)
-                    .setInstruction(new ApplyActionsCaseBuilder()//
-                            .setApplyActions(applyActions) //
-                            .build()) //
-                    .build();
-
-            // Put our Instruction in a list of Instructions
-            arpFlow.setMatch(match) //
-                    .setInstructions(new InstructionsBuilder() //
-                            .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                            .build()) //
-                    .setPriority(priority) //
-                    .setBufferId(OFConstants.OFP_NO_BUFFER) //
-                    .setHardTimeout(flowHardTimeout) //
-                    .setIdleTimeout(flowIdleTimeout) //
-                    .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
-                    .setFlags(new FlowModFlags(false, false, false, false, false));
-
-            return arpFlow.build();
-        }
-
-        private Action getSendToControllerAction() {
-            Action sendToController = new ActionBuilder()
-                    .setOrder(
-                            0)
-                    .setKey(new ActionKey(0))
-                    .setAction(
-                            new OutputActionCaseBuilder()
-                                    .setOutputAction(
-                                            new OutputActionBuilder().setMaxLength(0xffff)
-                                                    .setOutputNodeConnector(
-                                                            new Uri(OutputPortValues.CONTROLLER.toString()))
-                                                    .build())
-                                    .build())
-                    .build();
-            return sendToController;
-        }
-
-        private Action getNormalAction() {
-            Action normal = new ActionBuilder().setOrder(0).setKey(new ActionKey(0))
-                    .setAction(new OutputActionCaseBuilder()
-                            .setOutputAction(new OutputActionBuilder().setMaxLength(0xffff)
-                                    .setOutputNodeConnector(new Uri(OutputPortValues.NORMAL.toString())).build())
-                            .build())
-                    .build();
-            return normal;
-        }
-
-        private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
-                InstanceIdentifier<Table> tableInstanceId, InstanceIdentifier<Flow> flowPath, Flow flow) {
-            final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
-            builder.setNode(new NodeRef(nodeInstanceId));
-            builder.setFlowRef(new FlowRef(flowPath));
-            builder.setFlowTable(new FlowTableRef(tableInstanceId));
-            builder.setTransactionUri(new Uri(flow.getId().getValue()));
-            return salFlowService.addFlow(builder.build());
-        }
+      return nodeId.builder()
+          .augmentation(FlowCapableNode.class)
+          .child(Table.class, flowTableKey)
+          .build();
     }
+
+    private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
+      // generate unique flow key
+      FlowId flowId = new FlowId(String.valueOf(flowIdInc.getAndIncrement()));
+      FlowKey flowKey = new FlowKey(flowId);
+      return tableId.child(Flow.class, flowKey);
+    }
+
+    private Flow createArpToControllerFlow(Short tableId, int priority) {
+
+      // start building flow
+      FlowBuilder arpFlow = new FlowBuilder() //
+          .setTableId(tableId) //
+          .setFlowName("arptocntrl");
+
+      // use its own hash code for id.
+      arpFlow.setId(new FlowId(Long.toString(arpFlow.hashCode())));
+      EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
+          .setEthernetType(new EthernetTypeBuilder()
+              .setType(new EtherType(Long.valueOf(KnownEtherType.Arp.getIntValue()))).build());
+
+      Match match = new MatchBuilder()
+          .setEthernetMatch(ethernetMatchBuilder.build())
+          .build();
+
+      List<Action> actions = new ArrayList<Action>();
+      actions.add(getSendToControllerAction());
+      if(isHybridMode) {
+        actions.add(getNormalAction());
+      }
+
+      // Create an Apply Action
+      ApplyActions applyActions = new ApplyActionsBuilder() //
+    	  .setAction(ImmutableList.copyOf(actions)) //
+          .build();
+
+      // Wrap our Apply Action in an Instruction
+      Instruction applyActionsInstruction = new InstructionBuilder() //
+          .setOrder(0)
+          .setInstruction(new ApplyActionsCaseBuilder()//
+              .setApplyActions(applyActions) //
+              .build()) //
+          .build();
+
+      // Put our Instruction in a list of Instructions
+      arpFlow
+          .setMatch(match) //
+          .setInstructions(new InstructionsBuilder() //
+              .setInstruction(ImmutableList.of(applyActionsInstruction)) //
+              .build()) //
+          .setPriority(priority) //
+          .setBufferId(OFConstants.OFP_NO_BUFFER) //
+          .setHardTimeout(flowHardTimeout) //
+          .setIdleTimeout(flowIdleTimeout) //
+          .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+          .setFlags(new FlowModFlags(false, false, false, false, false));
+
+      return arpFlow.build();
+    }
+
+    private Action getSendToControllerAction() {
+      Action sendToController = new ActionBuilder()
+          .setOrder(0)
+          .setKey(new ActionKey(0))
+          .setAction(new OutputActionCaseBuilder()
+              .setOutputAction(new OutputActionBuilder()
+                  .setMaxLength(0xffff)
+                  .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
+                  .build())
+              .build())
+          .build();
+      return sendToController;
+    }
+
+    private Action getNormalAction() {
+      Action normal = new ActionBuilder()
+          .setOrder(0)
+          .setKey(new ActionKey(0))
+          .setAction(new OutputActionCaseBuilder()
+              .setOutputAction(new OutputActionBuilder()
+                  .setMaxLength(0xffff)
+                  .setOutputNodeConnector(new Uri(OutputPortValues.NORMAL.toString()))
+                  .build())
+              .build())
+          .build();
+      return normal;
+    }
+
+    private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
+                                                                   InstanceIdentifier<Table> tableInstanceId,
+                                                                   InstanceIdentifier<Flow> flowPath,
+                                                                   Flow flow) {
+      LOG.trace("Adding flow to node {}",nodeInstanceId.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+      final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
+      builder.setNode(new NodeRef(nodeInstanceId));
+      builder.setFlowRef(new FlowRef(flowPath));
+      builder.setFlowTable(new FlowTableRef(tableInstanceId));
+      builder.setTransactionUri(new Uri(flow.getId().getValue()));
+      return salFlowService.addFlow(builder.build());
+    }
+  }
 }
