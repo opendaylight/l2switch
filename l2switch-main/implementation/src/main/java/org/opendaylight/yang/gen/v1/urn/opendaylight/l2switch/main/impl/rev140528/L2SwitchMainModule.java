@@ -12,83 +12,80 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2SwitchMainModule
-        extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.AbstractL2SwitchMainModule {
+public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.AbstractL2SwitchMainModule {
 
-    private final static Logger LOG = LoggerFactory.getLogger(L2SwitchMainModule.class);
-    private Registration invListenerReg = null, reactFlowWriterReg = null;
+  private final static Logger _logger = LoggerFactory.getLogger(L2SwitchMainModule.class);
+  private Registration topoNodeListherReg = null, reactFlowWriterReg = null;
 
-    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-        super(identifier, dependencyResolver);
+  public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    super(identifier, dependencyResolver);
+  }
+
+  public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.L2SwitchMainModule oldModule, java.lang.AutoCloseable oldInstance) {
+    super(identifier, dependencyResolver, oldModule, oldInstance);
+  }
+
+  @Override
+  public void customValidation() {
+    // add custom validation form module attributes here.
+  }
+
+  @Override
+  public java.lang.AutoCloseable createInstance() {
+    NotificationProviderService notificationService = getNotificationServiceDependency();
+    DataBroker dataService = getDataBrokerDependency();
+    RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
+    SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
+
+    // Setup FlowWrtierService
+    FlowWriterServiceImpl flowWriterService = new FlowWriterServiceImpl(salFlowService);
+    flowWriterService.setFlowTableId(getReactiveFlowTableId());
+    flowWriterService.setFlowPriority(getReactiveFlowPriority());
+    flowWriterService.setFlowIdleTimeout(getReactiveFlowIdleTimeout());
+    flowWriterService.setFlowHardTimeout(getReactiveFlowHardTimeout());
+
+    // Setup InventoryReader
+    InventoryReader inventoryReader = new InventoryReader(dataService);
+
+    // Write initial flows
+    if (getIsInstallDropallFlow()) {
+      _logger.info("L2Switch will install a dropall flow on each switch");
+      InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
+      initialFlowWriter.setFlowTableId(getDropallFlowTableId());
+      initialFlowWriter.setFlowPriority(getDropallFlowPriority());
+      initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
+      initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
+      topoNodeListherReg = initialFlowWriter.registerAsDataChangeListener(dataService);
+    }
+    else {
+      _logger.info("Dropall flows will not be installed");
     }
 
-    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.L2SwitchMainModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
-        super(identifier, dependencyResolver, oldModule, oldInstance);
+    if (getIsLearningOnlyMode()) {
+      _logger.info("L2Switch is in Learning Only Mode");
+    }
+    else {
+      // Setup reactive flow writer
+      _logger.info("L2Switch will react to network traffic and install flows");
+      ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
+      reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
     }
 
-    @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
-    }
-
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-        NotificationProviderService notificationService = getNotificationServiceDependency();
-        DataBroker dataService = getDataBrokerDependency();
-        RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
-        SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
-
-        // Setup FlowWrtierService
-        FlowWriterServiceImpl flowWriterService = new FlowWriterServiceImpl(salFlowService);
-        flowWriterService.setFlowTableId(getReactiveFlowTableId());
-        flowWriterService.setFlowPriority(getReactiveFlowPriority());
-        flowWriterService.setFlowIdleTimeout(getReactiveFlowIdleTimeout());
-        flowWriterService.setFlowHardTimeout(getReactiveFlowHardTimeout());
-
-        // Setup InventoryReader
-        InventoryReader inventoryReader = new InventoryReader(dataService);
-
-        // Write initial flows
-        if (getIsInstallDropallFlow()) {
-            LOG.info("L2Switch will install a dropall flow on each switch");
-            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(getDropallFlowTableId());
-            initialFlowWriter.setFlowPriority(getDropallFlowPriority());
-            initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
-            initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
-            invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
-        } else {
-            LOG.info("Dropall flows will not be installed");
+    final class CloseResources implements AutoCloseable {
+      @Override
+      public void close() throws Exception {
+        if(reactFlowWriterReg != null) {
+          reactFlowWriterReg.close();
         }
-
-        if (getIsLearningOnlyMode()) {
-            LOG.info("L2Switch is in Learning Only Mode");
-        } else {
-            // Setup reactive flow writer
-            LOG.info("L2Switch will react to network traffic and install flows");
-            ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
-            reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
+        if(topoNodeListherReg != null) {
+          topoNodeListherReg.close();
         }
-
-        final class CloseResources implements AutoCloseable {
-            @Override
-            public void close() throws Exception {
-                if (reactFlowWriterReg != null) {
-                    reactFlowWriterReg.close();
-                }
-                if (invListenerReg != null) {
-                    invListenerReg.close();
-                }
-                LOG.info("L2SwitchMain (instance {}) torn down.", this);
-            }
-        }
-        AutoCloseable ret = new CloseResources();
-        LOG.info("L2SwitchMain (instance {}) initialized.", ret);
-        return ret;
+        _logger.info("L2SwitchMain (instance {}) torn down.", this);
+      }
     }
+    AutoCloseable ret = new CloseResources();
+    _logger.info("L2SwitchMain (instance {}) initialized.", ret);
+    return ret;
+  }
 
 }
