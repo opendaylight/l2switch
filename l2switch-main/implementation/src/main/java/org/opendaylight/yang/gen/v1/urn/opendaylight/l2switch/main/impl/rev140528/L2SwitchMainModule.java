@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.AbstractL2SwitchMainModule {
 
   private final static Logger _logger = LoggerFactory.getLogger(L2SwitchMainModule.class);
-  private Registration invListenerReg = null, reactFlowWriterReg = null;
+  private Registration topoNodeListherReg = null, reactFlowWriterReg = null;
 
   public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
     super(identifier, dependencyResolver);
@@ -55,7 +55,7 @@ public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.openday
       initialFlowWriter.setFlowPriority(getDropallFlowPriority());
       initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
       initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
-      invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+      topoNodeListherReg = initialFlowWriter.registerAsDataChangeListener(dataService);
     }
     else {
       _logger.info("Dropall flows will not be installed");
@@ -77,8 +77,8 @@ public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.openday
         if(reactFlowWriterReg != null) {
           reactFlowWriterReg.close();
         }
-        if(invListenerReg != null) {
-          invListenerReg.close();
+        if(topoNodeListherReg != null) {
+          topoNodeListherReg.close();
         }
         _logger.info("L2SwitchMain (instance {}) torn down.", this);
       }
