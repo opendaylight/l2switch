@@ -8,11 +8,20 @@
 package org.opendaylight.l2switch.flow;
 
 import com.google.common.collect.ImmutableList;
+
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.DropActionCaseBuilder;
@@ -40,24 +49,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adds a flow, which drops all packets, on all switches. Registers as ODL
- * Inventory listener so that it can add flows once a new node i.e. switch is
- * added
+ * Adds a flow, which drops all packets, on all switches.
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
  */
-public class InitialFlowWriter implements OpendaylightInventoryListener {
+public class InitialFlowWriter implements DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
@@ -94,54 +101,56 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
         this.flowHardTimeout = flowHardTimeout;
     }
 
-    @Override
-    public void onNodeConnectorRemoved(NodeConnectorRemoved nodeConnectorRemoved) {
-        // do nothing
+    public ListenerRegistration<DataChangeListener> registerAsDataChangeListener(DataBroker dataBroker) {
+        InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class).build();
+
+        return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier, this, AsyncDataBroker.DataChangeScope.BASE);
     }
 
     @Override
-    public void onNodeConnectorUpdated(NodeConnectorUpdated nodeConnectorUpdated) {
-        // do nothing
-    }
-
-    @Override
-    public void onNodeRemoved(NodeRemoved nodeRemoved) {
-        // do nothing
-    }
-
-    @Override
-    public void onNodeUpdated(NodeUpdated nodeUpdated) {
-        initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeUpdated));
+    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> instanceIdentifierDataObjectAsyncDataChangeEvent) {
+        Map<InstanceIdentifier<?>, DataObject> createdData = instanceIdentifierDataObjectAsyncDataChangeEvent.getCreatedData();
+        if(createdData !=null && !createdData.isEmpty()) {
+            Set<InstanceIdentifier<?>> nodeIds = createdData.keySet();
+            if(nodeIds != null && !nodeIds.isEmpty()) {
+                initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeIds));
+            }
+        }
     }
 
     /**
-     * A private class to process the node updated event in separate thread.
-     * Allows to release the thread that invoked the data node updated event.
-     * Avoids any thread lock it may cause.
+     * A private class to process the node updated event in separate thread. Allows to release the
+     * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        private NodeUpdated nodeUpdated;
+        Set<InstanceIdentifier<?>> nodeIds = null;
 
-        public InitialFlowWriterProcessor(NodeUpdated nodeUpdated) {
-            this.nodeUpdated = nodeUpdated;
+        public InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+            this.nodeIds = nodeIds;
         }
 
         @Override
         public void run() {
 
-            if (nodeUpdated == null) {
+            if(nodeIds == null) {
                 return;
             }
 
-            addInitialFlows((InstanceIdentifier<Node>) nodeUpdated.getNodeRef().getValue());
+            for(InstanceIdentifier<?> nodeId : nodeIds) {
+                if(Node.class.isAssignableFrom(nodeId.getTargetType())) {
+                    InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
+                    if(invNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
+                        addInitialFlows(invNodeId);
+                    }
+                }
+            }
 
         }
 
         /**
          * Adds a flow, which drops all packets, on the specifide node.
-         *
-         * @param nodeId
-         *            The node to install the flow on.
+         * @param nodeId The node to install the flow on.
          */
         public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
             LOG.debug("adding initial flows for node {} ", nodeId);
@@ -149,7 +158,7 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
             InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
             InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
 
-            // add drop all flow
+            //add drop all flow
             writeFlowToController(nodeId, tableId, flowId, createDropAllFlow(flowTableId, flowPriority));
 
             LOG.debug("Added initial flows for node {} ", nodeId);
@@ -158,8 +167,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
         private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
             // get flow table key
             TableKey flowTableKey = new TableKey(flowTableId);
-
-            return nodeId.builder().augmentation(FlowCapableNode.class).child(Table.class, flowTableKey).build();
+            return nodeId.builder()
+                    .augmentation(FlowCapableNode.class)
+                    .child(Table.class, flowTableKey)
+                    .build();
         }
 
         private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
@@ -181,11 +192,15 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
 
             Match match = new MatchBuilder().build();
 
+
             Action dropAllAction = new ActionBuilder() //
-                    .setOrder(0).setAction(new DropActionCaseBuilder().build()).build();
+                    .setOrder(0)
+                    .setAction(new DropActionCaseBuilder().build())
+                    .build();
 
             // Create an Apply Action
-            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(dropAllAction)).build();
+            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(dropAllAction))
+                    .build();
 
             // Wrap our Apply Action in an Instruction
             Instruction applyActionsInstruction = new InstructionBuilder() //
@@ -196,7 +211,8 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
                     .build();
 
             // Put our Instruction in a list of Instructions
-            dropAll.setMatch(match) //
+            dropAll
+                    .setMatch(match) //
                     .setInstructions(new InstructionsBuilder() //
                             .setInstruction(ImmutableList.of(applyActionsInstruction)) //
                             .build()) //
@@ -211,7 +227,10 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
         }
 
         private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
-                InstanceIdentifier<Table> tableInstanceId, InstanceIdentifier<Flow> flowPath, Flow flow) {
+                                                                       InstanceIdentifier<Table> tableInstanceId,
+                                                                       InstanceIdentifier<Flow> flowPath,
+                                                                       Flow flow) {
+            LOG.trace("Adding flow to node {}",nodeInstanceId.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
             final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
             builder.setNode(new NodeRef(nodeInstanceId));
             builder.setFlowRef(new FlowRef(flowPath));

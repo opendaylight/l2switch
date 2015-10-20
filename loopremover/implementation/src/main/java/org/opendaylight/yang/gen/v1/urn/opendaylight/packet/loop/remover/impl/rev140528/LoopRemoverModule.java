@@ -1,7 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
@@ -12,22 +11,17 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoopRemoverModule extends
-        org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528.AbstractLoopRemoverModule {
+public class LoopRemoverModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528.AbstractLoopRemoverModule {
 
     private final static Logger LOG = LoggerFactory.getLogger(LoopRemoverModule.class);
-    private Registration listenerRegistration = null, invListenerReg = null;
+    private Registration listenerRegistration = null, topoNodeListnerReg = null;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
-    public LoopRemoverModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public LoopRemoverModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public LoopRemoverModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528.LoopRemoverModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
+    public LoopRemoverModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528.LoopRemoverModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -38,12 +32,11 @@ public class LoopRemoverModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 
-        // Write initial flows
+        //Write initial flows
         if (getIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
@@ -51,7 +44,7 @@ public class LoopRemoverModule extends
             initialFlowWriter.setFlowPriority(getLldpFlowPriority());
             initialFlowWriter.setFlowIdleTimeout(getLldpFlowIdleTimeout());
             initialFlowWriter.setFlowHardTimeout(getLldpFlowHardTimeout());
-            invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+            topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
         }
 
         // Register Topology DataChangeListener
@@ -64,11 +57,11 @@ public class LoopRemoverModule extends
         final class CloseResources implements AutoCloseable {
             @Override
             public void close() throws Exception {
-                if (listenerRegistration != null) {
+                if(listenerRegistration != null) {
                     listenerRegistration.close();
                 }
-                if (invListenerReg != null) {
-                    invListenerReg.close();
+                if(topoNodeListnerReg != null) {
+                    topoNodeListnerReg.close();
                 }
                 LOG.info("LoopRemover (instance {}) torn down.", this);
             }

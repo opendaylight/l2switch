@@ -12,21 +12,16 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2SwitchMainModule
-        extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.AbstractL2SwitchMainModule {
+public class L2SwitchMainModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.AbstractL2SwitchMainModule {
 
     private final static Logger LOG = LoggerFactory.getLogger(L2SwitchMainModule.class);
-    private Registration invListenerReg = null, reactFlowWriterReg = null;
+    private Registration topoNodeListherReg = null, reactFlowWriterReg = null;
 
-    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.L2SwitchMainModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
+    public L2SwitchMainModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.main.impl.rev140528.L2SwitchMainModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -60,14 +55,16 @@ public class L2SwitchMainModule
             initialFlowWriter.setFlowPriority(getDropallFlowPriority());
             initialFlowWriter.setFlowIdleTimeout(getDropallFlowIdleTimeout());
             initialFlowWriter.setFlowHardTimeout(getDropallFlowHardTimeout());
-            invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
-        } else {
+            topoNodeListherReg = initialFlowWriter.registerAsDataChangeListener(dataService);
+        }
+        else {
             LOG.info("Dropall flows will not be installed");
         }
 
         if (getIsLearningOnlyMode()) {
             LOG.info("L2Switch is in Learning Only Mode");
-        } else {
+        }
+        else {
             // Setup reactive flow writer
             LOG.info("L2Switch will react to network traffic and install flows");
             ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
@@ -77,11 +74,11 @@ public class L2SwitchMainModule
         final class CloseResources implements AutoCloseable {
             @Override
             public void close() throws Exception {
-                if (reactFlowWriterReg != null) {
+                if(reactFlowWriterReg != null) {
                     reactFlowWriterReg.close();
                 }
-                if (invListenerReg != null) {
-                    invListenerReg.close();
+                if(topoNodeListherReg != null) {
+                    topoNodeListherReg.close();
                 }
                 LOG.info("L2SwitchMain (instance {}) torn down.", this);
             }
