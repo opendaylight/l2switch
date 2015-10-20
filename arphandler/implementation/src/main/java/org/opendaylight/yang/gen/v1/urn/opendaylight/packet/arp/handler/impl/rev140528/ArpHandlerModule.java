@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.AbstractArpHandlerModule {
 
   private final static Logger _logger = LoggerFactory.getLogger(ArpHandlerModule.class);
-  private Registration listenerRegistration = null, floodTopoListenerReg = null, floodInvListenerReg = null, invListenerReg = null;
+  private Registration listenerRegistration = null, floodTopoListenerReg = null, floodInvListenerReg = null, topoNodeListenerReg = null;
 
   public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
     super(identifier, dependencyResolver);
@@ -60,7 +60,7 @@ public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendayli
       initialFlowWriter.setFlowIdleTimeout(getArpFlowIdleTimeout());
       initialFlowWriter.setFlowHardTimeout(getArpFlowHardTimeout());
       initialFlowWriter.setIsHybridMode(getIsHybridMode());
-      invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+      topoNodeListenerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
 
       // Setup InventoryReader
       InventoryReader inventoryReader = new InventoryReader(dataService);
@@ -91,8 +91,8 @@ public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendayli
         if(floodInvListenerReg != null) {
           floodInvListenerReg.close();
         }
-        if(invListenerReg != null) {
-          invListenerReg.close();
+        if(topoNodeListenerReg != null) {
+          topoNodeListenerReg.close();
         }
         _logger.info("ArpHandler (instance {}) torn down.", this);
       }
