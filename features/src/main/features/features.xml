@@ -44,8 +44,7 @@
   </feature>
   <feature name='odl-l2switch-loopremover' description="OpenDaylight :: L2Switch :: LoopRemover" version='${project.version}'>
     <feature version="${openflow.plugin.version}">odl-openflowplugin-flow-services</feature>
-    <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-model/{{VERSION}}</bundle>
-    <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-model/{{VERSION}}</bundle>     <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.controller.thirdparty/net.sf.jung2/2.0.1</bundle>
     <configfile finalname="${config.configfile.directory}/${config.loopremover.configfile}">mvn:org.opendaylight.l2switch.loopremover/loopremover-config/{{VERSION}}/xml/config</configfile>
   </feature>
