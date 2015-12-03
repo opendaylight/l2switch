@@ -16,7 +16,7 @@
   <properties>
     <branding.version>1.3.0-SNAPSHOT</branding.version>
     <karaf.resources.version>1.7.0-SNAPSHOT</karaf.resources.version>
-    <karaf.version>3.0.1</karaf.version>
+    <karaf.maven.version>3.0.1</karaf.maven.version>
   </properties>
 
   <dependencies>
@@ -155,7 +155,7 @@
       <plugin>
         <groupId>org.apache.karaf.tooling</groupId>
         <artifactId>karaf-maven-plugin</artifactId>
-        <version>${karaf.version}</version>
+        <version>${karaf.maven.version}</version>
         <extensions>true</extensions>
         <configuration>
           <bootFeatures>
