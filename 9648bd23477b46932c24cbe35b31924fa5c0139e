@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4ed85_f8682b89",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4233
+      },
+      "writtenOn": "2015-12-10T18:32:28Z",
+      "side": 1,
+      "message": "Remove blank lines in commit message. Leave only 1 line. See https://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 0
+      },
+      "revId": "9648bd23477b46932c24cbe35b31924fa5c0139e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aa4ed85_386fa394",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 4233
+      },
+      "writtenOn": "2015-12-10T18:32:28Z",
+      "side": 1,
+      "message": "According to the specs the field modifier order is static final. See JLS section for modifier ordering https://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 70
+      },
+      "revId": "9648bd23477b46932c24cbe35b31924fa5c0139e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
