@@ -18,7 +18,8 @@
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
     <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
     <mdsal.version>1.4.0-SNAPSHOT</mdsal.version>
-    <yangtools.version>0.9.0-SNAPSHOT</yangtools.version>
+    <mdsal.model.version>0.9.0-SNAPSHOT</mdsal.model.version>
+    <yangtools.version>1.0.0-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
     <config.version>0.5.0-SNAPSHOT</config.version>
     <openflow.plugin.version>0.3.0-SNAPSHOT</openflow.plugin.version>
