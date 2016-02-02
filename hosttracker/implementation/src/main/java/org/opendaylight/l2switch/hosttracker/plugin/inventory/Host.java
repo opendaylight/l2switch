@@ -29,7 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class Host {
 
     public static Host createHost(Node node) {
@@ -37,6 +38,7 @@ public class Host {
         return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
     }
 
+    private static final Logger log = LoggerFactory.getLogger(Host.class);
     private List<AttachmentPointsBuilder> apbs;
     private HostNodeBuilder hostNodeBuilder;
     private NodeBuilder nodeBuilder;
@@ -131,7 +133,6 @@ public class Host {
      * Creates a new TerminationPoint for this Host.
      *
      * @param hn HostNodeBuilder containing an Id
-     * @param atb AttachmentPointsBuilder containing a TpId
      * @return A new TerminationPoint with an unique TpId
      */
     private TerminationPoint createTerminationPoint(HostNodeBuilder hn) {
@@ -233,6 +234,7 @@ public class Host {
      * @param apb The AttachmentPointsBuilder to set inactive
      */
     public synchronized void removeAttachmentPoints(AttachmentPointsBuilder apb) {
+        log.debug("Setting attachment points {} to inactive state", apb);
         for (Iterator<AttachmentPointsBuilder> it = apbs.iterator(); it.hasNext();) {
             AttachmentPointsBuilder apbi = it.next();
             if (apbi.getKey().equals(apb.getKey())) {
@@ -248,6 +250,7 @@ public class Host {
      * @param tp The TerminationPoint to set inactive
      */
     public synchronized void removeTerminationPoint(TpId tp) {
+        log.debug("Setting termination point {} to inactive state", tp);
         for (Iterator<AttachmentPointsBuilder> it = apbs.iterator(); it.hasNext();) {
             AttachmentPointsBuilder apbi = it.next();
             if (apbi.getCorrespondingTp().equals(tp)) {
