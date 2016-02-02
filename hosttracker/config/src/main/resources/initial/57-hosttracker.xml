@@ -18,6 +18,8 @@
                     <name>host-tracker-impl</name>
 
                     <topology-id>flow:1</topology-id>
+                    <host-purge-interval>20</host-purge-interval> <!-- in seconds, 0 disables host purging -->
+                    <host-purge-age>30</host-purge-age> <!-- in seconds -->
                     <notification-service>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
                             binding:binding-notification-service
