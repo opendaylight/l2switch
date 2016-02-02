@@ -32,6 +32,16 @@ module host-tracker-impl {
       leaf topology-id {
         type string;
       }
+      leaf host-purge-interval {
+        type int64;
+        mandatory true;
+        description "The interval at which to evaluate whether hosts should be removed in milliseconds";
+      }
+      leaf host-purge-age{
+        type int64;
+        mandatory true;
+        description "How long a host must have been unobserved for it to be removed.";
+      }
       container notification-service {
         uses config:service-ref {
           refine type {
