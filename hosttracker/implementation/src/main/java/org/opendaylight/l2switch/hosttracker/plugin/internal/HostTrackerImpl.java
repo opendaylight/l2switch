@@ -7,16 +7,15 @@
  */
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -46,6 +45,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
+
 public class HostTrackerImpl implements DataChangeListener {
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
@@ -60,17 +63,34 @@ public class HostTrackerImpl implements DataChangeListener {
 
     private final DataBroker dataService;
     private final String topologyId;
+    private final long hostPurgeInterval;
+    private final long hostPurgeAge;
+    private static int numPurged;
 
-    ExecutorService exec = Executors.newFixedThreadPool(CPUS);
+    private ScheduledExecutorService exec = Executors.newScheduledThreadPool(CPUS);
 
     private final ConcurrentClusterAwareHostHashMap<HostId, Host> hosts;
     private final OperationProcessor opProcessor;
     private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
     private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
 
-    public HostTrackerImpl(DataBroker dataService, String topologyId) {
+    /**
+     * It creates hosts using reference to MD-SAl / toplogy module. For every hostPurgeIntervalInput time interval
+     * it requests to purge hosts that are not seen for hostPurgeAgeInput time interval.
+     *
+     * @param dataService A reference to the MD-SAL
+     * @param topologyId The topology on which this host tracker will look for hosts
+     * @param hostPurgeAgeInput how old the last observation of a host must be before it will be purged
+     * @param hostPurgeIntervalInput how often to calculate hosts to be purged and remove them
+     */
+    public HostTrackerImpl(final DataBroker dataService, final String topologyId, final long hostPurgeAgeInput,
+                           final long hostPurgeIntervalInput) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
+        Preconditions.checkArgument(hostPurgeAgeInput >= 0, "hostPurgeAgeInput must be non-negative");
+        Preconditions.checkArgument(hostPurgeIntervalInput >= 0, "hostPurgeIntervalInput must be non-negative");
         this.dataService = dataService;
+        this.hostPurgeAge = hostPurgeAgeInput;
+        this.hostPurgeInterval = hostPurgeIntervalInput;
         this.opProcessor = new OperationProcessor(dataService);
         Thread processorThread = new Thread(opProcessor);
         processorThread.start();
@@ -80,15 +100,24 @@ public class HostTrackerImpl implements DataChangeListener {
             this.topologyId = topologyId;
         }
         this.hosts = new ConcurrentClusterAwareHostHashMap<>(opProcessor, this.topologyId);
+
+        if (hostPurgeIntervalInput > 0) {
+            exec.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    purgeHostsNotSeenInLast(hostPurgeAge);
+                }
+            }, 0, hostPurgeInterval, TimeUnit.SECONDS);
+        }
     }
 
     public void registerAsDataChangeListener() {
         InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
                 InstanceIdentifier.builder(Nodes.class) //
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class) //
-                .child(NodeConnector.class) //
-                .augmentation(AddressCapableNodeConnector.class)//
-                .child(Addresses.class).build();
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class) //
+                        .child(NodeConnector.class) //
+                        .augmentation(AddressCapableNodeConnector.class)//
+                        .child(Addresses.class).build();
         this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
 
         InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
@@ -218,8 +247,8 @@ public class HostTrackerImpl implements DataChangeListener {
     }
 
     private void processHost(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node node,
-            NodeConnector nodeConnector,
-            Addresses addrs) {
+                             NodeConnector nodeConnector,
+                             Addresses addrs) {
         List<Host> hostsToMod = new ArrayList<>();
         List<Host> hostsToRem = new ArrayList<>();
         List<Link> linksToRem = new ArrayList<>();
@@ -332,7 +361,7 @@ public class HostTrackerImpl implements DataChangeListener {
         }
     }
 
-    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove){
+    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove) {
         if (linksToAdd != null) {
             for (final Link l : linksToAdd) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
@@ -359,9 +388,75 @@ public class HostTrackerImpl implements DataChangeListener {
         }
     }
 
+    /**
+     * Remove all hosts that haven't been observed more recently than the specified number of
+     * hostsPurgeAgeInSeconds.
+     *
+     * @param hostsPurgeAgeInSeconds remove hosts that haven't been observed in longer than this number of
+     *               hostsPurgeAgeInSeconds.
+     * @return the number of purged hosts
+     */
+    protected int purgeHostsNotSeenInLast(final long hostsPurgeAgeInSeconds) {
+        numPurged = 0;
+        final long nowInMillis = System.currentTimeMillis();
+        final long nowInSeconds = TimeUnit.MILLISECONDS.toSeconds(nowInMillis);
+        // iterate through all hosts in the local cache
+        for(Host h : hosts.values()) {
+
+            final HostNode hn = h.getHostNode().getAugmentation(HostNode.class);
+            if(hn == null) {
+                log.warn("Encountered non-host node {} in hosts during purge", h.getId());
+            } else if(hn.getAddresses() != null) {
+                boolean purgeHosts = false;
+                // if the node is a host and has addresses, check to see if it's been seen recently
+                purgeHosts = hostReadyForPurge( hn, nowInSeconds,hostsPurgeAgeInSeconds);
+                if (purgeHosts) {
+                    removeHosts(h);
+                }
+            } else {
+                log.warn("Encountered host node {} with no address in hosts during purge", h.getId());
+            }
+        }
+        return numPurged;
+    }
+
+    /**
+     * Checks if hosts need to be purged
+     *
+     * @param hostNode reference to HostNode class
+     * @param currentAge current Age of the host in seconds
+     * @param expirationPeriod timelimit set to hosts for expiration
+     * @return boolean - whether the hosts are ready to be purged
+     */
+    private boolean hostReadyForPurge(final HostNode hostNode,final long currentAge,final long expirationPeriod) {
+        // checks if hosts need to be purged
+        for( Addresses addrs : hostNode.getAddresses() ) {
+            if( addrs.getLastSeen() > (currentAge - expirationPeriod) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Removes hosts from locally and from the MD-SAL and throws error message if not removed succesfully
+     *
+     * @param h  reference to Host node
+     *      */
+    private void removeHosts(Host h){
+        // if it needs to be purged, remove it
+        if(hosts.remove(h.getId()) != null) {
+            numPurged++;
+            log.debug("Removed host {} during purge.", h.getId());
+        } else {
+            log.warn("Unexpected error encountered - Failed to remove host {} during purge", h.getId());
+        }
+    }
+
     public void close() {
         this.addrsNodeListerRegistration.close();
         this.hostNodeListerRegistration.close();
+        this.exec.shutdownNow();
         synchronized (hosts) {
             this.hosts.clear();
         }
