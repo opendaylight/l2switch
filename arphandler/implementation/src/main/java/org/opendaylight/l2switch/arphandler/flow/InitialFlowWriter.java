@@ -210,7 +210,8 @@ public class InitialFlowWriter implements OpendaylightInventoryListener {
       }
 
       // Create an Apply Action
-      ApplyActions applyActions = new ApplyActionsBuilder().setAction(actions)
+      ApplyActions applyActions = new ApplyActionsBuilder() //
+    	  .setAction(ImmutableList.copyOf(actions)) //
           .build();
 
       // Wrap our Apply Action in an Instruction

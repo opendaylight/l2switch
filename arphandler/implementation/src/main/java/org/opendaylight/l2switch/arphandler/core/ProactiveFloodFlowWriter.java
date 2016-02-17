@@ -297,7 +297,8 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                 }
 
                 // Create an Apply Action
-                ApplyActions applyActions = new ApplyActionsBuilder().setAction(outputActions).build();
+                ApplyActions applyActions = new ApplyActionsBuilder() //
+                		.setAction(ImmutableList.copyOf(outputActions)).build();
 
                 // Wrap our Apply Action in an Instruction
                 Instruction applyActionsInstruction = new InstructionBuilder() //
