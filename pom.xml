@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>l2switch</artifactId>
-  <version>0.3.0-Beryllium</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>l2switch</name> <!-- Used by Sonar to set project name -->
   <prerequisites>
