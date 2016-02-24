@@ -7,6 +7,9 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -23,7 +26,9 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
   private Class<ProducedPacketNotification> producedPacketNotificationType;
   private NotificationProviderService notificationProviderService;
 
-
+  private static final int CPUS = Runtime.getRuntime().availableProcessors();
+  private final ExecutorService decodeAndPublishExecutor = Executors.newFixedThreadPool(CPUS);
+  
   protected Registration listenerRegistration;
 
   /**
@@ -58,14 +63,19 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
    * This method would make sure it decodes only when necessary and publishes corresponding event
    * on successful decoding.
    */
-  public void decodeAndPublish(ConsumedPacketNotification consumedPacketNotification) {
-    ProducedPacketNotification packetNotification=null;
-    if(consumedPacketNotification!= null && canDecode(consumedPacketNotification)) {
-      packetNotification = decode(consumedPacketNotification);
-    }
-    if(packetNotification != null) {
-      notificationProviderService.publish(packetNotification);
-    }
+  public void decodeAndPublish(final ConsumedPacketNotification consumedPacketNotification) {
+    decodeAndPublishExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            ProducedPacketNotification packetNotification=null;
+            if(consumedPacketNotification!= null && canDecode(consumedPacketNotification)) {
+              packetNotification = decode(consumedPacketNotification);
+            }
+            if(packetNotification != null) {
+              notificationProviderService.publish(packetNotification);
+            }
+        }
+    });
   }
   /**
    * Decodes the payload in given Packet further and returns a extension of Packet.
@@ -86,5 +96,6 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
     if(listenerRegistration != null) {
       listenerRegistration.close();
     }
+    decodeAndPublishExecutor.shutdown();
   }
 }
