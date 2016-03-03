@@ -29,6 +29,12 @@
     <bundle>mvn:org.opendaylight.l2switch.hosttracker/hosttracker-impl/{{VERSION}}</bundle>
     <configfile finalname="${config.configfile.directory}/${config.hosttracker.configfile}">mvn:org.opendaylight.l2switch.hosttracker/hosttracker-config/{{VERSION}}/xml/config</configfile>
   </feature>
+  <feature name='odl-l2switch-passivediscovery' description="OpenDaylight :: L2Switch :: PassiveDiscovery" version='${project.version}'>
+     <feature version="${project.version}">odl-l2switch-packethandler</feature>
+     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/{{VERSION}}</bundle>
+     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-impl/{{VERSION}}</bundle>
+     <configfile finalname="${config.configfile.directory}/${config.addresstracker.configfile}">mvn:org.opendaylight.l2switch.addresstracker/addresstracker-config/{{VERSION}}/xml/config</configfile>
+  </feature>
   <feature name='odl-l2switch-addresstracker' description="OpenDaylight :: L2Switch :: AddressTracker" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-arphandler</feature>
     <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/{{VERSION}}</bundle>
