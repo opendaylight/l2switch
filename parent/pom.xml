@@ -5,24 +5,24 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <version>1.5.4-SNAPSHOT</version>
+    <version>1.5.4-Lithium-SR4</version>
     <relativePath/>
   </parent>
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>l2switch-parent</artifactId>
-  <version>0.2.4-SNAPSHOT</version>
+  <version>0.2.4-Lithium-SR4</version>
   <packaging>pom</packaging>
 
   <properties>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
     <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
-    <mdsal.version>1.2.4-SNAPSHOT</mdsal.version>
-    <yangtools.version>0.7.4-SNAPSHOT</yangtools.version>
+    <mdsal.version>1.2.4-Lithium-SR4</mdsal.version>
+    <yangtools.version>0.7.4-Lithium-SR4</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
-    <config.version>0.3.4-SNAPSHOT</config.version>
-    <openflow.plugin.version>0.1.4-SNAPSHOT</openflow.plugin.version>
-    <dlux.version>0.2.4-SNAPSHOT</dlux.version>
+    <config.version>0.3.4-Lithium-SR4</config.version>
+    <openflow.plugin.version>0.1.4-Lithium-SR4</openflow.plugin.version>
+    <dlux.version>0.2.4-Lithium-SR4</dlux.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
@@ -148,7 +148,7 @@
                   <dependency>
                     <groupId>org.opendaylight.controller</groupId>
                     <artifactId>checkstyle</artifactId>
-                    <version>0.1.4-SNAPSHOT</version>
+                    <version>0.1.4-Lithium-SR4</version>
                   </dependency>
                 </dependencies>
                 <executions>
