@@ -1,0 +1,342 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3d3df0_39d4d5ea",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Remove this space.",
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_79dadd17",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Can we reduce the scope to private?",
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_990a4188",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Add a description.",
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_f9826dc6",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "I prefer to make parameters final when possible.  It doesn\u0027t seem to be the convention in this code base, so whatever feels right I guess.",
+      "range": {
+        "startLine": 83,
+        "startChar": 70,
+        "endLine": 83,
+        "endChar": 117
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_f9fd4d6f",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Typically, we don\u0027t use \"_\" characters in variable names.  Please Adjust this to exclude the \"_\" characters.",
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d9004968",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "What does \"clean\" mean?",
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_d985e9cf",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Is it seconds or milliseconds?  You have inconsistent documentation here.",
+      "range": {
+        "startLine": 390,
+        "startChar": 7,
+        "endLine": 390,
+        "endChar": 19
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_b92e25f9",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Please fix spacing and add the final modifier.",
+      "range": {
+        "startLine": 396,
+        "startChar": 43,
+        "endLine": 396,
+        "endChar": 47
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_59ec39bb",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Can these be final?",
+      "range": {
+        "startLine": 398,
+        "startChar": 8,
+        "endLine": 399,
+        "endChar": 73
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_9931a15c",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Inconsistent spacing.  Please don\u0027t use space here, as it doesn\u0027t appear to be the styling convention.",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 13
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_f9342d4b",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "This can be final.",
+      "range": {
+        "startLine": 403,
+        "startChar": 12,
+        "endLine": 403,
+        "endChar": 20
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_591a79c6",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "You call this again in line 410.  Please make this:\n\n} else {\nfinal WhateverIterable\u003cAddresses\u003e addresses \u003d hn.getAddresses();\n...",
+      "range": {
+        "startLine": 406,
+        "startChar": 23,
+        "endLine": 406,
+        "endChar": 40
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_594399ae",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Please make this a separate function with signature similar to:\n\"private boolean hostReadyForPurge(final HostNode hostNode, final long wallTime, final long expirationPeriod)\"",
+      "range": {
+        "startLine": 410,
+        "startChar": 16,
+        "endLine": 414,
+        "endChar": 17
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_f90b8d7a",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "This is a strange case;  I would make the message indicate that this shouldn\u0027t really happen.  You could do this by \"Unexpected error encountered.  Failed to remove host ...\"",
+      "range": {
+        "startLine": 421,
+        "startChar": 34,
+        "endLine": 421,
+        "endChar": 71
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_b915859d",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "Please aggregate a separate function for this.",
+      "range": {
+        "startLine": 415,
+        "startChar": 16,
+        "endLine": 423,
+        "endChar": 17
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3d3df0_b97c65ed",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 3635
+      },
+      "writtenOn": "2016-03-08T01:02:29Z",
+      "side": 1,
+      "message": "why not shutdownNow()?  I assume this is all operational data, and if HostTrackerImpl is closed then its likely due to the controller shutting down?  Am I off base here?",
+      "range": {
+        "startLine": 433,
+        "startChar": 18,
+        "endLine": 433,
+        "endChar": 28
+      },
+      "revId": "1be2b4a85fb9834a9d069af645c66c53030cd48b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
