@@ -64,18 +64,18 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
    * on successful decoding.
    */
   public void decodeAndPublish(final ConsumedPacketNotification consumedPacketNotification) {
-	decodeAndPublishExecutor.submit(new Runnable() {
-		@Override
-		public void run() {
-			ProducedPacketNotification packetNotification=null;
-		    if(consumedPacketNotification!= null && canDecode(consumedPacketNotification)) {
-		      packetNotification = decode(consumedPacketNotification);
-		    }
-		    if(packetNotification != null) {
-		      notificationProviderService.publish(packetNotification);
-		    }
-		}
-	});
+    decodeAndPublishExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            ProducedPacketNotification packetNotification=null;
+            if(consumedPacketNotification!= null && canDecode(consumedPacketNotification)) {
+              packetNotification = decode(consumedPacketNotification);
+            }
+            if(packetNotification != null) {
+              notificationProviderService.publish(packetNotification);
+            }
+        }
+    });
   }
   /**
    * Decodes the payload in given Packet further and returns a extension of Packet.
