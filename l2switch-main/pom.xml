@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.3.1-Beryllium-SR1</version>
     <relativePath>../parent</relativePath>
   </parent>
 
   <artifactId>main.aggregator</artifactId>
   <groupId>org.opendaylight.l2switch.main</groupId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.1-Beryllium-SR1</version>
   <packaging>pom</packaging>
 
   <modules>
