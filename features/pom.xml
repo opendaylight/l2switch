@@ -6,22 +6,22 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.6.1-Beryllium-SR1</version>
+    <version>1.6.2-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>features-l2switch</artifactId>
-  <version>0.3.1-Beryllium-SR1</version>
+  <version>0.3.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <description> <!-- Provide a Description it will be visible in the shell CLI--> </description>
 
   <properties>
-    <dlux.version>0.3.1-Beryllium-SR1</dlux.version>
-    <mdsal.version>1.3.1-Beryllium-SR1</mdsal.version>
-    <openflow.plugin.version>0.2.1-Beryllium-SR1</openflow.plugin.version>
-    <restconf.version>1.3.1-Beryllium-SR1</restconf.version>
+    <dlux.version>0.3.2-SNAPSHOT</dlux.version>
+    <mdsal.version>1.3.2-SNAPSHOT</mdsal.version>
+    <openflow.plugin.version>0.2.2-SNAPSHOT</openflow.plugin.version>
+    <restconf.version>1.3.2-SNAPSHOT</restconf.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
