@@ -157,27 +157,31 @@ public class InventoryReader {
       if(dataObjectOptional.isPresent()) {
         Node node = (Node) dataObjectOptional.get();
         _logger.debug("Looking address{} in node : {}", macAddress, nodeInsId);
-        for(NodeConnector nc : node.getNodeConnector()) {
-          // Don't look for mac in discarding node connectors
-          StpStatusAwareNodeConnector saNodeConnector = nc.getAugmentation(StpStatusAwareNodeConnector.class);
-          if(saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
-            continue;
-          }
-          _logger.debug("Looking address{} in nodeconnector : {}", macAddress, nc.getKey());
-          AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
-          if(acnc != null) {
-            List<Addresses> addressesList = acnc.getAddresses();
-            for(Addresses add : addressesList) {
-              if(macAddress.equals(add.getMac())) {
-                if(add.getLastSeen() > latest) {
-                  destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.getKey()));
-                  latest = add.getLastSeen();
-                  _logger.debug("Found address{} in nodeconnector : {}", macAddress, nc.getKey());
-                  break;
+        if(node.getNodeConnector() != null) {
+          for(NodeConnector nc : node.getNodeConnector()) {
+            // Don't look for mac in discarding node connectors
+            StpStatusAwareNodeConnector saNodeConnector = nc.getAugmentation(StpStatusAwareNodeConnector.class);
+            if(saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
+              continue;
+            }
+            _logger.debug("Looking address{} in nodeconnector : {}", macAddress, nc.getKey());
+            AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
+            if(acnc != null) {
+              List<Addresses> addressesList = acnc.getAddresses();
+              for(Addresses add : addressesList) {
+                if(macAddress.equals(add.getMac())) {
+                  if(add.getLastSeen() > latest) {
+                    destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.getKey()));
+                    latest = add.getLastSeen();
+                    _logger.debug("Found address{} in nodeconnector : {}", macAddress, nc.getKey());
+                    break;
+                  }
                 }
               }
             }
           }
+        } else {
+          _logger.debug("Node connectors data is not present for node {}", node.getId());
         }
       }
     } catch(InterruptedException e) {
