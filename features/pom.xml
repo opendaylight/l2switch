@@ -70,6 +70,10 @@
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller.model</groupId>
+      <artifactId>model-inventory</artifactId>
+    </dependency>
 
     <!-- bundles used by features directly -->
     <dependency>
