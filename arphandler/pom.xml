@@ -13,7 +13,6 @@
 
   <artifactId>arphandler.aggregator</artifactId>
   <groupId>org.opendaylight.l2switch.arphandler</groupId>
-  <version>0.3.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
