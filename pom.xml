@@ -21,9 +21,6 @@
     <module>features</module>
     <module>artifacts</module>
   </modules>
-  <properties>
-      <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
-  </properties>
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
     <developerConnection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</developerConnection>

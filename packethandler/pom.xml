@@ -13,7 +13,6 @@
 
   <artifactId>packethandler.aggregator</artifactId>
   <groupId>org.opendaylight.l2switch.packethandler</groupId>
-  <version>0.3.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
