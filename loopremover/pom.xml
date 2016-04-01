@@ -13,7 +13,6 @@
 
   <groupId>org.opendaylight.l2switch.loopremover</groupId>
   <artifactId>loopremover.aggregator</artifactId>
-  <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
