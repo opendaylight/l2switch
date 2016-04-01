@@ -13,7 +13,7 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.addresstracker</groupId>
             <artifactId>addresstracker-model</artifactId>
-            <version>0.3.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller.model</groupId>
