@@ -13,11 +13,6 @@
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
-  <properties>
-    <branding.version>1.3.0-SNAPSHOT</branding.version>
-    <karaf.resources.version>1.7.0-SNAPSHOT</karaf.resources.version>
-    <karaf.version>3.0.1</karaf.version>
-  </properties>
 
   <dependencies>
     <!-- Basic Karaf dependencies -->
