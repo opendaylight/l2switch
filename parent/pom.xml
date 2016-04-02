@@ -126,21 +126,20 @@
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.version}</version>
                 <configuration>
-                  <failsOnError>true</failsOnError>
-                  <configLocation>controller/checkstyle.xml</configLocation>
+                  <failOnViolation>true</failOnViolation>
+                  <configLocation>checkstyle-logging.xml</configLocation>
                   <consoleOutput>true</consoleOutput>
                   <includeTestSourceDirectory>true</includeTestSourceDirectory>
                   <sourceDirectory>${project.basedir}</sourceDirectory>
                   <includes>**\/*.java,**\/*.yang,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat</includes>
-                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,\/,**\/xtend-gen\/,**\/yang-gen-code\/,**\/${codeGeneratorPath}\/,**\/${configCodeGeneratorPath}\/,</excludes>
+                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/.m2repo\/</excludes>
                 </configuration>
                 <dependencies>
                   <dependency>
-                    <groupId>org.opendaylight.controller</groupId>
-                    <artifactId>checkstyle</artifactId>
-                    <version>0.3.0-SNAPSHOT</version>
+                    <groupId>org.opendaylight.yangtools</groupId>
+                    <artifactId>checkstyle-logging</artifactId>
+                    <version>${yangtools.version}</version>
                   </dependency>
                 </dependencies>
                 <executions>
@@ -254,7 +253,7 @@
                                       </goals>
                                   </pluginExecutionFilter>
                                   <action>
-                                      <ignore />
+                                      <execute />
                                   </action>
                               </pluginExecution>
                               <pluginExecution>
