@@ -36,115 +36,114 @@ import org.slf4j.LoggerFactory;
  * IPv4 Packet Decoder
  */
 public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, Ipv4PacketReceived>
-    implements EthernetPacketListener {
+        implements EthernetPacketListener {
 
-  private static final Logger _logger = LoggerFactory.getLogger(Ipv4Decoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv4Decoder.class);
 
-  public Ipv4Decoder(NotificationProviderService notificationProviderService) {
-    super(Ipv4PacketReceived.class, notificationProviderService);
-  }
-
-  /**
-   * Decode an EthernetPacket into an Ipv4Packet
-   */
-  @Override
-  public Ipv4PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
-    Ipv4PacketReceivedBuilder ipv4ReceivedBuilder = new Ipv4PacketReceivedBuilder();
-
-    // Find the latest packet in the packet-chain, which is an EthernetPacket
-    List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
-    EthernetPacket ethernetPacket = (EthernetPacket)packetChainList.get(packetChainList.size()-1).getPacket();
-    int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
-    byte[] data = ethernetPacketReceived.getPayload();
-
-    Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
-    try {
-      builder.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
-      if (builder.getVersion().intValue() != 4) {
-        _logger.debug("Version should be 4, but is " + builder.getVersion());
-      }
-
-      builder.setIhl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 4, 4)));
-      builder.setDscp(new Dscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 6))));
-      builder.setEcn(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 14, 2)));
-      builder.setIpv4Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
-      builder.setId(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
-
-      // Decode the flags -- Reserved, DF (Don't Fragment), MF (More Fragments)
-      builder.setReservedFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 48, 1)[0] & 0xff));
-      if (builder.isReservedFlag()) {
-        _logger.debug("Reserved flag should be 0, but is 1.");
-      }
-      // "& 0xff" removes the sign of the Java byte
-      builder.setDfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 49, 1)[0] & 0xff));
-      builder.setMfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 50, 1)[0] & 0xff));
-
-      builder.setFragmentOffset(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 51, 13)));
-      builder.setTtl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 64, 8)));
-      builder.setProtocol(KnownIpProtocols.forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 72, 8))));
-      builder.setChecksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 80, 16)));
-      builder.setSourceIpv4(Ipv4Address.getDefaultInstance(
-        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 96, 32))
-        .getHostAddress()));
-      builder.setDestinationIpv4(Ipv4Address.getDefaultInstance(
-        InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 128, 32))
-        .getHostAddress()));
-
-      // Decode the optional "options" parameter
-      int optionsSize = (builder.getIhl() - 5) * 32;
-      if (optionsSize > 0) {
-        builder.setIpv4Options(BitBufferHelper.getBits(data, bitOffset + 160, optionsSize));
-      }
-
-      // Decode the IPv4 Payload
-      int payloadStartInBits = bitOffset + 160 + optionsSize;
-      int payloadEndInBits = data.length * NetUtils.NumBitsInAByte - payloadStartInBits - 4 * NetUtils.NumBitsInAByte;
-      int start = payloadStartInBits / NetUtils.NumBitsInAByte;
-      int end = start + payloadEndInBits / NetUtils.NumBitsInAByte;
-      builder.setPayloadOffset(start);
-      builder.setPayloadLength(end - start);
-    } catch (BufferException | UnknownHostException e) {
-        _logger
-            .debug("Exception while decoding IPv4 packet", e.getMessage());
+    public Ipv4Decoder(NotificationProviderService notificationProviderService) {
+        super(Ipv4PacketReceived.class, notificationProviderService);
     }
 
-    //build ipv4
-    packetChainList.add(new PacketChainBuilder()
-      .setPacket(builder.build())
-      .build());
-    ipv4ReceivedBuilder.setPacketChain(packetChainList);
+    /**
+     * Decode an EthernetPacket into an Ipv4Packet
+     */
+    @Override
+    public Ipv4PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
+        Ipv4PacketReceivedBuilder ipv4ReceivedBuilder = new Ipv4PacketReceivedBuilder();
 
-    // carry forward the original payload.
-    ipv4ReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
+        // Find the latest packet in the packet-chain, which is an
+        // EthernetPacket
+        List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
+        EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
+        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
+        byte[] data = ethernetPacketReceived.getPayload();
 
-    return ipv4ReceivedBuilder.build();
-  }
+        Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
+        try {
+            builder.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
+            if (builder.getVersion().intValue() != 4) {
+                LOG.debug("Version should be 4, but is {}", builder.getVersion());
+            }
 
+            builder.setIhl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 4, 4)));
+            builder.setDscp(new Dscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 6))));
+            builder.setEcn(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 14, 2)));
+            builder.setIpv4Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
+            builder.setId(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
 
-  @Override
-  public NotificationListener getConsumedNotificationListener() {
-    return this;
-  }
+            // Decode the flags -- Reserved, DF (Don't Fragment), MF (More
+            // Fragments)
+            builder.setReservedFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 48, 1)[0] & 0xff));
+            if (builder.isReservedFlag()) {
+                LOG.debug("Reserved flag should be 0, but is 1.");
+            }
+            // "& 0xff" removes the sign of the Java byte
+            builder.setDfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 49, 1)[0] & 0xff));
+            builder.setMfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 50, 1)[0] & 0xff));
 
-  @Override
-  public void onEthernetPacketReceived(EthernetPacketReceived notification) {
-    decodeAndPublish(notification);
-  }
+            builder.setFragmentOffset(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 51, 13)));
+            builder.setTtl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 64, 8)));
+            builder.setProtocol(KnownIpProtocols
+                    .forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 72, 8))));
+            builder.setChecksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 80, 16)));
+            builder.setSourceIpv4(Ipv4Address.getDefaultInstance(
+                    InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 96, 32)).getHostAddress()));
+            builder.setDestinationIpv4(Ipv4Address.getDefaultInstance(
+                    InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 128, 32)).getHostAddress()));
 
-  @Override
-  public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-    if(ethernetPacketReceived==null || ethernetPacketReceived.getPacketChain()==null)
-      return false;
+            // Decode the optional "options" parameter
+            int optionsSize = (builder.getIhl() - 5) * 32;
+            if (optionsSize > 0) {
+                builder.setIpv4Options(BitBufferHelper.getBits(data, bitOffset + 160, optionsSize));
+            }
 
-    // Only decode the latest packet in the chain
-    EthernetPacket ethernetPacket = null;
-    if (!ethernetPacketReceived.getPacketChain().isEmpty()) {
-      Packet packet = ethernetPacketReceived.getPacketChain().get(ethernetPacketReceived.getPacketChain().size()-1).getPacket();
-      if (packet instanceof  EthernetPacket) {
-        ethernetPacket = (EthernetPacket)packet;
-      }
+            // Decode the IPv4 Payload
+            int payloadStartInBits = bitOffset + 160 + optionsSize;
+            int payloadEndInBits = data.length * NetUtils.NumBitsInAByte - payloadStartInBits
+                    - 4 * NetUtils.NumBitsInAByte;
+            int start = payloadStartInBits / NetUtils.NumBitsInAByte;
+            int end = start + payloadEndInBits / NetUtils.NumBitsInAByte;
+            builder.setPayloadOffset(start);
+            builder.setPayloadLength(end - start);
+        } catch (BufferException | UnknownHostException e) {
+            LOG.debug("Exception while decoding IPv4 packet", e.getMessage());
+        }
+
+        // build ipv4
+        packetChainList.add(new PacketChainBuilder().setPacket(builder.build()).build());
+        ipv4ReceivedBuilder.setPacketChain(packetChainList);
+
+        // carry forward the original payload.
+        ipv4ReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
+
+        return ipv4ReceivedBuilder.build();
     }
 
-    return ethernetPacket!=null && KnownEtherType.Ipv4.equals(ethernetPacket.getEthertype());
-  }
+    @Override
+    public NotificationListener getConsumedNotificationListener() {
+        return this;
+    }
+
+    @Override
+    public void onEthernetPacketReceived(EthernetPacketReceived notification) {
+        decodeAndPublish(notification);
+    }
+
+    @Override
+    public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
+        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null)
+            return false;
+
+        // Only decode the latest packet in the chain
+        EthernetPacket ethernetPacket = null;
+        if (!ethernetPacketReceived.getPacketChain().isEmpty()) {
+            Packet packet = ethernetPacketReceived.getPacketChain()
+                    .get(ethernetPacketReceived.getPacketChain().size() - 1).getPacket();
+            if (packet instanceof EthernetPacket) {
+                ethernetPacket = (EthernetPacket) packet;
+            }
+        }
+
+        return ethernetPacket != null && KnownEtherType.Ipv4.equals(ethernetPacket.getEthertype());
+    }
 }

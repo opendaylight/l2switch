@@ -21,44 +21,43 @@ import org.slf4j.LoggerFactory;
  */
 public class ArpPacketHandler implements ArpPacketListener {
 
-  private final static Logger _logger = LoggerFactory.getLogger(ArpPacketHandler.class);
-  private PacketDispatcher packetDispatcher;
+    private final static Logger LOG = LoggerFactory.getLogger(ArpPacketHandler.class);
+    private PacketDispatcher packetDispatcher;
 
-  public ArpPacketHandler(PacketDispatcher packetDispatcher) {
-    this.packetDispatcher = packetDispatcher;
-  }
-
-  /**
-   * The handler function for ARP packets.
-   *
-   * @param packetReceived The incoming packet.
-   */
-  @Override
-  public void onArpPacketReceived(ArpPacketReceived packetReceived) {
-    if(packetReceived == null || packetReceived.getPacketChain() == null) {
-      return;
+    public ArpPacketHandler(PacketDispatcher packetDispatcher) {
+        this.packetDispatcher = packetDispatcher;
     }
 
-    RawPacket rawPacket = null;
-    EthernetPacket ethernetPacket = null;
-    ArpPacket arpPacket = null;
-    for(PacketChain packetChain : packetReceived.getPacketChain()) {
-      if(packetChain.getPacket() instanceof RawPacket) {
-        rawPacket = (RawPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof EthernetPacket) {
-        ethernetPacket = (EthernetPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof ArpPacket) {
-        arpPacket = (ArpPacket) packetChain.getPacket();
-      }
-    }
-    if(rawPacket == null || ethernetPacket == null || arpPacket == null) {
-      return;
-    }
+    /**
+     * The handler function for ARP packets.
+     *
+     * @param packetReceived
+     *            The incoming packet.
+     */
+    @Override
+    public void onArpPacketReceived(ArpPacketReceived packetReceived) {
+        if (packetReceived == null || packetReceived.getPacketChain() == null) {
+            return;
+        }
 
-    packetDispatcher.dispatchPacket(packetReceived.getPayload(),
-        rawPacket.getIngress(),
-        ethernetPacket.getSourceMac(),
-        ethernetPacket.getDestinationMac());
-  }
+        RawPacket rawPacket = null;
+        EthernetPacket ethernetPacket = null;
+        ArpPacket arpPacket = null;
+        for (PacketChain packetChain : packetReceived.getPacketChain()) {
+            if (packetChain.getPacket() instanceof RawPacket) {
+                rawPacket = (RawPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof EthernetPacket) {
+                ethernetPacket = (EthernetPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof ArpPacket) {
+                arpPacket = (ArpPacket) packetChain.getPacket();
+            }
+        }
+        if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
+            return;
+        }
+
+        packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(),
+                ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
+    }
 
 }

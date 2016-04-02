@@ -49,13 +49,13 @@ public final class InstanceIdentifierUtils {
     /**
      * Shorten's node child path to node path.
      *
-     * @param nodeChild child of node, from which we want node path.
+     * @param nodeChild
+     *            child of node, from which we want node path.
      * @return
      */
     public static final InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
         return nodeChild.firstIdentifierOf(Node.class);
     }
-
 
     /**
      * Creates a table path by appending table specific location to node path
@@ -64,22 +64,21 @@ public final class InstanceIdentifierUtils {
      * @param tableKey
      * @return
      */
-    public static final InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath, final TableKey tableKey) {
-        return nodePath.builder()
-                .augmentation(FlowCapableNode.class)
-                .child(Table.class, tableKey)
-                .build();
+    public static final InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath,
+            final TableKey tableKey) {
+        return nodePath.builder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
     }
 
     /**
-     * Creates a path for particular flow, by appending flow-specific information
-     * to table path.
+     * Creates a path for particular flow, by appending flow-specific
+     * information to table path.
      *
      * @param table
      * @param flowKey
      * @return
      */
-    public static InstanceIdentifier<Flow> createFlowPath(final InstanceIdentifier<Table> table, final FlowKey flowKey) {
+    public static InstanceIdentifier<Flow> createFlowPath(final InstanceIdentifier<Table> table,
+            final FlowKey flowKey) {
         return table.child(Flow.class, flowKey);
     }
 
@@ -107,12 +106,11 @@ public final class InstanceIdentifierUtils {
         return nodePath.firstKeyOf(Node.class, NodeKey.class);
     }
 
-
     //
     public static final InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
             final String nodeConnectorIdValue) {
-        return createNodePath(new NodeId(nodeIdValue))
-                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)));
+        return createNodePath(new NodeId(nodeIdValue)).child(NodeConnector.class,
+                new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)));
     }
 
     /**
@@ -128,11 +126,10 @@ public final class InstanceIdentifierUtils {
      * @param flowTableKey
      * @return
      */
-    public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef, final TableKey flowTableKey) {
-        return generateNodeInstanceIdentifier(nodeConnectorRef).builder()
-                .augmentation(FlowCapableNode.class)
-                .child(Table.class, flowTableKey)
-                .build();
+    public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
+            final TableKey flowTableKey) {
+        return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
+                .child(Table.class, flowTableKey).build();
     }
 
     /**
@@ -142,15 +139,12 @@ public final class InstanceIdentifierUtils {
      * @return
      */
     public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
-            final TableKey flowTableKey,
-            final FlowKey flowKey) {
+            final TableKey flowTableKey, final FlowKey flowKey) {
         return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
     }
 
     public static InstanceIdentifier<Topology> generateTopologyInstanceIdentifier(final String topologyId) {
         return InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
-                .build();
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).build();
     }
 }
-

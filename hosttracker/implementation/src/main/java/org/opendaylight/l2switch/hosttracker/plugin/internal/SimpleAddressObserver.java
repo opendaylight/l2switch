@@ -172,7 +172,8 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    private Addresses createAddresses(MacAddress srcMacAddr, VlanId vlanId, IpAddress srcIpAddr, KnownEtherType ketype) {
+    private Addresses createAddresses(MacAddress srcMacAddr, VlanId vlanId, IpAddress srcIpAddr,
+            KnownEtherType ketype) {
         AddressesBuilder addrs = new AddressesBuilder();
         if (srcMacAddr == null || srcIpAddr == null) {
             return null;
@@ -183,13 +184,14 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
          * VLAN triple and use it’s ID then, if there’s none, then we make up
          * our own Addresses
          */
-        BigInteger id = BigInteger.valueOf(ketype.getIntValue()).abs().add(BigInteger.valueOf(srcMacAddr.hashCode()).abs().shiftLeft(16));
+        BigInteger id = BigInteger.valueOf(ketype.getIntValue()).abs()
+                .add(BigInteger.valueOf(srcMacAddr.hashCode()).abs().shiftLeft(16));
         addrs.setId(id);
         addrs.setKey(new AddressesKey(addrs.getId()));
         addrs.setVlan(vlanId);
         addrs.setIp(srcIpAddr);
         addrs.setMac(srcMacAddr);
-//        addrs.setFirstSeen(new Date().getTime());
+        // addrs.setFirstSeen(new Date().getTime());
         addrs.setLastSeen(new Date().getTime());
         return addrs.build();
     }

@@ -52,11 +52,13 @@ public class HostTrackerImpl implements DataChangeListener {
 
     /**
      * As defined on
-     * controller/opendaylight/md-sal/topology-manager/src/main/java/org/opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.java
+     * controller/opendaylight/md-sal/topology-manager/src/main/java/org/
+     * opendaylight/md/controller/topology/manager/FlowCapableTopologyProvider.
+     * java
      */
     private static final String TOPOLOGY_NAME = "flow:1";
 
-    private static final Logger log = LoggerFactory.getLogger(HostTrackerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HostTrackerImpl.class);
 
     private final DataBroker dataService;
     private final String topologyId;
@@ -85,49 +87,51 @@ public class HostTrackerImpl implements DataChangeListener {
     public void registerAsDataChangeListener() {
         InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
                 InstanceIdentifier.builder(Nodes.class) //
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class) //
-                .child(NodeConnector.class) //
-                .augmentation(AddressCapableNodeConnector.class)//
-                .child(Addresses.class).build();
-        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class) //
+                        .child(NodeConnector.class) //
+                        .augmentation(AddressCapableNodeConnector.class)//
+                        .child(Addresses.class).build();
+        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
 
         InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
-                .child(Node.class)
-                .augmentation(HostNode.class).build();
-        this.hostNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, hostNodes, this, DataChangeScope.SUBTREE);
+                .child(Node.class).augmentation(HostNode.class).build();
+        this.hostNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                hostNodes, this, DataChangeScope.SUBTREE);
 
         InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Link.class).build();
 
-        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, lIID, this, DataChangeScope.BASE);
+        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                lIID, this, DataChangeScope.BASE);
 
         //Processing addresses that existed before we register as a data change listener.
-//        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
-//        InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
-//        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
-//                = addrCapableNodeConnectors.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
-//        ListenableFuture<Optional<NodeConnector>> dataFuture = newReadOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, iinc);
-//        try {
-//            NodeConnector get = dataFuture.get().get();
-//            log.trace("test "+get);
-//        } catch (InterruptedException | ExecutionException ex) {
-//            java.util.logging.Logger.getLogger(HostTrackerImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        Futures.addCallback(dataFuture, new FutureCallback<Optional<NodeConnector>>() {
-//            @Override
-//            public void onSuccess(final Optional<NodeConnector> result) {
-//                if (result.isPresent()) {
-//                    log.trace("Processing NEW NODE? " + result.get().getId().getValue());
-////                    processHost(result, dataObject, node);
-//                }
-//            }
+//      ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
+//      InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
+//      InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
+//              = addrCapableNodeConnectors.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
+//      ListenableFuture<Optional<NodeConnector>> dataFuture = newReadOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, iinc);
+//      try {
+//          NodeConnector get = dataFuture.get().get();
+//          log.trace("test "+get);
+//      } catch (InterruptedException | ExecutionException ex) {
+//          java.util.logging.Logger.getLogger(HostTrackerImpl.class.getName()).log(Level.SEVERE, null, ex);
+//      }
+//      Futures.addCallback(dataFuture, new FutureCallback<Optional<NodeConnector>>() {
+//          @Override
+//          public void onSuccess(final Optional<NodeConnector> result) {
+//              if (result.isPresent()) {
+//                  log.trace("Processing NEW NODE? " + result.get().getId().getValue());
+////                  processHost(result, dataObject, node);
+//              }
+//          }
 //
-//            @Override
-//            public void onFailure(Throwable arg0) {
-//            }
-//        });
+//          @Override
+//          public void onFailure(Throwable arg0) {
+//          }
+//      });
     }
 
     @Override
@@ -137,7 +141,7 @@ public class HostTrackerImpl implements DataChangeListener {
             @Override
             public void run() {
                 if (change == null) {
-                    log.info("In onDataChanged: No processing done as change even is null.");
+                    LOG.info("In onDataChanged: No processing done as change even is null.");
                     return;
                 }
                 Map<InstanceIdentifier<?>, DataObject> updatedData = change.getUpdatedData();
@@ -194,7 +198,8 @@ public class HostTrackerImpl implements DataChangeListener {
     public void packetReceived(Addresses addrs, InstanceIdentifier<?> ii) {
         InstanceIdentifier<NodeConnector> iinc = ii.firstIdentifierOf(NodeConnector.class);
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin//
-                = ii.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
+                = ii.firstIdentifierOf(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
 
         ListenableFuture<Optional<NodeConnector>> futureNodeConnector;
         ListenableFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode;
@@ -209,33 +214,31 @@ public class HostTrackerImpl implements DataChangeListener {
             opNodeConnector = futureNodeConnector.get();
             opNode = futureNode.get();
         } catch (ExecutionException | InterruptedException ex) {
-            log.warn(ex.getLocalizedMessage());
+            LOG.warn(ex.getLocalizedMessage());
         }
-        if (opNode != null && opNode.isPresent()
-                && opNodeConnector != null && opNodeConnector.isPresent()) {
+        if (opNode != null && opNode.isPresent() && opNodeConnector != null && opNodeConnector.isPresent()) {
             processHost(opNode.get(), opNodeConnector.get(), addrs);
         }
     }
 
     private void processHost(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node node,
-            NodeConnector nodeConnector,
-            Addresses addrs) {
+            NodeConnector nodeConnector, Addresses addrs) {
         List<Host> hostsToMod = new ArrayList<>();
         List<Host> hostsToRem = new ArrayList<>();
         List<Link> linksToRem = new ArrayList<>();
         List<Link> linksToAdd = new ArrayList<>();
         synchronized (hosts) {
-            log.trace("Processing nodeConnector " + nodeConnector.getId().toString());
+            LOG.trace("Processing nodeConnector {}", nodeConnector.getId().toString());
             HostId hId = Host.createHostId(addrs);
             if (hId != null) {
                 if (isNodeConnectorInternal(nodeConnector)) {
-                    log.trace("NodeConnector is internal " + nodeConnector.getId().toString());
+                    LOG.trace("NodeConnector is internal {}", nodeConnector.getId().toString());
 
                     removeNodeConnectorFromHost(hostsToMod, hostsToRem, nodeConnector);
                     hosts.removeAll(hostsToRem);
                     hosts.putAll(hostsToMod);
                 } else {
-                    log.trace("NodeConnector is NOT internal " + nodeConnector.getId().toString());
+                    LOG.trace("NodeConnector is NOT internal {}", nodeConnector.getId().toString());
                     Host host = new Host(addrs, nodeConnector);
                     if (hosts.containsKey(host.getId())) {
                         hosts.get(host.getId()).mergeHostWith(host);
@@ -258,15 +261,15 @@ public class HostTrackerImpl implements DataChangeListener {
      * NodeConnector is considered to be all NodeConnetors that are NOT attached
      * to hosts created by hosttracker.
      *
-     * @param nodeConnector the nodeConnector to check if it is internal or not.
+     * @param nodeConnector
+     *            the nodeConnector to check if it is internal or not.
      * @return true if it was found a host connected to this nodeConnetor, false
-     * if it was not found a network topology or it was not found a host
-     * connected to this nodeConnetor.
+     *         if it was not found a network topology or it was not found a host
+     *         connected to this nodeConnetor.
      */
     private boolean isNodeConnectorInternal(NodeConnector nodeConnector) {
         TpId tpId = new TpId(nodeConnector.getKey().getId().getValue());
-        InstanceIdentifier<NetworkTopology> ntII
-                = InstanceIdentifier.builder(NetworkTopology.class).build();
+        InstanceIdentifier<NetworkTopology> ntII = InstanceIdentifier.builder(NetworkTopology.class).build();
         ListenableFuture<Optional<NetworkTopology>> lfONT;
         try (ReadOnlyTransaction rot = dataService.newReadOnlyTransaction()) {
             lfONT = rot.read(LogicalDatastoreType.OPERATIONAL, ntII);
@@ -276,7 +279,7 @@ public class HostTrackerImpl implements DataChangeListener {
         try {
             oNT = lfONT.get();
         } catch (InterruptedException | ExecutionException ex) {
-            log.warn(ex.getLocalizedMessage());
+            LOG.warn(ex.getLocalizedMessage());
             return false;
         }
         if (oNT != null && oNT.isPresent()) {
@@ -287,7 +290,7 @@ public class HostTrackerImpl implements DataChangeListener {
                         if ((l.getSource().getSourceTp().equals(tpId)
                                 && !l.getDestination().getDestTp().getValue().startsWith(Host.NODE_PREFIX))
                                 || (l.getDestination().getDestTp().equals(tpId)
-                                && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX))) {
+                                        && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX))) {
                             return true;
                         }
                     }
@@ -322,7 +325,7 @@ public class HostTrackerImpl implements DataChangeListener {
     }
 
     private void linkRemoved(InstanceIdentifier<Link> iiLink, Link linkRemoved) {
-        log.trace("linkRemoved");
+        LOG.trace("linkRemoved");
         List<Host> hostsToMod = new ArrayList<>();
         List<Host> hostsToRem = new ArrayList<>();
         synchronized (hosts) {
@@ -332,11 +335,11 @@ public class HostTrackerImpl implements DataChangeListener {
         }
     }
 
-    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove){
+    private void writeDatatoMDSAL(List<Link> linksToAdd, List<Link> linksToRemove) {
         if (linksToAdd != null) {
             for (final Link l : linksToAdd) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
-                log.trace("Writing link from MD_SAL: " + lIID.toString());
+                LOG.trace("Writing link from MD_SAL: {}", lIID.toString());
                 opProcessor.enqueueOperation(new HostTrackerOperation() {
                     @Override
                     public void applyOperation(ReadWriteTransaction tx) {
@@ -348,11 +351,11 @@ public class HostTrackerImpl implements DataChangeListener {
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
-                log.trace("Removing link from MD_SAL: " + lIID.toString());
+                LOG.trace("Removing link from MD_SAL: {}", lIID.toString());
                 opProcessor.enqueueOperation(new HostTrackerOperation() {
                     @Override
                     public void applyOperation(ReadWriteTransaction tx) {
-                        tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, lIID);
                     }
                 });
             }

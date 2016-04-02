@@ -7,8 +7,18 @@
  */
 package org.opendaylight.l2switch.arphandler.inventory;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -36,132 +46,118 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class InventoryReaderTest {
 
-  @MockitoAnnotations.Mock private DataBroker dataBroker;
-  private InventoryReader inventoryReader;
+    @MockitoAnnotations.Mock
+    private DataBroker dataBroker;
+    private InventoryReader inventoryReader;
 
-  @Before
-  public void initMocks() {
-    MockitoAnnotations.initMocks(this);
-    inventoryReader = new InventoryReader(dataBroker);
-  }
+    @Before
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
+        inventoryReader = new InventoryReader(dataBroker);
+    }
 
-  @Test
-  public void testGetControllerSwitchConnectors() throws Exception {
-    assertEquals(0, inventoryReader.getControllerSwitchConnectors().size());
-  }
+    @Test
+    public void testGetControllerSwitchConnectors() throws Exception {
+        assertEquals(0, inventoryReader.getControllerSwitchConnectors().size());
+    }
 
-  @Test
-  public void testGetSwitchNodeConnectors() throws Exception {
-    assertEquals(0, inventoryReader.getSwitchNodeConnectors().size());
-  }
+    @Test
+    public void testGetSwitchNodeConnectors() throws Exception {
+        assertEquals(0, inventoryReader.getSwitchNodeConnectors().size());
+    }
 
-  @Test
-  public void testGetNodeConnector() throws Exception {
-    List<Addresses> addressesList = new ArrayList<Addresses>();
-    addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build());
-    AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build();
-    StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build();
-    NodeConnector nodeConnector = new NodeConnectorBuilder()
-      .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-      .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector)
-      .build();
+    @Test
+    public void testGetNodeConnector() throws Exception {
+        List<Addresses> addressesList = new ArrayList<Addresses>();
+        addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build());
+        AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder()
+                .setAddresses(addressesList).build();
+        StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
+                .setStatus(StpStatus.Forwarding).build();
+        NodeConnector nodeConnector = new NodeConnectorBuilder()
+                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
+                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
 
-    List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
-    nodeConnectors.add(nodeConnector);
-    Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
-    Optional<Node> optionalNode = Optional.of(node);
+        List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
+        nodeConnectors.add(nodeConnector);
+        Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
+        Optional<Node> optionalNode = Optional.of(node);
 
-    ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-    CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
-    when(checkedFuture.get()).thenReturn(optionalNode);
-    when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).thenReturn(checkedFuture);
-    when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
+        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
+        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        when(checkedFuture.get()).thenReturn(optionalNode);
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+                .thenReturn(checkedFuture);
+        when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
-    assertNotNull(inventoryReader.getNodeConnector(
-      InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
-      new MacAddress("aa:bb:cc:dd:ee:ff")));
-    verify(readOnlyTransaction, times(1)).close();
-  }
+        assertNotNull(
+                inventoryReader
+                        .getNodeConnector(
+                                InstanceIdentifier.builder(Nodes.class)
+                                        .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
+                                new MacAddress("aa:bb:cc:dd:ee:ff")));
+        verify(readOnlyTransaction, times(1)).close();
+    }
 
-  @Test
-  public void testGetNodeConnector_NullNodeInsId() throws Exception {
-    assertNull(inventoryReader.getNodeConnector(null, Mockito.mock(MacAddress.class)));
-    verify(dataBroker, times(0)).newReadOnlyTransaction();
-  }
+    @Test
+    public void testGetNodeConnector_NullNodeInsId() throws Exception {
+        assertNull(inventoryReader.getNodeConnector(null, Mockito.mock(MacAddress.class)));
+        verify(dataBroker, times(0)).newReadOnlyTransaction();
+    }
 
-  @Test
-  public void testGetNodeConnector_NullMacAddress() throws Exception {
-    assertNull(inventoryReader.getNodeConnector(Mockito.mock(InstanceIdentifier.class), null));
-    verify(dataBroker, times(0)).newReadOnlyTransaction();
-  }
+    @Test
+    public void testGetNodeConnector_NullMacAddress() throws Exception {
+        assertNull(inventoryReader.getNodeConnector(Mockito.mock(InstanceIdentifier.class), null));
+        verify(dataBroker, times(0)).newReadOnlyTransaction();
+    }
 
-  @Test
-  public void testReadInventory_NoRefresh() throws Exception {
-    inventoryReader.setRefreshData(false);
-    inventoryReader.readInventory();
-    verify(dataBroker, times(0)).newReadOnlyTransaction();
-  }
+    @Test
+    public void testReadInventory_NoRefresh() throws Exception {
+        inventoryReader.setRefreshData(false);
+        inventoryReader.readInventory();
+        verify(dataBroker, times(0)).newReadOnlyTransaction();
+    }
 
-  @Test
-  public void testReadInventory_Refresh() throws Exception {
-    StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Discarding).build();
-    NodeConnector nc1 = new NodeConnectorBuilder()
-      .setKey(new NodeConnectorKey(new NodeConnectorId("1")))
-      .build();
-    NodeConnector nc2 = new NodeConnectorBuilder()
-      .setKey(new NodeConnectorKey(new NodeConnectorId("2")))
-      .build();
-    NodeConnector nc3 = new NodeConnectorBuilder()
-      .setKey(new NodeConnectorKey(new NodeConnectorId("3")))
-      .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-      .build();
-    NodeConnector ncLocal = new NodeConnectorBuilder()
-      .setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-      .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-      .build();
+    @Test
+    public void testReadInventory_Refresh() throws Exception {
+        StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
+                .setStatus(StpStatus.Discarding).build();
+        NodeConnector nc1 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        NodeConnector nc2 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
+        NodeConnector nc3 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("3")))
+                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+        NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
+                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
 
-    List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
-    nodeConnectors.add(nc1);
-    nodeConnectors.add(nc2);
-    nodeConnectors.add(nc3);
-    nodeConnectors.add(ncLocal);
-    Node node = new NodeBuilder()
-      .setId(new NodeId("1"))
-      .setNodeConnector(nodeConnectors)
-      .build();
+        List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
+        nodeConnectors.add(nc1);
+        nodeConnectors.add(nc2);
+        nodeConnectors.add(nc3);
+        nodeConnectors.add(ncLocal);
+        Node node = new NodeBuilder().setId(new NodeId("1")).setNodeConnector(nodeConnectors).build();
 
-    List<Node> nodeList = new ArrayList<Node>();
-    nodeList.add(node);
-    Nodes nodes = new NodesBuilder().setNode(nodeList).build();
-    Optional<Nodes> optionalNodes = Optional.of(nodes);
+        List<Node> nodeList = new ArrayList<Node>();
+        nodeList.add(node);
+        Nodes nodes = new NodesBuilder().setNode(nodeList).build();
+        Optional<Nodes> optionalNodes = Optional.of(nodes);
 
-    ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-    CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
-    when(checkedFuture.get()).thenReturn(optionalNodes);
-    when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).thenReturn(checkedFuture);
-    when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
+        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
+        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        when(checkedFuture.get()).thenReturn(optionalNodes);
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+                .thenReturn(checkedFuture);
+        when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
-    inventoryReader.setRefreshData(true);
-    inventoryReader.readInventory();
-    verify(dataBroker, times(1)).newReadOnlyTransaction();
-    assertEquals(1, inventoryReader.getControllerSwitchConnectors().size());
-    assertEquals(1, inventoryReader.getSwitchNodeConnectors().size());
-    assertEquals(2, inventoryReader.getSwitchNodeConnectors().get("1").size());
-    // Ensure that refreshData is set to false
-    inventoryReader.readInventory();
-    verify(dataBroker, times(1)).newReadOnlyTransaction();
-  }
+        inventoryReader.setRefreshData(true);
+        inventoryReader.readInventory();
+        verify(dataBroker, times(1)).newReadOnlyTransaction();
+        assertEquals(1, inventoryReader.getControllerSwitchConnectors().size());
+        assertEquals(1, inventoryReader.getSwitchNodeConnectors().size());
+        assertEquals(2, inventoryReader.getSwitchNodeConnectors().get("1").size());
+        // Ensure that refreshData is set to false
+        inventoryReader.readInventory();
+        verify(dataBroker, times(1)).newReadOnlyTransaction();
+    }
 }
