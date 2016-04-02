@@ -124,34 +124,33 @@
               </plugin>
 
               <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.version}</version>
-                <configuration>
-                  <failsOnError>true</failsOnError>
-                  <configLocation>controller/checkstyle.xml</configLocation>
-                  <consoleOutput>true</consoleOutput>
-                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                  <sourceDirectory>${project.basedir}</sourceDirectory>
-                  <includes>**\/*.java,**\/*.yang,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat</includes>
-                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,\/,**\/xtend-gen\/,**\/yang-gen-code\/,**\/${codeGeneratorPath}\/,**\/${configCodeGeneratorPath}\/,</excludes>
-                </configuration>
-                <dependencies>
-                  <dependency>
-                    <groupId>org.opendaylight.controller</groupId>
-                    <artifactId>checkstyle</artifactId>
-                    <version>0.3.0-SNAPSHOT</version>
-                  </dependency>
-                </dependencies>
-                <executions>
-                  <execution>
-                    <id>check</id>
-                    <goals>
-                      <goal>check</goal>
-                    </goals>
-                    <phase>process-sources</phase>
-                  </execution>
-                </executions>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-checkstyle-plugin</artifactId>
+                  <configuration>
+                      <failOnViolation>true</failOnViolation>
+                      <configLocation>checkstyle-logging.xml</configLocation>
+                      <consoleOutput>true</consoleOutput>
+                      <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                      <sourceDirectory>${project.basedir}</sourceDirectory>
+                      <includes>**\/*.java,**\/*.yang,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat</includes>
+                      <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/xtend-gen\/,**\/${codeGeneratorPath}\/,**\/${configCodeGeneratorPath}\/,</excludes>
+                  </configuration>
+                  <dependencies>
+                      <dependency>
+                          <groupId>org.opendaylight.yangtools</groupId>
+                          <artifactId>checkstyle-logging</artifactId>
+                          <version>${yangtools.version}</version>
+                      </dependency>
+                  </dependencies>
+                  <executions>
+                      <execution>
+                          <id>check</id>
+                          <goals>
+                              <goal>check</goal>
+                          </goals>
+                          <phase>process-sources</phase>
+                      </execution>
+                  </executions>
               </plugin>
 
               <!--  tells eclipse to import these folders into the package explorer as "source" folders
@@ -254,7 +253,7 @@
                                       </goals>
                                   </pluginExecutionFilter>
                                   <action>
-                                      <ignore />
+                                      <execute />
                                   </action>
                               </pluginExecution>
                               <pluginExecution>

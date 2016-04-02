@@ -8,6 +8,12 @@
 
 package org.opendaylight.l2switch.flow;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -24,13 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import java.util.ArrayList;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 
 public class ReactiveFlowWriterTest {
 

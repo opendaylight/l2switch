@@ -7,6 +7,9 @@
  */
 package org.opendaylight.l2switch.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -23,41 +26,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class InstanceIdentifierUtilsTest {
 
-  private final Short NUM_ID_1 = 1;
-  private final String STR_ID_1 = "id1";
+    private final Short NUM_ID_1 = 1;
+    private final String STR_ID_1 = "id1";
 
-  @Test
-  public void testGenerateNodeInstanceIdentifier() throws Exception {
-    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
-    assertNotNull(InstanceIdentifierUtils.generateNodeInstanceIdentifier(ncRef));
-  }
+    @Test
+    public void testGenerateNodeInstanceIdentifier() throws Exception {
+        NodeConnectorRef ncRef = new NodeConnectorRef(
+                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+        assertNotNull(InstanceIdentifierUtils.generateNodeInstanceIdentifier(ncRef));
+    }
 
-  @Test
-  public void testGenerateFlowTableInstanceIdentifier() throws Exception {
-    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
-    InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef, new TableKey(NUM_ID_1));
-    assertNotNull(tableInsId);
-    assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
-  }
+    @Test
+    public void testGenerateFlowTableInstanceIdentifier() throws Exception {
+        NodeConnectorRef ncRef = new NodeConnectorRef(
+                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+        InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
+                new TableKey(NUM_ID_1));
+        assertNotNull(tableInsId);
+        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
+    }
 
-  @Test
-  public void testGenerateFlowInstanceIdentifier() throws Exception {
-    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
-      .child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
-      .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1)))
-      .build());
-    InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(
-      ncRef,
-      new TableKey(NUM_ID_1),
-      new FlowKey(new FlowId(STR_ID_1)));
-    assertNotNull(flowInsId);
-    assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class, TableKey.class).getId());
-    assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class, FlowKey.class).getId().getValue());
-  }
+    @Test
+    public void testGenerateFlowInstanceIdentifier() throws Exception {
+        NodeConnectorRef ncRef = new NodeConnectorRef(
+                InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
+                        .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1))).build());
+        InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
+                new TableKey(NUM_ID_1), new FlowKey(new FlowId(STR_ID_1)));
+        assertNotNull(flowInsId);
+        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class, TableKey.class).getId());
+        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class, FlowKey.class).getId().getValue());
+    }
 }
-

@@ -18,51 +18,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AddressObserver listens to IPv4 packets to find addresses (mac, ip) and
- * store these address observations for each node-connector.
- * These packets are returned to the network after the addresses are learned.
+ * AddressObserver listens to IPv4 packets to find addresses (mac, ip) and store
+ * these address observations for each node-connector. These packets are
+ * returned to the network after the addresses are learned.
  */
 public class AddressObserverUsingIpv4 implements Ipv4PacketListener {
 
-  private final static Logger _logger = LoggerFactory.getLogger(AddressObserverUsingIpv4.class);
-  private AddressObservationWriter addressObservationWriter;
-  private final String IPV4_IP_TO_IGNORE = "0.0.0.0";
+    private final static Logger LOG = LoggerFactory.getLogger(AddressObserverUsingIpv4.class);
+    private AddressObservationWriter addressObservationWriter;
+    private final String IPV4_IP_TO_IGNORE = "0.0.0.0";
 
-  public AddressObserverUsingIpv4(AddressObservationWriter addressObservationWriter) {
-    this.addressObservationWriter = addressObservationWriter;
-  }
-
-  /**
-   * The handler function for IPv4 packets.
-   *
-   * @param packetReceived The incoming packet.
-   */
-  @Override
-  public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
-    if(packetReceived == null || packetReceived.getPacketChain() == null) {
-      return;
+    public AddressObserverUsingIpv4(AddressObservationWriter addressObservationWriter) {
+        this.addressObservationWriter = addressObservationWriter;
     }
 
-    RawPacket rawPacket = null;
-    EthernetPacket ethernetPacket = null;
-    Ipv4Packet ipv4Packet = null;
-    for(PacketChain packetChain : packetReceived.getPacketChain()) {
-      if(packetChain.getPacket() instanceof RawPacket) {
-        rawPacket = (RawPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof EthernetPacket) {
-        ethernetPacket = (EthernetPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof Ipv4Packet) {
-        ipv4Packet = (Ipv4Packet) packetChain.getPacket();
-      }
-    }
-    if(rawPacket == null || ethernetPacket == null || ipv4Packet == null) {
-      return;
-    }
+    /**
+     * The handler function for IPv4 packets.
+     *
+     * @param packetReceived
+     *            The incoming packet.
+     */
+    @Override
+    public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
+        if (packetReceived == null || packetReceived.getPacketChain() == null) {
+            return;
+        }
 
-    if(!IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
-      addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
-          new IpAddress(ipv4Packet.getSourceIpv4().getValue().toCharArray()),
-          rawPacket.getIngress());
+        RawPacket rawPacket = null;
+        EthernetPacket ethernetPacket = null;
+        Ipv4Packet ipv4Packet = null;
+        for (PacketChain packetChain : packetReceived.getPacketChain()) {
+            if (packetChain.getPacket() instanceof RawPacket) {
+                rawPacket = (RawPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof EthernetPacket) {
+                ethernetPacket = (EthernetPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof Ipv4Packet) {
+                ipv4Packet = (Ipv4Packet) packetChain.getPacket();
+            }
+        }
+        if (rawPacket == null || ethernetPacket == null || ipv4Packet == null) {
+            return;
+        }
+
+        if (!IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
+            addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
+                    new IpAddress(ipv4Packet.getSourceIpv4().getValue().toCharArray()), rawPacket.getIngress());
+        }
     }
-  }
 }

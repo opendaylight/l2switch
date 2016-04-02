@@ -7,18 +7,23 @@ import org.opendaylight.l2switch.hosttracker.plugin.internal.SimpleAddressObserv
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HostTrackerModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528.AbstractHostTrackerModule {
+public class HostTrackerModule extends
+        org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528.AbstractHostTrackerModule {
 
-    private static final Logger log = LoggerFactory.getLogger(HostTrackerModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HostTrackerModule.class);
 
     HostTrackerImpl mdHostTrackerImpl;
     SimpleAddressObserver simpleAddressObserver;
 
-    public HostTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public HostTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public HostTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528.HostTrackerModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public HostTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528.HostTrackerModule oldModule,
+            java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -32,23 +37,26 @@ public class HostTrackerModule extends org.opendaylight.yang.gen.v1.urn.opendayl
         NotificationProviderService notificationService = getNotificationServiceDependency();
         DataBroker dataService = getDataBrokerDependency();
 
-        //ITopologyManager topologyManager = (ITopologyManager) ServiceHelper.getInstance(ITopologyManager.class, GlobalConstants.DEFAULT.toString(), this);
+        // ITopologyManager topologyManager = (ITopologyManager)
+        // ServiceHelper.getInstance(ITopologyManager.class,
+        // GlobalConstants.DEFAULT.toString(), this);
         mdHostTrackerImpl = new HostTrackerImpl(dataService, getTopologyId());
         mdHostTrackerImpl.registerAsDataChangeListener();
-        //simpleAddressObserver = new SimpleAddressObserver(mdHostTrackerImpl, notificationService);
-        //simpleAddressObserver.registerAsNotificationListener();
+        // simpleAddressObserver = new SimpleAddressObserver(mdHostTrackerImpl,
+        // notificationService);
+        // simpleAddressObserver.registerAsNotificationListener();
 
         final class CloseResources implements AutoCloseable {
             @Override
             public void close() throws Exception {
-                if(mdHostTrackerImpl != null) {
+                if (mdHostTrackerImpl != null) {
                     mdHostTrackerImpl.close();
                 }
-                log.info("HostTracker (instance {}) torn down.", this);
+                LOG.info("HostTracker (instance {}) torn down.", this);
             }
         }
         AutoCloseable ret = new CloseResources();
-        log.info("HostTracker (instance {}) initialized.", ret);
+        LOG.info("HostTracker (instance {}) initialized.", ret);
         return ret;
     }
 

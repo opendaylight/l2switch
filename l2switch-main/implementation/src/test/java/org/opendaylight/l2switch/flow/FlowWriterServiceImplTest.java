@@ -8,6 +8,10 @@
 
 package org.opendaylight.l2switch.flow;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -24,17 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 public class FlowWriterServiceImplTest {
 
-    @MockitoAnnotations.Mock private SalFlowService salFlowService;
+    @MockitoAnnotations.Mock
+    private SalFlowService salFlowService;
     private FlowWriterServiceImpl flowWriterService;
     private InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier;
     private NodeConnectorRef nodeConnectorRef;
-
 
     @Before
     public void initMocks() {
@@ -45,9 +45,9 @@ public class FlowWriterServiceImplTest {
     @Test
     public void addMacToMacFlowTest() {
 
-        nodeConnectorInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(
-            Node.class, new NodeKey(new NodeId("node-id"))).child(
-            NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
+        nodeConnectorInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("node-id")))
+                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
         nodeConnectorRef = new NodeConnectorRef(nodeConnectorInstanceIdentifier);
 
         MacAddress sourceMac = new MacAddress("00:00:ac:f0:01:01");

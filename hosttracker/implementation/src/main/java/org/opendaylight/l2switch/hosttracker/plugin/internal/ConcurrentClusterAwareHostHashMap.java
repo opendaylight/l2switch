@@ -39,13 +39,11 @@ import org.slf4j.LoggerFactory;
  *            Must be
  *            org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
  */
-public class ConcurrentClusterAwareHostHashMap<K, V> implements
-        ConcurrentMap<K, V> {
+public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K, V> {
     private final OperationProcessor opProcessor;
     private final String topologyId;
 
-    private static final Logger log = LoggerFactory
-            .getLogger(ConcurrentClusterAwareHostHashMap.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentClusterAwareHostHashMap.class);
 
     /**
      * The instance identifiers for each host submitted to MD-SAL.
@@ -57,8 +55,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      */
     private final ConcurrentHashMap<K, V> hostHashMap;
 
-    public ConcurrentClusterAwareHostHashMap(OperationProcessor opProcessor,
-            String topologyId) {
+    public ConcurrentClusterAwareHostHashMap(OperationProcessor opProcessor, String topologyId) {
         this.opProcessor = opProcessor;
         this.topologyId = topologyId;
         this.hostHashMap = new ConcurrentHashMap<>();
@@ -66,8 +63,9 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
     }
 
     /**
-     * Removes, if exists, the Host with the given InstanceIdentifier&lt;Node&gt; from
-     * this local HashMap. Ideally used for host data listener events.
+     * Removes, if exists, the Host with the given
+     * InstanceIdentifier&lt;Node&gt; from this local HashMap. Ideally used for
+     * host data listener events.
      *
      * @param iiN
      *            the InstanceIdentifier&lt;Node&gt; of the Host to remove.
@@ -91,8 +89,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      * @return the removed Host if exits, null if it doesn't exist.
      */
     public synchronized V removeLocally(K key) {
-        Iterator<Entry<InstanceIdentifier<Node>, K>> iterator = this.instanceIDs
-                .entrySet().iterator();
+        Iterator<Entry<InstanceIdentifier<Node>, K>> iterator = this.instanceIDs.entrySet().iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getValue().equals(key)) {
                 iterator.remove();
@@ -106,14 +103,16 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      * Puts the given value (Host) only in this local HashMap. Ideally used for
      * host data listener events.
      *
-     * @param ii the value's (Host's) InstanceIdentifier&lt;Node&gt;
-     * @param value the Host to store locally.
-     * @return the previous value associated with <tt>key</tt>, or
-     * <tt>null</tt> if there was no mapping for <tt>key</tt>
+     * @param ii
+     *            the value's (Host's) InstanceIdentifier&lt;Node&gt;
+     * @param value
+     *            the Host to store locally.
+     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
+     *         if there was no mapping for <tt>key</tt>
      */
     public synchronized V putLocally(InstanceIdentifier<Node> ii, V value) {
         Host h = ((Host) value);
-        log.trace("Putting locally {}", h.getId());
+        LOG.trace("Putting locally {}", h.getId());
         this.instanceIDs.put(ii, (K) h.getId());
         return this.hostHashMap.put((K) h.getId(), value);
     }
@@ -125,19 +124,15 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      *            the hosts to remove.
      */
     public synchronized void removeAll(List<Host> hosts) {
-        for (final Map.Entry<InstanceIdentifier<Node>, K> e : this.instanceIDs
-                .entrySet()) {
+        for (final Map.Entry<InstanceIdentifier<Node>, K> e : this.instanceIDs.entrySet()) {
             for (Host h : hosts) {
                 if (e.getValue().equals(h.getId())) {
-                    this.opProcessor
-                            .enqueueOperation(new HostTrackerOperation() {
-                                @Override
-                                public void applyOperation(
-                                        ReadWriteTransaction tx) {
-                                    tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                            e.getKey());
-                                }
-                            });
+                    this.opProcessor.enqueueOperation(new HostTrackerOperation() {
+                        @Override
+                        public void applyOperation(ReadWriteTransaction tx) {
+                            tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
+                        }
+                    });
                     this.hostHashMap.remove(e.getValue());
                     break;
                 }
@@ -155,18 +150,16 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
     public synchronized void submit(HostId hostid) {
         Host h = (Host) this.hostHashMap.get(hostid);
         final Node hostNode = h.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(
-                hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
         this.opProcessor.enqueueOperation(new HostTrackerOperation() {
             @Override
             public void applyOperation(ReadWriteTransaction tx) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                        hostNode, true);
+                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
             }
         });
         putLocally(buildNodeIID, (V) h);
         this.instanceIDs.put(buildNodeIID, (K) h.getId());
-        log.trace("Enqueued for MD-SAL transaction {}", hostNode.getNodeId());
+        LOG.trace("Enqueued for MD-SAL transaction {}", hostNode.getNodeId());
     }
 
     /**
@@ -179,18 +172,16 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
     public synchronized void putAll(List<Host> hosts) {
         for (Host h : hosts) {
             final Node hostNode = h.getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities
-                    .buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             this.opProcessor.enqueueOperation(new HostTrackerOperation() {
                 @Override
                 public void applyOperation(ReadWriteTransaction tx) {
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                            hostNode, true);
+                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
                 }
             });
             putLocally(buildNodeIID, (V) h);
             this.instanceIDs.put(buildNodeIID, (K) h.getId());
-            log.trace("Putting MD-SAL {}", hostNode.getNodeId());
+            LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
         }
     }
 
@@ -206,16 +197,14 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
     @Override
     public synchronized V put(K hostId, V host) {
         final Node hostNode = ((Host) host).getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(
-                hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
         this.opProcessor.enqueueOperation(new HostTrackerOperation() {
             @Override
             public void applyOperation(ReadWriteTransaction tx) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                        hostNode, true);
+                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
             }
         });
-        log.trace("Putting MD-SAL {}", hostNode.getNodeId());
+        LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
         return putLocally(buildNodeIID, host);
     }
 
@@ -232,8 +221,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
         V removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = ((Host) removedValue).getHostNode();
-            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(
-                    hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             this.opProcessor.enqueueOperation(new HostTrackerOperation() {
                 @Override
                 public void applyOperation(ReadWriteTransaction tx) {
@@ -275,8 +263,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      */
     @Override
     public synchronized boolean remove(Object key, Object value) {
-        if (this.hostHashMap.containsKey((K) key)
-                && this.hostHashMap.get((K) key).equals(value)) {
+        if (this.hostHashMap.containsKey((K) key) && this.hostHashMap.get((K) key).equals(value)) {
             remove((K) key);
             return true;
         } else {
@@ -297,8 +284,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      */
     @Override
     public synchronized boolean replace(K key, V oldValue, V newValue) {
-        if (this.hostHashMap.containsKey((K) key)
-                && this.hostHashMap.get((K) key).equals(oldValue)) {
+        if (this.hostHashMap.containsKey((K) key) && this.hostHashMap.get((K) key).equals(oldValue)) {
             put(key, newValue);
             return true;
         } else {
@@ -365,13 +351,11 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
     public synchronized void putAll(Map<? extends K, ? extends V> m) {
         for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
             final Node hostNode = ((Host) e.getValue()).getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities
-                    .buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
             this.opProcessor.enqueueOperation(new HostTrackerOperation() {
                 @Override
                 public void applyOperation(ReadWriteTransaction tx) {
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                            hostNode, true);
+                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
                 }
             });
             putLocally(buildNodeIID, e.getValue());
@@ -386,8 +370,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements
      */
     @Override
     public synchronized void clear() {
-        for (final Map.Entry<? extends InstanceIdentifier<Node>, ? extends K> e : this.instanceIDs
-                .entrySet()) {
+        for (final Map.Entry<? extends InstanceIdentifier<Node>, ? extends K> e : this.instanceIDs.entrySet()) {
             this.opProcessor.enqueueOperation(new HostTrackerOperation() {
                 @Override
                 public void applyOperation(ReadWriteTransaction tx) {

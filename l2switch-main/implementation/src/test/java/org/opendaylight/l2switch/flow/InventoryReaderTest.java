@@ -8,8 +8,14 @@
 
 package org.opendaylight.l2switch.flow;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -38,20 +44,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
-
 public class InventoryReaderTest {
 
-    @MockitoAnnotations.Mock private DataBroker dataService;
-    @MockitoAnnotations.Mock private ReadOnlyTransaction readOnlyTransaction;
-    @MockitoAnnotations.Mock private Optional<Node> dataObjectOptional;
-    @MockitoAnnotations.Mock private CheckedFuture checkedFuture;
-    @MockitoAnnotations.Mock private Node node;
+    @MockitoAnnotations.Mock
+    private DataBroker dataService;
+    @MockitoAnnotations.Mock
+    private ReadOnlyTransaction readOnlyTransaction;
+    @MockitoAnnotations.Mock
+    private Optional<Node> dataObjectOptional;
+    @MockitoAnnotations.Mock
+    private CheckedFuture checkedFuture;
+    @MockitoAnnotations.Mock
+    private Node node;
 
     private InventoryReader inventoryReader;
     private InstanceIdentifier<Node> nodeInstanceIdentifier;
@@ -65,60 +69,44 @@ public class InventoryReaderTest {
     }
 
     @Test
-    public void getNodeConnectorTest() throws Exception{
+    public void getNodeConnectorTest() throws Exception {
 
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(
-            Node.class, new NodeKey(new NodeId("node-id"))).build();
+        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class))).thenReturn(checkedFuture);
-        when(checkedFuture.get()) .thenReturn(dataObjectOptional);
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+                .thenReturn(checkedFuture);
+        when(checkedFuture.get()).thenReturn(dataObjectOptional);
         when(dataObjectOptional.isPresent()).thenReturn(true);
         when(dataObjectOptional.get()).thenReturn(node);
 
         long now = new Date().getTime();
         IpAddress ipAddress1 = new IpAddress(Ipv4Address.getDefaultInstance("10.0.0.1"));
         MacAddress macAddress1 = new MacAddress("00:00:00:00:00:01");
-        final Addresses address1 = new AddressesBuilder()
-            .setIp(ipAddress1)
-            .setMac(macAddress1)
-            .setFirstSeen(now)
-            .setLastSeen(now)
-            .build();
+        final Addresses address1 = new AddressesBuilder().setIp(ipAddress1).setMac(macAddress1).setFirstSeen(now)
+                .setLastSeen(now).build();
         IpAddress ipAddress2 = new IpAddress(Ipv4Address.getDefaultInstance("10.0.0.2"));
         MacAddress macAddress2 = new MacAddress("00:00:00:00:00:02");
-        final Addresses address2 = new AddressesBuilder()
-            .setIp(ipAddress2)
-            .setMac(macAddress2)
-            .setFirstSeen(now)
-            .setLastSeen(now)
-            .build();
+        final Addresses address2 = new AddressesBuilder().setIp(ipAddress2).setMac(macAddress2).setFirstSeen(now)
+                .setLastSeen(now).build();
         List<Addresses> addressList = new ArrayList<Addresses>();
         addressList.add(address1);
         addressList.add(address2);
         AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder()
-            .setAddresses(addressList).build();
+                .setAddresses(addressList).build();
 
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
-            .setStatus(StpStatus.Discarding).build();
+                .setStatus(StpStatus.Discarding).build();
 
-        NodeConnector nc1 = new NodeConnectorBuilder()
-            .setKey(new NodeConnectorKey(new NodeConnectorId("1")))
-            .build();
-        NodeConnector nc2 = new NodeConnectorBuilder()
-            .setKey(new NodeConnectorKey(new NodeConnectorId("2")))
-            .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector)
-            .build();
-        NodeConnector nc3 = new NodeConnectorBuilder()
-            .setKey(new NodeConnectorKey(new NodeConnectorId("3")))
-            .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-            .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector)
-            .build();
-        NodeConnector ncLocal = new NodeConnectorBuilder()
-            .setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-            .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-            .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector)
-            .build();
+        NodeConnector nc1 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        NodeConnector nc2 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("2")))
+                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+        NodeConnector nc3 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("3")))
+                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
+                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+        NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
+                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
+                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nc1);

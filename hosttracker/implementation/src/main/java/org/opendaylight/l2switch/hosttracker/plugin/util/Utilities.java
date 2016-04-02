@@ -37,8 +37,7 @@ public class Utilities {
                         .setSourceNode(srcNId)//
                         .setSourceTp(srcTpId).build())//
                 .setDestination(new DestinationBuilder()//
-                        .setDestNode(dstNId)
-                        .setDestTp(dstTpId).build())//
+                        .setDestNode(dstNId).setDestTp(dstTpId).build())//
                 .setLinkId(new LinkId(srcTpId.getValue() + "/" + dstTpId.getValue()));
         srcdst.setKey(new LinkKey(srcdst.getLinkId()));
         LinkBuilder dstsrc = new LinkBuilder()//
@@ -46,8 +45,7 @@ public class Utilities {
                         .setSourceNode(dstNId)//
                         .setSourceTp(dstTpId).build())//
                 .setDestination(new DestinationBuilder()//
-                        .setDestNode(srcNId)
-                        .setDestTp(srcTpId).build())//
+                        .setDestNode(srcNId).setDestTp(srcTpId).build())//
                 .setLinkId(new LinkId(dstTpId.getValue() + "/" + srcTpId.getValue()));
         dstsrc.setKey(new LinkKey(dstsrc.getLinkId()));
         links.add(dstsrc.build());
