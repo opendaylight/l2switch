@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_4ba7fc4f",
+        "filename": "features/src/main/features/features.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5537
+      },
+      "writtenOn": "2016-04-05T19:02:58Z",
+      "side": 1,
+      "message": "+1 on the technical accuracy of the comment. Just a note that the dependency is on address-tracker model alone (and not the implementation)\n\nSince there is no code change, I am wondering if this kind of dependency info is better suited on ODL L2switch wiki (where we can provide info on other feature dependencies also) than inline in the code",
+      "revId": "1426e63185d02d351cedbeb5f3a8e5499a8e2f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
