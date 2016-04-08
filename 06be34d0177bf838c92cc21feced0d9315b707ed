@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a4c51b2_d509da96",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2016-04-08T21:04:38Z",
+      "side": 1,
+      "message": "Should have a blank line after this line so that Git UIs can render the summary properly.",
+      "revId": "06be34d0177bf838c92cc21feced0d9315b707ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
