@@ -18,48 +18,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AddressObserver listens to ARP packets to find addresses (mac, ip) and
- * store these address observations for each node-connector.
- * These packets are returned to the network after the addresses are learned.
+ * AddressObserver listens to ARP packets to find addresses (mac, ip) and store
+ * these address observations for each node-connector. These packets are
+ * returned to the network after the addresses are learned.
  */
 public class AddressObserverUsingArp implements ArpPacketListener {
 
-  private final static Logger _logger = LoggerFactory.getLogger(AddressObserverUsingArp.class);
-  private org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter;
+    private final static Logger LOG = LoggerFactory.getLogger(AddressObserverUsingArp.class);
+    private org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter;
 
-  public AddressObserverUsingArp(org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter) {
-    this.addressObservationWriter = addressObservationWriter;
-  }
-
-  /**
-   * The handler function for ARP packets.
-   *
-   * @param packetReceived The incoming packet.
-   */
-  @Override
-  public void onArpPacketReceived(ArpPacketReceived packetReceived) {
-    if(packetReceived == null || packetReceived.getPacketChain() == null) {
-      return;
+    public AddressObserverUsingArp(
+            org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter) {
+        this.addressObservationWriter = addressObservationWriter;
     }
 
-    RawPacket rawPacket = null;
-    EthernetPacket ethernetPacket = null;
-    ArpPacket arpPacket = null;
-    for(PacketChain packetChain : packetReceived.getPacketChain()) {
-      if(packetChain.getPacket() instanceof RawPacket) {
-        rawPacket = (RawPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof EthernetPacket) {
-        ethernetPacket = (EthernetPacket) packetChain.getPacket();
-      } else if(packetChain.getPacket() instanceof ArpPacket) {
-        arpPacket = (ArpPacket) packetChain.getPacket();
-      }
-    }
-    if(rawPacket == null || ethernetPacket == null || arpPacket == null) {
-      return;
-    }
+    /**
+     * The handler function for ARP packets.
+     *
+     * @param packetReceived
+     *            The incoming packet.
+     */
+    @Override
+    public void onArpPacketReceived(ArpPacketReceived packetReceived) {
+        if (packetReceived == null || packetReceived.getPacketChain() == null) {
+            return;
+        }
 
-    addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
-        new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()),
-        rawPacket.getIngress());
-  }
+        RawPacket rawPacket = null;
+        EthernetPacket ethernetPacket = null;
+        ArpPacket arpPacket = null;
+        for (PacketChain packetChain : packetReceived.getPacketChain()) {
+            if (packetChain.getPacket() instanceof RawPacket) {
+                rawPacket = (RawPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof EthernetPacket) {
+                ethernetPacket = (EthernetPacket) packetChain.getPacket();
+            } else if (packetChain.getPacket() instanceof ArpPacket) {
+                arpPacket = (ArpPacket) packetChain.getPacket();
+            }
+        }
+        if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
+            return;
+        }
+
+        addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
+                new IpAddress(arpPacket.getSourceProtocolAddress().toCharArray()), rawPacket.getIngress());
+    }
 }

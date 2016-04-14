@@ -15,29 +15,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
  */
 public interface FlowWriterService {
 
-  /**
-   * Writes a flow that forwards packets to destPort if destination mac in packet is destMac and
-   * source Mac in packet is sourceMac. If sourceMac is null then flow would not set any source mac,
-   * resulting in all packets with destMac being forwarded to destPort.
-   *
-   * @param sourceMac
-   * @param destMac
-   * @param destNodeConnectorRef
-   */
-  public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
+    /**
+     * Writes a flow that forwards packets to destPort if destination mac in
+     * packet is destMac and source Mac in packet is sourceMac. If sourceMac is
+     * null then flow would not set any source mac, resulting in all packets
+     * with destMac being forwarded to destPort.
+     *
+     * @param sourceMac
+     * @param destMac
+     * @param destNodeConnectorRef
+     */
+    public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
 
-  /**
-   * Writes mac-to-mac flow on all ports that are in the path between given source and destination ports.
-   * It uses path provided by org.opendaylight.l2switch.loopremover.topology.NetworkGraphService
-   * to find a links{@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
-   * between given ports. And then writes appropriate flow on each port that is covered in that path.
-   *
-   * @param sourceMac
-   * @param sourceNodeConnectorRef
-   * @param destMac
-   * @param destNodeConnectorRef
-   */
-  public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef, MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
-
+    /**
+     * Writes mac-to-mac flow on all ports that are in the path between given
+     * source and destination ports. It uses path provided by
+     * org.opendaylight.l2switch.loopremover.topology.NetworkGraphService to
+     * find a links
+     * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
+     * between given ports. And then writes appropriate flow on each port that
+     * is covered in that path.
+     *
+     * @param sourceMac
+     * @param sourceNodeConnectorRef
+     * @param destMac
+     * @param destNodeConnectorRef
+     */
+    public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef,
+            MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
 
 }

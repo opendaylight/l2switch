@@ -7,6 +7,10 @@
  */
 package org.opendaylight.l2switch.loopremover.flow;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -27,53 +31,50 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
-
 public class InitialFlowWriterTest {
 
-  @MockitoAnnotations.Mock private SalFlowService salFlowService;
-  private InitialFlowWriter initialFlowWriter;
+    @MockitoAnnotations.Mock
+    private SalFlowService salFlowService;
+    private InitialFlowWriter initialFlowWriter;
 
-  @Before
-  public void initMocks() {
-    MockitoAnnotations.initMocks(this);
-    initialFlowWriter = new InitialFlowWriter(salFlowService);
-  }
+    @Before
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
+        initialFlowWriter = new InitialFlowWriter(salFlowService);
+    }
 
+    @Test
+    public void onNodeConnectorRemoved() throws Exception {
+        NodeConnectorRemoved nodeConnectorRemoved = new NodeConnectorRemovedBuilder().build();
+        initialFlowWriter.onNodeConnectorRemoved(nodeConnectorRemoved);
+    }
 
-  @Test
-  public void onNodeConnectorRemoved() throws Exception {
-    NodeConnectorRemoved nodeConnectorRemoved = new NodeConnectorRemovedBuilder().build();
-    initialFlowWriter.onNodeConnectorRemoved(nodeConnectorRemoved);
-  }
+    @Test
+    public void onNodeConnectorUpdated() throws Exception {
+        NodeConnectorUpdated nodeConnectorUpdated = new NodeConnectorUpdatedBuilder().build();
+        initialFlowWriter.onNodeConnectorUpdated(nodeConnectorUpdated);
+    }
 
-  @Test
-  public void onNodeConnectorUpdated() throws Exception {
-    NodeConnectorUpdated nodeConnectorUpdated = new NodeConnectorUpdatedBuilder().build();
-    initialFlowWriter.onNodeConnectorUpdated(nodeConnectorUpdated);
-  }
+    @Test
+    public void onNodeRemoved() throws Exception {
+        NodeRemoved nodeRemoved = new NodeRemovedBuilder().build();
+        initialFlowWriter.onNodeRemoved(nodeRemoved);
+    }
 
-  @Test
-  public void onNodeRemoved() throws Exception {
-    NodeRemoved nodeRemoved = new NodeRemovedBuilder().build();
-    initialFlowWriter.onNodeRemoved(nodeRemoved);
-  }
+    @Test
+    public void onNodeUpdated_Null() throws Exception {
+        initialFlowWriter.onNodeUpdated(null);
+        Thread.sleep(250);
+        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
+    }
 
-  @Test
-  public void onNodeUpdated_Null() throws Exception {
-    initialFlowWriter.onNodeUpdated(null);
-    Thread.sleep(250);
-    verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-  }
-
-  @Test
-  public void onNodeUpdated_Valid() throws Exception {
-    InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(""))).build();
-    NodeUpdated nodeUpdated = new NodeUpdatedBuilder().setNodeRef(new NodeRef(nodeInstanceIdentifier)).build();
-    initialFlowWriter.onNodeUpdated(nodeUpdated);
-    Thread.sleep(250);
-    verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
-  }
+    @Test
+    public void onNodeUpdated_Valid() throws Exception {
+        InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(""))).build();
+        NodeUpdated nodeUpdated = new NodeUpdatedBuilder().setNodeRef(new NodeRef(nodeInstanceIdentifier)).build();
+        initialFlowWriter.onNodeUpdated(nodeUpdated);
+        Thread.sleep(250);
+        verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
+    }
 }
