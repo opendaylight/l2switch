@@ -1,17 +1,19 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.packet.packet.handler.impl.rev140528;
 
 import com.google.common.collect.ImmutableSet;
+
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.IcmpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
 import org.opendaylight.l2switch.packethandler.decoders.Ipv6Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PacketHandlerModule extends
-        org.opendaylight.yang.gen.v1.urn.opendaylight.packet.packet.handler.impl.rev140528.AbstractPacketHandlerModule {
+public class PacketHandlerModule
+        extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.packet.handler.impl.rev140528.AbstractPacketHandlerModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(PacketHandlerModule.class);
     ImmutableSet<AbstractPacketDecoder> decoders;
@@ -52,10 +54,9 @@ public class PacketHandlerModule extends
     }
 
     private void initiateDecoders(NotificationProviderService notificationProviderService) {
-        decoders = new ImmutableSet.Builder<AbstractPacketDecoder>()
-                .add(new EthernetDecoder(notificationProviderService)).add(new ArpDecoder(notificationProviderService))
-                .add(new Ipv4Decoder(notificationProviderService)).add(new Ipv6Decoder(notificationProviderService))
-                .build();
+        decoders = new ImmutableSet.Builder<AbstractPacketDecoder>().add(new EthernetDecoder(notificationProviderService))
+                .add(new ArpDecoder(notificationProviderService)).add(new Ipv4Decoder(notificationProviderService))
+                .add(new Ipv6Decoder(notificationProviderService)).add(new IcmpDecoder(notificationProviderService)).build();
     }
 
     private void closeDecoders() throws Exception {

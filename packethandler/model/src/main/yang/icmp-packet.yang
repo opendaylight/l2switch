@@ -1,0 +1,47 @@
+module icmp-packet {
+    yang-version 1;
+    namespace "urn:opendaylight:packet:icmp";
+    prefix icmp;
+
+    import base-packet { prefix bpacket; revision-date 2014-05-28; }
+
+    revision 2014-05-28 {
+        description
+                "ICMP packet module draft.";
+    }
+
+    grouping icmp-packet-fields {
+        leaf type {
+            type uint8;
+        }
+
+        leaf code {
+            type uint8;
+        }
+
+        leaf crc {
+            type uint16;
+        }
+
+        leaf identifier {
+            type uint16;
+        }
+
+        leaf sequence-number {
+            type uint16;
+        }
+
+        uses bpacket:packet-fields;
+    }
+
+    notification icmp-packet-received {
+        uses bpacket:packet-chain-grp {
+            augment "packet-chain/packet" {
+                case icmp-packet {
+                    uses icmp-packet-fields;
+                }
+            }
+        }
+        uses bpacket:packet-payload;
+    }
+}
