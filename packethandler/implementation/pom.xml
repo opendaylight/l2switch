@@ -53,7 +53,10 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>org.opendaylight.l2switch.packethandler.decoders,</Export-Package>
+            <Export-Package>
+              org.opendaylight.l2switch.packethandler.decoders,
+              org.opendaylight.l2switch.packethandler.decoders.utils,
+            </Export-Package>
             <Import-Package>*</Import-Package>
           </instructions>
         </configuration>

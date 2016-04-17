@@ -12,6 +12,7 @@ import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
+import org.opendaylight.l2switch.packethandler.decoders.IcmpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
 import org.opendaylight.l2switch.packethandler.decoders.Ipv6Decoder;
 import org.slf4j.Logger;
@@ -30,9 +31,9 @@ public class PacketHandlerProvider {
 
     public void initiateDecoders() {
         decoders = new ImmutableSet.Builder<AbstractPacketDecoder>()
-                .add(new EthernetDecoder(notificationService)).add(new ArpDecoder(notificationService))
-                .add(new Ipv4Decoder(notificationService)).add(new Ipv6Decoder(notificationService))
-                .build();
+                .add(new EthernetDecoder(notificationService))
+                .add(new ArpDecoder(notificationService)).add(new Ipv4Decoder(notificationService))
+                .add(new Ipv6Decoder(notificationService)).add(new IcmpDecoder(notificationService)).build();
         LOG.info("PacketHandler initialized.");
     }
 
