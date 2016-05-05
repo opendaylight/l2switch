@@ -16,7 +16,6 @@
   <properties>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
-    <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
     <branding.version>1.2.3-SNAPSHOT</branding.version>
     <karaf.resources.version>1.6.3-SNAPSHOT</karaf.resources.version>
     <mdsal.version>2.0.3-SNAPSHOT</mdsal.version>
