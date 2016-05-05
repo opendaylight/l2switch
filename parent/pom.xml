@@ -16,7 +16,6 @@
   <properties>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
-    <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
     <mdsal.version>1.2.5-SNAPSHOT</mdsal.version>
     <yangtools.version>0.7.5-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
@@ -76,7 +75,7 @@
     <repository>
       <id>opendaylight-mirror</id>
       <name>opendaylight-mirror</name>
-      <url>http://nexus.opendaylight.org/content/groups/public/</url>
+      <url>${nexusproxy}/groups/public/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -90,7 +89,7 @@
     <repository>
       <id>opendaylight-snapshot</id>
       <name>opendaylight-snapshot</name>
-      <url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+      <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
