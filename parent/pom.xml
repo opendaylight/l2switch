@@ -16,7 +16,6 @@
   <properties>
     <codeGeneratorPath>src/main/yang-gen-code</codeGeneratorPath>
     <configCodeGeneratorPath>src/main/yang-gen-config</configCodeGeneratorPath>
-    <nexus_proxy>http://nexus.opendaylight.org/content</nexus_proxy>
     <mdsal.version>1.3.2-SNAPSHOT</mdsal.version>
     <yangtools.version>0.8.2-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
