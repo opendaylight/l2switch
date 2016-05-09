@@ -14,22 +14,16 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArpHandlerModule extends
-        org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.AbstractArpHandlerModule {
+public class ArpHandlerModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.AbstractArpHandlerModule {
 
     private final static Logger LOG = LoggerFactory.getLogger(ArpHandlerModule.class);
-    private Registration listenerRegistration = null, floodTopoListenerReg = null, floodInvListenerReg = null,
-            invListenerReg = null;
+    private Registration listenerRegistration = null, floodTopoListenerReg = null, floodInvListenerReg = null, topoNodeListenerReg = null;
 
-    public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.ArpHandlerModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
+    public ArpHandlerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.impl.rev140528.ArpHandlerModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -45,8 +39,8 @@ public class ArpHandlerModule extends
         RpcProviderRegistry rpcRegistryDependency = getRpcRegistryDependency();
         SalFlowService salFlowService = rpcRegistryDependency.getRpcService(SalFlowService.class);
 
-        if (getIsProactiveFloodMode()) {
-            // Setup proactive flow writer, which writes flood flows
+        if(getIsProactiveFloodMode()) {
+            //Setup proactive flow writer, which writes flood flows
             LOG.info("ArpHandler is in Proactive Flood Mode");
             ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataService, salFlowService);
             floodFlowWriter.setFlowTableId(getFloodFlowTableId());
@@ -58,7 +52,7 @@ public class ArpHandlerModule extends
             floodInvListenerReg = notificationService.registerNotificationListener(floodFlowWriter);
         } else {
 
-            // Write initial flows to send arp to controller
+            //Write initial flows to send arp to controller
             LOG.info("ArpHandler is in Reactive Mode");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
             initialFlowWriter.setFlowTableId(getArpFlowTableId());
@@ -66,14 +60,14 @@ public class ArpHandlerModule extends
             initialFlowWriter.setFlowIdleTimeout(getArpFlowIdleTimeout());
             initialFlowWriter.setFlowHardTimeout(getArpFlowHardTimeout());
             initialFlowWriter.setIsHybridMode(getIsHybridMode());
-            invListenerReg = notificationService.registerNotificationListener(initialFlowWriter);
+            topoNodeListenerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
 
             // Setup InventoryReader
             InventoryReader inventoryReader = new InventoryReader(dataService);
 
             // Setup PacketDispatcher
-            PacketProcessingService packetProcessingService = rpcRegistryDependency
-                    .<PacketProcessingService>getRpcService(PacketProcessingService.class);
+            PacketProcessingService packetProcessingService =
+                    rpcRegistryDependency.<PacketProcessingService>getRpcService(PacketProcessingService.class);
             PacketDispatcher packetDispatcher = new PacketDispatcher();
             packetDispatcher.setInventoryReader(inventoryReader);
             packetDispatcher.setPacketProcessingService(packetProcessingService);
@@ -88,17 +82,17 @@ public class ArpHandlerModule extends
         final class CloseResources implements AutoCloseable {
             @Override
             public void close() throws Exception {
-                if (listenerRegistration != null) {
+                if(listenerRegistration != null) {
                     listenerRegistration.close();
                 }
-                if (floodTopoListenerReg != null) {
+                if(floodTopoListenerReg != null) {
                     floodTopoListenerReg.close();
                 }
-                if (floodInvListenerReg != null) {
+                if(floodInvListenerReg != null) {
                     floodInvListenerReg.close();
                 }
-                if (invListenerReg != null) {
-                    invListenerReg.close();
+                if(topoNodeListenerReg != null) {
+                    topoNodeListenerReg.close();
                 }
                 LOG.info("ArpHandler (instance {}) torn down.", this);
             }
@@ -109,9 +103,7 @@ public class ArpHandlerModule extends
     }
 
     /**
-     * Reads config subsystem to determine the flood mode (proactive or
-     * reactive)
-     *
+     * Reads config subsystem to determine the flood mode (proactive or reactive)
      * @return True if the flood mode is proactive
      */
     private boolean isProactiveFloodMode() {
