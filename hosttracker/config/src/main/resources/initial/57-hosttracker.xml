@@ -19,9 +19,10 @@
 
                     <topology-id>flow:1</topology-id>
                     <host-purge-interval>0</host-purge-interval> <!-- in seconds, 0 disables host purging -->
-                    <host-purge-age>3600</host-purge-age> <!-- in seconds, It is valid only if host-purge-interval > 0,
+                    <host-purge-age>600</host-purge-age> <!-- in seconds, It is valid only if host-purge-interval > 0,
                     Before modifying this configurable variable please consider default flow idletimeout/hardtimeout
-                    values installed by l2switch -->
+                    values installed by l2switch in l2switch-main module; Also consider timestamp-update-interval value
+                    in addressTracker module -->
                     <notification-service>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
                             binding:binding-notification-service
