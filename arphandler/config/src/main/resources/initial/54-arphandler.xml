@@ -25,6 +25,12 @@
           <flood-flow-idle-timeout>0</flood-flow-idle-timeout>
           <flood-flow-hard-timeout>0</flood-flow-hard-timeout>
           <flood-flow-installation-delay>2000</flood-flow-installation-delay>
+          <!--
+          setting <is-proactive-flood-mode> to false is same as passive discovery mode,
+          where arp packets are sent to controller
+          setting <is-proactive-flood-mode> to true refers to proactive flood mode
+          where flood flows are automatically written to each switch.
+          -->
           <is-proactive-flood-mode>true</is-proactive-flood-mode>
           <is-hybrid-mode>false</is-hybrid-mode>
 
