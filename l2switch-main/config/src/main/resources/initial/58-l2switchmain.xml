@@ -24,8 +24,8 @@
           <dropall-flow-hard-timeout>0</dropall-flow-hard-timeout>
           <reactive-flow-table-id>0</reactive-flow-table-id>
           <reactive-flow-priority>10</reactive-flow-priority>
-          <reactive-flow-idle-timeout>1800</reactive-flow-idle-timeout>
-          <reactive-flow-hard-timeout>3600</reactive-flow-hard-timeout>
+          <reactive-flow-idle-timeout>300</reactive-flow-idle-timeout>
+          <reactive-flow-hard-timeout>600</reactive-flow-hard-timeout>
 
           <notification-service>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">
