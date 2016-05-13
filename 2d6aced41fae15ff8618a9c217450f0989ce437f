@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: André Martins <aanm90@gmail.com>
+Code-Review+2: Evan Zeller <evanrzeller@gmail.com>
+Submitted-by: Evan Zeller <evanrzeller@gmail.com>
+Submitted-at: Fri, 13 May 2016 18:38:24 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/33928
+Project: l2switch
+Branch: refs/heads/stable/beryllium
