@@ -33,7 +33,7 @@ public class HostTrackerModule extends org.opendaylight.yang.gen.v1.urn.opendayl
         DataBroker dataService = getDataBrokerDependency();
 
         //ITopologyManager topologyManager = (ITopologyManager) ServiceHelper.getInstance(ITopologyManager.class, GlobalConstants.DEFAULT.toString(), this);
-        mdHostTrackerImpl = new HostTrackerImpl(dataService, getTopologyId());
+        mdHostTrackerImpl = new HostTrackerImpl(dataService, getTopologyId(), this.getHostPurgeAge(), this.getHostPurgeInterval());
         mdHostTrackerImpl.registerAsDataChangeListener();
         //simpleAddressObserver = new SimpleAddressObserver(mdHostTrackerImpl, notificationService);
         //simpleAddressObserver.registerAsNotificationListener();
