@@ -13,11 +13,6 @@ module ipv4-packet {
     revision-date 2014-05-28;
   }
 
-  import ethernet-packet {
-    prefix ethernet;
-    revision-date 2014-05-28;
-  }
-
   revision 2014-05-28 {
     description
       "IPv4 packet module draft.";
