@@ -74,6 +74,8 @@ public class AddressObservationWriter {
      *
      * @param macAddress
      *            The MacAddress of the new L2Address object
+     * @param ipAddress
+     *            The Source Protocol Address
      * @param nodeConnectorRef
      *            The NodeConnectorRef of the new L2Address object
      */
