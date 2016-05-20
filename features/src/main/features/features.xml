@@ -39,7 +39,6 @@
   <feature name='odl-l2switch-arphandler' description="OpenDaylight :: L2Switch :: ArpHandler" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-packethandler</feature>
     <feature version="${project.version}">odl-l2switch-loopremover</feature>
-    <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.l2switch.arphandler/arphandler-impl/{{VERSION}}</bundle>
     <configfile finalname="${config.configfile.directory}/${config.arphandler.configfile}">mvn:org.opendaylight.l2switch.arphandler/arphandler-config/{{VERSION}}/xml/config</configfile>
   </feature>
