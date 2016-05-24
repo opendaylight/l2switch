@@ -1,0 +1,9 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Jamo Luhrsen <jluhrsen@redhat.com>
+Code-Review+1: Ajay L <ajayl.bro@gmail.com>
+Code-Review+2: Evan Zeller <evanrzeller@gmail.com>
+Submitted-by: Evan Zeller <evanrzeller@gmail.com>
+Submitted-at: Tue, 24 May 2016 23:12:50 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/38489
+Project: l2switch
+Branch: refs/heads/stable/beryllium
