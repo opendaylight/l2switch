@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_6cf475f2",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/IcmpDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1681
+      },
+      "writtenOn": "2016-06-22T17:53:41Z",
+      "side": 1,
+      "message": "need to set the \"Payload Offset\" and \"Payload Length\" of the icmp payload for ease of further decoding the packet, for the consumer of this notification.\nSimilar to how this code makes use of Ipv4 offset to initiate bit offset above.",
+      "revId": "7ddd24199f05b5494563ec0b83ac339da77d9e9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
