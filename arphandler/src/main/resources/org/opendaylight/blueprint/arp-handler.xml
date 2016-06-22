@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="default" />
+  <reference id="notificationProviderService"
+    interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
+
+  <odl:clustered-app-config id="arpHandlerConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig">
+  </odl:clustered-app-config>
+
+  <odl:rpc-service id="salFlowService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+  <odl:rpc-service id="packetHandlerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+
+  <bean id="arpHandlerProvider"
+    class="org.opendaylight.l2switch.arphandler.core.ArpHandlerProvider"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="notificationProviderService" />
+    <argument ref="salFlowService" />
+    <argument ref="packetHandlerService" />
+    <argument ref="arpHandlerConfig" />
+  </bean>
+
+</blueprint>
