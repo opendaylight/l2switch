@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.Host
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.config.rev140528.HostTrackerConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -79,21 +80,19 @@ public class HostTrackerImpl implements DataChangeListener {
      * it requests to purge hosts that are not seen for hostPurgeAgeInput time interval.
      *
      * @param dataService A reference to the MD-SAL
-     * @param topologyId The topology on which this host tracker will look for hosts
-     * @param hostPurgeAgeInput how old the last observation of a host must be before it will be purged
-     * @param hostPurgeIntervalInput how often to calculate hosts to be purged and remove them
+     * @param config Default configuration
      */
-    public HostTrackerImpl(final DataBroker dataService, final String topologyId, final long hostPurgeAgeInput,
-                           final long hostPurgeIntervalInput) {
+    public HostTrackerImpl(final DataBroker dataService, final HostTrackerConfig config) {
         Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
-        Preconditions.checkArgument(hostPurgeAgeInput >= 0, "hostPurgeAgeInput must be non-negative");
-        Preconditions.checkArgument(hostPurgeIntervalInput >= 0, "hostPurgeIntervalInput must be non-negative");
+        Preconditions.checkArgument(config.getHostPurgeAge() >= 0, "hostPurgeAgeInput must be non-negative");
+        Preconditions.checkArgument(config.getHostPurgeInterval() >= 0, "hostPurgeIntervalInput must be non-negative");
         this.dataService = dataService;
-        this.hostPurgeAge = hostPurgeAgeInput;
-        this.hostPurgeInterval = hostPurgeIntervalInput;
+        this.hostPurgeAge = config.getHostPurgeAge();
+        this.hostPurgeInterval = config.getHostPurgeInterval();
         this.opProcessor = new OperationProcessor(dataService);
         Thread processorThread = new Thread(opProcessor);
         processorThread.start();
+        final String topologyId = config.getTopologyId();
         if (topologyId == null || topologyId.isEmpty()) {
             this.topologyId = TOPOLOGY_NAME;
         } else {
@@ -102,7 +101,7 @@ public class HostTrackerImpl implements DataChangeListener {
         this.hosts = new ConcurrentClusterAwareHostHashMap<>(opProcessor, this.topologyId);
         this.links = new ConcurrentClusterAwareLinkHashMap<>(opProcessor, this.topologyId);
 
-        if (hostPurgeIntervalInput > 0) {
+        if (hostPurgeInterval > 0) {
             exec.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
@@ -112,7 +111,7 @@ public class HostTrackerImpl implements DataChangeListener {
         }
     }
 
-    public void registerAsDataChangeListener() {
+    public void init() {
         InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
                 InstanceIdentifier.builder(Nodes.class) //
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class) //

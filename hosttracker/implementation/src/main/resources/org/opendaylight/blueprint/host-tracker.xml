@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="default" />
+
+  <odl:clustered-app-config id="hostTrackerConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.config.rev140528.HostTrackerConfig">
+  </odl:clustered-app-config>
+
+  <bean id="hostTrackerImpl"
+    class="org.opendaylight.l2switch.hosttracker.plugin.internal.HostTrackerImpl"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="hostTrackerConfig" />
+  </bean>
+
+</blueprint>
