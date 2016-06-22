@@ -1,4 +1,12 @@
-package org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.impl.rev140528;
+/*
+ * Copyright (c) 2016 Inocybe and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,47 +14,36 @@ import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter;
-import org.opendaylight.l2switch.addresstracker.addressobserver.AddressObserverUsingArp;
-import org.opendaylight.l2switch.addresstracker.addressobserver.AddressObserverUsingIpv4;
-import org.opendaylight.l2switch.addresstracker.addressobserver.AddressObserverUsingIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AddressTrackerModule extends
-        org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.impl.rev140528.AbstractAddressTrackerModule {
+public class AddressTrackerProvider {
 
-    private final static Logger LOG = LoggerFactory.getLogger(AddressTrackerModule.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AddressTrackerProvider.class);
     private List<Registration> listenerRegistrations = new ArrayList<>();
     private static String ARP_PACKET_TYPE = "arp", IPV4_PACKET_TYPE = "ipv4", IPV6_PACKET_TYPE = "ipv6";
 
-    public AddressTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-        super(identifier, dependencyResolver);
+    private final NotificationProviderService notificationService;
+    private final DataBroker dataBroker;
+    private final Long timestampUpdateInterval;
+    private final String observerAddressesFrom;
+
+    public AddressTrackerProvider(final DataBroker dataBroker,
+            final NotificationProviderService notificationProviderService,
+            final AddressTrackerConfig config) {
+        this.notificationService = notificationProviderService;
+        this.dataBroker = dataBroker;
+        this.timestampUpdateInterval = config.getTimestampUpdateInterval();
+        this.observerAddressesFrom = config.getObserveAddressesFrom();
     }
 
-    public AddressTrackerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.impl.rev140528.AddressTrackerModule oldModule,
-            java.lang.AutoCloseable oldInstance) {
-        super(identifier, dependencyResolver, oldModule, oldInstance);
-    }
-
-    @Override
-    public void customValidation() {
-        // add custom validation form module attributes here.
-    }
-
-    @Override
-    public java.lang.AutoCloseable createInstance() {
-        NotificationProviderService notificationService = getNotificationServiceDependency();
-        DataBroker dataService = getDataBrokerDependency();
-
+    public void init() {
         // Setup AddressObserver & AddressObservationWriter
-        AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
-        addressObservationWriter.setTimestampUpdateInterval(getTimestampUpdateInterval());
-        Set<String> packetTypes = processObserveAddressesFrom(getObserveAddressesFrom());
+        AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataBroker);
+        addressObservationWriter.setTimestampUpdateInterval(timestampUpdateInterval);
+        Set<String> packetTypes = processObserveAddressesFrom(observerAddressesFrom);
 
         if (packetTypes == null || packetTypes.isEmpty()) { // set default to
                                                             // arp
@@ -71,20 +68,19 @@ public class AddressTrackerModule extends
             this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingIpv6));
         }
 
-        final class CloseResources implements AutoCloseable {
-            @Override
-            public void close() throws Exception {
-                if (listenerRegistrations != null && !listenerRegistrations.isEmpty()) {
-                    for (Registration listenerRegistration : listenerRegistrations)
-                        listenerRegistration.close();
-                }
-                LOG.info("AddressTracker (instance {}) torn down.", this);
-            }
-        }
-        AutoCloseable ret = new CloseResources();
-        LOG.info("AddressTracker (instance {}) initialized.", ret);
-        return ret;
+        LOG.info("AddressTracker initialized.");
+    }
 
+    public void close() {
+        if (listenerRegistrations != null && !listenerRegistrations.isEmpty()) {
+            for (Registration listenerRegistration : listenerRegistrations)
+                try {
+                    listenerRegistration.close();
+                } catch (Exception e) {
+                    LOG.error("Failed to close registration={}", listenerRegistration, e);
+                }
+        }
+        LOG.info("AddressTracker torn down.", this);
     }
 
     private Set<String> processObserveAddressesFrom(String observeAddressesFrom) {
@@ -103,5 +99,4 @@ public class AddressTrackerModule extends
         }
         return packetTypes;
     }
-
 }
