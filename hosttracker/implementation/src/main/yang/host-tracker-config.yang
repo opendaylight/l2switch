@@ -1,0 +1,37 @@
+module host-tracker-config {
+
+    yang-version 1;
+    namespace "urn:opendaylight:l2switch:host-tracker-config";
+    prefix "host-tracker-impl";
+
+    description
+        "This module contains the base configuration for host-tracker
+        implementation.";
+
+    revision 2014-05-28 {
+        description "Initial module draft.";
+    }
+
+    container host-tracker-config {
+        leaf topology-id {
+            type string;
+            default "flow:1";
+        }
+        leaf host-purge-interval {
+            type int64;
+            default 0;
+            description "The interval in seconds (0 disables host purging) at which to
+                        evaluate whether hosts should be removed in seconds";
+        }
+        leaf host-purge-age {
+            type int64;
+            default 600;
+            description "How long a host must have been unobserved for it to be removed
+                        in seconds. In seconds, It is valid only if host-purge-interval
+                        > 0, Before modifying this configurable variable please consider
+                        default flow idletimeout/hardtimeout values installed by l2switch
+                        in l2switch-main module; Also consider timestamp-update-interval
+                        value in addressTracker module";
+        }
+    }
+}
