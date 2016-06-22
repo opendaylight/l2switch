@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="default" />
+
+  <odl:clustered-app-config id="loopRemoverConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig">
+  </odl:clustered-app-config>
+
+  <odl:rpc-service id="salFlowService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+
+  <bean id="loopRemover"
+    class="org.opendaylight.l2switch.loopremover.LoopRemoverProvider"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="salFlowService" />
+    <argument ref="loopRemoverConfig" />
+  </bean>
+
+</blueprint>
