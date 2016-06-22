@@ -22,7 +22,6 @@
     <mdsal.version>1.4.0-SNAPSHOT</mdsal.version>
     <openflow.plugin.version>0.3.0-SNAPSHOT</openflow.plugin.version>
     <restconf.version>1.4.0-SNAPSHOT</restconf.version>
-    <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
   </properties>
 
   <dependencyManagement>
@@ -73,12 +72,6 @@
     <dependency>
       <groupId>org.opendaylight.l2switch.packethandler</groupId>
       <artifactId>packethandler-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.packethandler</groupId>
-      <artifactId>packethandler-config</artifactId>
-      <type>xml</type>
-      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
