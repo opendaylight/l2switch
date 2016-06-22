@@ -26,7 +26,6 @@
     <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
     <config.arphandler.configfile>54-arphandler.xml</config.arphandler.configfile>
-    <config.addresstracker.configfile>56-addresstracker.xml</config.addresstracker.configfile>
     <config.hosttracker.configfile>57-hosttracker.xml</config.hosttracker.configfile>
     <config.l2switchmain.configfile>58-l2switchmain.xml</config.l2switchmain.configfile>
   </properties>
@@ -89,12 +88,6 @@
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
       <artifactId>addresstracker-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-      <artifactId>addresstracker-config</artifactId>
-      <type>xml</type>
-      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
