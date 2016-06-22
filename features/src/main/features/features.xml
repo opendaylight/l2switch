@@ -12,7 +12,6 @@
     <feature version="${project.version}">odl-l2switch-hosttracker</feature>
     <feature version="${project.version}">odl-l2switch-arphandler</feature>
     <bundle>mvn:org.opendaylight.l2switch.main/main-impl/{{VERSION}}</bundle>
-    <configfile finalname="${config.configfile.directory}/${config.l2switchmain.configfile}">mvn:org.opendaylight.l2switch.main/main-config/{{VERSION}}/xml/config</configfile>
   </feature>
   <feature name='odl-l2switch-switch-rest' description="OpenDaylight :: L2Switch :: Switch" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-switch</feature>
