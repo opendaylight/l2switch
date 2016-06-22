@@ -1,0 +1,56 @@
+module l2switch-config {
+
+    yang-version 1;
+    namespace "urn:opendaylight:l2switch:l2switch-config";
+    prefix "l2switch-config";
+
+    description
+        "This module contains the base configuration for main implementation.";
+
+    revision 2014-05-28 {
+        description "Initial module draft.";
+    }
+
+    container l2switch-config {
+        leaf is-learning-only-mode {
+            type boolean;
+            default false;
+        }
+        leaf is-install-dropall-flow {
+            type boolean;
+            default true;
+        }
+        leaf dropall-flow-table-id {
+            type uint8;
+            default 0;
+        }
+        leaf dropall-flow-priority {
+            type uint16;
+            default 0;
+        }
+        leaf dropall-flow-hard-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf dropall-flow-idle-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf reactive-flow-table-id {
+            type uint8;
+            default 0;
+        }
+        leaf reactive-flow-priority {
+            type uint16;
+            default 10;
+        }
+        leaf reactive-flow-hard-timeout {
+            type uint16;
+            default 300;
+        }
+        leaf reactive-flow-idle-timeout {
+            type uint16;
+            default 600;
+        }
+    }
+}
