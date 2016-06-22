@@ -1,0 +1,65 @@
+module arp-handler-config {
+
+    yang-version 1;
+    namespace "urn:opendaylight:packet:arp-handler-config";
+    prefix "arp-handler-config";
+
+    description
+        "This module contains the base configuration for arphandler-impl
+        implementation.";
+
+    revision 2014-05-28 {
+        description "Initial revision.";
+    }
+
+    container arp-handler-config {
+        leaf arp-flow-table-id {
+            type uint8;
+            default 0;
+        }
+        leaf arp-flow-priority {
+            type uint16;
+            default 1;
+        }
+        leaf arp-flow-hard-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf arp-flow-idle-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf flood-flow-table-id {
+            type uint8;
+            default 0;
+        }
+        leaf flood-flow-priority {
+            type uint16;
+            default 2;
+        }
+        leaf flood-flow-hard-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf flood-flow-idle-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf flood-flow-installation-delay {
+            type uint32;
+            default 2000;
+        }
+        leaf is-proactive-flood-mode {
+            type boolean;
+            default true;
+            description "Setting the value to false is same as passive discovery mode,
+                        where arp packets are sent to controller";
+        }
+        leaf is-hybrid-mode {
+            type boolean;
+            default false;
+            description "Setting the value to true refers to proactive flood mode where
+                        flood flows are automatically written to each switch.";
+        }
+    }
+}
