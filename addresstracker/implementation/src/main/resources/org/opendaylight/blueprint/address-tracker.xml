@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    odl:type="default" />
+  <reference id="notificationProviderService"
+    interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
+
+  <odl:clustered-app-config id="addressTrackerConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig
+">
+  </odl:clustered-app-config>
+
+  <bean id="addressTrackerProvider"
+    class="org.opendaylight.l2switch.addresstracker.addressobserver.AddressTrackerProvider"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="notificationProviderService" />
+    <argument ref="addressTrackerConfig" />
+  </bean>
+
+</blueprint>

@@ -1,0 +1,30 @@
+module address-tracker-config {
+
+    yang-version 1;
+    namespace "urn:opendaylight:packet:address-tracker-config";
+    prefix "address-tracker-config";
+
+    description
+        "This module contains the base configuration for address-tracker.";
+
+    revision 2016-06-21 {
+        description "Initial module draft.";
+    }
+
+    container address-tracker-config {
+        leaf timestamp-update-interval {
+            type uint32;
+            default 600000;
+            description "Value is in milliseconds. In case if you are using host-expiry
+                        feature, before modifying timestamp-update-interval please consider
+                        the host-purge-age value in hosttracker module, also consider
+                        default flow idletimeout/hardtimeout values installed by l2switch
+                        in l2switch-main module";
+        }
+        leaf observe-addresses-from {
+            type string;
+            default "arp";
+            description "All possible values for comma separated values e.g. arp,ipv,ipv6";
+        }
+    }
+}
