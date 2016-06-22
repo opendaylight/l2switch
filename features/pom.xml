@@ -24,7 +24,6 @@
     <restconf.version>1.4.0-SNAPSHOT</restconf.version>
     <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
     <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
-    <config.hosttracker.configfile>57-hosttracker.xml</config.hosttracker.configfile>
     <config.l2switchmain.configfile>58-l2switchmain.xml</config.l2switchmain.configfile>
   </properties>
 
@@ -112,12 +111,6 @@
     <dependency>
       <groupId>org.opendaylight.l2switch.hosttracker</groupId>
       <artifactId>hosttracker-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.l2switch.hosttracker</groupId>
-      <artifactId>hosttracker-config</artifactId>
-      <type>xml</type>
-      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.main</groupId>
