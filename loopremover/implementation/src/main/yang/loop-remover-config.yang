@@ -1,0 +1,45 @@
+module loop-remover-config {
+
+    yang-version 1;
+    namespace "urn:opendaylight:packet:loop-remover-config";
+    prefix "loop-remover-config";
+
+    description
+        "This module contains the base configuration for loop-remover
+        implementation.";
+
+    revision 2014-05-28 {
+        description "Initial module draft.";
+    }
+
+    container loop-remover-config {
+        leaf is-install-lldp-flow {
+            type boolean;
+            default true;
+        }
+        leaf lldp-flow-table-id {
+            type uint8;
+            default 0;
+        }
+        leaf lldp-flow-priority {
+            type uint16;
+            default 100;
+        }
+        leaf lldp-flow-hard-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf lldp-flow-idle-timeout {
+            type uint16;
+            default 0;
+        }
+        leaf graph-refresh-delay {
+            type uint32;
+            default 1000;
+        }
+        leaf topology-id {
+            type string;
+            default "flow:1";
+        }
+    }
+}
