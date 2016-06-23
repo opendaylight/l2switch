@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_35ee3c89",
+        "filename": "l2switch-main/src/main/yang/main-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-23T13:12:46Z",
+      "side": 1,
+      "message": "Can we call this l2switch-config? main-config is too general.",
+      "revId": "6905ab5241626a72fd04f81142339aa47bc4a4d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
