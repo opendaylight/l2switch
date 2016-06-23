@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba51214e_b546ccbd",
+        "filename": "addresstracker/implementation/src/main/yang/address-tracker-config.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-06-23T12:44:10Z",
+      "side": 1,
+      "message": "Ideally this should be an enum list element but I know you\u0027re preserving existing behavior.",
+      "revId": "f97d918ac9e7567349d4e90962a92b2e8a62d2fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
