@@ -118,6 +118,30 @@
       "revId": "c5c436059bfa43c19418e44db5a940f3fc403c72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_d5ed4b8d",
+        "filename": "arphandler/src/main/yang/arp-handler-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3675
+      },
+      "writtenOn": "2016-07-04T18:37:42Z",
+      "side": 1,
+      "message": "I didn\u0027t know that. this is cool.",
+      "parentUuid": "9a561d44_55e2db9f",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 24
+      },
+      "revId": "c5c436059bfa43c19418e44db5a940f3fc403c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
