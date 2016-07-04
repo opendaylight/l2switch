@@ -22,6 +22,30 @@
       "revId": "c5c436059bfa43c19418e44db5a940f3fc403c72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a561d44_75e71f41",
+        "filename": "arphandler/src/main/yang/arp-handler-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2016-07-04T15:09:58Z",
+      "side": 1,
+      "message": "It currently has to be written to the data store. I plan to allow for the initial XML to be provided via an external XML file.",
+      "parentUuid": "9a561d44_d5f8abe7",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 24
+      },
+      "revId": "c5c436059bfa43c19418e44db5a940f3fc403c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
