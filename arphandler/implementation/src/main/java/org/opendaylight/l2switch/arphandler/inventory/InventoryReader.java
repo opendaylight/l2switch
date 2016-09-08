@@ -9,8 +9,12 @@ package org.opendaylight.l2switch.arphandler.inventory;
 
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev100924.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
@@ -23,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +37,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * InventoryReader reads the opendaylight-inventory tree in MD-SAL data store.
  */
-public class InventoryReader {
+public class InventoryReader implements DataChangeListener{
 
   private Logger _logger = LoggerFactory.getLogger(InventoryReader.class);
   private DataBroker dataService;
@@ -43,12 +52,16 @@ public class InventoryReader {
   private HashMap<String, NodeConnectorRef> controllerSwitchConnectors;
   // Key: SwitchId, Value: List of node connectors on this switch
   private HashMap<String, List<NodeConnectorRef>> switchNodeConnectors;
+  private List<ListenerRegistration<DataChangeListener>> listenerRegistrationList = new ArrayList<>();
 
   public void setRefreshData(boolean refreshData) {
     this.refreshData = refreshData;
   }
 
   private boolean refreshData = false;
+  private long refreshDataDelay = 20L;
+  private boolean refreshDataScheduled = false;
+  private final ScheduledExecutorService nodeConnectorDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
 
   /**
    * Construct an InventoryService object with the specified inputs.
@@ -61,6 +74,33 @@ public class InventoryReader {
     switchNodeConnectors = new HashMap<String, List<NodeConnectorRef>>();
   }
 
+
+  private void registerAsDataChangeListener(){
+    InstanceIdentifier<NodeConnector> nodeConnector = InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class)
+            .child(NodeConnector.class)
+            .build();
+
+    this.listenerRegistrationList.add(dataService.registerDataChangeListener(
+            LogicalDatastoreType.OPERATIONAL,
+            nodeConnector,
+            this, AsyncDataBroker.DataChangeScope.BASE));
+
+
+    InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnector
+            = InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class)
+            .child(NodeConnector.class)
+            .augmentation(StpStatusAwareNodeConnector.class)
+            .build();
+    this.listenerRegistrationList.add(dataService.registerDataChangeListener(
+            LogicalDatastoreType.OPERATIONAL,
+            stpStatusAwareNodeConnector,
+            this, AsyncDataBroker.DataChangeScope.BASE));
+
+  }
+
+
   public HashMap<String, NodeConnectorRef> getControllerSwitchConnectors() {
     return controllerSwitchConnectors;
   }
@@ -69,6 +109,31 @@ public class InventoryReader {
     return switchNodeConnectors;
   }
 
+
+  @Override
+  public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> asyncDataChangeEvent){
+    if (asyncDataChangeEvent == null) {
+      _logger.info("In onDataChanged: No processing done as change even is null.");
+      return;
+    }
+
+    if(!refreshDataScheduled) {
+      synchronized(this) {
+        if(!refreshDataScheduled) {
+          nodeConnectorDataChangeEventProcessor.schedule(new NodeConnectorDataChangeEventProcessor(),refreshDataDelay, TimeUnit.MILLISECONDS);
+          refreshDataScheduled = true;
+        }
+      }
+    }
+
+  }
+
+
+  public void close() {
+    for (ListenerRegistration lr:listenerRegistrationList){
+      lr.close();
+    }
+  }
   /**
    * Read the Inventory data tree to find information about the Nodes and NodeConnectors.
    * Create the list of NodeConnectors for a given switch.  Also determine the STP status of each NodeConnector.
@@ -133,6 +198,10 @@ public class InventoryReader {
       }
       readOnlyTransaction.close();
       refreshData = false;
+
+      if(0 == listenerRegistrationList.size()){
+        registerAsDataChangeListener();
+      }
     }
   }
 
@@ -195,6 +264,19 @@ public class InventoryReader {
     }
     readOnlyTransaction.close();
     return destNodeConnector;
+  }
+
+  private class NodeConnectorDataChangeEventProcessor implements Runnable {
+
+    @Override
+    public void run() {
+      controllerSwitchConnectors.clear();
+      switchNodeConnectors.clear();
+      refreshDataScheduled = false;
+      setRefreshData(true);
+      readInventory();
+    }
+
   }
 
 }
