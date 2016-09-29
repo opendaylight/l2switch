@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Geng Xingyuan <geng.xingyuan@zte.com.cn>
+Code-Review+2: Sai MarapaReddy <sai.marapareddy@gmail.com>
+Submitted-by: Sai MarapaReddy <sai.marapareddy@gmail.com>
+Submitted-at: Thu, 29 Sep 2016 23:49:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/45861
+Project: l2switch
+Branch: refs/heads/stable/beryllium
