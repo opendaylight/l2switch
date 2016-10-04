@@ -87,6 +87,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
     private final DataBroker dataBroker;
     private final SalFlowService salFlowService;
     private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
+    private final String FLOW_ID_PREFIX = "L2switch-";
     private boolean flowRefreshScheduled = false;
     private boolean threadReschedule = false;
     private long flowInstallationDelay;
@@ -365,7 +366,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                     .<FlowCapableNode>augmentation(FlowCapableNode.class)
                     .<Table, TableKey>child(Table.class, new TableKey(flowTableId));
             InstanceIdentifier<Flow> flowPath = tableInstanceId.<Flow, FlowKey>child(Flow.class,
-                    new FlowKey(new FlowId(String.valueOf(flowIdInc.getAndIncrement()))));
+                    new FlowKey(new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()))));
 
             final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow).setNode(new NodeRef(nodeInstanceId))
                     .setFlowTable(new FlowTableRef(tableInstanceId)).setFlowRef(new FlowRef(flowPath))

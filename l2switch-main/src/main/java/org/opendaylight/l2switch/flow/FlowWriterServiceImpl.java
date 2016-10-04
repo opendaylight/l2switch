@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
+    private final String FLOW_ID_PREFIX = "L2switch-";
     private SalFlowService salFlowService;
     private short flowTableId;
     private int flowPriority;
@@ -177,7 +178,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
         // generate unique flow key
-        FlowId flowId = new FlowId(String.valueOf(flowIdInc.getAndIncrement()));
+        FlowId flowId = new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()));
         FlowKey flowKey = new FlowKey(flowId);
 
         return InstanceIdentifierUtils.generateFlowInstanceIdentifier(nodeConnectorRef, flowTableKey, flowKey);
