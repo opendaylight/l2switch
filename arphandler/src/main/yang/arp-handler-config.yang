@@ -53,7 +53,9 @@ module arp-handler-config {
             type boolean;
             default true;
             description "Setting the value to false is same as passive discovery mode,
-                        where arp packets are sent to controller";
+                         where arp packets are sent to controller. Setting to true
+			  refers to proactive flood mode where flood flows are
+			  automatically written on to each switch.";
         }
         leaf is-hybrid-mode {
             type boolean;
