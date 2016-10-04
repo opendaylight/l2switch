@@ -79,6 +79,7 @@ public class InitialFlowWriter implements DataChangeListener {
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
+    private final String FLOW_ID_PREFIX = "L2switch-";
     private short flowTableId;
     private int flowPriority;
     private int flowIdleTimeout;
@@ -186,7 +187,7 @@ public class InitialFlowWriter implements DataChangeListener {
 
         private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
             // generate unique flow key
-            FlowId flowId = new FlowId(String.valueOf(flowIdInc.getAndIncrement()));
+            FlowId flowId = new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()));
             FlowKey flowKey = new FlowKey(flowId);
             return tableId.child(Flow.class, flowKey);
         }
