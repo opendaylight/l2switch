@@ -139,14 +139,21 @@ public class AddressObservationWriter {
                 // Search for this mac-ip pair in the existing address
                 // observations & update last-seen timestamp
                 addresses = acnc.getAddresses();
+                LOG.info("Address observations exist, number of addresses that already exist is {}", addresses.size());
                 for (int i = 0; i < addresses.size(); i++) {
+                    LOG.info("Address observed with ip {} and mac {}",addresses.get(i).getIp(),addresses.get(i).getMac());
                     if (addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
+                        LOG.info("Matching Ip {} & Mac {} observed", ipAddress, macAddress);
+                        LOG.info("Last seen interval in ms {}",now - addresses.get(i).getLastSeen());
                         if ((now - addresses.get(i).getLastSeen()) > timestampUpdateInterval) {
+                            LOG.info("Threshold for timestampUpdateInterval reached ");
                             addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
                                     .setKey(addresses.get(i).getKey());
+                            LOG.info("Address {} will be removed",addresses.get(i));
                             addresses.remove(i);
                             break;
                         } else {
+                            LOG.info("Threshold for timestampUpdateInterval NOT reached ");
                             return;
                         }
                     }
@@ -154,6 +161,7 @@ public class AddressObservationWriter {
             }
             // Address observations don't exist, so create the list
             else {
+                LOG.info("Address observations don't exist, creating new arraylist ");
                 addresses = new ArrayList<>();
             }
 
@@ -175,7 +183,7 @@ public class AddressObservationWriter {
             Futures.addCallback(writeTxResultFuture, new FutureCallback() {
                 @Override
                 public void onSuccess(Object o) {
-                    LOG.debug("AddressObservationWriter write successful for tx :{}",
+                    LOG.info("AddressObservationWriter write successful for tx :{}",
                             writeTransaction.getIdentifier());
                 }
 
