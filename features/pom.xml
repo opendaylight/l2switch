@@ -6,22 +6,22 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.1-Boron-SR1</version>
     <relativePath/>
   </parent>
 
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>features-l2switch</artifactId>
-  <version>0.4.1-SNAPSHOT</version>
+  <version>0.4.1-Boron-SR1</version>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <description> <!-- Provide a Description it will be visible in the shell CLI--> </description>
 
   <properties>
-    <dlux.version>0.4.1-SNAPSHOT</dlux.version>
-    <mdsal.version>1.4.1-SNAPSHOT</mdsal.version>
-    <openflow.plugin.version>0.3.1-SNAPSHOT</openflow.plugin.version>
-    <restconf.version>1.4.1-SNAPSHOT</restconf.version>
+    <dlux.version>0.4.1-Boron-SR1</dlux.version>
+    <mdsal.version>1.4.1-Boron-SR1</mdsal.version>
+    <openflow.plugin.version>0.3.1-Boron-SR1</openflow.plugin.version>
+    <restconf.version>1.4.1-Boron-SR1</restconf.version>
   </properties>
 
   <dependencyManagement>
