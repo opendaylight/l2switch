@@ -175,10 +175,9 @@ public class HostTrackerImpl implements DataChangeListener {
                 Set<InstanceIdentifier<?>> deletedData = change.getRemovedPaths();
 
                 for (InstanceIdentifier<?> iid : deletedData) {
-                    if (iid.getTargetType().equals(Node.class)) {
-                        Node node = ((Node) originalData.get(iid));
-                        InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
-                        HostNode hostNode = node.getAugmentation(HostNode.class);
+                    if (iid.getTargetType().equals(HostNode.class)) {
+                        HostNode hostNode = ((HostNode) originalData.get(iid));
+                        InstanceIdentifier<Node> iiN = iid.firstIdentifierOf(Node.class);
                         if (hostNode != null) {
                             synchronized (hosts) {
                                 try {

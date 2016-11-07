@@ -9,18 +9,42 @@
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
-  <modules>
-    <module>parent</module>
-    <module>packethandler</module>
-    <module>loopremover</module>
-    <module>arphandler</module>
-    <module>addresstracker</module>
-    <module>hosttracker</module>
-    <module>l2switch-main</module>
-    <module>distribution/karaf</module>
-    <module>features</module>
-    <module>artifacts</module>
-  </modules>
+  <profiles>
+    <profile>
+      <id>minimal</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>parent</module>
+        <module>packethandler</module>
+        <module>loopremover</module>
+        <module>arphandler</module>
+        <module>addresstracker</module>
+        <module>hosttracker</module>
+        <module>l2switch-main</module>
+        <module>features</module>
+        <module>artifacts</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>dist</id>
+      <modules>
+        <module>parent</module>
+        <module>packethandler</module>
+        <module>loopremover</module>
+        <module>arphandler</module>
+        <module>addresstracker</module>
+        <module>hosttracker</module>
+        <module>l2switch-main</module>
+        <module>distribution/karaf</module>
+        <module>features</module>
+        <module>artifacts</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
     <developerConnection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</developerConnection>
