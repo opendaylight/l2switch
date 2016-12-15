@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf-parent</artifactId>
-    <version>1.7.2-SNAPSHOT</version>
+    <version>1.7.2-Boron-SR2</version>
     <relativePath></relativePath>
   </parent>
   <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.l2switch</groupId>
-  <version>0.4.2-SNAPSHOT</version>
+  <version>0.4.2-Boron-SR2</version>
   <packaging>pom</packaging>
   <prerequisites>
     <maven>3.0</maven>
