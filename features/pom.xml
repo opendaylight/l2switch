@@ -18,7 +18,7 @@
   <description> <!-- Provide a Description it will be visible in the shell CLI--> </description>
 
   <properties>
-    <dlux.version>0.5.0-SNAPSHOT</dlux.version>
+    <dluxapps.version>0.5.0-SNAPSHOT</dluxapps.version>
     <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
     <openflow.plugin.version>0.4.0-SNAPSHOT</openflow.plugin.version>
     <restconf.version>1.5.0-SNAPSHOT</restconf.version>
@@ -57,9 +57,9 @@
       <type>xml</type>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.dlux</groupId>
-      <artifactId>features-dlux</artifactId>
-      <version>${dlux.version}</version>
+      <groupId>org.opendaylight.dluxapps</groupId>
+      <artifactId>features-dluxapps</artifactId>
+      <version>${dluxapps.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
