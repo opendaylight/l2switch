@@ -20,7 +20,6 @@
   <feature name='odl-l2switch-switch-ui' description="OpenDaylight :: L2Switch :: Switch" version='${project.version}'>
     <feature version="${project.version}">odl-l2switch-switch-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
     <feature version="${dlux.version}">odl-dlux-core</feature>
   </feature>
   <feature name='odl-l2switch-hosttracker' description="OpenDaylight :: L2Switch :: HostTracker" version='${project.version}'>
