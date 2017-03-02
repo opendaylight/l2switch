@@ -10,30 +10,28 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>odlparent-lite</artifactId>
+        <artifactId>single-feature-parent</artifactId>
         <version>1.8.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.l2switch</groupId>
-    <artifactId>features-l2switch-aggregator</artifactId>
+    <artifactId>odl-l2switch-all</artifactId>
     <version>0.5.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <packaging>feature</packaging>
 
-    <modules>
-        <module>features-l2switch</module>
-        <module>features4-l2switch</module>
-        <module>odl-l2switch-all</module>
-        <module>odl-l2switch-switch</module>
-        <module>odl-l2switch-switch-rest</module>
-        <module>odl-l2switch-switch-ui</module>
-        <module>odl-l2switch-hosttracker</module>
-        <module>odl-l2switch-addresstracker</module>
-        <module>odl-l2switch-arphandler</module>
-        <module>odl-l2switch-loopremover</module>
-        <module>odl-l2switch-packethandler</module>
-    </modules>
+    <name>OpenDaylight :: L2Switch :: All</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-l2switch-switch</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+    </dependencies>
 </project>
