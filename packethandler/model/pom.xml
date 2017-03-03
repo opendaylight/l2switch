@@ -10,6 +10,9 @@
   <groupId>org.opendaylight.l2switch.packethandler</groupId>
   <artifactId>packethandler-model</artifactId>
   <packaging>bundle</packaging>
+  <!-- <name> formatting is used by autorelease to parse and notify projects on
+       build failure. Please do not modify this unless you have a good reason. -->
+  <name>ODL :: l2switch :: ${project.artifactId}</name>
 
   <dependencies>
     <dependency>
