@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>hosttracker.aggregator</name>
     <parent>
         <groupId>org.opendaylight.l2switch</groupId>
         <artifactId>l2switch-parent</artifactId>
@@ -11,6 +10,9 @@
     <artifactId>hosttracker.aggregator</artifactId>
     <groupId>org.opendaylight.l2switch.hosttracker</groupId>
     <packaging>pom</packaging>
+    <!-- <name> formatting is used by autorelease to parse and notify projects on
+         build failure. Please do not modify this unless you have a good reason. -->
+    <name>ODL :: l2switch :: ${project.artifactId}</name>
 
     <modules>
         <module>model</module>
