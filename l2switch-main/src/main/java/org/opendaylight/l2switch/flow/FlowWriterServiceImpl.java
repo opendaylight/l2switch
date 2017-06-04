@@ -59,8 +59,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of
  * FlowWriterService{@link org.opendaylight.l2switch.flow.FlowWriterService},
  * that builds required flow and writes to configuration data store using
- * provided DataBrokerService
- * {@link org.opendaylight.controller.sal.binding.api.data.DataBrokerService}
+ * provided {@link org.opendaylight.controller.md.sal.binding.api.DataBroker}.
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
