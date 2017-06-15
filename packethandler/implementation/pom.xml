@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-parent</artifactId>
-    <version>0.4.4-SNAPSHOT</version>
+    <version>0.4.4-Boron-SR4</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <groupId>org.opendaylight.l2switch.packethandler</groupId>
