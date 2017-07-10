@@ -29,7 +29,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch</groupId>
-      <artifactId>features-l2switch</artifactId>
+      <artifactId>features4-l2switch</artifactId>
       <version>${project.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
