@@ -8,11 +8,15 @@
 package org.opendaylight.l2switch.loopremover;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
+import org.opendaylight.l2switch.loopremover.topology.ShortestPathImpl;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.shortestpath.rev170717.PathComputationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -28,13 +32,16 @@ public class LoopRemoverProvider {
 
     private Registration listenerRegistration = null, topoNodeListnerReg = null;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
+    private final RpcProviderRegistry rpcProviderRegistry;
+    private BindingAwareBroker.RpcRegistration<PathComputationService> serviceRpcRegistration;
 
     public LoopRemoverProvider(final DataBroker dataBroker,
             final SalFlowService salFlowService,
-            final LoopRemoverConfig config) {
+            final LoopRemoverConfig config,RpcProviderRegistry rpcProviderRegistry) {
         this.dataService = dataBroker;
         this.salFlowService = salFlowService;
         this.loopRemoverConfig = config;
+        this.rpcProviderRegistry = rpcProviderRegistry;
     }
 
     public void init() {
@@ -55,6 +62,7 @@ public class LoopRemoverProvider {
         topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay());
         topologyLinkDataChangeHandler.setTopologyId(loopRemoverConfig.getTopologyId());
         listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
+        serviceRpcRegistration=rpcProviderRegistry.addRpcImplementation(PathComputationService.class, new ShortestPathImpl());
 
         LOG.info("LoopRemover initialized.");
     }

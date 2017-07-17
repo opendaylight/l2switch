@@ -1,0 +1,61 @@
+module path-computation {
+
+    yang-version 1;
+    namespace "urn:opendaylight:l2switch:loopremover:shortestpath";
+    prefix shortestpath;
+
+    description
+    "Path computation service to Find Shortest path between Switches";
+
+    revision 2017-07-17 {
+        description
+        "Initial Version";
+    }
+
+    grouping result{
+
+        list linkdetails {
+            key "linkid";
+            leaf linkid {
+                type string;
+                description "LinkId";
+            }
+            leaf source {
+                type string;
+                description "Source";
+            }
+            leaf destination {
+                type string;
+                description "Destination";
+            }
+            leaf sourcetp {
+                type string;
+                description "SourceTp";
+            }
+            leaf destinationtp {
+                type string;
+                description "DestinationTp";
+            }
+        }
+    }
+
+
+    rpc shortest-path {
+     description "RPC function to find the shortest path between Hosts";
+        input {
+            leaf source {
+                type string;
+                description "Source Switch";
+            }
+            leaf destination {
+                type string;
+                description "Destination Switch";
+            }
+        }
+        output {
+            uses result;
+            description "Shortest-path Link Details";
+        }
+    }
+
+}
