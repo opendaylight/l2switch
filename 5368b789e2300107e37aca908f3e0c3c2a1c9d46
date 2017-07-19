@@ -1,0 +1,216 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_39a2a9ae",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/NetworkGraphImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "Fix formatting here",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 69
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_599ddd58",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/ShortestPathImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "Should use \u0026\u0026 instead of || here. We need all conditions to be met before we can process the shortest path.",
+      "range": {
+        "startLine": 46,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 75
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_39de2912",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/ShortestPathImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "The condition that source is the same as the destination can also trigger this. You may want to adjust the message to be clearer. You can also split up the condition above to get more fine-grained information about what went wrong.",
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b9d179fd",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "Usual convention is to separate the words (i.e. link-details) which translates to camelCase (linkDetails) in the Java code.",
+      "range": {
+        "startLine": 17,
+        "startChar": 13,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_59eb1db0",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "link-id",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 23
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_39bbc9e6",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "I am wondering if it would be better to use the same identifiers that are available in the topology model (https://github.com/opendaylight/mdsal/blob/master/model/ietf/ietf-topology/src/main/yang/network-topology%402013-10-21.yang) i.e. node-id, link-id, tp-id. What do you think?",
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_79e8a1b4",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "source-tp",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 25
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_19e1a5d0",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "destination-tp",
+      "range": {
+        "startLine": 35,
+        "startChar": 17,
+        "endLine": 35,
+        "endChar": 30
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f9c81176",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "You could create a new type using \u0027typedef\u0027 statement that can be reused in the grouping result above. So there is a direct correlation from input to output types.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 28
+      },
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b9e7b911",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-07-19T17:22:39Z",
+      "side": 1,
+      "message": "You can move this to list linkdetails above to fix the build error.",
+      "revId": "5368b789e2300107e37aca908f3e0c3c2a1c9d46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
