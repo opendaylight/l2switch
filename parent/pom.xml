@@ -22,16 +22,8 @@
     <controller.mdsal.version>1.6.0-SNAPSHOT</controller.mdsal.version>
     <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
     <jung2.version>2.0.1</jung2.version>
-    <config.version>0.7.0-SNAPSHOT</config.version>
     <openflow.plugin.version>0.5.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.6.0-SNAPSHOT</dlux.version>
-    <config.configfile.directory>etc/opendaylight/karaf</config.configfile.directory>
-    <config.packethandler.configfile>50-packethandler.xml</config.packethandler.configfile>
-    <config.loopremover.configfile>52-loopremover.xml</config.loopremover.configfile>
-    <config.arphandler.configfile>54-arphandler.xml</config.arphandler.configfile>
-    <config.addresstracker.configfile>56-addresstracker.xml</config.addresstracker.configfile>
-    <config.hosttracker.configfile>57-hosttracker.xml</config.hosttracker.configfile>
-    <config.l2switchmain.configfile>58-l2switchmain.xml</config.l2switchmain.configfile>
   </properties>
 
   <dependencyManagement>
@@ -54,13 +46,6 @@
         <groupId>org.opendaylight.mdsal.model</groupId>
         <artifactId>mdsal-model-artifacts</artifactId>
         <version>${mdsal.model.version}</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.opendaylight.controller</groupId>
-        <artifactId>config-artifacts</artifactId>
-        <version>${config.version}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
