@@ -4,6 +4,8 @@ module path-computation {
     namespace "urn:opendaylight:l2switch:loopremover:shortestpath";
     prefix shortestpath;
 
+    import network-topology {prefix "topo"; revision-date "2013-10-21"; }
+
     description
     "Path computation service to Find Shortest path between Switches";
 
@@ -11,51 +13,30 @@ module path-computation {
         description
         "Initial Version";
     }
-
-    grouping result{
-
-        list linkdetails {
-            key "linkid";
-            leaf linkid {
-                type string;
-                description "LinkId";
-            }
-            leaf source {
-                type string;
-                description "Source";
-            }
-            leaf destination {
-                type string;
-                description "Destination";
-            }
-            leaf sourcetp {
-                type string;
-                description "SourceTp";
-            }
-            leaf destinationtp {
-                type string;
-                description "DestinationTp";
-            }
+    typedef input {
+        type string {
+            pattern "o*";
         }
     }
 
-
     rpc shortest-path {
-     description "RPC function to find the shortest path between Hosts";
+     description "RPC function to find the shortest path between two Switches.
+     Please note: Input should be a OpenFlow Switch, ex: openflow:1";
         input {
             leaf source {
-                type string;
+                type input;
+                mandatory true;
                 description "Source Switch";
             }
             leaf destination {
-                type string;
+                type input;
+                mandatory true;
                 description "Destination Switch";
             }
         }
         output {
-            uses result;
             description "Shortest-path Link Details";
+            uses topo:link-attributes;
         }
     }
-
 }
