@@ -19,7 +19,7 @@
     </parent>
 
     <groupId>org.opendaylight.l2switch</groupId>
-    <artifactId>features4-l2switch</artifactId>
+    <artifactId>features-l2switch</artifactId>
     <version>0.6.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
