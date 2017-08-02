@@ -8,6 +8,7 @@
 package org.opendaylight.l2switch.loopremover.topology;
 
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 
@@ -41,7 +42,7 @@ public interface NetworkGraphService {
      * @param destinationNodeId
      * @return
      */
-    // public List<Link> getPath(NodeId sourceNodeId, NodeId destinationNodeId);
+     public List<Link> getPath(NodeId sourceNodeId, NodeId destinationNodeId);
 
     /**
      * Forms MST(minimum spanning tree) from network graph and returns links

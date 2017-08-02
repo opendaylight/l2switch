@@ -14,12 +14,16 @@
   <odl:rpc-service id="salFlowService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
 
+ <reference id="rpcRegistry"
+    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"/>
+
   <bean id="loopRemover"
     class="org.opendaylight.l2switch.loopremover.LoopRemoverProvider"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="salFlowService" />
     <argument ref="loopRemoverConfig" />
+    <argument ref="rpcRegistry" />
   </bean>
 
 </blueprint>

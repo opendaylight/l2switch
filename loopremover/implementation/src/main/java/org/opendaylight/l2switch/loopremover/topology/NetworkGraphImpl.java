@@ -8,20 +8,18 @@
 package org.opendaylight.l2switch.loopremover.topology;
 
 import com.google.common.base.Preconditions;
+import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
 import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Implementation of NetworkGraphService
@@ -32,19 +30,16 @@ import org.slf4j.LoggerFactory;
 public class NetworkGraphImpl implements NetworkGraphService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkGraphImpl.class);
-
+    // Enable following lines when shortest path functionality is required.
+    static DijkstraShortestPath<NodeId, Link> shortestPath = null;
     Graph<NodeId, Link> networkGraph = null;
     Set<String> linkAdded = new HashSet<>();
-
-    // Enable following lines when shortest path functionality is required.
-    // DijkstraShortestPath<NodeId, Link> shortestPath = null;
 
     /**
      * Adds links to existing graph or creates new directed graph with given
      * links if graph was not initialized.
      *
-     * @param links
-     *            The links to add.
+     * @param links The links to add.
      */
     @Override
     public synchronized void addLinks(List<Link> links) {
@@ -65,14 +60,15 @@ public class NetworkGraphImpl implements NetworkGraphService {
             NodeId destinationNodeId = link.getDestination().getDestNode();
             networkGraph.addVertex(sourceNodeId);
             networkGraph.addVertex(destinationNodeId);
-            networkGraph.addEdge(link, sourceNodeId, destinationNodeId, EdgeType.UNDIRECTED);
+            networkGraph.addEdge(link, sourceNodeId, destinationNodeId, EdgeType.DIRECTED);
         }
 
-        /*
-         * if(shortestPath == null) { shortestPath = new
-         * DijkstraShortestPath<>(networkGraph); } else { shortestPath.reset();
-         * }
-         */
+        if (shortestPath == null) {
+            shortestPath = new DijkstraShortestPath<>(networkGraph);
+        } else {
+            shortestPath.reset();
+        }
+
     }
 
     private boolean linkAlreadyAdded(Link link) {
@@ -93,8 +89,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
     /**
      * Removes links from existing graph.
      *
-     * @param links
-     *            The links to remove.
+     * @param links The links to remove.
      */
     @Override
     public synchronized void removeLinks(List<Link> links) {
@@ -108,11 +103,13 @@ public class NetworkGraphImpl implements NetworkGraphService {
         for (Link link : links) {
             networkGraph.removeEdge(link);
         }
-        /*
-         * if(shortestPath == null) { shortestPath = new
-         * DijkstraShortestPath<>(networkGraph); } else { shortestPath.reset();
-         * }
-         */
+
+        if (shortestPath == null) {
+            shortestPath = new
+                    DijkstraShortestPath<>(networkGraph);
+        } else {
+            shortestPath.reset();
+        }
 
     }
 
@@ -124,18 +121,20 @@ public class NetworkGraphImpl implements NetworkGraphService {
      * @param destinationNodeId
      * @return
      */
-    // @Override
-    /*
-     * public synchronized List<Link> getPath(NodeId sourceNodeId, NodeId
-     * destinationNodeId) { Preconditions.checkNotNull(shortestPath,
-     * "Graph is not initialized, add links first.");
-     *
-     * if(sourceNodeId == null || destinationNodeId == null) { _logger.info(
-     * "In getPath: returning null, as sourceNodeId or destinationNodeId is null."
-     * ); return null; }
-     *
-     * return shortestPath.getPath(sourceNodeId, destinationNodeId); }
-     */
+    @Override
+    public synchronized List<Link> getPath(NodeId sourceNodeId, NodeId
+            destinationNodeId) {
+        Preconditions.checkNotNull(shortestPath,
+                "Graph is not initialized, add links first.");
+
+        if (sourceNodeId == null || destinationNodeId == null) {
+            LOG.info("In getPath: returning null, as sourceNodeId or destinationNodeId is null.");
+            return null;
+        }
+
+        return shortestPath.getPath(sourceNodeId, destinationNodeId);
+    }
+
 
     /**
      * Clears the prebuilt graph, in case same service instance is required to
@@ -145,7 +144,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
     public synchronized void clear() {
         networkGraph = null;
         linkAdded.clear();
-        // shortestPath = null;
+        shortestPath = null;
     }
 
     /**
