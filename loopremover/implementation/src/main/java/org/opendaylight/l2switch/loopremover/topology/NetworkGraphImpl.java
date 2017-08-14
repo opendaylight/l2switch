@@ -160,7 +160,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
         if (networkGraph != null) {
             PrimMinimumSpanningTree<NodeId, Link> networkMst = new PrimMinimumSpanningTree<>(
                     DelegateTree.<NodeId, Link>getFactory());
-            Graph<NodeId, Link> mstGraph = networkMst.transform(networkGraph);
+            Graph<NodeId, Link> mstGraph = networkMst.apply(networkGraph);
             Collection<Link> mstLinks = mstGraph.getEdges();
             linksInMst.addAll(mstLinks);
         }
