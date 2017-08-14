@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>odl-l2switch-hosttracker</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.7.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: L2Switch :: HostTracker</name>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.hosttracker</groupId>
             <artifactId>hosttracker-impl</artifactId>
-            <version>0.6.0-SNAPSHOT</version>
+            <version>0.7.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
