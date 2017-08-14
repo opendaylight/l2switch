@@ -21,7 +21,6 @@
     <mdsal.model.version>0.12.0-SNAPSHOT</mdsal.model.version>
     <controller.mdsal.version>1.7.0-SNAPSHOT</controller.mdsal.version>
     <yangtools.version>2.0.0-SNAPSHOT</yangtools.version>
-    <jung2.version>2.0.1</jung2.version>
     <openflow.plugin.version>0.6.0-SNAPSHOT</openflow.plugin.version>
     <dlux.version>0.7.0-SNAPSHOT</dlux.version>
   </properties>
@@ -72,9 +71,19 @@
       </dependency>
 
       <dependency>
-        <groupId>org.opendaylight.controller.thirdparty</groupId>
-        <artifactId>net.sf.jung2</artifactId>
-        <version>${jung2.version}</version>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-api</artifactId>
+        <version>2.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-algorithms</artifactId>
+        <version>2.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-graph-impl</artifactId>
+        <version>2.1.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
