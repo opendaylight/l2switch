@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4ba6c311",
+        "filename": "loopremover/model/src/main/yang/path-computation.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 634
+      },
+      "writtenOn": "2017-08-18T20:57:37Z",
+      "side": 1,
+      "message": "I guess this is to enforce that this API only uses the openflow topology? A better option might be to use the topo:node-id type. Then you could use yang to enforce the topology-id value is \"flow:1\" if you like using the \u0027must\u0027 statement. Using the pattern matching could be problematic if that format changes in the future.",
+      "revId": "05a130e21ac52d3e31b030b88c742b0185c7fd9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
