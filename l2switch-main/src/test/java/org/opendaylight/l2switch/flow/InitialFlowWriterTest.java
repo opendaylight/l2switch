@@ -7,19 +7,20 @@
  */
 package org.opendaylight.l2switch.flow;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -27,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InitialFlowWriterTest {
@@ -41,30 +41,22 @@ public class InitialFlowWriterTest {
         initialFlowWriter = new InitialFlowWriter(salFlowService);
     }
 
-    @Test
-    public void onDataChange_Null() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito.mock(AsyncDataChangeEvent.class);
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        initialFlowWriter.onDataChanged(dataChangeEvent);
-        Thread.sleep(250);
-        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-    }
-
+    @SuppressWarnings("unchecked")
     @Test
     public void onDataChange_Valid() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito.mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Node> instanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .build();
         Node topoNode = new NodeBuilder().setId(new NodeId("openflow:1")).build();
-        createdData.put(instanceId, topoNode);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        initialFlowWriter.onDataChanged(dataChangeEvent);
+        DataTreeModification<Node> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Node> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(topoNode);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
+
+        initialFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(250);
         verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
 

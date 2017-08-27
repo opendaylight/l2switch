@@ -11,9 +11,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -21,9 +20,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
@@ -81,22 +81,23 @@ import org.slf4j.LoggerFactory;
  * mode, flood flows are automatically written to each switch and less traffic
  * is sent to the controller.
  */
-public class ProactiveFloodFlowWriter implements DataChangeListener, OpendaylightInventoryListener {
+public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatusAwareNodeConnector>,
+        OpendaylightInventoryListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProactiveFloodFlowWriter.class);
     private final DataBroker dataBroker;
     private final SalFlowService salFlowService;
     private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
     private final String FLOW_ID_PREFIX = "L2switch-";
-    private boolean flowRefreshScheduled = false;
-    private boolean threadReschedule = false;
+    private volatile boolean flowRefreshScheduled = false;
+    private volatile boolean threadReschedule = false;
     private long flowInstallationDelay;
     private short flowTableId;
     private int flowPriority;
     private int flowIdleTimeout;
     private int flowHardTimeout;
-    private AtomicLong flowIdInc = new AtomicLong();
-    private AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
+    private final AtomicLong flowIdInc = new AtomicLong();
+    private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
     public ProactiveFloodFlowWriter(DataBroker dataBroker, SalFlowService salFlowService) {
         this.dataBroker = dataBroker;
@@ -168,33 +169,19 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
      * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology}
      * operation data root.
      */
-    public ListenerRegistration<DataChangeListener> registerAsDataChangeListener() {
+    public ListenerRegistration<ProactiveFloodFlowWriter> registerAsDataChangeListener() {
         InstanceIdentifier<StpStatusAwareNodeConnector> path = InstanceIdentifier.<Nodes>builder(Nodes.class)
                 .<Node>child(Node.class).<NodeConnector>child(NodeConnector.class)
                 .<StpStatusAwareNodeConnector>augmentation(StpStatusAwareNodeConnector.class).build();
-        return dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, this,
-                AsyncDataBroker.DataChangeScope.BASE);
+        return dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(
+                LogicalDatastoreType.OPERATIONAL, path), this);
     }
 
     /**
      * Install flows when a link comes up/down.
-     *
-     * @param dataChangeEvent
      */
     @Override
-    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent) {
-        if (dataChangeEvent == null) {
-            return;
-        }
-        Map<InstanceIdentifier<?>, DataObject> createdData = dataChangeEvent.getCreatedData();
-        Set<InstanceIdentifier<?>> removedPaths = dataChangeEvent.getRemovedPaths();
-        Map<InstanceIdentifier<?>, DataObject> originalData = dataChangeEvent.getOriginalData();
-        boolean refreshFlows = (createdData != null && !createdData.isEmpty())
-                || (removedPaths != null && !removedPaths.isEmpty() && originalData != null && !originalData.isEmpty());
-
-        if (!refreshFlows) {
-            return;
-        }
+    public void onDataTreeChanged(Collection<DataTreeModification<StpStatusAwareNodeConnector>> changes) {
         if (!flowRefreshScheduled) {
             synchronized (this) {
                 if (!flowRefreshScheduled) {
@@ -240,7 +227,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                 dataObjectOptional = readOnlyTransaction
                         .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
                 if (dataObjectOptional.isPresent()) {
-                    nodes = (Nodes) dataObjectOptional.get();
+                    nodes = dataObjectOptional.get();
                 }
                 readOnlyTransaction.close();
             } catch (InterruptedException e) {
@@ -271,7 +258,7 @@ public class ProactiveFloodFlowWriter implements DataChangeListener, Opendayligh
                                 continue;
                             }
                             if (!outerNodeConnector.getId().toString().contains("LOCAL")) {
-                                ArrayList<Action> outputActions = new ArrayList<Action>();
+                                ArrayList<Action> outputActions = new ArrayList<>();
                                 for (NodeConnector nodeConnector : nodeConnectors) {
                                     if (!nodeConnector.getId().toString().contains("LOCAL")
                                             && !outerNodeConnector.equals(nodeConnector)) {

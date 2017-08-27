@@ -11,19 +11,18 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
@@ -49,7 +48,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HostTrackerImpl implements DataChangeListener {
+@SuppressWarnings("rawtypes")
+public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
 
@@ -67,13 +67,14 @@ public class HostTrackerImpl implements DataChangeListener {
     private final long hostPurgeAge;
     private static int numHostsPurged;
 
-    private ScheduledExecutorService exec = Executors.newScheduledThreadPool(CPUS);
+    private final ScheduledExecutorService exec = Executors.newScheduledThreadPool(CPUS);
 
     private final ConcurrentClusterAwareHostHashMap<HostId, Host> hosts;
     private final ConcurrentClusterAwareLinkHashMap<LinkId, Link> links;
     private final OperationProcessor opProcessor;
-    private ListenerRegistration<DataChangeListener> addrsNodeListerRegistration;
-    private ListenerRegistration<DataChangeListener> hostNodeListerRegistration;
+    private ListenerRegistration<DataTreeChangeListener> addrsNodeListenerRegistration;
+    private ListenerRegistration<DataTreeChangeListener> hostNodeListenerRegistration;
+    private ListenerRegistration<DataTreeChangeListener> linkNodeListenerRegistration;
 
     /**
      * It creates hosts using reference to MD-SAl / toplogy module. For every hostPurgeIntervalInput time interval
@@ -102,15 +103,11 @@ public class HostTrackerImpl implements DataChangeListener {
         this.links = new ConcurrentClusterAwareLinkHashMap<>(opProcessor, this.topologyId);
 
         if (hostPurgeInterval > 0) {
-            exec.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    purgeHostsNotSeenInLast(hostPurgeAge);
-                }
-            }, 0, hostPurgeInterval, TimeUnit.SECONDS);
+            exec.scheduleWithFixedDelay(() -> purgeHostsNotSeenInLast(hostPurgeAge), 0, hostPurgeInterval, TimeUnit.SECONDS);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void init() {
         InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
                 InstanceIdentifier.builder(Nodes.class) //
@@ -118,19 +115,22 @@ public class HostTrackerImpl implements DataChangeListener {
                         .child(NodeConnector.class) //
                         .augmentation(AddressCapableNodeConnector.class)//
                         .child(Addresses.class).build();
-        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors, this, DataChangeScope.SUBTREE);
+        this.addrsNodeListenerRegistration = dataService.registerDataTreeChangeListener(new DataTreeIdentifier<>(
+                LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors), (DataTreeChangeListener)this);
 
         InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Node.class)
                 .augmentation(HostNode.class).build();
-        this.hostNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, hostNodes, this, DataChangeScope.SUBTREE);
+        this.hostNodeListenerRegistration = dataService.registerDataTreeChangeListener(new DataTreeIdentifier<>(
+                LogicalDatastoreType.OPERATIONAL, hostNodes), (DataTreeChangeListener)this);
 
         InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Link.class).build();
 
-        this.addrsNodeListerRegistration = dataService.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, lIID, this, DataChangeScope.BASE);
+        this.linkNodeListenerRegistration = dataService.registerDataTreeChangeListener(new DataTreeIdentifier<>(
+                LogicalDatastoreType.OPERATIONAL, lIID), (DataTreeChangeListener)this);
 
         //Processing addresses that existed before we register as a data change listener.
 //        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
@@ -160,81 +160,68 @@ public class HostTrackerImpl implements DataChangeListener {
     }
 
     @Override
-    public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-
-        exec.submit(new Runnable() {
-            @Override
-            public void run() {
-                if (change == null) {
-                    LOG.info("In onDataChanged: No processing done as change even is null.");
-                    return;
-                }
-                Map<InstanceIdentifier<?>, DataObject> updatedData = change.getUpdatedData();
-                Map<InstanceIdentifier<?>, DataObject> createdData = change.getCreatedData();
-                Map<InstanceIdentifier<?>, DataObject> originalData = change.getOriginalData();
-                Set<InstanceIdentifier<?>> deletedData = change.getRemovedPaths();
-
-                for (InstanceIdentifier<?> iid : deletedData) {
-                    if (iid.getTargetType().equals(Node.class)) {
-                        Node node = ((Node) originalData.get(iid));
-                        InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
-                        HostNode hostNode = node.getAugmentation(HostNode.class);
-                        if (hostNode != null) {
-                            synchronized (hosts) {
-                                try {
-                                    hosts.removeLocally(iiN);
-                                } catch (ClassCastException ex) {
-                                    LOG.debug("Exception occurred while remove host locally", ex);
-                                }
-                            }
-                        }
-                    } else if (iid.getTargetType().equals(Link.class)) {
-                        // TODO performance improvement here
-                        InstanceIdentifier<Link> iiL = (InstanceIdentifier<Link>) iid;
-                        synchronized (links) {
-                            try {
-                                links.removeLocally(iiL);
-                            } catch (ClassCastException ex) {
-                                LOG.debug("Exception occurred while remove link locally", ex);
-                            }
-                        }
-                        linkRemoved((InstanceIdentifier<Link>) iid, (Link) originalData.get(iid));
-                    }
-                }
-
-                for (Map.Entry<InstanceIdentifier<?>, DataObject> entrySet : updatedData.entrySet()) {
-                    InstanceIdentifier<?> iiD = entrySet.getKey();
-                    final DataObject dataObject = entrySet.getValue();
-                    if (dataObject instanceof Addresses) {
-                        packetReceived((Addresses) dataObject, iiD);
-                    } else if (dataObject instanceof Node) {
-                        synchronized (hosts) {
-                            hosts.putLocally((InstanceIdentifier<Node>) iiD, Host.createHost((Node) dataObject));
-                        }
-                    } else if (dataObject instanceof  Link) {
-                        synchronized (links) {
-                            links.putLocally((InstanceIdentifier<Link>) iiD, (Link) dataObject);
-                        }
-                    }
-                }
-
-                for (Map.Entry<InstanceIdentifier<?>, DataObject> entrySet : createdData.entrySet()) {
-                    InstanceIdentifier<?> iiD = entrySet.getKey();
-                    final DataObject dataObject = entrySet.getValue();
-                    if (dataObject instanceof Addresses) {
-                        packetReceived((Addresses) dataObject, iiD);
-                    } else if (dataObject instanceof Node) {
-                        synchronized (hosts) {
-                            hosts.putLocally((InstanceIdentifier<Node>) iiD, Host.createHost((Node) dataObject));
-                        }
-                    } else if (dataObject instanceof  Link) {
-                        synchronized (links) {
-                            links.putLocally((InstanceIdentifier<Link>) iiD, (Link) dataObject);
-                        }
-                    }
-                }
+    public void onDataTreeChanged(Collection<DataTreeModification<DataObject>> changes) {
+        for (DataTreeModification<?> change: changes) {
+            DataObjectModification<?> rootNode = change.getRootNode();
+            final InstanceIdentifier<?> identifier = change.getRootPath().getRootIdentifier();
+            switch (rootNode.getModificationType()) {
+                case SUBTREE_MODIFIED:
+                case WRITE:
+                    onModifiedData(identifier, rootNode);
+                    break;
+                case DELETE:
+                    onDeletedData(identifier, rootNode);
+                    break;
+                default:
+                    break;
             }
-        });
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void onModifiedData(InstanceIdentifier<?> iid, DataObjectModification<?> rootNode) {
+        final DataObject dataObject = rootNode.getDataAfter();
+        if (dataObject instanceof Addresses) {
+            packetReceived((Addresses) dataObject, iid);
+        } else if (dataObject instanceof Node) {
+            synchronized (hosts) {
+                hosts.putLocally((InstanceIdentifier<Node>) iid, Host.createHost((Node) dataObject));
+            }
+        } else if (dataObject instanceof  Link) {
+            synchronized (links) {
+                links.putLocally((InstanceIdentifier<Link>) iid, (Link) dataObject);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void onDeletedData(InstanceIdentifier<?> iid, DataObjectModification<?> rootNode) {
+        if (iid.getTargetType().equals(Node.class)) {
+            Node node = (Node) rootNode.getDataBefore();
+            InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
+            HostNode hostNode = node.getAugmentation(HostNode.class);
+            if (hostNode != null) {
+                synchronized (hosts) {
+                    try {
+                        hosts.removeLocally(iiN);
+                    } catch (ClassCastException ex1) {
+                        LOG.debug("Exception occurred while remove host locally", ex1);
+                    }
+                }
+            } else if (iid.getTargetType().equals(Link.class)) {
+                // TODO performance improvement here
+                InstanceIdentifier<Link> iiL = (InstanceIdentifier<Link>) iid;
+                synchronized (links) {
+                    try {
+                        links.removeLocally(iiL);
+                    } catch (ClassCastException ex2) {
+                        LOG.debug("Exception occurred while remove link locally", ex2);
+                    }
+                }
+                linkRemoved((InstanceIdentifier<Link>) iid, (Link) rootNode.getDataBefore());
+            }
+        }
+
     }
 
     public void packetReceived(Addresses addrs, InstanceIdentifier<?> ii) {
@@ -330,10 +317,10 @@ public class HostTrackerImpl implements DataChangeListener {
             for (Topology t : networkTopo.getTopology()) {
                 if (t.getLink() != null) {
                     for (Link l : t.getLink()) {
-                        if ((l.getSource().getSourceTp().equals(tpId)
-                                && !l.getDestination().getDestTp().getValue().startsWith(Host.NODE_PREFIX))
-                                || (l.getDestination().getDestTp().equals(tpId)
-                                && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX))) {
+                        if (l.getSource().getSourceTp().equals(tpId)
+                                && !l.getDestination().getDestTp().getValue().startsWith(Host.NODE_PREFIX)
+                                || l.getDestination().getDestTp().equals(tpId)
+                                && !l.getSource().getSourceTp().getValue().startsWith(Host.NODE_PREFIX)) {
                             return true;
                         }
                     }
@@ -383,24 +370,14 @@ public class HostTrackerImpl implements DataChangeListener {
             for (final Link l : linksToAdd) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 LOG.trace("Writing link from MD_SAL: {}", lIID.toString());
-                opProcessor.enqueueOperation(new HostTrackerOperation() {
-                    @Override
-                    public void applyOperation(ReadWriteTransaction tx) {
-                        tx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true);
-                    }
-                });
+                opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true));
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
                 LOG.trace("Removing link from MD_SAL: {}", lIID.toString());
-                opProcessor.enqueueOperation(new HostTrackerOperation() {
-                    @Override
-                    public void applyOperation(ReadWriteTransaction tx) {
-                        tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID);
-                    }
-                });
+                opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID));
             }
         }
     }
@@ -449,7 +426,7 @@ public class HostTrackerImpl implements DataChangeListener {
         // checks if hosts need to be purged
         for (Addresses addrs : hostNode.getAddresses()) {
             long lastSeenTimeInSeconds = addrs.getLastSeen()/1000;
-            if (lastSeenTimeInSeconds > (currentTimeInSeconds - expirationPeriod)) {
+            if (lastSeenTimeInSeconds > currentTimeInSeconds - expirationPeriod) {
                 LOG.debug("Host node {} NOT ready for purge", hostNode);
                 return false;
             }
@@ -500,8 +477,9 @@ public class HostTrackerImpl implements DataChangeListener {
     }
 
     public void close() {
-        this.addrsNodeListerRegistration.close();
-        this.hostNodeListerRegistration.close();
+        this.addrsNodeListenerRegistration.close();
+        this.hostNodeListenerRegistration.close();
+        this.linkNodeListenerRegistration.close();
         this.exec.shutdownNow();
         synchronized (hosts) {
             this.hosts.clear();
