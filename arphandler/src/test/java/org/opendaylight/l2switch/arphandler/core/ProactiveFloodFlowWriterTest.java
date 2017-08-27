@@ -15,20 +15,18 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
@@ -43,7 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ProactiveFloodFlowWriterTest {
@@ -85,78 +82,21 @@ public class ProactiveFloodFlowWriterTest {
         proactiveFloodFlowWriter.setFlowHardTimeout(0);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataChangeListener(any(LogicalDatastoreType.class),
-                any(InstanceIdentifier.class), any(DataChangeListener.class),
-                any(AsyncDataBroker.DataChangeScope.class));
+        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(DataTreeIdentifier.class),
+                any(DataTreeChangeListener.class));
     }
 
-    @Test
-    public void testOnDataChanged_NullInput() throws Exception {
-        proactiveFloodFlowWriter.onDataChanged(null);
-        verify(dataBroker, times(0)).newReadOnlyTransaction();
-        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-    }
-
-    @Test
-    public void testOnDataChanged_NullData() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-
-        proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataChanged(dataChangeEvent);
-        Thread.sleep(250);
-        verify(dataBroker, times(0)).newReadOnlyTransaction();
-        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-    }
-
-    @Test
-    public void testOnDataChanged_CreatedDataNoRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-
-        proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataChanged(dataChangeEvent);
-        Thread.sleep(250);
-        verify(dataBroker, times(0)).newReadOnlyTransaction();
-        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-    }
-
-    @Test
-    public void testOnDataChanged_RemovedDataNoRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Set<InstanceIdentifier<?>> removedPaths = new HashSet<InstanceIdentifier<?>>();
-        Map<InstanceIdentifier<?>, DataObject> originalData = new HashMap<InstanceIdentifier<?>, DataObject>();
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(removedPaths);
-        when(dataChangeEvent.getOriginalData()).thenReturn(originalData);
-
-        proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataChanged(dataChangeEvent);
-        Thread.sleep(250);
-        verify(dataBroker, times(0)).newReadOnlyTransaction();
-        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
-    }
-
+    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
-        createdData.put(InstanceIdentifier.create(StpStatusAwareNodeConnector.class), null);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
+        DataTreeModification<StpStatusAwareNodeConnector> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<StpStatusAwareNodeConnector> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootNode()).thenReturn(mockModification);
 
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
@@ -167,14 +107,14 @@ public class ProactiveFloodFlowWriterTest {
         NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
 
-        List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
+        List<NodeConnector> nodeConnectors = new ArrayList<>();
         nodeConnectors.add(nc1);
         nodeConnectors.add(nc2);
         nodeConnectors.add(nc3);
         nodeConnectors.add(ncLocal);
         Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
 
-        List<Node> nodeList = new ArrayList<Node>();
+        List<Node> nodeList = new ArrayList<>();
         nodeList.add(node);
         Nodes nodes = new NodesBuilder().setNode(nodeList).build();
         Optional<Nodes> optionalNodes = Optional.of(nodes);
@@ -187,7 +127,7 @@ public class ProactiveFloodFlowWriterTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataChanged(dataChangeEvent);
+        proactiveFloodFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(250);
         verify(dataBroker, times(1)).newReadOnlyTransaction();
         verify(salFlowService, times(2)).addFlow(any(AddFlowInput.class));

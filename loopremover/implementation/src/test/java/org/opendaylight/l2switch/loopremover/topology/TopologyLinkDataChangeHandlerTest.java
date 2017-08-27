@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.loopremover.topology;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,21 +15,19 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
@@ -45,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class TopologyLinkDataChangeHandlerTest {
@@ -67,113 +64,91 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         topologyLinkDataChangeHandler.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataChangeListener(any(LogicalDatastoreType.class),
-                any(InstanceIdentifier.class), any(TopologyLinkDataChangeHandler.class),
-                any(AsyncDataBroker.DataChangeScope.class));
+        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(DataTreeIdentifier.class),
+                any(DataTreeChangeListener.class));
     }
 
-    @Test
-    public void testOnDataChanged_NullInput() throws Exception {
-
-        topologyLinkDataChangeHandler.onDataChanged(null);
-        Thread.sleep(500);
-        verify(networkGraphService, times(0)).clear();
-    }
-
-    @Test
-    public void testOnDataChanged_NullData() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
-        Thread.sleep(500);
-        verify(networkGraphService, times(0)).clear();
-    }
-
+    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataNoRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
-        createdData.put(instanceId, hostLink);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(hostLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(0)).clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
-        Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
-        createdData.put(instanceId, nodeLink);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(hostLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(1)).clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataNoRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Set<InstanceIdentifier<?>> removedPaths = new HashSet<InstanceIdentifier<?>>();
-        Map<InstanceIdentifier<?>, DataObject> originalData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
-        originalData.put(instanceId, hostLink);
-        removedPaths.add(instanceId);
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(removedPaths);
-        when(dataChangeEvent.getOriginalData()).thenReturn(originalData);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataBefore()).thenReturn(hostLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.DELETE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(0)).clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataRefresh() throws Exception {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Set<InstanceIdentifier<?>> removedPaths = new HashSet<InstanceIdentifier<?>>();
-        Map<InstanceIdentifier<?>, DataObject> originalData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
-        Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
-        originalData.put(instanceId, nodeLink);
-        removedPaths.add(instanceId);
-        when(dataChangeEvent.getCreatedData()).thenReturn(null);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(removedPaths);
-        when(dataChangeEvent.getOriginalData()).thenReturn(originalData);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataBefore()).thenReturn(hostLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.DELETE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(1)).clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateNodeConnectorStatus_NoLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
-        createdData.put(instanceId, nodeLink);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
-        Thread.sleep(500);
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(nodeLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
         // End setup code
 
         Topology topology = new TopologyBuilder().setLink(null).build();
@@ -185,27 +160,30 @@ public class TopologyLinkDataChangeHandlerTest {
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        Thread.sleep(500);
         verify(dataBroker, times(0)).newReadWriteTransaction();
         verify(networkGraphService, times(0)).addLinks(any(List.class));
         verify(networkGraphService, times(0)).getAllLinks();
         verify(networkGraphService, times(0)).getLinksInMst();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUpdateNodeConnectorStatus_WithLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
-        createdData.put(instanceId, nodeLink);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(nodeLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology
-        List<Link> links = new ArrayList<Link>();
+        List<Link> links = new ArrayList<>();
         links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
         Topology topology = new TopologyBuilder().setLink(links).build();
         Optional<Topology> topologyOptional = Optional.of(topology);
@@ -234,11 +212,11 @@ public class TopologyLinkDataChangeHandlerTest {
                         .setDestTp(new TpId("openflow:2")).build())
                 .build();
 
-        List<Link> allLinks = new ArrayList<Link>();
+        List<Link> allLinks = new ArrayList<>();
         allLinks.add(link1);
         allLinks.add(link2);
         when(networkGraphService.getAllLinks()).thenReturn(allLinks);
-        List<Link> mstLinks = new ArrayList<Link>();
+        List<Link> mstLinks = new ArrayList<>();
         mstLinks.add(link1);
         when(networkGraphService.getLinksInMst()).thenReturn(mstLinks);
 
@@ -250,7 +228,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(readWriteTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFutureNc);
 
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(1)).newReadWriteTransaction();
         verify(networkGraphService, times(1)).addLinks(any(ArrayList.class));
@@ -264,18 +242,18 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_WithStpLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> dataChangeEvent = Mockito
-                .mock(AsyncDataChangeEvent.class);
-        Map<InstanceIdentifier<?>, DataObject> createdData = new HashMap<InstanceIdentifier<?>, DataObject>();
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
-        createdData.put(instanceId, nodeLink);
-        when(dataChangeEvent.getCreatedData()).thenReturn(createdData);
-        when(dataChangeEvent.getRemovedPaths()).thenReturn(null);
-        when(dataChangeEvent.getOriginalData()).thenReturn(null);
+        DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
+        DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
+        when(mockModification.getDataAfter()).thenReturn(nodeLink);
+        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL,
+                instanceId));
+        when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology
-        List<Link> links = new ArrayList<Link>();
+        List<Link> links = new ArrayList<>();
         links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
         Topology topology = new TopologyBuilder().setLink(links).build();
         Optional<Topology> topologyOptional = Optional.of(topology);
@@ -304,11 +282,11 @@ public class TopologyLinkDataChangeHandlerTest {
                         .setDestTp(new TpId("openflow:2")).build())
                 .build();
 
-        List<Link> allLinks = new ArrayList<Link>();
+        List<Link> allLinks = new ArrayList<>();
         allLinks.add(link1);
         allLinks.add(link2);
         when(networkGraphService.getAllLinks()).thenReturn(allLinks);
-        List<Link> mstLinks = new ArrayList<Link>();
+        List<Link> mstLinks = new ArrayList<>();
         mstLinks.add(link1);
         when(networkGraphService.getLinksInMst()).thenReturn(mstLinks);
 
@@ -323,7 +301,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(readWriteTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFutureNc);
 
-        topologyLinkDataChangeHandler.onDataChanged(dataChangeEvent);
+        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(1)).newReadWriteTransaction();
         verify(networkGraphService, times(1)).addLinks(any(ArrayList.class));
