@@ -14,13 +14,13 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.2-SNAPSHOT</version>
+        <version>1.8.2-Carbon</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>odl-l2switch-arphandler</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.2-Carbon</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: L2Switch :: ArpHandler</name>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.arphandler</groupId>
             <artifactId>arphandler-impl</artifactId>
-            <version>0.5.2-SNAPSHOT</version>
+            <version>0.5.2-Carbon</version>
         </dependency>
     </dependencies>
 </project>

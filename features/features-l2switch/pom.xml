@@ -6,22 +6,22 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.8.2-SNAPSHOT</version>
+    <version>1.8.2-Carbon</version>
     <relativePath/>
   </parent>
 
   <groupId>org.opendaylight.l2switch</groupId>
   <artifactId>features-l2switch</artifactId>
-  <version>0.5.2-SNAPSHOT</version>
+  <version>0.5.2-Carbon</version>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <description> <!-- Provide a Description it will be visible in the shell CLI--> </description>
 
   <properties>
-    <dluxapps.version>0.5.2-SNAPSHOT</dluxapps.version>
-    <mdsal.version>1.5.2-SNAPSHOT</mdsal.version>
-    <openflow.plugin.version>0.4.2-SNAPSHOT</openflow.plugin.version>
-    <restconf.version>1.5.2-SNAPSHOT</restconf.version>
+    <dluxapps.version>0.5.2-Carbon</dluxapps.version>
+    <mdsal.version>1.5.2-Carbon</mdsal.version>
+    <openflow.plugin.version>0.4.2-Carbon</openflow.plugin.version>
+    <restconf.version>1.5.2-Carbon</restconf.version>
   </properties>
 
   <dependencyManagement>
