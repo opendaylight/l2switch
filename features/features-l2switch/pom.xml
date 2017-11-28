@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>features-l2switch</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.6.2-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <dependencies>

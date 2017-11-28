@@ -9,7 +9,7 @@
   </parent>
   <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.l2switch</groupId>
-  <version>0.6.1-SNAPSHOT</version>
+  <version>0.6.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <prerequisites>
     <maven>3.0</maven>
