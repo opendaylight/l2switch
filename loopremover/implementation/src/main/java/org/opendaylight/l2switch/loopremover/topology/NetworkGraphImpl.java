@@ -56,7 +56,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
         }
 
         if (networkGraph == null) {
-            networkGraph = new SparseMultigraph<>();
+            networkGraph = SparseMultigraph.<NodeId, Link>getFactory().get();
         }
 
         for (Link link : links) {

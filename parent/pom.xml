@@ -14,7 +14,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <jung2.version>2.0.1</jung2.version>
+    <jung2.version>2.1.1</jung2.version>
     <openflow.plugin.version>0.6.0-SNAPSHOT</openflow.plugin.version>
   </properties>
 
@@ -45,17 +45,17 @@
       <dependency>
         <groupId>net.sf.jung</groupId>
         <artifactId>jung-api</artifactId>
-        <version>2.1.1</version>
+        <version>${jung2.version}</version>
       </dependency>
       <dependency>
         <groupId>net.sf.jung</groupId>
         <artifactId>jung-algorithms</artifactId>
-        <version>2.1.1</version>
+        <version>${jung2.version}</version>
       </dependency>
       <dependency>
         <groupId>net.sf.jung</groupId>
         <artifactId>jung-graph-impl</artifactId>
-        <version>2.1.1</version>
+        <version>${jung2.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
