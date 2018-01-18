@@ -76,8 +76,27 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528</Export-Package>
-            <Import-Package>*</Import-Package>
+            <Export-Package>org.apache.commons*,
+              edu.uci.ics.jung.algorithms.blockmodel,
+              edu.uci.ics.jung.algorithms.cluster,
+              edu.uci.ics.jung.algorithms.filters,
+              edu.uci.ics.jung.algorithms.flows,
+              edu.uci.ics.jung.algorithms.generators,
+              edu.uci.ics.jung.algorithms.generators.random,
+              edu.uci.ics.jung.algorithms.layout,
+              edu.uci.ics.jung.algorithms.layout.util,
+              edu.uci.ics.jung.algorithms.metrics,
+              edu.uci.ics.jung.algorithms.scoring,
+              edu.uci.ics.jung.algorithms.scoring.util,
+              edu.uci.ics.jung.algorithms.shortestpath,
+              edu.uci.ics.jung.algorithms.transformation,
+              edu.uci.ics.jung.algorithms.util,
+              edu.uci.ics.jung.graph;-split-package:=merge-first,
+              edu.uci.ics.jung.graph.event,
+              edu.uci.ics.jung.graph.util;-split-package:=merge-first,
+              org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.impl.rev140528</Export-Package>
+            <Import-Package>,
+              *</Import-Package>
           </instructions>
         </configuration>
       </plugin>
