@@ -9,6 +9,7 @@
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import java.util.Arrays;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +61,10 @@ public final class BitBufferHelper {
         int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
         byte[] bits = null;
         try {
-            bits = BitBufferHelper.getBits(data, startOffset, numBits);
+            bits = getBits(data, startOffset, numBits);
         } catch (BufferException e) {
-            LOG.error("", e);
+            LOG.error("getBits failed", e);
+            return 0;
         }
         return (short) toNumber(bits, numBits);
     }
@@ -98,7 +100,8 @@ public final class BitBufferHelper {
         try {
             bits = BitBufferHelper.getBits(data, startOffset, numBits);
         } catch (BufferException e) {
-            LOG.error("", e);
+            LOG.error("getBits failed", e);
+            return 0;
         }
         return (int) toNumber(bits, numBits);
     }
@@ -137,7 +140,8 @@ public final class BitBufferHelper {
         try {
             bits = BitBufferHelper.getBits(data, startOffset, numBits);
         } catch (BufferException e) {
-            LOG.error("", e);
+            LOG.error("getBits failed", e);
+            return 0;
         }
         return toNumber(bits, numBits);
     }
@@ -329,7 +333,7 @@ public final class BitBufferHelper {
      * @param numBits the number of bits
      * @return numerical value of byte array passed
      */
-    public static long toNumber(byte[] array, int numBits) {
+    public static long toNumber(@Nonnull byte[] array, int numBits) {
         int length = numBits / NetUtils.NUM_BITS_IN_A_BYTE;
         int bitsRest = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
         int startOffset = array.length - length;

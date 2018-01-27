@@ -59,7 +59,7 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
      * necessary and publishes corresponding event on successful decoding.
      */
     public void decodeAndPublish(final C consumedPacketNotification) {
-        decodeAndPublishExecutor.submit(() -> {
+        decodeAndPublishExecutor.execute(() -> {
             P packetNotification = null;
             if (consumedPacketNotification != null && canDecode(consumedPacketNotification)) {
                 packetNotification = decode(consumedPacketNotification);
@@ -73,8 +73,6 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
     /**
      * Decodes the payload in given Packet further and returns a extension of
      * Packet. e.g. ARP, IPV4, LLDP etc.
-     *
-     * @return
      */
     public abstract P decode(C consumedPacketNotification);
 

@@ -141,7 +141,6 @@ public final class NetUtils {
      *            integer representing the length of the prefix network mask
      * @param isV6
      *            boolean representing the IP version of the returned address
-     * @return
      */
     public static InetAddress getInetNetworkMask(int prefixMaskLength, boolean isV6) {
         if (prefixMaskLength < 0 || !isV6 && prefixMaskLength > 32 || isV6 && prefixMaskLength > 128) {
@@ -406,7 +405,7 @@ public final class NetUtils {
             return false;
         }
         if (values.length >= 2) {
-            int prefix = Integer.valueOf(values[1]);
+            int prefix = Integer.parseInt(values[1]);
             if (prefix < 0 || prefix > 32) {
                 return false;
             }
@@ -439,7 +438,7 @@ public final class NetUtils {
         }
 
         if (values.length >= 2) {
-            int prefix = Integer.valueOf(values[1]);
+            int prefix = Integer.parseInt(values[1]);
             if (prefix < 0 || prefix > 128) {
                 return false;
             }
