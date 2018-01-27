@@ -8,6 +8,10 @@
 
 package org.opendaylight.l2switch.arphandler.core;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -21,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +138,19 @@ public class PacketDispatcher {
                 .setEgress(egress) //
                 .setIngress(ingress) //
                 .build();
-        packetProcessingService.transmitPacket(input);
+
+        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(packetProcessingService.transmitPacket(input)),
+            new FutureCallback<RpcResult<Void>>() {
+                @Override
+                public void onSuccess(RpcResult<Void> result) {
+                    LOG.debug("transmitPacket was successful");
+                }
+
+                @Override
+                public void onFailure(Throwable failure) {
+                    LOG.debug("transmitPacket for {} failed", input, failure);
+                }
+            }, MoreExecutors.directExecutor());
     }
 
     private void refreshInventoryReader() {

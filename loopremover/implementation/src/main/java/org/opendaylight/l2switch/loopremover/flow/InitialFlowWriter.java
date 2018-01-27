@@ -132,7 +132,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         }
 
         if (!nodeIds.isEmpty()) {
-            initialFlowExecutor.submit(new InitialFlowWriterProcessor(nodeIds));
+            initialFlowExecutor.execute(new InitialFlowWriterProcessor(nodeIds));
         }
     }
 
