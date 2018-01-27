@@ -12,7 +12,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -37,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * IPv6 Packet Decoder
+ * IPv6 Packet Decoder.
  */
 public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, Ipv6PacketReceived>
         implements EthernetPacketListener {
@@ -49,7 +48,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     /**
-     * Decode an EthernetPacket into an Ipv4Packet
+     * Decode an EthernetPacket into an Ipv4Packet.
      */
     @Override
     public Ipv6PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
@@ -59,7 +58,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
+        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
@@ -80,11 +79,11 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
-            builder.setPayloadOffset((320 + bitOffset) / NetUtils.NumBitsInAByte);
+            builder.setPayloadOffset((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE);
             builder.setPayloadLength(builder.getIpv6Length());
 
             // Decode the optional "extension headers"
-            List<ExtensionHeaders> extensionHeaders = new ArrayList<ExtensionHeaders>();
+            List<ExtensionHeaders> extensionHeaders = new ArrayList<>();
             KnownIpProtocols nextHeader = builder.getNextHeader();
             int extHeaderOffset = 0;
             while (nextHeader != null && !nextHeader.equals(KnownIpProtocols.Tcp)
@@ -95,14 +94,14 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                 nextHeader = KnownIpProtocols.forValue(nextHeaderType);
                 int octetLength = BitBufferHelper
                         .getInt(BitBufferHelper.getBits(data, 328 + extHeaderOffset + bitOffset, 8));
-                int start = (336 + extHeaderOffset + bitOffset) / NetUtils.NumBitsInAByte;
+                int start = (336 + extHeaderOffset + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE;
                 int end = start + 6 + octetLength;
 
                 extensionHeaders.add(new ExtensionHeadersBuilder().setNextHeader(nextHeader).setLength(octetLength)
                         .setData(Arrays.copyOfRange(data, start, end)).build());
 
                 // Update the NextHeader field
-                extHeaderOffset += 64 + octetLength * NetUtils.NumBitsInAByte;
+                extHeaderOffset += 64 + octetLength * NetUtils.NUM_BITS_IN_A_BYTE;
             }
             if (!extensionHeaders.isEmpty()) {
                 builder.setExtensionHeaders(extensionHeaders);
@@ -133,8 +132,9 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null)
+        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null) {
             return false;
+        }
 
         // Only decode the latest packet in the chain
         EthernetPacket ethernetPacket = null;

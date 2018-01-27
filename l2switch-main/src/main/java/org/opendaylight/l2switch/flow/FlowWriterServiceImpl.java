@@ -63,19 +63,16 @@ import org.slf4j.LoggerFactory;
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
-    private final String FLOW_ID_PREFIX = "L2switch-";
-    private SalFlowService salFlowService;
+    private static final String FLOW_ID_PREFIX = "L2switch-";
+
+    private final SalFlowService salFlowService;
     private short flowTableId;
     private int flowPriority;
     private int flowIdleTimeout;
     private int flowHardTimeout;
 
-    private AtomicLong flowIdInc = new AtomicLong();
-    private AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
-    private final Integer DEFAULT_TABLE_ID = 0;
-    private final Integer DEFAULT_PRIORITY = 10;
-    private final Integer DEFAULT_HARD_TIMEOUT = 3600;
-    private final Integer DEFAULT_IDLE_TIMEOUT = 1800;
+    private final AtomicLong flowIdInc = new AtomicLong();
+    private final AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
     public FlowWriterServiceImpl(SalFlowService salFlowService) {
         Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
@@ -98,16 +95,6 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         this.flowHardTimeout = flowHardTimeout;
     }
 
-    /**
-     * Writes a flow that forwards packets to destPort if destination mac in
-     * packet is destMac and source Mac in packet is sourceMac. If sourceMac is
-     * null then flow would not set any source mac, resulting in all packets
-     * with destMac being forwarded to destPort.
-     *
-     * @param sourceMac
-     * @param destMac
-     * @param destNodeConnectorRef
-     */
     @Override
     public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
 
@@ -121,7 +108,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         }
 
         // get flow table key
-        TableKey flowTableKey = new TableKey((short) flowTableId);
+        TableKey flowTableKey = new TableKey(flowTableId);
 
         // build a flow path based on node connector to program flow
         InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
@@ -134,20 +121,6 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         writeFlowToConfigData(flowPath, flowBody);
     }
 
-    /**
-     * Writes mac-to-mac flow on all ports that are in the path between given
-     * source and destination ports. It uses path provided by
-     * org.opendaylight.l2switch.loopremover.topology.NetworkGraphService to
-     * find a links
-     * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
-     * between given ports. And then writes appropriate flow on each port that
-     * is covered in that path.
-     *
-     * @param sourceMac
-     * @param sourceNodeConnectorRef
-     * @param destMac
-     * @param destNodeConnectorRef
-     */
     @Override
     public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef,
             MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
@@ -170,27 +143,24 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         addMacToMacFlow(sourceMac, destMac, destNodeConnectorRef);
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @return
-     */
     private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
         // generate unique flow key
-        FlowId flowId = new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()));
+        FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
         FlowKey flowKey = new FlowKey(flowId);
 
         return InstanceIdentifierUtils.generateFlowInstanceIdentifier(nodeConnectorRef, flowTableKey, flowKey);
     }
 
     /**
-     * @param tableId
-     * @param priority
-     * @param sourceMac
-     * @param destMac
-     * @param destPort
-     * @return {@link org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder}
-     *         builds flow that forwards all packets with destMac to given port
+     * Builds a flow that forwards all packets with destMac to given port.
+     *
+     * @param tableId the table id
+     * @param priority the flow priority
+     * @param sourceMac the source MAC of the flow
+     * @param destMac the destination MAC of the flow
+     * @param destPort the destination port
+     * @return the Flow
      */
     private Flow createMacToMacFlow(Short tableId, int priority, MacAddress sourceMac, MacAddress destMac,
             NodeConnectorRef destPort) {
@@ -258,8 +228,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * Starts and commits data change transaction which modifies provided flow
      * path with supplied body.
      *
-     * @param flowPath
-     * @param flow
+     * @param flowPath the Flow path
+     * @param flow the Flow
      * @return transaction commit
      */
     private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath, Flow flow) {

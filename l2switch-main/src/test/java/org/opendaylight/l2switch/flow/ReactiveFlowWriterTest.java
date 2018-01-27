@@ -8,7 +8,7 @@
 
 package org.opendaylight.l2switch.flow;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,7 +51,7 @@ public class ReactiveFlowWriterTest {
 
         nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class).build();
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
-        packetChainList = new ArrayList<PacketChain>();
+        packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new RawPacketBuilder().setIngress(nodeConnectorRef).build())
             .build());
@@ -74,11 +74,14 @@ public class ReactiveFlowWriterTest {
     @Test
     public void writeFlowsTest() {
 
-        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class))).thenReturn(destNodeConnectorRef);
-        reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"), new MacAddress("00:00:00:00:00:02"));
+        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class)))
+            .thenReturn(destNodeConnectorRef);
+        reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"),
+                new MacAddress("00:00:00:00:00:02"));
 
         verify(inventoryReader, times(1)).getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class));
-        verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class), any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
+        verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class),
+                any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
 
     }
 }

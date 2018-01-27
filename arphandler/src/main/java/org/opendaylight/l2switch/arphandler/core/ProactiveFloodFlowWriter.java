@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -70,7 +69,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -85,10 +83,12 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
         OpendaylightInventoryListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProactiveFloodFlowWriter.class);
+
+    private static final String FLOW_ID_PREFIX = "L2switch-";
+
     private final DataBroker dataBroker;
     private final SalFlowService salFlowService;
     private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
-    private final String FLOW_ID_PREFIX = "L2switch-";
     private volatile boolean flowRefreshScheduled = false;
     private volatile boolean threadReschedule = false;
     private long flowInstallationDelay;
@@ -163,11 +163,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     }
 
     /**
-     * Registers as a data listener to receive changes done to
-     * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
-     * under
-     * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology}
-     * operation data root.
+     * Registers as a data listener for Nodes.
      */
     public ListenerRegistration<ProactiveFloodFlowWriter> registerAsDataChangeListener() {
         InstanceIdentifier<StpStatusAwareNodeConnector> path = InstanceIdentifier.<Nodes>builder(Nodes.class)
@@ -198,8 +194,6 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     }
 
     private class StpStatusDataChangeEventProcessor implements Runnable {
-        AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> instanceIdentifierDataObjectAsyncDataChangeEvent;
-
         @Override
         public void run() {
             LOG.debug("In flow refresh thread.");
@@ -215,7 +209,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
         }
 
         /**
-         * Installs a FloodFlow on each node
+         * Installs a FloodFlow on each node.
          */
         private void installFloodFlows() {
             Nodes nodes = null;
@@ -353,7 +347,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                     .<FlowCapableNode>augmentation(FlowCapableNode.class)
                     .<Table, TableKey>child(Table.class, new TableKey(flowTableId));
             InstanceIdentifier<Flow> flowPath = tableInstanceId.<Flow, FlowKey>child(Flow.class,
-                    new FlowKey(new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()))));
+                    new FlowKey(new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()))));
 
             final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow).setNode(new NodeRef(nodeInstanceId))
                     .setFlowTable(new FlowTableRef(tableInstanceId)).setFlowRef(new FlowRef(flowPath))

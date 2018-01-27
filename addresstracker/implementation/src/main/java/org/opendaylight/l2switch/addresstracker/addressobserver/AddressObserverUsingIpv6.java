@@ -14,8 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * AddressObserver listens to IPv6 packets to find addresses (mac, ip) and store
@@ -23,10 +21,9 @@ import org.slf4j.LoggerFactory;
  * returned to the network after the addresses are learned.
  */
 public class AddressObserverUsingIpv6 implements Ipv6PacketListener {
+    private static final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
 
-    private final static Logger LOG = LoggerFactory.getLogger(AddressObserverUsingIpv6.class);
-    private AddressObservationWriter addressObservationWriter;
-    private final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
+    private final AddressObservationWriter addressObservationWriter;
 
     public AddressObserverUsingIpv6(AddressObservationWriter addressObservationWriter) {
         this.addressObservationWriter = addressObservationWriter;

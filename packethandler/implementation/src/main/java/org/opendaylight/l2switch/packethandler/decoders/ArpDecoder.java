@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -33,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ARP (Address Resolution Protocol) Packet Decoder
+ * ARP (Address Resolution Protocol) Packet Decoder.
  */
 public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, ArpPacketReceived>
         implements EthernetPacketListener {
@@ -45,7 +44,7 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
     }
 
     /**
-     * Decode an EthernetPacket into an ArpPacket
+     * Decode an EthernetPacket into an ArpPacket.
      */
     @Override
     public ArpPacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
@@ -55,7 +54,7 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
+        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         ArpPacketBuilder builder = new ArpPacketBuilder();
@@ -126,8 +125,9 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null)
+        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null) {
             return false;
+        }
 
         // Only decode the latest packet in the chain
         EthernetPacket ethernetPacket = null;

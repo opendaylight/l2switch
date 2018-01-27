@@ -8,22 +8,22 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
@@ -45,18 +45,17 @@ public class AddressObservationWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddressObservationWriter.class);
 
-    private AtomicLong addressKey = new AtomicLong(0);
-    private long timestampUpdateInterval;
-    private DataBroker dataService;
-    private Map<NodeConnectorRef, NodeConnectorLock> lockMap = new HashMap<>();
-    private Map<NodeConnectorLock, CheckedFuture> futureMap = new HashMap<>();
-
-    private class NodeConnectorLock {
-
+    private static class NodeConnectorLock {
     }
 
+    private final AtomicLong addressKey = new AtomicLong(0);
+    private long timestampUpdateInterval;
+    private final DataBroker dataService;
+    private final Map<NodeConnectorRef, NodeConnectorLock> lockMap = new ConcurrentHashMap<>();
+    private final Map<NodeConnectorLock, ListenableFuture<Void>> futureMap = new ConcurrentHashMap<>();
+
     /**
-     * Construct an AddressTracker with the specified inputs
+     * Construct an AddressTracker with the specified inputs.
      *
      * @param dataService
      *            The DataBrokerService for the AddressTracker
@@ -70,7 +69,7 @@ public class AddressObservationWriter {
     }
 
     /**
-     * Add addresses into the MD-SAL data tree
+     * Add addresses into the MD-SAL data tree.
      *
      * @param macAddress
      *            The MacAddress of the new L2Address object
@@ -84,19 +83,11 @@ public class AddressObservationWriter {
 
         // get the lock for given node connector so at a time only one
         // observation can be made on a node connector
-        NodeConnectorLock nodeConnectorLock;
-        synchronized (this) {
-            nodeConnectorLock = lockMap.get(nodeConnectorRef);
-            if (nodeConnectorLock == null) {
-                nodeConnectorLock = new NodeConnectorLock();
-                lockMap.put(nodeConnectorRef, nodeConnectorLock);
-            }
-
-        }
+        NodeConnectorLock nodeConnectorLock = lockMap.computeIfAbsent(nodeConnectorRef, key -> new NodeConnectorLock());
 
         synchronized (nodeConnectorLock) {
             // Ensure previous transaction finished writing to the db
-            CheckedFuture<Void, TransactionCommitFailedException> future = futureMap.get(nodeConnectorLock);
+            ListenableFuture<Void> future = futureMap.get(nodeConnectorLock);
             if (future != null) {
                 try {
                     future.get();
@@ -119,9 +110,10 @@ public class AddressObservationWriter {
             try {
                 Optional<NodeConnector> dataObjectOptional = readTransaction.read(LogicalDatastoreType.OPERATIONAL,
                         (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
-                if (dataObjectOptional.isPresent())
-                    nc = (NodeConnector) dataObjectOptional.get();
-            } catch (Exception e) {
+                if (dataObjectOptional.isPresent()) {
+                    nc = dataObjectOptional.get();
+                }
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
                 readTransaction.close();
                 throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
@@ -131,7 +123,7 @@ public class AddressObservationWriter {
             if (nc == null) {
                 return;
             }
-            AddressCapableNodeConnector acnc = (AddressCapableNodeConnector) nc
+            AddressCapableNodeConnector acnc = nc
                     .getAugmentation(AddressCapableNodeConnector.class);
 
             // Address observations exist
@@ -141,7 +133,7 @@ public class AddressObservationWriter {
                 addresses = acnc.getAddresses();
                 for (int i = 0; i < addresses.size(); i++) {
                     if (addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
-                        if ((now - addresses.get(i).getLastSeen()) > timestampUpdateInterval) {
+                        if (now - addresses.get(i).getLastSeen() > timestampUpdateInterval) {
                             addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
                                     .setKey(addresses.get(i).getKey());
                             addresses.remove(i);
@@ -166,15 +158,16 @@ public class AddressObservationWriter {
             acncBuilder.setAddresses(addresses);
 
             // build Instance Id for AddressCapableNodeConnector
-            InstanceIdentifier<AddressCapableNodeConnector> addressCapableNcInstanceId = ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
-                    .getValue()).augmentation(AddressCapableNodeConnector.class);
+            InstanceIdentifier<AddressCapableNodeConnector> addressCapableNcInstanceId =
+                    ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
+                            .getValue()).augmentation(AddressCapableNodeConnector.class);
             final WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
             // Update this AddressCapableNodeConnector in the MD-SAL data tree
             writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
-            final CheckedFuture writeTxResultFuture = writeTransaction.submit();
-            Futures.addCallback(writeTxResultFuture, new FutureCallback() {
+            final ListenableFuture<Void> writeTxResultFuture = writeTransaction.submit();
+            Futures.addCallback(writeTxResultFuture, new FutureCallback<Void>() {
                 @Override
-                public void onSuccess(Object o) {
+                public void onSuccess(Void notUsed) {
                     LOG.debug("AddressObservationWriter write successful for tx :{}",
                             writeTransaction.getIdentifier());
                 }
@@ -184,7 +177,7 @@ public class AddressObservationWriter {
                     LOG.error("AddressObservationWriter write transaction {} failed",
                             writeTransaction.getIdentifier(), throwable.getCause());
                 }
-            });
+            }, MoreExecutors.directExecutor());
             futureMap.put(nodeConnectorLock, writeTxResultFuture);
         }
     }

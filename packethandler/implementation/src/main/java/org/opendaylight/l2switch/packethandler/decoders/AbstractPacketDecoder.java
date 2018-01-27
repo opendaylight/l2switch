@@ -9,7 +9,6 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -17,13 +16,13 @@ import org.opendaylight.yangtools.yang.binding.NotificationListener;
 
 /**
  * A base class for all decoders. Each extended decoder should also implement a
- * notification listener that it can consume. And make use of
+ * notification listener that it can consume.
  */
-public abstract class AbstractPacketDecoder<ConsumedPacketNotification, ProducedPacketNotification extends Notification>
+public abstract class AbstractPacketDecoder<C, P extends Notification>
         implements NotificationProviderService.NotificationInterestListener, AutoCloseable {
 
-    private Class<ProducedPacketNotification> producedPacketNotificationType;
-    private NotificationProviderService notificationProviderService;
+    private final Class<P> producedPacketNotificationType;
+    private final NotificationProviderService notificationProviderService;
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
     private final ExecutorService decodeAndPublishExecutor = Executors.newFixedThreadPool(CPUS);
@@ -31,12 +30,9 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
     protected Registration listenerRegistration;
 
     /**
-     * Constructor to
-     *
-     * @param producedPacketNotificationType
-     * @param notificationProviderService
+     * Constructor.
      */
-    public AbstractPacketDecoder(Class<ProducedPacketNotification> producedPacketNotificationType,
+    public AbstractPacketDecoder(Class<P> producedPacketNotificationType,
             NotificationProviderService notificationProviderService) {
         this.producedPacketNotificationType = producedPacketNotificationType;
         this.notificationProviderService = notificationProviderService;
@@ -46,12 +42,10 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
     /**
      * Keeps track of listeners registered for the notification that a decoder
      * produces.
-     *
-     * @param aClass
      */
     @Override
-    public synchronized void onNotificationSubscribtion(Class<? extends Notification> aClass) {
-        if (aClass != null && aClass.equals(producedPacketNotificationType)) {
+    public synchronized void onNotificationSubscribtion(Class<? extends Notification> clazz) {
+        if (clazz != null && clazz.equals(producedPacketNotificationType)) {
             if (listenerRegistration == null) {
                 NotificationListener notificationListener = getConsumedNotificationListener();
                 listenerRegistration = notificationProviderService.registerNotificationListener(notificationListener);
@@ -64,17 +58,14 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
      * packet notification. This method would make sure it decodes only when
      * necessary and publishes corresponding event on successful decoding.
      */
-    public void decodeAndPublish(final ConsumedPacketNotification consumedPacketNotification) {
-        decodeAndPublishExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                ProducedPacketNotification packetNotification = null;
-                if (consumedPacketNotification != null && canDecode(consumedPacketNotification)) {
-                    packetNotification = decode(consumedPacketNotification);
-                }
-                if (packetNotification != null) {
-                    notificationProviderService.publish(packetNotification);
-                }
+    public void decodeAndPublish(final C consumedPacketNotification) {
+        decodeAndPublishExecutor.submit(() -> {
+            P packetNotification = null;
+            if (consumedPacketNotification != null && canDecode(consumedPacketNotification)) {
+                packetNotification = decode(consumedPacketNotification);
+            }
+            if (packetNotification != null) {
+                notificationProviderService.publish(packetNotification);
             }
         });
     }
@@ -85,11 +76,11 @@ public abstract class AbstractPacketDecoder<ConsumedPacketNotification, Produced
      *
      * @return
      */
-    public abstract ProducedPacketNotification decode(ConsumedPacketNotification consumedPacketNotification);
+    public abstract P decode(C consumedPacketNotification);
 
     public abstract NotificationListener getConsumedNotificationListener();
 
-    public abstract boolean canDecode(ConsumedPacketNotification consumedPacketNotification);
+    public abstract boolean canDecode(C consumedPacketNotification);
 
     @Override
     public void close() throws Exception {

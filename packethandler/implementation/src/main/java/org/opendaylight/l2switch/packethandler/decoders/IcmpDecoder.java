@@ -8,7 +8,6 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.List;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -27,7 +26,8 @@ import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpPacketReceived> implements Ipv4PacketListener {
+public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpPacketReceived>
+        implements Ipv4PacketListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(IcmpDecoder.class);
 
@@ -36,7 +36,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
     }
 
     /**
-     * Decode an EthernetPacket into an IcmpPacket
+     * Decode an EthernetPacket into an IcmpPacket.
      */
     @Override
     public IcmpPacketReceived decode(Ipv4PacketReceived ipv4PacketReceived) {
@@ -46,7 +46,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         // EthernetPacket
         List<PacketChain> packetChainList = ipv4PacketReceived.getPacketChain();
         Ipv4Packet ipv4Packet = (Ipv4Packet) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ipv4Packet.getPayloadOffset() * NetUtils.NumBitsInAByte;
+        int bitOffset = ipv4Packet.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ipv4PacketReceived.getPayload();
 
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
@@ -64,9 +64,10 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
             // Decode the ICMP Payload
             int payloadStartInBits = bitOffset + 64;
-            int payloadEndInBits = data.length * NetUtils.NumBitsInAByte - payloadStartInBits - 4 * NetUtils.NumBitsInAByte;
-            int start = payloadStartInBits / NetUtils.NumBitsInAByte;
-            int end = start + payloadEndInBits / NetUtils.NumBitsInAByte;
+            int payloadEndInBits = data.length * NetUtils.NUM_BITS_IN_A_BYTE - payloadStartInBits - 4
+                    * NetUtils.NUM_BITS_IN_A_BYTE;
+            int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
+            int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             builder.setPayloadOffset(start);
             builder.setPayloadLength(end - start);
         } catch (BufferException e) {
@@ -95,13 +96,15 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
     @Override
     public boolean canDecode(Ipv4PacketReceived ipv4PacketReceived) {
-        if (ipv4PacketReceived == null || ipv4PacketReceived.getPacketChain() == null)
+        if (ipv4PacketReceived == null || ipv4PacketReceived.getPacketChain() == null) {
             return false;
+        }
 
         // Only decode the latest packet in the chain
         Ipv4Packet ipv4Packet = null;
         if (!ipv4PacketReceived.getPacketChain().isEmpty()) {
-            Packet packet = ipv4PacketReceived.getPacketChain().get(ipv4PacketReceived.getPacketChain().size() - 1).getPacket();
+            Packet packet = ipv4PacketReceived.getPacketChain().get(ipv4PacketReceived.getPacketChain().size() - 1)
+                    .getPacket();
             if (packet instanceof Ipv4Packet) {
                 ipv4Packet = (Ipv4Packet) packet;
             }

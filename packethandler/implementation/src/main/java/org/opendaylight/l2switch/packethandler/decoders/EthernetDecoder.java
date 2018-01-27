@@ -8,7 +8,6 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.ArrayList;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -35,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Ethernet Packet Decoder
+ * Ethernet Packet Decoder.
  */
 public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketReceived>
         implements PacketProcessingListener {
@@ -55,11 +54,11 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     }
 
     /**
-     * Decode a RawPacket into an EthernetPacket
+     * Decode a RawPacket into an EthernetPacket.
      *
      * @param packetReceived
      *            -- data from wire to deserialize
-     * @return
+     * @return EthernetPacketReceived
      */
     @Override
     public EthernetPacketReceived decode(PacketReceived packetReceived) {
@@ -75,7 +74,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             rpb.setMatch(new MatchBuilder(packetReceived.getMatch()).build());
         }
         RawPacket rp = rpb.build();
-        ArrayList<PacketChain> packetChain = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChain = new ArrayList<>();
         packetChain.add(new PacketChainBuilder().setPacket(rp).build());
 
         try {
@@ -90,28 +89,28 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             // Deserialize the optional field 802.1Q headers
             Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
             int extraHeaderBits = 0;
-            ArrayList<Header8021q> headerList = new ArrayList<Header8021q>();
+            ArrayList<Header8021q> headerList = new ArrayList<>();
             while (nextField.equals(ETHERTYPE_8021Q) || nextField.equals(ETHERTYPE_QINQ)) {
-                Header8021qBuilder hBuilder = new Header8021qBuilder();
-                hBuilder.setTPID(Header8021qType.forValue(nextField));
+                Header8021qBuilder headerBuilder = new Header8021qBuilder();
+                headerBuilder.setTPID(Header8021qType.forValue(nextField));
 
                 // Read 2 more bytes for priority (3bits), drop eligible (1bit),
                 // vlan-id (12bits)
                 byte[] vlanBytes = BitBufferHelper.getBits(data, 112 + extraHeaderBits, 16);
 
                 // Remove the sign & right-shift to get the priority code
-                hBuilder.setPriorityCode((short) ((vlanBytes[0] & 0xff) >> 5));
+                headerBuilder.setPriorityCode((short) ((vlanBytes[0] & 0xff) >> 5));
 
                 // Remove the sign & remove priority code bits & right-shift to
                 // get drop-eligible bit
-                hBuilder.setDropEligible(1 == (((vlanBytes[0] & 0xff) & 0x10) >> 4));
+                headerBuilder.setDropEligible(1 == (vlanBytes[0] & 0xff & 0x10) >> 4);
 
                 // Remove priority code & drop-eligible bits, to get the VLAN-id
                 vlanBytes[0] = (byte) (vlanBytes[0] & 0x0F);
-                hBuilder.setVlan(new VlanId(BitBufferHelper.getInt(vlanBytes)));
+                headerBuilder.setVlan(new VlanId(BitBufferHelper.getInt(vlanBytes)));
 
                 // Add 802.1Q header to the growing collection
-                headerList.add(hBuilder.build());
+                headerList.add(headerBuilder.build());
 
                 // Reset value of "nextField" to correspond to following 2 bytes
                 // for next 802.1Q header or EtherType/Length
@@ -135,14 +134,14 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             }
 
             // Determine start & end of payload
-            int payloadStart = (112 + extraHeaderBits) / NetUtils.NumBitsInAByte;
+            int payloadStart = (112 + extraHeaderBits) / NetUtils.NUM_BITS_IN_A_BYTE;
             int payloadEnd = data.length - 4;
             epBuilder.setPayloadOffset(payloadStart);
             epBuilder.setPayloadLength(payloadEnd - payloadStart);
 
             // Deserialize the CRC
             epBuilder.setCrc(BitBufferHelper
-                    .getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NumBitsInAByte, 32)));
+                    .getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NUM_BITS_IN_A_BYTE, 32)));
 
             // Set EthernetPacket field
             packetChain.add(new PacketChainBuilder().setPacket(epBuilder.build()).build());

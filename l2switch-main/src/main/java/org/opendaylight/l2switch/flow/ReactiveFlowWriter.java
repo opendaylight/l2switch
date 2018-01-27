@@ -22,8 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
  * This class listens to certain type of packets and writes a mac to mac flows.
  */
 public class ReactiveFlowWriter implements ArpPacketListener {
-    private InventoryReader inventoryReader;
-    private FlowWriterService flowWriterService;
+    private final InventoryReader inventoryReader;
+    private final FlowWriterService flowWriterService;
 
     public ReactiveFlowWriter(InventoryReader inventoryReader, FlowWriterService flowWriterService) {
         this.inventoryReader = inventoryReader;
@@ -31,7 +31,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
     }
 
     /**
-     * Checks if a MAC should be considered for flow creation
+     * Checks if a MAC should be considered for flow creation.
      *
      * @param macToCheck
      *            MacAddress to consider
@@ -40,10 +40,11 @@ public class ReactiveFlowWriter implements ArpPacketListener {
      */
 
     private boolean ignoreThisMac(MacAddress macToCheck) {
-        if (macToCheck == null)
+        if (macToCheck == null) {
             return true;
+        }
         String[] octets = macToCheck.getValue().split(":");
-        short first_byte = Short.parseShort(octets[0], 16);
+        short firstByte = Short.parseShort(octets[0], 16);
 
         /*
          * First bit in first byte for unicast and multicast is 1 Unicast and
@@ -51,7 +52,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
          * creation
          */
 
-        return ((first_byte & 1) == 1);
+        return (firstByte & 1) == 1;
     }
 
     @Override

@@ -27,9 +27,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InstanceIdentifierUtilsTest {
 
-    private final Short NUM_ID_1 = 1;
-    private final String STR_ID_1 = "id1";
-    private final String STR_ID_2 = "id2";
+    private static final Short NUM_ID_1 = 1;
+    private static final String STR_ID_1 = "id1";
+    private static final String STR_ID_2 = "id2";
 
     @Test
     public void testCreateNodePath() throws Exception {

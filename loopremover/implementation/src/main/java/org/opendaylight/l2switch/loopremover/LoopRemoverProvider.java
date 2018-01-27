@@ -20,13 +20,14 @@ import org.slf4j.LoggerFactory;
 
 public class LoopRemoverProvider {
 
-    private final static Logger LOG = LoggerFactory.getLogger(LoopRemoverProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoopRemoverProvider.class);
 
     private final DataBroker dataService;
     private final SalFlowService salFlowService;
     private final LoopRemoverConfig loopRemoverConfig;
 
-    private Registration listenerRegistration = null, topoNodeListnerReg = null;
+    private Registration listenerRegistration;
+    private Registration topoNodeListnerReg;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
     public LoopRemoverProvider(final DataBroker dataBroker,

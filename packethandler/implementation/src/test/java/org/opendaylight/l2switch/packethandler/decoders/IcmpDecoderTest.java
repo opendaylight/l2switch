@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -28,28 +27,32 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.
 public class IcmpDecoderTest {
     @Test
     public void testDecode() throws Exception {
-        byte[] eth_payload = { 0x00, 0x0c, (byte) 0xce, 0x13, (byte) 0xb9, (byte) 0xa0, 0x00, 0x22, 0x5f, 0x3f, (byte) 0x98, (byte) 0x91, 0x08, 0x00, // ethernet
-                0x45, 0x00, 0x00, 0x3c, (byte) 0xc6, 0x3e, 0x00, 0x00, (byte) 0x80, 0x01, (byte) 0xf2, (byte) 0xd7, (byte) 0xc0, (byte) 0xa8, 0x00,
-                0x59, (byte) 0xc0, (byte) 0xa8, 0x00, 0x01, // ipv4
-                0x08, // Type = 8 (Echo request)
-                0x00, // Code = 0
-                0x42, // Checksum (+ next byte)
-                0x5c, //
-                0x02, // Identifier (+ next byte)
-                0x00, //
-                0x09, // Sequence number (+ next byte)
-                0x00, //
-                0, 0, 0, 0 // CRC
+        byte[] ethPayload = { 0x00, 0x0c, (byte) 0xce, 0x13, (byte) 0xb9, (byte) 0xa0, 0x00, 0x22, 0x5f, 0x3f,
+            (byte) 0x98, (byte) 0x91, 0x08, 0x00, // ethernet
+            0x45, 0x00, 0x00, 0x3c, (byte) 0xc6, 0x3e, 0x00, 0x00, (byte) 0x80, 0x01, (byte) 0xf2, (byte) 0xd7,
+            (byte) 0xc0, (byte) 0xa8, 0x00,
+            0x59, (byte) 0xc0, (byte) 0xa8, 0x00, 0x01, // ipv4
+            0x08, // Type = 8 (Echo request)
+            0x00, // Code = 0
+            0x42, // Checksum (+ next byte)
+            0x5c, //
+            0x02, // Identifier (+ next byte)
+            0x00, //
+            0x09, // Sequence number (+ next byte)
+            0x00, //
+            0, 0, 0, 0 // CRC
         };
 
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
-        packetChainList.add(new PacketChainBuilder().setPacket(new Ipv4PacketBuilder().setPayloadOffset(34).build()).build());
+        packetChainList.add(new PacketChainBuilder().setPacket(new Ipv4PacketBuilder()
+                .setPayloadOffset(34).build()).build());
 
         IcmpPacketReceived notification = new IcmpDecoder(npServiceMock)
-                .decode(new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).setPayload(eth_payload).build());
+                .decode(new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload)
+                        .build());
 
         IcmpPacket icmpPacket = (IcmpPacket) notification.getPacketChain().get(3).getPacket();
         assertEquals(8, icmpPacket.getType().intValue());
@@ -58,6 +61,6 @@ public class IcmpDecoderTest {
         assertEquals(512, icmpPacket.getIdentifier().intValue());
         assertEquals(2304, icmpPacket.getSequenceNumber().intValue());
 
-        assertTrue(Arrays.equals(eth_payload, notification.getPayload()));
+        assertTrue(Arrays.equals(ethPayload, notification.getPayload()));
     }
 }

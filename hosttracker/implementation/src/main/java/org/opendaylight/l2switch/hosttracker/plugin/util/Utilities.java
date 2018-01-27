@@ -28,7 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Utilities {
+public final class Utilities {
+    private Utilities() {
+    }
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
         List<Link> links = new ArrayList();
@@ -54,17 +56,17 @@ public class Utilities {
     }
 
     public static InstanceIdentifier<Node> buildNodeIID(NodeKey nk, String topologyId) {
-        InstanceIdentifier<Node> nIID = InstanceIdentifier.builder(NetworkTopology.class)//
+        InstanceIdentifier<Node> nodeIID = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Node.class, nk).build();
-        return nIID;
+        return nodeIID;
     }
 
     public static InstanceIdentifier<Link> buildLinkIID(LinkKey lk, String topologyId) {
-        InstanceIdentifier<Link> lIID = InstanceIdentifier.builder(NetworkTopology.class)//
+        InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(NetworkTopology.class)//
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
                 .child(Link.class, lk).build();
-        return lIID;
+        return linkIID;
     }
 
     public static AttachmentPointsBuilder createAPsfromNodeConnector(NodeConnector nc) {

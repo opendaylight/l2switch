@@ -67,15 +67,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Adds a flow, which sends all LLDP packets to the controller, on all switches.
- * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added.
  */
 public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
+    private static final String FLOW_ID_PREFIX = "L2switch-";
+    private static  final int LLDP_ETHER_TYPE = 35020;
+
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
-    private final String FLOW_ID_PREFIX = "L2switch-";
-    private final int LLDP_ETHER_TYPE = 35020;
     private short flowTableId;
     private int flowPriority;
     private int flowIdleTimeout;
@@ -140,23 +141,23 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        Set<InstanceIdentifier<?>> nodeIds = null;
+        private final Set<InstanceIdentifier<?>> nodeIds;
 
-        public InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
         @Override
         public void run() {
 
-            if(nodeIds == null) {
+            if (nodeIds == null) {
                 return;
             }
 
-            for(InstanceIdentifier<?> nodeId : nodeIds) {
-                if(Node.class.isAssignableFrom(nodeId.getTargetType())) {
+            for (InstanceIdentifier<?> nodeId : nodeIds) {
+                if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
                     InstanceIdentifier<Node> topoNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if(topoNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
+                    if (topoNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
                         addInitialFlows(topoNodeId);
                     }
                 }
@@ -214,8 +215,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
 
             // Create an Apply Action
-            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(getSendToControllerAction()))
-                    .build();
+            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList
+                    .of(getSendToControllerAction())).build();
 
             // Wrap our Apply Action in an Instruction
             Instruction applyActionsInstruction = new InstructionBuilder() //

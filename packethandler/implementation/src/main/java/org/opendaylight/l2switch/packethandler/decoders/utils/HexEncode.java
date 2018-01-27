@@ -11,9 +11,11 @@ package org.opendaylight.l2switch.packethandler.decoders.utils;
 import java.math.BigInteger;
 
 /**
- * The class provides methods to convert hex encode strings
+ * The class provides methods to convert hex encode strings.
  */
-public class HexEncode {
+public final class HexEncode {
+    private HexEncode() {
+    }
 
     /**
      * This method converts byte array into String format without ":" inserted.
@@ -47,19 +49,19 @@ public class HexEncode {
     }
 
     public static String longToHexString(long val) {
-        char arr[] = Long.toHexString(val).toCharArray();
+        char[] arr = Long.toHexString(val).toCharArray();
         StringBuffer buf = new StringBuffer();
         // prepend the right number of leading zeros
-        int i = 0;
-        for (; i < (16 - arr.length); i++) {
+        int index = 0;
+        for (; index < 16 - arr.length; index++) {
             buf.append("0");
-            if ((i & 0x01) == 1) {
+            if ((index & 0x01) == 1) {
                 buf.append(":");
             }
         }
         for (int j = 0; j < arr.length; j++) {
             buf.append(arr[j]);
-            if ((((i + j) & 0x01) == 1) && (j < (arr.length - 1))) {
+            if ((index + j & 0x01) == 1 && j < arr.length - 1) {
                 buf.append(":");
             }
         }

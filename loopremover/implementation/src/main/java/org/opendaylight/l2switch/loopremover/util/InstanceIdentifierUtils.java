@@ -26,7 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/* InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
+/**
+ * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
  */
 public final class InstanceIdentifierUtils {
 
@@ -35,12 +36,12 @@ public final class InstanceIdentifierUtils {
     }
 
     /**
-     * Creates an Instance Identifier (path) for node with specified id
+     * Creates an Instance Identifier (path) for node with specified id.
      *
-     * @param nodeId
-     * @return
+     * @param nodeId the node id
+     * @return the node InstanceIdentifier
      */
-    public static final InstanceIdentifier<Node> createNodePath(final NodeId nodeId) {
+    public static InstanceIdentifier<Node> createNodePath(final NodeId nodeId) {
         return InstanceIdentifier.builder(Nodes.class) //
                 .child(Node.class, new NodeKey(nodeId)) //
                 .build();
@@ -51,20 +52,20 @@ public final class InstanceIdentifierUtils {
      *
      * @param nodeChild
      *            child of node, from which we want node path.
-     * @return
+     * @return the Node InstanceIdentifier
      */
-    public static final InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
+    public static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
         return nodeChild.firstIdentifierOf(Node.class);
     }
 
     /**
-     * Creates a table path by appending table specific location to node path
+     * Creates a table path by appending table specific location to node path.
      *
-     * @param nodePath
-     * @param tableKey
-     * @return
+     * @param nodePath the node path
+     * @param tableKey the table key
+     * @return the table InstanceIdentifier
      */
-    public static final InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath,
+    public static InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath,
             final TableKey tableKey) {
         return nodePath.builder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
     }
@@ -73,9 +74,9 @@ public final class InstanceIdentifierUtils {
      * Creates a path for particular flow, by appending flow-specific
      * information to table path.
      *
-     * @param table
-     * @param flowKey
-     * @return
+     * @param table the table path
+     * @param flowKey the floe key
+     * @return the flow InstanceIdentifier
      */
     public static InstanceIdentifier<Flow> createFlowPath(final InstanceIdentifier<Table> table,
             final FlowKey flowKey) {
@@ -85,8 +86,8 @@ public final class InstanceIdentifierUtils {
     /**
      * Extract table id from table path.
      *
-     * @param tablePath
-     * @return
+     * @param tablePath the table path
+     * @return the table id
      */
     public static Short getTableId(final InstanceIdentifier<Table> tablePath) {
         return tablePath.firstKeyOf(Table.class, TableKey.class).getId();
@@ -106,38 +107,22 @@ public final class InstanceIdentifierUtils {
         return nodePath.firstKeyOf(Node.class, NodeKey.class);
     }
 
-    //
-    public static final InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
+    public static InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
             final String nodeConnectorIdValue) {
         return createNodePath(new NodeId(nodeIdValue)).child(NodeConnector.class,
                 new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)));
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @return
-     */
     public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
         return nodeConnectorRef.getValue().firstIdentifierOf(Node.class);
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @param flowTableKey
-     * @return
-     */
     public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey) {
         return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
                 .child(Table.class, flowTableKey).build();
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @param flowTableKey
-     * @param flowKey
-     * @return
-     */
     public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey, final FlowKey flowKey) {
         return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);

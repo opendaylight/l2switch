@@ -13,16 +13,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * ArpPacketHandler listens for incoming ARP packets and processes them.
  */
 public class ArpPacketHandler implements ArpPacketListener {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ArpPacketHandler.class);
-    private PacketDispatcher packetDispatcher;
+    private final PacketDispatcher packetDispatcher;
 
     public ArpPacketHandler(PacketDispatcher packetDispatcher) {
         this.packetDispatcher = packetDispatcher;

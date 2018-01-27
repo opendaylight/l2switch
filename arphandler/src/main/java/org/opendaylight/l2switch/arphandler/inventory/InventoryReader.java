@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,11 +53,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
     private final HashMap<String, NodeConnectorRef> controllerSwitchConnectors;
     // Key: SwitchId, Value: List of node connectors on this switch
     private final HashMap<String, List<NodeConnectorRef>> switchNodeConnectors;
-    private final List<Registration> listenerRegistrationList = new ArrayList<>();
-
-    public void setRefreshData(boolean refreshData) {
-        this.refreshData = refreshData;
-    }
+    private final List<Registration> listenerRegistrationList = new CopyOnWriteArrayList<>();
 
     private volatile boolean refreshData = false;
     private final long refreshDataDelay = 20L;
@@ -75,9 +72,12 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
         switchNodeConnectors = new HashMap<>();
     }
 
+    public void setRefreshData(boolean refreshData) {
+        this.refreshData = refreshData;
+    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void registerAsDataChangeListener(){
+    private void registerAsDataChangeListener() {
         InstanceIdentifier<NodeConnector> nodeConnector = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
@@ -106,9 +106,9 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
     @Override
     public void onDataTreeChanged(Collection<DataTreeModification<DataObject>> changes) {
-        if(!refreshDataScheduled) {
-            synchronized(this) {
-                if(!refreshDataScheduled) {
+        if (!refreshDataScheduled) {
+            synchronized (this) {
+                if (!refreshDataScheduled) {
                     nodeConnectorDataChangeEventProcessor.schedule(new NodeConnectorDataChangeEventProcessor(),
                             refreshDataDelay, TimeUnit.MILLISECONDS);
                     refreshDataScheduled = true;
@@ -119,13 +119,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
 
     public void close() {
-        for (Registration lr:listenerRegistrationList){
-            try {
-                lr.close();
-            } catch (Exception e) {
-                LOG.debug("Error closing {}", lr, e);
-            }
-        }
+        listenerRegistrationList.forEach(reg -> reg.close());
     }
 
     /**
@@ -146,22 +140,17 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier
                     .<Nodes>builder(Nodes.class);
             Nodes nodes = null;
-            ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
-
-            try {
-                Optional<Nodes> dataObjectOptional = null;
-                dataObjectOptional = readOnlyTransaction
+            try (ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
+                Optional<Nodes> dataObjectOptional = readOnlyTransaction
                         .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
                 if (dataObjectOptional.isPresent()) {
                     nodes = dataObjectOptional.get();
                 }
             } catch (InterruptedException e) {
                 LOG.error("Failed to read nodes from Operation data store.");
-                readOnlyTransaction.close();
                 throw new RuntimeException("Failed to read nodes from Operation data store.", e);
             } catch (ExecutionException e) {
                 LOG.error("Failed to read nodes from Operation data store.");
-                readOnlyTransaction.close();
                 throw new RuntimeException("Failed to read nodes from Operation data store.", e);
             }
 
@@ -199,11 +188,11 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                     controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
                 }
             }
-            readOnlyTransaction.close();
+
             refreshData = false;
 
-            if(0 == listenerRegistrationList.size()){
-              registerAsDataChangeListener();
+            if (listenerRegistrationList.isEmpty()) {
+                registerAsDataChangeListener();
             }
         }
     }
@@ -275,15 +264,15 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
         return destNodeConnector;
     }
 
-  private class NodeConnectorDataChangeEventProcessor implements Runnable {
+    private class NodeConnectorDataChangeEventProcessor implements Runnable {
 
-    @Override
-    public void run() {
-      controllerSwitchConnectors.clear();
-      switchNodeConnectors.clear();
-      refreshDataScheduled = false;
-      setRefreshData(true);
-      readInventory();
+        @Override
+        public void run() {
+            controllerSwitchConnectors.clear();
+            switchNodeConnectors.clear();
+            refreshDataScheduled = false;
+            setRefreshData(true);
+            readInventory();
+        }
     }
-  }
 }

@@ -20,9 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class L2SwitchMainProvider {
-
-    private final static Logger LOG = LoggerFactory.getLogger(L2SwitchMainProvider.class);
-    private Registration topoNodeListherReg = null, reactFlowWriterReg = null;
+    private static final Logger LOG = LoggerFactory.getLogger(L2SwitchMainProvider.class);
+    private Registration topoNodeListherReg;
+    private Registration reactFlowWriterReg;
 
     private final DataBroker dataService;
     private final NotificationProviderService notificationService;
@@ -76,14 +76,14 @@ public class L2SwitchMainProvider {
         LOG.info("L2SwitchMain initialized.");
     }
 
-    public void close() throws Exception {
-        if(reactFlowWriterReg != null) {
+    public void close() {
+        if (reactFlowWriterReg != null) {
             reactFlowWriterReg.close();
         }
-        if(topoNodeListherReg != null) {
+
+        if (topoNodeListherReg != null) {
             topoNodeListherReg.close();
         }
         LOG.info("L2SwitchMain (instance {}) torn down.", this);
     }
-
 }

@@ -38,7 +38,7 @@ public class HexEncodeTest {
     @Test
     public void testBytesFromHexString() {
         String byteStr1 = "00:11:22:33:44:55";
-        byte byteArray1[] = new byte[(byteStr1.length() + 1) / 3];
+        byte[] byteArray1 = new byte[(byteStr1.length() + 1) / 3];
         byteArray1 = HexEncode.bytesFromHexString(byteStr1);
 
         Assert.assertTrue(byteArray1[0] == (byte) 0x0);
@@ -49,7 +49,7 @@ public class HexEncodeTest {
         Assert.assertTrue(byteArray1[5] == (byte) 0x55);
 
         String byteStr2 = "00:11:22:33:44:55";
-        byte byteArray2[] = new byte[(byteStr2.length() + 1) / 3];
+        byte[] byteArray2 = new byte[(byteStr2.length() + 1) / 3];
         byteArray2 = HexEncode.bytesFromHexString(byteStr2);
 
         Assert.assertFalse(byteArray2[0] == (byte) 0x55);

@@ -76,9 +76,10 @@ import org.slf4j.LoggerFactory;
 public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
+    private static final String FLOW_ID_PREFIX = "L2switch-";
+
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
-    private final String FLOW_ID_PREFIX = "L2switch-";
     private short flowTableId;
     private int flowPriority;
     private int flowIdleTimeout;
@@ -147,23 +148,22 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        Set<InstanceIdentifier<?>> nodeIds = null;
+        private final Set<InstanceIdentifier<?>> nodeIds;
 
-        public InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
         @Override
         public void run() {
-
-            if(nodeIds == null) {
+            if (nodeIds == null) {
                 return;
             }
 
-            for(InstanceIdentifier<?> nodeId : nodeIds) {
-                if(Node.class.isAssignableFrom(nodeId.getTargetType())) {
+            for (InstanceIdentifier<?> nodeId : nodeIds) {
+                if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
                     InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if(invNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
+                    if (invNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
                         addInitialFlows(invNodeId);
                     }
                 }
@@ -198,7 +198,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
 
         private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
             // generate unique flow key
-            FlowId flowId = new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()));
+            FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
             FlowKey flowKey = new FlowKey(flowId);
             return tableId.child(Flow.class, flowKey);
         }
@@ -222,7 +222,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
 
             List<Action> actions = new ArrayList<>();
             actions.add(getSendToControllerAction());
-            if(isHybridMode) {
+            if (isHybridMode) {
                 actions.add(getNormalAction());
             }
 

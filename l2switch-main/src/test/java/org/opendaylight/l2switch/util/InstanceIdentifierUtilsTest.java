@@ -28,8 +28,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InstanceIdentifierUtilsTest {
 
-    private final Short NUM_ID_1 = 1;
-    private final String STR_ID_1 = "id1";
+    private static final Short NUM_ID_1 = 1;
+    private static final String STR_ID_1 = "id1";
 
     @Test
     public void testGenerateNodeInstanceIdentifier() throws Exception {

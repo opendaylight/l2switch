@@ -7,7 +7,6 @@
  */
 package org.opendaylight.l2switch.arphandler.flow;
 
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

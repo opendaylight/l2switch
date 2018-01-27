@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -42,7 +41,7 @@ public class ArpDecoderTest {
             0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
         };
         NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setPayloadOffset(5).setPayloadLength(33).build()).build());
@@ -76,7 +75,7 @@ public class ArpDecoderTest {
             0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
         };
         NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setPayloadOffset(8).setPayloadLength(36).build()).build());
@@ -100,13 +99,14 @@ public class ArpDecoderTest {
     public void testDecode_Broadcast() throws Exception {
         byte[] packet = {
             //Ethernet start
-            (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x08, 0x06,
+            (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xba, 0x43, 0x52, (byte)0xce,
+            0x09, (byte)0xf4, 0x08, 0x06,
             // Arp start
-            0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, 0x01, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x0a, 0x00, 0x00, 0x01,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x02
+            0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, 0x01, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x0a,
+            0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x02
         };
         NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());

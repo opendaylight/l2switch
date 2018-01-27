@@ -20,11 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AddressTrackerProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(AddressTrackerProvider.class);
+    private static final String ARP_PACKET_TYPE = "arp";
+    private static final String IPV4_PACKET_TYPE = "ipv4";
+    private static final String IPV6_PACKET_TYPE = "ipv6";
 
-    private final static Logger LOG = LoggerFactory.getLogger(AddressTrackerProvider.class);
-    private List<Registration> listenerRegistrations = new ArrayList<>();
-    private static String ARP_PACKET_TYPE = "arp", IPV4_PACKET_TYPE = "ipv4", IPV6_PACKET_TYPE = "ipv6";
-
+    private final List<Registration> listenerRegistrations = new ArrayList<>();
     private final NotificationProviderService notificationService;
     private final DataBroker dataBroker;
     private final Long timestampUpdateInterval;
@@ -72,14 +73,7 @@ public class AddressTrackerProvider {
     }
 
     public void close() {
-        if (listenerRegistrations != null && !listenerRegistrations.isEmpty()) {
-            for (Registration listenerRegistration : listenerRegistrations)
-                try {
-                    listenerRegistration.close();
-                } catch (Exception e) {
-                    LOG.error("Failed to close registration={}", listenerRegistration, e);
-                }
-        }
+        listenerRegistrations.forEach(reg -> reg.close());
         LOG.info("AddressTracker torn down.", this);
     }
 

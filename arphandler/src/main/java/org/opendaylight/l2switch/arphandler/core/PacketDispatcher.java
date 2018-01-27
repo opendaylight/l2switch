@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PacketDispatcher {
 
-    private final static Logger LOG = LoggerFactory.getLogger(PacketDispatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PacketDispatcher.class);
     private InventoryReader inventoryReader;
     private PacketProcessingService packetProcessingService;
 
@@ -81,6 +81,8 @@ public class PacketDispatcher {
     /**
      * Floods the packet.
      *
+     * @param nodeId
+     *            The node id
      * @param payload
      *            The payload to be sent.
      * @param origIngress
@@ -121,8 +123,9 @@ public class PacketDispatcher {
      *            The NodeConnector where the payload will go.
      */
     public void sendPacketOut(byte[] payload, NodeConnectorRef ingress, NodeConnectorRef egress) {
-        if (ingress == null || egress == null)
+        if (ingress == null || egress == null) {
             return;
+        }
         InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
         TransmitPacketInput input = new TransmitPacketInputBuilder() //
                 .setPayload(payload) //

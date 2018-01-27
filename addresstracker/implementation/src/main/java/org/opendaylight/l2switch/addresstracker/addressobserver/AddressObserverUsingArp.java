@@ -14,8 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * AddressObserver listens to ARP packets to find addresses (mac, ip) and store
@@ -24,11 +22,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AddressObserverUsingArp implements ArpPacketListener {
 
-    private final static Logger LOG = LoggerFactory.getLogger(AddressObserverUsingArp.class);
-    private org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter;
+    private final AddressObservationWriter addressObservationWriter;
 
-    public AddressObserverUsingArp(
-            org.opendaylight.l2switch.addresstracker.addressobserver.AddressObservationWriter addressObservationWriter) {
+    public AddressObserverUsingArp(AddressObservationWriter addressObservationWriter) {
         this.addressObservationWriter = addressObservationWriter;
     }
 

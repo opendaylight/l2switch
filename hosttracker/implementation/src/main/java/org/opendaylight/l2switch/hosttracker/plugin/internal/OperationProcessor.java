@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.hosttracker.plugin.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -34,7 +35,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
 
     OperationProcessor(final DataBroker dataBroker) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.queue = new LinkedBlockingQueue<HostTrackerOperation>(QUEUE_DEPTH);
+        this.queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
         this.transactionChain = dataBroker.createTransactionChain(this);
     }
 
@@ -57,7 +58,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
                 ReadWriteTransaction tx = transactionChain.newReadWriteTransaction();
 
                 int ops = 0;
-                while ((op != null) && (ops < OPS_PER_CHAIN)) {
+                while (op != null && ops < OPS_PER_CHAIN) {
                     op.applyOperation(tx);
                     ops += 1;
                     op = queue.poll();
@@ -98,13 +99,15 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
 
     public void submitTransaction(final ReadWriteTransaction tx, final int tries) {
         Futures.addCallback(tx.submit(), new FutureCallback<Object>() {
-            public void onSuccess(Object o) {
+            @Override
+            public void onSuccess(Object obj) {
                 LOG.trace("tx {} succeeded", tx.getIdentifier());
             }
 
-            public void onFailure(Throwable t) {
-                if (t instanceof OptimisticLockFailedException) {
-                    if ((tries - 1) > 0) {
+            @Override
+            public void onFailure(Throwable failure) {
+                if (failure instanceof OptimisticLockFailedException) {
+                    if (tries - 1 > 0) {
                         LOG.warn("tx {} failed, retrying", tx.getIdentifier());
                         // do retry
                         submitTransaction(tx, tries - 1);
@@ -116,11 +119,11 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
                 } else {
                     // failed due to another type of
                     // TransactionCommitFailedException.
-                    LOG.warn("tx {} failed: {}", tx.getIdentifier(), t.getMessage());
+                    LOG.warn("tx {} failed: {}", tx.getIdentifier(), failure.getMessage());
                     chainFailure();
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void clearQueue() {

@@ -9,12 +9,13 @@ package org.opendaylight.l2switch.loopremover.topology;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +30,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
@@ -44,8 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Listens to data change events on topology links
- * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
+ * Listens to data change events on topology links {@link
+ * org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
  * and maintains a topology graph using provided NetworkGraphService
  * {@link org.opendaylight.l2switch.loopremover.topology.NetworkGraphService}.
  * It refreshes the graph after a delay(default 10 sec) to accommodate burst of
@@ -91,8 +91,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     }
 
     /**
-     * Registers as a data listener to receive changes done to
-     * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
+     * Registers as a data listener to receive changes done to {@link org.opendaylight.yang.gen.v1.urn.tbd.params
+     * .xml.ns.yang.network.topology.rev131021.network.topology.topology.Link}
      * under
      * {@link org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology}
      * operation data root.
@@ -153,9 +153,6 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
     }
 
-    /**
-     *
-     */
     private class TopologyDataChangeEventProcessor implements Runnable {
 
         @Override
@@ -175,10 +172,9 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             networkGraphService.addLinks(links);
             final ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
             updateNodeConnectorStatus(readWriteTransaction);
-            final CheckedFuture writeTxResultFuture = readWriteTransaction.submit();
-            Futures.addCallback(writeTxResultFuture, new FutureCallback() {
+            Futures.addCallback(readWriteTransaction.submit(), new FutureCallback<Void>() {
                 @Override
-                public void onSuccess(Object o) {
+                public void onSuccess(Void notUsed) {
                     LOG.debug("TopologyLinkDataChangeHandler write successful for tx :{}",
                             readWriteTransaction.getIdentifier());
                 }
@@ -188,7 +184,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                     LOG.error("TopologyLinkDataChangeHandler write transaction {} failed",
                             readWriteTransaction.getIdentifier(), throwable.getCause());
                 }
-            });
+            }, MoreExecutors.directExecutor());
             LOG.debug("Done with network graph refresh thread.");
         }
 
@@ -203,7 +199,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 if (topologyOptional.isPresent()) {
                     topology = topologyOptional.get();
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading topology {}", topologyInstanceIdentifier);
                 readOnlyTransaction.close();
                 throw new RuntimeException(
@@ -226,9 +222,6 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             return internalLinks;
         }
 
-        /**
-         * @param readWriteTransaction
-         */
         private void updateNodeConnectorStatus(ReadWriteTransaction readWriteTransaction) {
             List<Link> allLinks = networkGraphService.getAllLinks();
             if (allLinks == null || allLinks.isEmpty()) {
@@ -247,10 +240,6 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             }
         }
 
-        /**
-         * @param link
-         * @return
-         */
         private NodeConnectorRef getSourceNodeConnectorRef(Link link) {
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
                     .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
@@ -258,10 +247,6 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
         }
 
-        /**
-         * @param link
-         * @return
-         */
         private NodeConnectorRef getDestNodeConnectorRef(Link link) {
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
                     .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
@@ -270,24 +255,14 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
         }
 
-        /**
-         * @param readWriteTransaction
-         * @param nodeConnectorRef
-         * @param stpStatus
-         */
         private void updateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef,
                 StpStatus stpStatus) {
-            StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder = new StpStatusAwareNodeConnectorBuilder()
-                    .setStatus(stpStatus);
+            StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder =
+                    new StpStatusAwareNodeConnectorBuilder().setStatus(stpStatus);
             checkIfExistAndUpdateNodeConnector(readWriteTransaction, nodeConnectorRef,
                     stpStatusAwareNodeConnectorBuilder.build());
         }
 
-        /**
-         * @param readWriteTransaction
-         * @param nodeConnectorRef
-         * @param stpStatusAwareNodeConnector
-         */
         private void checkIfExistAndUpdateNodeConnector(ReadWriteTransaction readWriteTransaction,
                 NodeConnectorRef nodeConnectorRef, StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
             NodeConnector nc = null;
@@ -297,13 +272,13 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 if (dataObjectOptional.isPresent()) {
                     nc = dataObjectOptional.get();
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
                 readWriteTransaction.submit();
                 throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
                         e);
             }
-            NodeConnectorBuilder nodeConnectorBuilder;
+
             if (nc != null) {
                 if (sameStatusPresent(nc.getAugmentation(StpStatusAwareNodeConnector.class),
                         stpStatusAwareNodeConnector.getStatus())) {
@@ -311,8 +286,9 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 }
 
                 // build instance id for StpStatusAwareNodeConnector
-                InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNcInstanceId = ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
-                        .getValue()).augmentation(StpStatusAwareNodeConnector.class);
+                InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNcInstanceId =
+                        ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
+                                .getValue()).augmentation(StpStatusAwareNodeConnector.class);
                 // update StpStatusAwareNodeConnector in operational store
                 readWriteTransaction.merge(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNcInstanceId,
                         stpStatusAwareNodeConnector);
@@ -324,10 +300,6 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             }
         }
 
-        /**
-         * @param stpStatusAwareNodeConnector
-         * @return
-         */
         private boolean sameStatusPresent(StpStatusAwareNodeConnector stpStatusAwareNodeConnector,
                 StpStatus stpStatus) {
 

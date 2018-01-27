@@ -37,11 +37,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
  */
 public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
 
-    private final String IPV4_IP_TO_IGNORE = "0.0.0.0";
-    private final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
+    private static final String IPV4_IP_TO_IGNORE = "0.0.0.0";
+    private static final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
 
-    private HostTrackerImpl hostTrackerImpl;
-    private NotificationService notificationService;
+    private final HostTrackerImpl hostTrackerImpl;
+    private final NotificationService notificationService;
 
     public SimpleAddressObserver(HostTrackerImpl hostTrackerImpl, NotificationService notificationService) {
         this.hostTrackerImpl = hostTrackerImpl;
@@ -178,7 +178,7 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         if (srcMacAddr == null || srcIpAddr == null) {
             return null;
         }
-        /**
+        /*
          * TODO: if this is used, use a ReadWriteTranscation to figure out if
          * there is an already existing addresses that has the same MAC, IP,
          * VLAN triple and use it’s ID then, if there’s none, then we make up

@@ -9,7 +9,6 @@ package org.opendaylight.l2switch.hosttracker.plugin.inventory;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Compare;
@@ -33,63 +32,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Host {
-
-    public static Host createHost(Node node) {
-        HostNode hostNode = node.getAugmentation(HostNode.class);
-        return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(Host.class);
-    private List<AttachmentPointsBuilder> apbs;
-    private HostNodeBuilder hostNodeBuilder;
-    private NodeBuilder nodeBuilder;
 
     /**
      * Hosttracker's prefix for nodes stored on MD-SAL.
      */
     public static final String NODE_PREFIX = "host:";
 
-    private Host() {
-        apbs = new ArrayList<>();
-        hostNodeBuilder = new HostNodeBuilder();
+    private final List<AttachmentPointsBuilder> attachmentPointsBuilders = new ArrayList<>();
+    private final HostNodeBuilder hostNodeBuilder = new HostNodeBuilder();
+    private final NodeBuilder nodeBuilder;
+
+    public static Host createHost(Node node) {
+        HostNode hostNode = node.getAugmentation(HostNode.class);
+        return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
     }
 
-    public Host(HostId hId, List<Addresses> addrs, List<AttachmentPoints> aps) throws InvalidParameterException {
-        this();
+    public Host(HostId hostId, List<Addresses> addrs, List<AttachmentPoints> aps) throws InvalidParameterException {
         hostNodeBuilder.setAddresses(addrs);
-        if (hId == null) {
+        if (hostId == null) {
             throw new InvalidParameterException("A host must have a HostId");
         }
-        hostNodeBuilder.setId(hId);
+        hostNodeBuilder.setId(hostId);
         for (AttachmentPoints ap : aps) {
-            apbs.add(new AttachmentPointsBuilder(ap));
+            attachmentPointsBuilders.add(new AttachmentPointsBuilder(ap));
         }
-        nodeBuilder = createNodeBuilder(hostNodeBuilder, apbs);
+        nodeBuilder = createNodeBuilder(hostNodeBuilder, attachmentPointsBuilders);
     }
 
     public Host(Addresses addrs, NodeConnector nodeConnector) throws InvalidParameterException {
-        this();
         List<Addresses> setAddrs = new ArrayList<>();
         if (addrs != null) {
             setAddrs.add(addrs);
         }
         hostNodeBuilder.setAddresses(setAddrs);
-        HostId hId = createHostId(addrs);
-        if (hId == null) {
-            throw new InvalidParameterException("This host doesn't contain a valid MAC address to assign a valid HostId");
+        HostId hostId = createHostId(addrs);
+        if (hostId == null) {
+            throw new InvalidParameterException(
+                    "This host doesn't contain a valid MAC address to assign a valid HostId");
         }
-        hostNodeBuilder.setId(hId);
+        hostNodeBuilder.setId(hostId);
         if (nodeConnector != null) {
             AttachmentPointsBuilder apb = Utilities.createAPsfromNodeConnector(nodeConnector);
             apb.setActive(Boolean.TRUE);
-            apbs.add(apb);
+            attachmentPointsBuilders.add(apb);
         }
-        nodeBuilder = createNodeBuilder(hostNodeBuilder, apbs);
+        nodeBuilder = createNodeBuilder(hostNodeBuilder, attachmentPointsBuilders);
     }
 
     public synchronized Node getHostNode() {
         List<AttachmentPoints> attachmentPoints = new ArrayList<>();
-        for (AttachmentPointsBuilder apb : apbs) {
+        for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
             attachmentPoints.add(apb.build());
         }
         hostNodeBuilder.setAttachmentPoints(attachmentPoints);
@@ -99,18 +92,16 @@ public class Host {
     /**
      * Creates a NodeBuilder based on the given HostNodeBuilder.
      *
-     * @param hostNode The HostNodeBuilder where the AttachmentPoints and Id
-     * are.
-     * @return A NodeBuilder with the same Id of HostNodeBuilder and a list of
-     * TerminationPoint corresponding to each HostNodeBuilder's
-     * AttachmentPoints.
+     * @param hostNode The HostNodeBuilder where the AttachmentPoints and Id are.
+     * @return A NodeBuilder with the same Id of HostNodeBuilder and a list of TerminationPoint corresponding to
+     *     each HostNodeBuilder's AttachmentPoints.
      */
     private NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
         List<TerminationPoint> tps = new ArrayList<>();
-        for (AttachmentPointsBuilder atb : apbs) {
+        for (AttachmentPointsBuilder apb : apbs) {
             TerminationPoint tp = createTerminationPoint(hostNode);
             tps.add(tp);
-            atb.setCorrespondingTp(tp.getTpId());
+            apb.setCorrespondingTp(tp.getTpId());
         }
         NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode))
                 .setTerminationPoint(tps);
@@ -144,12 +135,10 @@ public class Host {
     }
 
     /**
-     * Creates a HostId based on the MAC values present in Addresses, if MAC is
-     * null then returns null.
+     * Creates a HostId based on the MAC values present in Addresses, if MAC is null then returns null.
      *
      * @param addrs Address containing a MAC address.
-     * @return A new HostId based on the MAC address present in addrs, null if
-     * addrs is null or MAC is null.
+     * @return A new HostId based on the MAC address present in addrs, null ifcaddrs is null or MAC is null.
      */
     public static HostId createHostId(Addresses addrs) {
         if (addrs != null && addrs.getMac() != null) {
@@ -160,7 +149,7 @@ public class Host {
     }
 
     /**
-     * Returns this HostId
+     * Returns this HostId.
      *
      * @return this HostId.
      */
@@ -173,11 +162,11 @@ public class Host {
      * dstNode.
      *
      * @param dstNode Node that could have Host's AttachmentPoints.
-     * @return A list of links containing a link from this Host's
-     * TerminationPoint to the given dstNode and vice-versa.
+     * @return A list of links containing a link from this Host's TerminationPoint to the given dstNode and vice-versa.
      */
-    public synchronized List<Link> createLinks(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node dstNode) {
-        for (AttachmentPointsBuilder apb : apbs) {
+    public synchronized List<Link> createLinks(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node dstNode) {
+        for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
             if (apb.isActive()) {
                 for (NodeConnector nc : dstNode.getNodeConnector()) {
                     if (nc.getId().getValue().equals(apb.getTpId().getValue())) {
@@ -206,7 +195,7 @@ public class Host {
             oldLIAddrs = this.hostNodeBuilder.getAddresses().listIterator();
             while (oldLIAddrs.hasNext()) {
                 Addresses oldAddrs = oldLIAddrs.next();
-                if (Compare.Addresses(oldAddrs, newAddrs)) {
+                if (Compare.addresses(oldAddrs, newAddrs)) {
                     oldLIAddrs.remove();
                     break;
                 }
@@ -215,16 +204,16 @@ public class Host {
         }
 
         ListIterator<AttachmentPointsBuilder> oldLIAPs;
-        for (AttachmentPointsBuilder newAPs : newHost.apbs) {
-            oldLIAPs = this.apbs.listIterator();
+        for (AttachmentPointsBuilder newAPs : newHost.attachmentPointsBuilders) {
+            oldLIAPs = this.attachmentPointsBuilders.listIterator();
             while (oldLIAPs.hasNext()) {
                 AttachmentPointsBuilder oldAPs = oldLIAPs.next();
-                if (Compare.AttachmentPointsBuilder(oldAPs, newAPs)) {
+                if (Compare.attachmentPointsBuilder(oldAPs, newAPs)) {
                     oldLIAPs.remove();
                     break;
                 }
             }
-            this.apbs.add(newAPs);
+            this.attachmentPointsBuilders.add(newAPs);
         }
     }
 
@@ -236,8 +225,7 @@ public class Host {
      */
     public synchronized void removeAttachmentPoints(AttachmentPointsBuilder apb) {
         LOG.debug("Setting attachment points {} to inactive state", apb);
-        for (Iterator<AttachmentPointsBuilder> it = apbs.iterator(); it.hasNext();) {
-            AttachmentPointsBuilder apbi = it.next();
+        for (AttachmentPointsBuilder apbi : attachmentPointsBuilders) {
             if (apbi.getKey().equals(apb.getKey())) {
                 apbi.setActive(Boolean.FALSE);
             }
@@ -252,8 +240,7 @@ public class Host {
      */
     public synchronized void removeTerminationPoint(TpId tp) {
         LOG.debug("Setting termination point {} to inactive state", tp);
-        for (Iterator<AttachmentPointsBuilder> it = apbs.iterator(); it.hasNext();) {
-            AttachmentPointsBuilder apbi = it.next();
+        for (AttachmentPointsBuilder apbi : attachmentPointsBuilders) {
             if (apbi.getCorrespondingTp().equals(tp)) {
                 apbi.setActive(Boolean.FALSE);
             }
@@ -267,8 +254,8 @@ public class Host {
      * @return true if a host is an orphan, false otherwise.
      */
     public synchronized boolean isOrphan() {
-        for (Iterator<AttachmentPointsBuilder> it = apbs.iterator(); it.hasNext();) {
-            if (it.next().isActive()) {
+        for (AttachmentPointsBuilder attachmentPointsBuilder : attachmentPointsBuilders) {
+            if (attachmentPointsBuilder.isActive()) {
                 return false;
             }
         }

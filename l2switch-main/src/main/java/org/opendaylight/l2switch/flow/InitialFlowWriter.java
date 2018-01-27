@@ -61,18 +61,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Adds a flow, which drops all packets, on all switches.
- * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added
+ * Registers as ODL Inventory listener so that it can add flows once a new node i.e. switch is added.
  */
 public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
+    private static final String FLOW_ID_PREFIX = "L2switch-";
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
-    private final String FLOW_ID_PREFIX = "L2switch-";
-    private final short DEFAULT_FLOW_TABLE_ID = 0;
-    private final int DEFAULT_FLOW_PRIORITY = 0;
-    private final int DEFAULT_FLOW_IDLE_TIMEOUT = 0;
-    private final int DEFAULT_FLOW_HARD_TIMEOUT = 0;
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
@@ -136,28 +132,26 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        Set<InstanceIdentifier<?>> nodeIds = null;
+        private final Set<InstanceIdentifier<?>> nodeIds;
 
-        public InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
         @Override
         public void run() {
-
-            if(nodeIds == null) {
+            if (nodeIds == null) {
                 return;
             }
 
-            for(InstanceIdentifier<?> nodeId : nodeIds) {
-                if(Node.class.isAssignableFrom(nodeId.getTargetType())) {
-                    InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if(invNodeId.firstKeyOf(Node.class,NodeKey.class).getId().getValue().contains("openflow:")) {
+            for (InstanceIdentifier<?> nodeId : nodeIds) {
+                if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
+                    InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>) nodeId;
+                    if (invNodeId.firstKeyOf(Node.class, NodeKey.class).getId().getValue().contains("openflow:")) {
                         addInitialFlows(invNodeId);
                     }
                 }
             }
-
         }
 
         /**
@@ -187,7 +181,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
 
         private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
             // generate unique flow key
-            FlowId flowId = new FlowId(FLOW_ID_PREFIX+String.valueOf(flowIdInc.getAndIncrement()));
+            FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
             FlowKey flowKey = new FlowKey(flowId);
             return tableId.child(Flow.class, flowKey);
         }

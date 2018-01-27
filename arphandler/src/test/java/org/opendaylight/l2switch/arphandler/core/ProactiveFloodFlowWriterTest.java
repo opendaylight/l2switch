@@ -94,7 +94,8 @@ public class ProactiveFloodFlowWriterTest {
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
         DataTreeModification<StpStatusAwareNodeConnector> mockChange = Mockito.mock(DataTreeModification.class);
-        DataObjectModification<StpStatusAwareNodeConnector> mockModification = Mockito.mock(DataObjectModification.class);
+        DataObjectModification<StpStatusAwareNodeConnector> mockModification =
+                Mockito.mock(DataObjectModification.class);
         when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
         when(mockChange.getRootNode()).thenReturn(mockModification);
 

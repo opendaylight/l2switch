@@ -11,10 +11,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
@@ -26,40 +24,27 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This will (try to) submit all writes and deletes in to the MD-SAL database.
- * The
- * {@link #removeLocally(org.opendaylight.yangtools.yang.binding.InstanceIdentifier)}
- * , {@link #removeLocally(java.lang.Object) }
- * {@link #putLocally(org.opendaylight.yangtools.yang.binding.InstanceIdentifier, java.lang.Object)}
- * methods should be used when dataChanges are dealt locally and not update to
- * MD-SAL.
- *
- * @param <K>
- *            Must be a HostId
- * @param <V>
- *            Must be
- *            org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
+ * The removeLocally and putLocally methods should be used when dataChanges are dealt locally and not update to MD-SAL.
  */
-public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K, V> {
+public class ConcurrentClusterAwareHostHashMap {
+    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentClusterAwareHostHashMap.class);
+
     private final OperationProcessor opProcessor;
     private final String topologyId;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentClusterAwareHostHashMap.class);
 
     /**
      * The instance identifiers for each host submitted to MD-SAL.
      */
-    private final ConcurrentHashMap<InstanceIdentifier<Node>, K> instanceIDs;
+    private final ConcurrentHashMap<InstanceIdentifier<Node>, HostId> instanceIDs = new ConcurrentHashMap<>();
 
     /**
      * The local Hosts' HashMap.
      */
-    private final ConcurrentHashMap<K, V> hostHashMap;
+    private final ConcurrentHashMap<HostId, Host> hostHashMap = new ConcurrentHashMap<>();
 
     public ConcurrentClusterAwareHostHashMap(OperationProcessor opProcessor, String topologyId) {
         this.opProcessor = opProcessor;
         this.topologyId = topologyId;
-        this.hostHashMap = new ConcurrentHashMap<>();
-        this.instanceIDs = new ConcurrentHashMap<>();
     }
 
     /**
@@ -71,10 +56,9 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the InstanceIdentifier&lt;Node&gt; of the Host to remove.
      * @return the removed Host if exits, null if it doesn't exist.
      */
-    public synchronized V removeLocally(InstanceIdentifier<Node> iiN) {
-        K hostId = this.instanceIDs.get(iiN);
+    public synchronized Host removeLocally(InstanceIdentifier<Node> iiN) {
+        HostId hostId = this.instanceIDs.remove(iiN);
         if (hostId != null) {
-            this.instanceIDs.remove(iiN);
             return this.hostHashMap.remove(hostId);
         }
         return null;
@@ -88,8 +72,8 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the key (HostId) of the Host to remove.
      * @return the removed Host if exits, null if it doesn't exist.
      */
-    public synchronized V removeLocally(K key) {
-        Iterator<Entry<InstanceIdentifier<Node>, K>> iterator = this.instanceIDs.entrySet().iterator();
+    public synchronized Host removeLocally(HostId key) {
+        Iterator<Entry<InstanceIdentifier<Node>, HostId>> iterator = this.instanceIDs.entrySet().iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getValue().equals(key)) {
                 iterator.remove();
@@ -110,11 +94,11 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
      *         if there was no mapping for <tt>key</tt>
      */
-    public synchronized V putLocally(InstanceIdentifier<Node> ii, V value) {
-        Host h = ((Host) value);
-        LOG.trace("Putting locally {}", h.getId());
-        this.instanceIDs.put(ii, (K) h.getId());
-        return this.hostHashMap.put((K) h.getId(), value);
+    public synchronized Host putLocally(InstanceIdentifier<Node> ii, Host value) {
+        Host host = value;
+        LOG.trace("Putting locally {}", host.getId());
+        this.instanceIDs.put(ii, host.getId());
+        return this.hostHashMap.put(host.getId(), value);
     }
 
     /**
@@ -124,15 +108,10 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the hosts to remove.
      */
     public synchronized void removeAll(List<Host> hosts) {
-        for (final Map.Entry<InstanceIdentifier<Node>, K> e : this.instanceIDs.entrySet()) {
+        for (final Map.Entry<InstanceIdentifier<Node>, HostId> e : this.instanceIDs.entrySet()) {
             for (Host h : hosts) {
                 if (e.getValue().equals(h.getId())) {
-                    this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-                        @Override
-                        public void applyOperation(ReadWriteTransaction tx) {
-                            tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
-                        }
-                    });
+                    this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));
                     this.hostHashMap.remove(e.getValue());
                     break;
                 }
@@ -148,17 +127,13 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the Host's hostId that will be merged into MD-SAL database.
      */
     public synchronized void submit(HostId hostid) {
-        Host h = (Host) this.hostHashMap.get(hostid);
-        final Node hostNode = h.getHostNode();
+        Host host = this.hostHashMap.get(hostid);
+        final Node hostNode = host.getHostNode();
         final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-        this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-            @Override
-            public void applyOperation(ReadWriteTransaction tx) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
-            }
-        });
-        putLocally(buildNodeIID, (V) h);
-        this.instanceIDs.put(buildNodeIID, (K) h.getId());
+        this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
+                hostNode, true));
+        putLocally(buildNodeIID, host);
+        this.instanceIDs.put(buildNodeIID, host.getId());
         LOG.trace("Enqueued for MD-SAL transaction {}", hostNode.getNodeId());
     }
 
@@ -173,14 +148,10 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
         for (Host h : hosts) {
             final Node hostNode = h.getHostNode();
             final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-                @Override
-                public void applyOperation(ReadWriteTransaction tx) {
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
-                }
-            });
-            putLocally(buildNodeIID, (V) h);
-            this.instanceIDs.put(buildNodeIID, (K) h.getId());
+            this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
+                    hostNode, true));
+            putLocally(buildNodeIID, h);
+            this.instanceIDs.put(buildNodeIID, h.getId());
             LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
         }
     }
@@ -194,16 +165,11 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the value for the map
      * @return the old value from the local cache if present, null otherwise.
      */
-    @Override
-    public synchronized V put(K hostId, V host) {
-        final Node hostNode = ((Host) host).getHostNode();
+    public synchronized Host put(HostId hostId, Host host) {
+        final Node hostNode = host.getHostNode();
         final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-        this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-            @Override
-            public void applyOperation(ReadWriteTransaction tx) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
-            }
-        });
+        this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
+                hostNode, true));
         LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
         return putLocally(buildNodeIID, host);
     }
@@ -216,179 +182,34 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *            the Host's hostId to remove
      * @return the old value from the local cache if present, null otherwise.
      */
-    @Override
-    public synchronized V remove(Object hostId) {
-        V removedValue = this.hostHashMap.remove(hostId);
+    public synchronized Host remove(HostId hostId) {
+        Host removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
-            Node hostNode = ((Host) removedValue).getHostNode();
+            Node hostNode = removedValue.getHostNode();
             final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-                @Override
-                public void applyOperation(ReadWriteTransaction tx) {
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, hnIID);
-                }
-            });
+            this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, hnIID));
             this.instanceIDs.remove(hnIID);
         }
         return removedValue;
     }
 
-    /**
-     * If it's absent from the this local HashMap, puts the given host in the
-     * this local HashMap and into MD-SAL database.
-     *
-     * @param key
-     *            the key for the map
-     * @param value
-     *            the value for the map
-     * @return the old value from the local cache if present, null otherwise.
-     */
-    @Override
-    public synchronized V putIfAbsent(K key, V value) {
-        if (!this.hostHashMap.contains(value)) {
-            return this.hostHashMap.put(key, value);
-        } else {
-            return this.hostHashMap.get(key);
-        }
-    }
-
-    /**
-     * Removes the entry for a key only if currently mapped to a given value.
-     *
-     * @param key
-     *            key with which the specified value is associated
-     * @param value
-     *            value expected to be associated with the specified key
-     * @return <tt>true</tt> if the value was removed
-     */
-    @Override
-    public synchronized boolean remove(Object key, Object value) {
-        if (this.hostHashMap.containsKey((K) key) && this.hostHashMap.get((K) key).equals(value)) {
-            remove((K) key);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     *
-     * Replaces the entry for a key only if currently mapped to a given value.
-     *
-     * @param key
-     *            key with which the specified value is associated
-     * @param oldValue
-     *            value expected to be associated with the specified key
-     * @param newValue
-     *            value to be associated with the specified key
-     */
-    @Override
-    public synchronized boolean replace(K key, V oldValue, V newValue) {
-        if (this.hostHashMap.containsKey((K) key) && this.hostHashMap.get((K) key).equals(oldValue)) {
-            put(key, newValue);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     *
-     * Replaces the entry for a key only if currently mapped to some value.
-     *
-     * @param key
-     *            key with which the specified value is associated
-     * @param value
-     *            value to be associated with the specified key
-     * @return the previous value associated with the specified key, or
-     *         <tt>null</tt> if there was no mapping for the key. (A
-     *         <tt>null</tt> return can also indicate that the map previously
-     *         associated <tt>null</tt> with the key, if the implementation
-     *         supports null values.)
-     */
-    @Override
-    public synchronized V replace(K key, V value) {
-        if (this.hostHashMap.containsKey(key)) {
-            return put(key, value);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public synchronized int size() {
-        return this.hostHashMap.size();
-    }
-
-    @Override
-    public synchronized boolean isEmpty() {
-        return this.hostHashMap.isEmpty();
-    }
-
-    @Override
-    public synchronized boolean containsKey(Object key) {
+    public boolean containsKey(Object key) {
         return this.hostHashMap.containsKey(key);
     }
 
-    @Override
-    public synchronized boolean containsValue(Object value) {
-        return this.hostHashMap.contains(value);
-    }
-
-    @Override
-    public synchronized V get(Object key) {
+    public Host get(HostId key) {
         return this.hostHashMap.get(key);
     }
 
     /**
-     * Copies all of the mappings from the specified map to this local HashMap
-     * and into MD-SAL.
-     *
-     * @param m
-     *            mappings to be stored in this local HashMap and into MD-SAL
-     */
-    @Override
-    public synchronized void putAll(Map<? extends K, ? extends V> m) {
-        for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
-            final Node hostNode = ((Host) e.getValue()).getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
-            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-                @Override
-                public void applyOperation(ReadWriteTransaction tx) {
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode, true);
-                }
-            });
-            putLocally(buildNodeIID, e.getValue());
-        }
-    }
-
-    /**
-     *
      * Removes all of the mappings from this local HashMap and from MD-SAL. The
      * local HashMap will be empty after this call returns.
-     *
      */
-    @Override
     public synchronized void clear() {
-        for (final Map.Entry<? extends InstanceIdentifier<Node>, ? extends K> e : this.instanceIDs.entrySet()) {
-            this.opProcessor.enqueueOperation(new HostTrackerOperation() {
-                @Override
-                public void applyOperation(ReadWriteTransaction tx) {
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey());
-                }
-            });
+        for (final Map.Entry<? extends InstanceIdentifier<Node>, HostId> e : this.instanceIDs.entrySet()) {
+            this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));
         }
         this.hostHashMap.clear();
-    }
-
-    /**
-     * Returns the KeySet from this local HashMap.
-     *
-     * @return the KeySet from this local HashMap.
-     */
-    @Override
-    public synchronized Set<K> keySet() {
-        return this.hostHashMap.keySet();
     }
 
     /**
@@ -396,19 +217,7 @@ public class ConcurrentClusterAwareHostHashMap<K, V> implements ConcurrentMap<K,
      *
      * @return the Values from this local HashMap.
      */
-    @Override
-    public synchronized Collection<V> values() {
+    public Collection<Host> values() {
         return this.hostHashMap.values();
     }
-
-    /**
-     * Returns the EntrySet from this local HashMap.
-     *
-     * @return the EntrySet from this local HashMap.
-     */
-    @Override
-    public synchronized Set<Entry<K, V>> entrySet() {
-        return this.hostHashMap.entrySet();
-    }
-
 }

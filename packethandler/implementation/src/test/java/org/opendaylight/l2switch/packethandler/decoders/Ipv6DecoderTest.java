@@ -13,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -47,7 +46,7 @@ public class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
@@ -90,7 +89,7 @@ public class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
@@ -137,7 +136,7 @@ public class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
@@ -175,8 +174,10 @@ public class Ipv6DecoderTest {
             0x33, 0x33, 0x00, 0x00, 0x00, (byte)0xfb, (byte)0xa2, (byte)0xe6, (byte)0xda, 0x67, (byte)0xef, (byte)0x95,
             (byte)0x86, (byte)0xdd,
             // IPv6 packet start
-            0x60, 0x00, 0x00, 0x00, 0x00, 0x35, 0x11, (byte)0xff, (byte)0xfe, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte)0xa0, (byte)0xe6,
-            (byte)0xda, (byte)0xff, (byte)0xfe, 0x67, (byte)0xef, (byte)0x95, (byte)0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x60, 0x00, 0x00, 0x00, 0x00, 0x35, 0x11, (byte)0xff, (byte)0xfe, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, (byte)0xa0, (byte)0xe6,
+            (byte)0xda, (byte)0xff, (byte)0xfe, 0x67, (byte)0xef, (byte)0x95, (byte)0xff, 0x02, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, (byte)0xfb,
             // UDP start
             0x14, (byte)0xe9, 0x14, (byte)0xe9, 0x00, 0x35, 0x6b, (byte)0xd4, 0x00, 0x00,
@@ -185,7 +186,7 @@ public class Ipv6DecoderTest {
             0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
         };
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
@@ -227,7 +228,7 @@ public class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
         NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());

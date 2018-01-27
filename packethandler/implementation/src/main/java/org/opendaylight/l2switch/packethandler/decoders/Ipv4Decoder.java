@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -33,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * IPv4 Packet Decoder
+ * IPv4 Packet Decoder.
  */
 public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, Ipv4PacketReceived>
         implements EthernetPacketListener {
@@ -45,7 +44,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     /**
-     * Decode an EthernetPacket into an Ipv4Packet
+     * Decode an EthernetPacket into an Ipv4Packet.
      */
     @Override
     public Ipv4PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
@@ -55,7 +54,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NumBitsInAByte;
+        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
@@ -99,10 +98,10 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
             // Decode the IPv4 Payload
             int payloadStartInBits = bitOffset + 160 + optionsSize;
-            int payloadEndInBits = data.length * NetUtils.NumBitsInAByte - payloadStartInBits
-                    - 4 * NetUtils.NumBitsInAByte;
-            int start = payloadStartInBits / NetUtils.NumBitsInAByte;
-            int end = start + payloadEndInBits / NetUtils.NumBitsInAByte;
+            int payloadEndInBits = data.length * NetUtils.NUM_BITS_IN_A_BYTE - payloadStartInBits
+                    - 4 * NetUtils.NUM_BITS_IN_A_BYTE;
+            int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
+            int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             builder.setPayloadOffset(start);
             builder.setPayloadLength(end - start);
         } catch (BufferException | UnknownHostException e) {
@@ -131,8 +130,9 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null)
+        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null) {
             return false;
+        }
 
         // Only decode the latest packet in the chain
         EthernetPacket ethernetPacket = null;

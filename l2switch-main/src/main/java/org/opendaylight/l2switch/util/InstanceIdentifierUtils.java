@@ -16,7 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/* InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
+/**
+ * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
  */
 public final class InstanceIdentifierUtils {
 
@@ -24,34 +25,18 @@ public final class InstanceIdentifierUtils {
         throw new UnsupportedOperationException("Utility class should never be instantiated");
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @return
-     */
     public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
         return nodeConnectorRef.getValue().firstIdentifierOf(Node.class);
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @param flowTableKey
-     * @return
-     */
     public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey) {
         return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
                 .child(Table.class, flowTableKey).build();
     }
 
-    /**
-     * @param nodeConnectorRef
-     * @param flowTableKey
-     * @param flowKey
-     * @return
-     */
     public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey, final FlowKey flowKey) {
         return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
     }
-
 }

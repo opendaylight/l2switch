@@ -20,32 +20,35 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility class containing the common utility functions needed for operating on
- * networking data structures
+ * networking data structures.
  */
-public class NetUtils {
+public final class NetUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
     /**
-     * Constant holding the number of bits in a byte
+     * Constant holding the number of bits in a byte.
      */
-    public static final int NumBitsInAByte = 8;
+    public static final int NUM_BITS_IN_A_BYTE = 8;
 
     /**
-     * Constant holding the number of bytes in MAC Address
+     * Constant holding the number of bytes in MAC Address.
      */
-    public static final int MACAddrLengthInBytes = 6;
+    public static final int MAC_ADDR_LENGTH_IN_BYTES = 6;
 
     /**
-     * Constant holding the number of words in MAC Address
+     * Constant holding the number of words in MAC Address.
      */
-    public static final int MACAddrLengthInWords = 3;
+    public static final int MAC_ADDR_LENGTH_IN_WORDS = 3;
 
     /**
-     * Constant holding the broadcast MAC address
+     * Constant holding the broadcast MAC address.
      */
-    private static final byte[] BroadcastMACAddr = { -1, -1, -1, -1, -1, -1 };
+    private static final byte[] BROADCAST_MAC_ADDR = { -1, -1, -1, -1, -1, -1 };
+
+    private NetUtils() {
+    }
 
     /**
-     * Converts a 4 bytes array into an integer number
+     * Converts a 4 bytes array into an integer number.
      *
      * @param ba
      *            the 4 bytes long byte array
@@ -55,7 +58,7 @@ public class NetUtils {
         if (ba == null || ba.length != 4) {
             return 0;
         }
-        return (0xff & ba[0]) << 24 | (0xff & ba[1]) << 16 | (0xff & ba[2]) << 8 | (0xff & ba[3]);
+        return (0xff & ba[0]) << 24 | (0xff & ba[1]) << 16 | (0xff & ba[2]) << 8 | 0xff & ba[3];
     }
 
     /**
@@ -67,16 +70,16 @@ public class NetUtils {
      *         or the length of it is not six.
      */
     public static long byteArray6ToLong(byte[] ba) {
-        if (ba == null || ba.length != MACAddrLengthInBytes) {
+        if (ba == null || ba.length != MAC_ADDR_LENGTH_IN_BYTES) {
             return 0L;
         }
         long num = 0L;
-        int i = 0;
+        int index = 0;
         do {
-            num <<= NumBitsInAByte;
-            num |= 0xff & ba[i];
-            i++;
-        } while (i < MACAddrLengthInBytes);
+            num <<= NUM_BITS_IN_A_BYTE;
+            num |= 0xff & ba[index];
+            index++;
+        } while (index < MAC_ADDR_LENGTH_IN_BYTES);
         return num;
     }
 
@@ -88,30 +91,31 @@ public class NetUtils {
      * @return The byte array.
      */
     public static byte[] longToByteArray6(long addr) {
-        byte[] mac = new byte[MACAddrLengthInBytes];
-        int i = MACAddrLengthInBytes - 1;
+        byte[] mac = new byte[MAC_ADDR_LENGTH_IN_BYTES];
+        int index = MAC_ADDR_LENGTH_IN_BYTES - 1;
         do {
-            mac[i] = (byte) addr;
-            addr >>>= NumBitsInAByte;
-            i--;
-        } while (i >= 0);
+            mac[index] = (byte) addr;
+            addr >>>= NUM_BITS_IN_A_BYTE;
+            index--;
+        } while (index >= 0);
         return mac;
     }
 
     /**
-     * Converts an integer number into a 4 bytes array
+     * Converts an integer number into a 4 bytes array.
      *
-     * @param i
+     * @param value
      *            the integer number
      * @return the byte array
      */
-    public static byte[] intToByteArray4(int i) {
-        return new byte[] { (byte) ((i >> 24) & 0xff), (byte) ((i >> 16) & 0xff), (byte) ((i >> 8) & 0xff), (byte) (i & 0xff) };
+    public static byte[] intToByteArray4(int value) {
+        return new byte[] { (byte) (value >> 24 & 0xff), (byte) (value >> 16 & 0xff), (byte) (value >> 8 & 0xff),
+            (byte) (value & 0xff) };
     }
 
     /**
      * Converts an IP address passed as integer value into the respective
-     * InetAddress object
+     * InetAddress object.
      *
      * @param address
      *            the IP address in integer form
@@ -140,24 +144,24 @@ public class NetUtils {
      * @return
      */
     public static InetAddress getInetNetworkMask(int prefixMaskLength, boolean isV6) {
-        if (prefixMaskLength < 0 || (!isV6 && prefixMaskLength > 32) || (isV6 && prefixMaskLength > 128)) {
+        if (prefixMaskLength < 0 || !isV6 && prefixMaskLength > 32 || isV6 && prefixMaskLength > 128) {
             return null;
         }
-        byte v4Address[] = { 0, 0, 0, 0 };
-        byte v6Address[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        byte address[] = (isV6) ? v6Address : v4Address;
+        byte[] v4Address = { 0, 0, 0, 0 };
+        byte[] v6Address = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        byte[] address = isV6 ? v6Address : v4Address;
         int numBytes = prefixMaskLength / 8;
         int numBits = prefixMaskLength % 8;
-        int i = 0;
-        for (; i < numBytes; i++) {
-            address[i] = (byte) 0xff;
+        int index = 0;
+        for (; index < numBytes; index++) {
+            address[index] = (byte) 0xff;
         }
         if (numBits > 0) {
             int rem = 0;
             for (int j = 0; j < numBits; j++) {
-                rem |= 1 << (7 - j);
+                rem |= 1 << 7 - j;
             }
-            address[i] = (byte) rem;
+            address[index] = (byte) rem;
         }
 
         try {
@@ -182,11 +186,11 @@ public class NetUtils {
         if (subnetMask != null && (subnetMask.length == 4 || subnetMask.length == 16)) {
             int index = 0;
             while (index < subnetMask.length && subnetMask[index] == (byte) 0xFF) {
-                maskLength += NetUtils.NumBitsInAByte;
+                maskLength += NetUtils.NUM_BITS_IN_A_BYTE;
                 index++;
             }
             if (index != subnetMask.length) {
-                int bits = NetUtils.NumBitsInAByte - 1;
+                int bits = NetUtils.NUM_BITS_IN_A_BYTE - 1;
                 while (bits >= 0 && (subnetMask[index] & 1 << bits) != 0) {
                     bits--;
                     maskLength++;
@@ -212,7 +216,7 @@ public class NetUtils {
     /**
      * Given an IP address and a prefix network mask length, it returns the
      * equivalent subnet prefix IP address Example: for ip = "172.28.30.254" and
-     * maskLen = 25 it will return "172.28.30.128"
+     * maskLen = 25 it will return "172.28.30.128".
      *
      * @param ip
      *            the IP address in InetAddress form
@@ -226,12 +230,12 @@ public class NetUtils {
         byte modifiedByte;
         byte[] sn = ip.getAddress();
         if (bits > 0) {
-            modifiedByte = (byte) (sn[bytes] >> (8 - bits));
-            sn[bytes] = (byte) (modifiedByte << (8 - bits));
+            modifiedByte = (byte) (sn[bytes] >> 8 - bits);
+            sn[bytes] = (byte) (modifiedByte << 8 - bits);
             bytes++;
         }
         for (; bytes < sn.length; bytes++) {
-            sn[bytes] = (byte) (0);
+            sn[bytes] = (byte) 0;
         }
         try {
             return InetAddress.getByAddress(sn);
@@ -241,27 +245,28 @@ public class NetUtils {
     }
 
     /**
-     * Checks if the test address and mask conflicts with the filter address and
-     * mask
+     * Checks if the test address and mask conflicts with the filter address and mask.
+     *
      * <p>
      * For example: testAddress: 172.28.2.23 testMask: 255.255.255.0
      * filterAddress: 172.28.1.10 testMask: 255.255.255.0 do conflict
+     *
      * <p>
      * testAddress: 172.28.2.23 testMask: 255.255.255.0 filterAddress:
      * 172.28.1.10 testMask: 255.255.0.0 do not conflict
+     *
      * <p>
      * Null parameters are permitted
      *
-     * @param testAddress
-     * @param filterAddress
-     * @param testMask
-     * @param filterMask
-     * @return
+     * @param testAddress address to test
+     * @param filterAddress filter address
+     * @param testMask mast to test
+     * @param filterMask filter mask
      */
     public static boolean inetAddressConflict(InetAddress testAddress, InetAddress filterAddress, InetAddress testMask,
             InetAddress filterMask) {
         // Sanity check
-        if ((testAddress == null) || (filterAddress == null)) {
+        if (testAddress == null || filterAddress == null) {
             return false;
         }
 
@@ -270,9 +275,9 @@ public class NetUtils {
             return false;
         }
 
-        int testMaskLen = (testMask == null) ? ((testAddress instanceof Inet4Address) ? 32 : 128)
+        int testMaskLen = testMask == null ? testAddress instanceof Inet4Address ? 32 : 128
                 : NetUtils.getSubnetMaskLength(testMask);
-        int filterMaskLen = (filterMask == null) ? ((testAddress instanceof Inet4Address) ? 32 : 128)
+        int filterMaskLen = filterMask == null ? testAddress instanceof Inet4Address ? 32 : 128
                 : NetUtils.getSubnetMaskLength(filterMask);
 
         // Mask length check. Test mask has to be more specific than filter one
@@ -283,11 +288,11 @@ public class NetUtils {
         // Subnet Prefix on filter mask length must be the same
         InetAddress prefix1 = getSubnetPrefix(testAddress, filterMaskLen);
         InetAddress prefix2 = getSubnetPrefix(filterAddress, filterMaskLen);
-        return (!prefix1.equals(prefix2));
+        return !prefix1.equals(prefix2);
     }
 
     /**
-     * Returns true if the passed MAC address is all zero
+     * Returns true if the passed MAC address is all zero.
      *
      * @param mac
      *            the byte array representing the MAC address
@@ -306,13 +311,12 @@ public class NetUtils {
      * Returns true if the MAC address is the broadcast MAC address and false
      * otherwise.
      *
-     * @param MACAddress
-     * @return
+     * @param macAddress the MAC address
      */
-    public static boolean isBroadcastMACAddr(byte[] MACAddress) {
-        if (MACAddress.length == MACAddrLengthInBytes) {
+    public static boolean isBroadcastMACAddr(byte[] macAddress) {
+        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES) {
             for (int i = 0; i < 6; i++) {
-                if (MACAddress[i] != BroadcastMACAddr[i]) {
+                if (macAddress[i] != BROADCAST_MAC_ADDR[i]) {
                     return false;
                 }
             }
@@ -326,12 +330,11 @@ public class NetUtils {
      * Returns true if the MAC address is a unicast MAC address and false
      * otherwise.
      *
-     * @param MACAddress
-     * @return
+     * @param macAddress the MAC address
      */
-    public static boolean isUnicastMACAddr(byte[] MACAddress) {
-        if (MACAddress.length == MACAddrLengthInBytes) {
-            return (MACAddress[0] & 1) == 0;
+    public static boolean isUnicastMACAddr(byte[] macAddress) {
+        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES) {
+            return (macAddress[0] & 1) == 0;
         }
         return false;
     }
@@ -341,18 +344,17 @@ public class NetUtils {
      * otherwise. Note that this explicitly returns false for the broadcast MAC
      * address.
      *
-     * @param MACAddress
-     * @return
+     * @param macAddress the MAC address
      */
-    public static boolean isMulticastMACAddr(byte[] MACAddress) {
-        if (MACAddress.length == MACAddrLengthInBytes && !isBroadcastMACAddr(MACAddress)) {
-            return (MACAddress[0] & 1) != 0;
+    public static boolean isMulticastMACAddr(byte[] macAddress) {
+        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES && !isBroadcastMACAddr(macAddress)) {
+            return (macAddress[0] & 1) != 0;
         }
         return false;
     }
 
     /**
-     * Returns true if the passed InetAddress contains all zero
+     * Returns true if the passed InetAddress contains all zero.
      *
      * @param ip
      *            the IP address to test
@@ -368,7 +370,7 @@ public class NetUtils {
     }
 
     public static boolean fieldsConflict(int field1, int field2) {
-        if ((field1 == 0) || (field2 == 0) || (field1 == field2)) {
+        if (field1 == 0 || field2 == 0 || field1 == field2) {
             return false;
         }
         return true;
@@ -386,18 +388,17 @@ public class NetUtils {
 
     /**
      * Checks if the passed IP v4 address in string form is valid The address
-     * may specify a mask at the end as "/MM"
+     * may specify a mask at the end as "/MM".
      *
      * @param cidr
      *            the v4 address as A.B.C.D/MM
-     * @return
      */
     public static boolean isIPv4AddressValid(String cidr) {
         if (cidr == null) {
             return false;
         }
 
-        String values[] = cidr.split("/");
+        String[] values = cidr.split("/");
         Pattern ipv4Pattern = Pattern
                 .compile("(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])");
         Matcher mm = ipv4Pattern.matcher(values[0]);
@@ -406,7 +407,7 @@ public class NetUtils {
         }
         if (values.length >= 2) {
             int prefix = Integer.valueOf(values[1]);
-            if ((prefix < 0) || (prefix > 32)) {
+            if (prefix < 0 || prefix > 32) {
                 return false;
             }
         }
@@ -415,18 +416,17 @@ public class NetUtils {
 
     /**
      * Checks if the passed IP v6 address in string form is valid The address
-     * may specify a mask at the end as "/MMM"
+     * may specify a mask at the end as "/MMM".
      *
      * @param cidr
      *            the v6 address as A::1/MMM
-     * @return
      */
     public static boolean isIPv6AddressValid(String cidr) {
         if (cidr == null) {
             return false;
         }
 
-        String values[] = cidr.split("/");
+        String[] values = cidr.split("/");
         try {
             // when given an IP address, InetAddress.getByName validates the ip
             // address
@@ -440,7 +440,7 @@ public class NetUtils {
 
         if (values.length >= 2) {
             int prefix = Integer.valueOf(values[1]);
-            if ((prefix < 0) || (prefix > 128)) {
+            if (prefix < 0 || prefix > 128) {
                 return false;
             }
         }
@@ -449,11 +449,10 @@ public class NetUtils {
 
     /**
      * Checks if the passed IP address in string form is a valid v4 or v6
-     * address. The address may specify a mask at the end as "/MMM"
+     * address. The address may specify a mask at the end as "/MMM".
      *
      * @param cidr
      *            the v4 or v6 address as IP/MMM
-     * @return
      */
     public static boolean isIPAddressValid(String cidr) {
         return NetUtils.isIPv4AddressValid(cidr) || NetUtils.isIPv6AddressValid(cidr);
@@ -465,29 +464,29 @@ public class NetUtils {
      */
 
     /**
-     * Returns the unsigned value of the passed byte variable
+     * Returns the unsigned value of the passed byte variable.
      *
-     * @param b
+     * @param value
      *            the byte value
      * @return the int variable containing the unsigned byte value
      */
-    public static int getUnsignedByte(byte b) {
-        return b & 0xFF;
+    public static int getUnsignedByte(byte value) {
+        return value & 0xFF;
     }
 
     /**
-     * Return the unsigned value of the passed short variable
+     * Return the unsigned value of the passed short variable.
      *
-     * @param s
+     * @param value
      *            the short value
      * @return the int variable containing the unsigned short value
      */
-    public static int getUnsignedShort(short s) {
-        return s & 0xFFFF;
+    public static int getUnsignedShort(short value) {
+        return value & 0xFFFF;
     }
 
     /**
-     * Returns the highest v4 or v6 InetAddress
+     * Returns the highest v4 or v6 InetAddress.
      *
      * @param v6
      *            true for IPv6, false for Ipv4
@@ -495,7 +494,7 @@ public class NetUtils {
      */
     public static InetAddress gethighestIP(boolean v6) {
         try {
-            return (v6) ? InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
+            return v6 ? InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
                     : InetAddress.getByName("255.255.255.255");
         } catch (UnknownHostException e) {
             return null;
@@ -503,11 +502,11 @@ public class NetUtils {
     }
 
     /**
-     * Returns Broadcast MAC Address
+     * Returns Broadcast MAC Address.
      *
      * @return the byte array containing broadcast mac address
      */
     public static byte[] getBroadcastMACAddr() {
-        return Arrays.copyOf(BroadcastMACAddr, BroadcastMACAddr.length);
+        return Arrays.copyOf(BROADCAST_MAC_ADDR, BROADCAST_MAC_ADDR.length);
     }
 }

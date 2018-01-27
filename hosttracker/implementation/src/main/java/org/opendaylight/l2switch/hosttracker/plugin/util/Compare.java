@@ -10,7 +10,9 @@ package org.opendaylight.l2switch.hosttracker.plugin.util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
 
-public class Compare {
+public final class Compare {
+    private Compare() {
+    }
 
     /**
      * Compare two addresses. This method is different than equals since it only
@@ -23,13 +25,13 @@ public class Compare {
      * @return true if both have the same MAC, VLAN and IP Address, false
      *         otherwise.
      */
-    public static boolean Addresses(Addresses addr1, Addresses addr2) {
-        return ((addr1.getMac() == null && addr2.getMac() == null)
-                || (addr1.getMac() != null && addr1.getMac().equals(addr2.getMac())))
-                && ((addr1.getVlan() == null && addr2.getVlan() == null)
-                        || (addr1.getVlan() != null && addr1.getVlan().equals(addr2.getVlan())))
-                && ((addr1.getIp() == null && addr2.getIp() == null)
-                        || (addr1.getIp() != null && addr1.getIp().equals(addr2.getIp())));
+    public static boolean addresses(Addresses addr1, Addresses addr2) {
+        return (addr1.getMac() == null && addr2.getMac() == null
+                || addr1.getMac() != null && addr1.getMac().equals(addr2.getMac()))
+                && (addr1.getVlan() == null && addr2.getVlan() == null
+                        || addr1.getVlan() != null && addr1.getVlan().equals(addr2.getVlan()))
+                && (addr1.getIp() == null && addr2.getIp() == null
+                        || addr1.getIp() != null && addr1.getIp().equals(addr2.getIp()));
     }
 
     /**
@@ -42,8 +44,8 @@ public class Compare {
      *            second AttachmentPointsBuilder to compare.
      * @return true if both have the same TpId, false otherwise.
      */
-    public static boolean AttachmentPointsBuilder(AttachmentPointsBuilder atp1, AttachmentPointsBuilder atp2) {
-        return (atp1.getTpId() == null && atp2.getTpId() == null)
-                || (atp1.getTpId() != null && atp1.getTpId().equals(atp2.getTpId()));
+    public static boolean attachmentPointsBuilder(AttachmentPointsBuilder atp1, AttachmentPointsBuilder atp2) {
+        return atp1.getTpId() == null && atp2.getTpId() == null
+                || atp1.getTpId() != null && atp1.getTpId().equals(atp2.getTpId());
     }
 }

@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.slf4j.Logger;
@@ -33,8 +34,9 @@ public class NetworkGraphImpl implements NetworkGraphService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkGraphImpl.class);
 
-    Graph<NodeId, Link> networkGraph = null;
-    Set<String> linkAdded = new HashSet<>();
+    @GuardedBy("this")
+    private Graph<NodeId, Link> networkGraph;
+    private final Set<String> linkAdded = new HashSet<>();
 
     // Enable following lines when shortest path functionality is required.
     // DijkstraShortestPath<NodeId, Link> shortestPath = null;
@@ -75,6 +77,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
          */
     }
 
+    @GuardedBy("this")
     private boolean linkAlreadyAdded(Link link) {
         String linkAddedKey = null;
         if (link.getDestination().getDestTp().hashCode() > link.getSource().getSourceTp().hashCode()) {
@@ -120,9 +123,8 @@ public class NetworkGraphImpl implements NetworkGraphService {
      * returns a path between 2 nodes. Uses Dijkstra's algorithm to return
      * shortest path.
      *
-     * @param sourceNodeId
-     * @param destinationNodeId
-     * @return
+     * @param sourceNodeId the source node Id
+     * @param destinationNodeId the destination node Id
      */
     // @Override
     /*
@@ -173,7 +175,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
      * @return The links in the network.
      */
     @Override
-    public List<Link> getAllLinks() {
+    public synchronized List<Link> getAllLinks() {
         List<Link> allLinks = new ArrayList<>();
         if (networkGraph != null) {
             allLinks.addAll(networkGraph.getEdges());
