@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig;
@@ -46,8 +47,7 @@ public class AddressTrackerProvider {
         addressObservationWriter.setTimestampUpdateInterval(timestampUpdateInterval);
         Set<String> packetTypes = processObserveAddressesFrom(observerAddressesFrom);
 
-        if (packetTypes == null || packetTypes.isEmpty()) { // set default to
-                                                            // arp
+        if (packetTypes.isEmpty()) { // set default to arp
             packetTypes = new HashSet<>();
             packetTypes.add(ARP_PACKET_TYPE);
         }
@@ -77,6 +77,7 @@ public class AddressTrackerProvider {
         LOG.info("AddressTracker torn down.", this);
     }
 
+    @Nonnull
     private Set<String> processObserveAddressesFrom(String observeAddressesFrom) {
         Set<String> packetTypes = new HashSet<>();
         if (observeAddressesFrom == null || observeAddressesFrom.isEmpty()) {
@@ -84,7 +85,7 @@ public class AddressTrackerProvider {
             return packetTypes;
         }
         String[] observeAddressFromSplit = observeAddressesFrom.split(",");
-        if (observeAddressFromSplit == null || observeAddressFromSplit.length == 0) {
+        if (observeAddressFromSplit.length == 0) {
             packetTypes.add(ARP_PACKET_TYPE);
             return packetTypes;
         }

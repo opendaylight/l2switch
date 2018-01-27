@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -66,6 +67,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
     private final ConcurrentClusterAwareHostHashMap hosts;
     private final ConcurrentClusterAwareLinkHashMap links;
     private final OperationProcessor opProcessor;
+    private final Thread processorThread;
     private ListenerRegistration<DataTreeChangeListener> addrsNodeListenerRegistration;
     private ListenerRegistration<DataTreeChangeListener> hostNodeListenerRegistration;
     private ListenerRegistration<DataTreeChangeListener> linkNodeListenerRegistration;
@@ -85,8 +87,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         this.hostPurgeAge = config.getHostPurgeAge();
         this.hostPurgeInterval = config.getHostPurgeInterval();
         this.opProcessor = new OperationProcessor(dataService);
-        Thread processorThread = new Thread(opProcessor);
-        processorThread.start();
+        processorThread = new Thread(opProcessor);
         final String maybeTopologyId = config.getTopologyId();
         if (maybeTopologyId == null || maybeTopologyId.isEmpty()) {
             this.topologyId = TOPOLOGY_NAME;
@@ -104,6 +105,8 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
 
     @SuppressWarnings("unchecked")
     public void init() {
+        processorThread.start();
+
         InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
                 InstanceIdentifier.builder(Nodes.class) //
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class)
@@ -379,7 +382,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         for (Host h : hosts.values()) {
             final HostNode hn = h.getHostNode().getAugmentation(HostNode.class);
             if (hn == null) {
-                LOG.warn("Encountered non-host node {} in hosts during purge", hn);
+                LOG.warn("Encountered non-host node {} in hosts during purge", h);
             } else if (hn.getAddresses() != null) {
                 boolean purgeHosts = false;
                 // if the node is a host and has addresses, check to see if it's been seen recently
@@ -421,7 +424,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
      *
      * @param host  reference to Host node
      */
-    private int removeHosts(final Host host, int numHostsPurged) {
+    private int removeHosts(@Nonnull final Host host, int numHostsPurged) {
         // remove associated links with the host before removing hosts
         removeAssociatedLinksFromHosts(host);
         // purge hosts from local & MD-SAL database
@@ -441,25 +444,22 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
      *
      * @param host  reference to Host node
      */
-    private void removeAssociatedLinksFromHosts(final Host host) {
-        if (host != null) {
-            if (host.getId() != null) {
-                List<Link> linksToRemove = new ArrayList<>();
-                for (Link link: links.values()) {
-                    if (link.toString().contains(host.getId().getValue())) {
-                        linksToRemove.add(link);
-                    }
+    private void removeAssociatedLinksFromHosts(@Nonnull final Host host) {
+        if (host.getId() != null) {
+            List<Link> linksToRemove = new ArrayList<>();
+            for (Link link: links.values()) {
+                if (link.toString().contains(host.getId().getValue())) {
+                    linksToRemove.add(link);
                 }
-                links.removeAll(linksToRemove);
-            } else {
-                LOG.warn("Encountered host with no id , Unexpected host id {}. ", host);
             }
+            links.removeAll(linksToRemove);
         } else {
-            LOG.warn("Encountered Host with no value, Unexpected host {}. ", host);
+            LOG.warn("Encountered host with no id , Unexpected host id {}. ", host);
         }
     }
 
     public void close() {
+        processorThread.interrupt();
         this.addrsNodeListenerRegistration.close();
         this.hostNodeListenerRegistration.close();
         this.linkNodeListenerRegistration.close();
