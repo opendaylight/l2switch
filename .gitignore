@@ -22,3 +22,4 @@ yang-gen-config
 maven-eclipse.xml
 .DS_Store
 .checkstyle
+.fbExcludeFilterFile

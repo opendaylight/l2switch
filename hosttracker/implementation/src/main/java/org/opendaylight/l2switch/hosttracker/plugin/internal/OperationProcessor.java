@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -31,12 +32,12 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
     private static final Logger LOG = LoggerFactory.getLogger(OperationProcessor.class);
     private final DataBroker dataBroker;
     private final BlockingQueue<HostTrackerOperation> queue;
-    private BindingTransactionChain transactionChain;
+    private final AtomicReference<BindingTransactionChain> transactionChain = new AtomicReference<>();
 
     OperationProcessor(final DataBroker dataBroker) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
-        this.transactionChain = dataBroker.createTransactionChain(this);
+        this.transactionChain.set(dataBroker.createTransactionChain(this));
     }
 
     @Override
@@ -55,7 +56,12 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
         while (!done) {
             try {
                 HostTrackerOperation op = queue.take();
-                ReadWriteTransaction tx = transactionChain.newReadWriteTransaction();
+                final BindingTransactionChain txChain = transactionChain.get();
+                if (txChain == null) {
+                    break;
+                }
+
+                ReadWriteTransaction tx = txChain.newReadWriteTransaction();
 
                 int ops = 0;
                 while (op != null && ops < OPS_PER_CHAIN) {
@@ -73,16 +79,20 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
     }
 
     @Override
-    public void close() throws Exception {
-        if (transactionChain != null) {
-            transactionChain.close();
+    public void close() {
+        final BindingTransactionChain txChain = transactionChain.getAndSet(null);
+        if (txChain != null) {
+            txChain.close();
         }
     }
 
     private void chainFailure() {
         try {
-            transactionChain.close();
-            transactionChain = dataBroker.createTransactionChain(this);
+            final BindingTransactionChain prevChain = transactionChain.getAndSet(
+                    dataBroker.createTransactionChain(this));
+            if (prevChain != null) {
+                prevChain.close();
+            }
             clearQueue();
         } catch (IllegalStateException e) {
             LOG.warn(e.getLocalizedMessage());

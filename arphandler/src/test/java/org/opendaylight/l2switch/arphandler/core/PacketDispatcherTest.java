@@ -7,7 +7,8 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
@@ -32,11 +34,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 public class PacketDispatcherTest {
-    @MockitoAnnotations.Mock
+    @Mock
     private PacketProcessingService packetProcessingService;
-    @MockitoAnnotations.Mock
+    @Mock
     private InventoryReader inventoryReader;
     private PacketDispatcher packetDispatcher;
 
@@ -46,6 +49,8 @@ public class PacketDispatcherTest {
         packetDispatcher = new PacketDispatcher();
         packetDispatcher.setPacketProcessingService(packetProcessingService);
         packetDispatcher.setInventoryReader(inventoryReader);
+
+        doReturn(RpcResultBuilder.success().buildFuture()).when(packetProcessingService).transmitPacket(any());
     }
 
     @Test
@@ -72,7 +77,7 @@ public class PacketDispatcherTest {
 
     @Test
     public void testFloodPacket() throws Exception {
-        List<NodeConnectorRef> nodeConnectors = new ArrayList<NodeConnectorRef>();
+        List<NodeConnectorRef> nodeConnectors = new ArrayList<>();
         InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class).child(Node.class)
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         InstanceIdentifier<NodeConnector> ncInsId2 = InstanceIdentifier.builder(Nodes.class).child(Node.class)
@@ -147,7 +152,7 @@ public class PacketDispatcherTest {
         when(inventoryReader.getControllerSwitchConnectors()).thenReturn(controllerSwitchConnectors);
         when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class))).thenReturn(null);
 
-        List<NodeConnectorRef> nodeConnectors = new ArrayList<NodeConnectorRef>();
+        List<NodeConnectorRef> nodeConnectors = new ArrayList<>();
         InstanceIdentifier<NodeConnector> ncInsId2 = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("2")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2"))).build();
