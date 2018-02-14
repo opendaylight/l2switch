@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>odl-l2switch-switch</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.2</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: L2Switch :: Switch</name>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.opendaylight.l2switch.main</groupId>
             <artifactId>main-impl</artifactId>
-            <version>0.6.2-SNAPSHOT</version>
+            <version>0.6.2</version>
         </dependency>
     </dependencies>
 </project>

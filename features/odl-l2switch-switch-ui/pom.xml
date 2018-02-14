@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>odl-l2switch-switch-ui</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.2</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: L2Switch :: Switch UI</name>
@@ -36,14 +36,14 @@
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>odl-mdsal-apidocs</artifactId>
-            <version>1.6.2-SNAPSHOT</version>
+            <version>1.6.2</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.dluxapps</groupId>
             <artifactId>odl-dluxapps-topology</artifactId>
-            <version>0.6.2-SNAPSHOT</version>
+            <version>0.6.2</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
