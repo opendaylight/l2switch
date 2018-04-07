@@ -17,10 +17,23 @@
     <module>addresstracker</module>
     <module>hosttracker</module>
     <module>l2switch-main</module>
-    <module>distribution/karaf</module>
     <module>features</module>
     <module>artifacts</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>karaf</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+        <module>distribution/karaf</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</connection>
     <developerConnection>scm:git:ssh://git.opendaylight.org:29418/l2switch.git</developerConnection>
