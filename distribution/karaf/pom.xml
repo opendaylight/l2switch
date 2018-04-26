@@ -4,8 +4,8 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf4-parent</artifactId>
-    <version>2.0.5</version>
-    <relativePath></relativePath>
+    <version>2.0.7</version>
+    <relativePath/>
   </parent>
   <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.l2switch</groupId>
