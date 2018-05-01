@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>features-l2switch</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.3</version>
     <packaging>feature</packaging>
 
     <dependencies>
