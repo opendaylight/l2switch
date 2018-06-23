@@ -163,16 +163,16 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                         for (NodeConnector nodeConnector : nodeConnectors) {
                             // Read STP status for this NodeConnector
                             StpStatusAwareNodeConnector saNodeConnector = nodeConnector
-                                    .getAugmentation(StpStatusAwareNodeConnector.class);
+                                    .augmentation(StpStatusAwareNodeConnector.class);
                             if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
                                 continue;
                             }
-                            if (nodeConnector.getKey().toString().contains("LOCAL")) {
+                            if (nodeConnector.key().toString().contains("LOCAL")) {
                                 continue;
                             }
                             NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                                    .<Node, NodeKey>child(Node.class, node.getKey())
-                                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey())
+                                    .<Node, NodeKey>child(Node.class, node.key())
+                                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.key())
                                     .build());
                             nodeConnectorRefs.add(ncRef);
                         }
@@ -180,11 +180,11 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
                     switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
                     NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                            .<Node, NodeKey>child(Node.class, node.getKey())
+                            .<Node, NodeKey>child(Node.class, node.key())
                             .<NodeConnector, NodeConnectorKey>child(NodeConnector.class,
                                     new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL")))
                             .build());
-                    LOG.debug("Local port for node {} is {}", node.getKey(), ncRef);
+                    LOG.debug("Local port for node {} is {}", node.key(), ncRef);
                     controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
                 }
             }
@@ -226,21 +226,21 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                     for (NodeConnector nc : node.getNodeConnector()) {
                         // Don't look for mac in discarding node connectors
                         StpStatusAwareNodeConnector saNodeConnector = nc
-                                .getAugmentation(StpStatusAwareNodeConnector.class);
+                                .augmentation(StpStatusAwareNodeConnector.class);
                         if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
                             continue;
                         }
-                        LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.getKey());
-                        AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
+                        LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.key());
+                        AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
                         if (acnc != null) {
                             List<Addresses> addressesList = acnc.getAddresses();
                             for (Addresses add : addressesList) {
                                 if (macAddress.equals(add.getMac())) {
                                     if (add.getLastSeen() > latest) {
                                         destNodeConnector = new NodeConnectorRef(
-                                                nodeInsId.child(NodeConnector.class, nc.getKey()));
+                                                nodeInsId.child(NodeConnector.class, nc.key()));
                                         latest = add.getLastSeen();
-                                        LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.getKey());
+                                        LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                                         break;
                                     }
                                 }

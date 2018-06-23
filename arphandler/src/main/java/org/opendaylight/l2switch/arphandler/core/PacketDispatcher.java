@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketOutput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -140,9 +141,9 @@ public class PacketDispatcher {
                 .build();
 
         Futures.addCallback(JdkFutureAdapters.listenInPoolThread(packetProcessingService.transmitPacket(input)),
-            new FutureCallback<RpcResult<Void>>() {
+            new FutureCallback<RpcResult<TransmitPacketOutput>>() {
                 @Override
-                public void onSuccess(RpcResult<Void> result) {
+                public void onSuccess(RpcResult<TransmitPacketOutput> result) {
                     LOG.debug("transmitPacket was successful");
                 }
 

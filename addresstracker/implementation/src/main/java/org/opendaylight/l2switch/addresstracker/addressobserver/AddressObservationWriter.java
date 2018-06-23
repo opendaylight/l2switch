@@ -124,7 +124,7 @@ public class AddressObservationWriter {
                 return;
             }
             AddressCapableNodeConnector acnc = nc
-                    .getAugmentation(AddressCapableNodeConnector.class);
+                    .augmentation(AddressCapableNodeConnector.class);
 
             // Address observations exist
             if (acnc != null && acnc.getAddresses() != null) {
@@ -135,7 +135,7 @@ public class AddressObservationWriter {
                     if (addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
                         if (now - addresses.get(i).getLastSeen() > timestampUpdateInterval) {
                             addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
-                                    .setKey(addresses.get(i).getKey());
+                                    .withKey(addresses.get(i).key());
                             addresses.remove(i);
                             break;
                         } else {
@@ -149,8 +149,8 @@ public class AddressObservationWriter {
                 addresses = new ArrayList<>();
             }
 
-            if (addressBuilder.getKey() == null) {
-                addressBuilder.setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
+            if (addressBuilder.key() == null) {
+                addressBuilder.withKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
             }
 
             // Add as an augmentation

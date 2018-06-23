@@ -129,7 +129,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void submit(HostId hostid) {
         Host host = this.hostHashMap.get(hostid);
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                 hostNode, true));
         putLocally(buildNodeIID, host);
@@ -147,7 +147,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void putAll(List<Host> hosts) {
         for (Host h : hosts) {
             final Node hostNode = h.getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                     hostNode, true));
             putLocally(buildNodeIID, h);
@@ -167,7 +167,7 @@ public class ConcurrentClusterAwareHostHashMap {
      */
     public synchronized Host put(HostId hostId, Host host) {
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                 hostNode, true));
         LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
@@ -186,7 +186,7 @@ public class ConcurrentClusterAwareHostHashMap {
         Host removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = removedValue.getHostNode();
-            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, hnIID));
             this.instanceIDs.remove(hnIID);
         }

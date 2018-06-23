@@ -246,7 +246,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                     if (nodeConnectors != null) {
                         for (NodeConnector outerNodeConnector : nodeConnectors) {
                             StpStatusAwareNodeConnector outerSaNodeConnector = outerNodeConnector
-                                    .getAugmentation(StpStatusAwareNodeConnector.class);
+                                    .augmentation(StpStatusAwareNodeConnector.class);
                             if (outerSaNodeConnector != null
                                     && StpStatus.Discarding.equals(outerSaNodeConnector.getStatus())) {
                                 continue;
@@ -261,7 +261,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                         // that are "forwarding" will be flooded
                                         // on
                                         StpStatusAwareNodeConnector saNodeConnector = nodeConnector
-                                                .getAugmentation(StpStatusAwareNodeConnector.class);
+                                                .augmentation(StpStatusAwareNodeConnector.class);
                                         if (saNodeConnector == null
                                                 || StpStatus.Forwarding.equals(saNodeConnector.getStatus())) {
                                             outputActions.add(new ActionBuilder() //
@@ -283,7 +283,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                 // Add controller port to outputActions for
                                 // external ports only
                                 if (outerSaNodeConnector == null) {
-                                    outputActions.add(new ActionBuilder().setOrder(0).setKey(new ActionKey(0))
+                                    outputActions.add(new ActionBuilder().setOrder(0).withKey(new ActionKey(0))
                                             .setAction(
                                                     new OutputActionCaseBuilder()
                                                             .setOutputAction(new OutputActionBuilder()

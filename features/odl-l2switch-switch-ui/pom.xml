@@ -38,12 +38,7 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.dluxapps</groupId>
-            <artifactId>odl-dluxapps-topology</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
+        <!-- NOTE: DLUX/DLUXAPP has been no longer active.
+          If l2switch still wants a feature for ui, please use another package. -->
     </dependencies>
 </project>

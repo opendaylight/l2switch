@@ -258,7 +258,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         private Action getSendToControllerAction() {
             Action sendToController = new ActionBuilder()
                     .setOrder(0)
-                    .setKey(new ActionKey(0))
+                    .withKey(new ActionKey(0))
                     .setAction(new OutputActionCaseBuilder()
                             .setOutputAction(new OutputActionBuilder()
                                     .setMaxLength(0xffff)
@@ -272,7 +272,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         private Action getNormalAction() {
             Action normal = new ActionBuilder()
                     .setOrder(0)
-                    .setKey(new ActionKey(0))
+                    .withKey(new ActionKey(0))
                     .setAction(new OutputActionCaseBuilder()
                             .setOutputAction(new OutputActionBuilder()
                                     .setMaxLength(0xffff)

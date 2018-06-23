@@ -70,7 +70,7 @@ public class AddressObservationWriterTest {
         when(dataObjectOptional.get()).thenReturn(nodeConnector);
 
         addrCapableNc = mock(AddressCapableNodeConnector.class);
-        when(nodeConnector.getAugmentation(AddressCapableNodeConnector.class)).thenReturn(addrCapableNc);
+        when(nodeConnector.augmentation(AddressCapableNodeConnector.class)).thenReturn(addrCapableNc);
 
         address = mock(Addresses.class);
         List<Addresses> listAddr = new ArrayList<Addresses>();
@@ -82,7 +82,7 @@ public class AddressObservationWriterTest {
         when(address.getLastSeen()).thenReturn(1410350400L);
         when(address.getFirstSeen()).thenReturn(1410350400L);
         addrKey = mock(AddressesKey.class);
-        when(address.getKey()).thenReturn(addrKey);
+        when(address.key()).thenReturn(addrKey);
 
         writeTransaction = mock(WriteTransaction.class);
         when(dataService.newWriteOnlyTransaction()).thenReturn(writeTransaction);
