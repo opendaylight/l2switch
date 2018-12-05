@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>l2switch-artifacts</artifactId>
-    <version>0.7.4-SNAPSHOT</version>
+    <version>0.7.4</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
