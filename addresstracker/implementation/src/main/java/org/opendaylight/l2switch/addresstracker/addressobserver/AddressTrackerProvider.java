@@ -74,7 +74,7 @@ public class AddressTrackerProvider {
 
     public void close() {
         listenerRegistrations.forEach(reg -> reg.close());
-        LOG.info("AddressTracker torn down.", this);
+        LOG.info("AddressTracker torn down.");
     }
 
     @Nonnull

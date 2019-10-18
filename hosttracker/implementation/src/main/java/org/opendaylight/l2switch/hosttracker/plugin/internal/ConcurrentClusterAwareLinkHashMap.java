@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright (c) 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import java.util.Collection;
@@ -52,8 +51,8 @@ public class ConcurrentClusterAwareLinkHashMap {
      *
      * @param ii the value's (Link's) InstanceIdentifier&lt;Link&gt;
      * @param link the Link to store locally.
-     * @return the previous value associated with <tt>key</tt>, or
-     * <tt>null</tt> if there was no mapping for <tt>key</tt>
+     * @return the previous value associated with {@code key}, or
+     *         {@code null} if there was no mapping for {@code key}
      */
     public synchronized Link putLocally(InstanceIdentifier<Link> ii, Link link) {
         LOG.trace("Putting locally {}", link.getLinkId());
@@ -69,7 +68,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      */
     public synchronized void removeAll(List<Link> links) {
         for (final Map.Entry<InstanceIdentifier<Link>, LinkId> e : this.instanceIDs.entrySet()) {
-            LOG.debug("Links to remove from local & MD-SAL database", links.toString());
+            LOG.debug("Links to remove from local & MD-SAL database: {}", links);
             for (Link l : links) {
                 if (e.getValue().equals(l.getLinkId())) {
                     this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));

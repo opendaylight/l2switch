@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2016 Hewlett Packard Enterprise, Co. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the

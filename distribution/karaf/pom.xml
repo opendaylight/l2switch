@@ -4,16 +4,13 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf4-parent</artifactId>
-    <version>3.1.0</version>
+    <version>5.0.1</version>
     <relativePath/>
   </parent>
   <artifactId>distribution-karaf</artifactId>
   <groupId>org.opendaylight.l2switch</groupId>
   <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
 
   <properties>
     <karaf.localFeature>odl-l2switch-switch-ui</karaf.localFeature>

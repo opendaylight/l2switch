@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -46,15 +47,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InventoryReaderTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private DataBroker dataService;
-    @MockitoAnnotations.Mock
+    @Mock
     private ReadOnlyTransaction readOnlyTransaction;
-    @MockitoAnnotations.Mock
+    @Mock
     private Optional<Node> dataObjectOptional;
-    @MockitoAnnotations.Mock
+    @Mock
     private CheckedFuture checkedFuture;
-    @MockitoAnnotations.Mock
+    @Mock
     private Node node;
 
     private InventoryReader inventoryReader;
@@ -98,13 +99,13 @@ public class InventoryReaderTest {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 
-        NodeConnector nc1 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        NodeConnector nc2 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("2")))
+        NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2")))
                 .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
-        NodeConnector nc3 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("3")))
+        NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
                 .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
-        NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
+        NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
                 .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2015 Evan Zeller and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -95,7 +95,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
             }
             clearQueue();
         } catch (IllegalStateException e) {
-            LOG.warn(e.getLocalizedMessage());
+            LOG.warn("Failed to close chain", e);
         }
     }
 
