@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,7 +37,7 @@ public class AddressObserverUsingArpTest {
 
     @Test
     public void onArpPacketReceivedTest() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
@@ -49,8 +49,7 @@ public class AddressObserverUsingArpTest {
         AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
         addressOberserverArp.onArpPacketReceived(arpReceived);
 
-        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test
@@ -67,7 +66,7 @@ public class AddressObserverUsingArpTest {
     @Test
     public void onArpPacketReceivedNullInputTest2() throws Exception {
 
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())

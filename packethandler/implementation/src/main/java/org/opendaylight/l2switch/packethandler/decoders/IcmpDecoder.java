@@ -71,7 +71,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
             builder.setPayloadOffset(start);
             builder.setPayloadLength(end - start);
         } catch (BufferException e) {
-            LOG.debug("Exception while decoding ICMP packet", e.getMessage());
+            LOG.debug("Exception while decoding ICMP packet", e);
         }
 
         // build icmp

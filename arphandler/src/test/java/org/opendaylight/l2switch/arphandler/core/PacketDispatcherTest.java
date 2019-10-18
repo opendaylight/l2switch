@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -133,7 +133,7 @@ public class PacketDispatcherTest {
         HashMap<String, NodeConnectorRef> controllerSwitchConnectors = Mockito.mock(HashMap.class);
         when(controllerSwitchConnectors.get(any(String.class))).thenReturn(ncRef1);
         when(inventoryReader.getControllerSwitchConnectors()).thenReturn(controllerSwitchConnectors);
-        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class))).thenReturn(ncRef1);
+        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any())).thenReturn(ncRef1);
 
         packetDispatcher.dispatchPacket(null, new NodeConnectorRef(ncInsId1), null, null);
         verify(inventoryReader, times(1)).readInventory();

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,7 +38,7 @@ public class AddressObserverUsingIpv6Test {
 
     @Test
     public void onIpv6PacketReceivedTest() {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
@@ -53,8 +53,7 @@ public class AddressObserverUsingIpv6Test {
         AddressObserverUsingIpv6 addressObserverIpv6 = new AddressObserverUsingIpv6(addressObservationWriterMock);
         addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
 
-        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test
@@ -71,7 +70,7 @@ public class AddressObserverUsingIpv6Test {
     @Test
     public void onIpv6PacketReceivedNullInputTest2() throws Exception {
 
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
@@ -88,7 +87,7 @@ public class AddressObserverUsingIpv6Test {
     @Test
     public void onIpv6PacketReceivedNullInputTest3() throws Exception {
 
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())

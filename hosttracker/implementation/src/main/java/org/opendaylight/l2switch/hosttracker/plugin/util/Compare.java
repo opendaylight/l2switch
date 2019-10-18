@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the

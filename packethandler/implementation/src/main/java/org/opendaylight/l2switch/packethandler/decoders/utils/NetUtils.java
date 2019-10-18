@@ -122,13 +122,12 @@ public final class NetUtils {
      * @return the IP address in InetAddress form
      */
     public static InetAddress getInetAddress(int address) {
-        InetAddress ip = null;
         try {
-            ip = InetAddress.getByAddress(NetUtils.intToByteArray4(address));
+            return InetAddress.getByAddress(NetUtils.intToByteArray4(address));
         } catch (UnknownHostException e) {
-            LOG.error("", e);
+            LOG.error("Failed to decode address {}", address, e);
+            return null;
         }
-        return ip;
     }
 
     /**
@@ -166,7 +165,7 @@ public final class NetUtils {
         try {
             return InetAddress.getByAddress(address);
         } catch (UnknownHostException e) {
-            LOG.error("", e);
+            LOG.error("Failed to decode {}", address, e);
         }
         return null;
     }
@@ -380,7 +379,7 @@ public final class NetUtils {
         try {
             address = InetAddress.getByName(addressString);
         } catch (UnknownHostException e) {
-            LOG.error("", e);
+            LOG.error("Failed to decode address {}", addressString, e);
         }
         return address;
     }

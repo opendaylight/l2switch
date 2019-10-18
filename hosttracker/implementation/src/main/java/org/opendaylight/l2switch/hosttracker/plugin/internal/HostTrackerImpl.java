@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -197,7 +197,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         if (iid.getTargetType().equals(Node.class)) {
             Node node = (Node) rootNode.getDataBefore();
             InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
-            HostNode hostNode = node.getAugmentation(HostNode.class);
+            HostNode hostNode = node.augmentation(HostNode.class);
             if (hostNode != null) {
                 hosts.removeLocally(iiN);
             }
@@ -228,8 +228,8 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         try {
             opNodeConnector = futureNodeConnector.get();
             opNode = futureNode.get();
-        } catch (ExecutionException | InterruptedException ex) {
-            LOG.warn(ex.getLocalizedMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.warn("Failed to get node connector {}", iinc, e);
         }
         if (opNode != null && opNode.isPresent()
                 && opNodeConnector != null && opNodeConnector.isPresent()) {
@@ -283,7 +283,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
      *     if it was not found a network topology or it was not found a host connected to this nodeConnetor.
      */
     private boolean isNodeConnectorInternal(NodeConnector nodeConnector) {
-        TpId tpId = new TpId(nodeConnector.getKey().getId().getValue());
+        TpId tpId = new TpId(nodeConnector.key().getId().getValue());
         InstanceIdentifier<NetworkTopology> ntII
                 = InstanceIdentifier.builder(NetworkTopology.class).build();
         ListenableFuture<Optional<NetworkTopology>> lfONT;
@@ -293,8 +293,8 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         Optional<NetworkTopology> optionalNT;
         try {
             optionalNT = lfONT.get();
-        } catch (InterruptedException | ExecutionException ex) {
-            LOG.warn(ex.getLocalizedMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Failed to get network topology {}", ntII, e);
             return false;
         }
         if (optionalNT.isPresent()) {
@@ -353,14 +353,14 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
     private void writeDataToDataStore(List<Link> linksToAdd, List<Link> linksToRemove) {
         if (linksToAdd != null) {
             for (final Link l : linksToAdd) {
-                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
+                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.key(), topologyId);
                 LOG.trace("Writing link from MD_SAL: {}", lIID.toString());
                 opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, lIID, l, true));
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
-                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.getKey(), topologyId);
+                final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.key(), topologyId);
                 LOG.trace("Removing link from MD_SAL: {}", lIID.toString());
                 opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID));
             }
@@ -380,7 +380,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         final long nowInSeconds = TimeUnit.MILLISECONDS.toSeconds(nowInMillis);
         // iterate through all hosts in the local cache
         for (Host h : hosts.values()) {
-            final HostNode hn = h.getHostNode().getAugmentation(HostNode.class);
+            final HostNode hn = h.getHostNode().augmentation(HostNode.class);
             if (hn == null) {
                 LOG.warn("Encountered non-host node {} in hosts during purge", h);
             } else if (hn.getAddresses() != null) {

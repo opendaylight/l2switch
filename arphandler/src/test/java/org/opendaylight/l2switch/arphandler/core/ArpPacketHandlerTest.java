@@ -7,16 +7,15 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
@@ -27,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 
 public class ArpPacketHandlerTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private PacketDispatcher packetDispatcher;
     private ArpPacketHandler arpPacketHandler;
 
@@ -39,74 +38,69 @@ public class ArpPacketHandlerTest {
 
     @Test
     public void onArpPacketReceivedTest() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verify(packetDispatcher, times(1)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        verify(packetDispatcher, times(1)).dispatchPacket(null, null, null, null);
     }
 
     @Test
     public void onArpPacketReceivedTest_NullInput() throws Exception {
         arpPacketHandler.onArpPacketReceived(null);
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        verifyZeroInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_NullPacketChain() throws Exception {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+
+        verifyZeroInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_EmptyPacketChain() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+
+        verifyZeroInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_NoRawPacket() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        verifyZeroInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_NoEthernetPacket() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        verifyZeroInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_NoArpPacket() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<PacketChain>();
+        ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verify(packetDispatcher, times(0)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        verifyZeroInteractions(packetDispatcher);
     }
 }
