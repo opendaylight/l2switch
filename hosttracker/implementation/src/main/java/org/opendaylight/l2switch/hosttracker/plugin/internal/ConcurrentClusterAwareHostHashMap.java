@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 André Martins and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -91,8 +91,8 @@ public class ConcurrentClusterAwareHostHashMap {
      *            the value's (Host's) InstanceIdentifier&lt;Node&gt;
      * @param value
      *            the Host to store locally.
-     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
-     *         if there was no mapping for <tt>key</tt>
+     * @return the previous value associated with {@code key}, or {@code null}
+     *         if there was no mapping for {@code key}
      */
     public synchronized Host putLocally(InstanceIdentifier<Node> ii, Host value) {
         Host host = value;
@@ -129,7 +129,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void submit(HostId hostid) {
         Host host = this.hostHashMap.get(hostid);
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                 hostNode, true));
         putLocally(buildNodeIID, host);
@@ -147,7 +147,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void putAll(List<Host> hosts) {
         for (Host h : hosts) {
             final Node hostNode = h.getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                     hostNode, true));
             putLocally(buildNodeIID, h);
@@ -167,7 +167,7 @@ public class ConcurrentClusterAwareHostHashMap {
      */
     public synchronized Host put(HostId hostId, Host host) {
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
                 hostNode, true));
         LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
@@ -186,7 +186,7 @@ public class ConcurrentClusterAwareHostHashMap {
         Host removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = removedValue.getHostNode();
-            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.getKey(), topologyId);
+            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, hnIID));
             this.instanceIDs.remove(hnIID);
         }

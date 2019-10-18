@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>0.13.0-SNAPSHOT</version>
+    <version>4.0.4</version>
     <relativePath/>
   </parent>
   <groupId>org.opendaylight.l2switch</groupId>
@@ -13,24 +13,19 @@
   <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <jung2.version>2.1.1</jung2.version>
-    <openflow.plugin.version>0.7.0-SNAPSHOT</openflow.plugin.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>mdsal-artifacts</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.10.0</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.opendaylight.openflowplugin</groupId>
         <artifactId>openflowplugin-artifacts</artifactId>
-        <version>${openflow.plugin.version}</version>
+        <version>0.9.0</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -40,22 +35,6 @@
         <version>${project.version}</version>
         <scope>import</scope>
         <type>pom</type>
-      </dependency>
-
-      <dependency>
-        <groupId>net.sf.jung</groupId>
-        <artifactId>jung-api</artifactId>
-        <version>${jung2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.jung</groupId>
-        <artifactId>jung-algorithms</artifactId>
-        <version>${jung2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.jung</groupId>
-        <artifactId>jung-graph-impl</artifactId>
-        <version>${jung2.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -80,16 +59,6 @@
   <build>
       <pluginManagement>
           <plugins>
-              <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-compiler-plugin</artifactId>
-                  <version>${maven.compile.plugin.version}</version>
-                  <configuration>
-                      <source>${java.version.source}</source>
-                      <target>${java.version.target}</target>
-                  </configuration>
-              </plugin>
-
               <!-- Ignore/Execute plugin execution -->
               <plugin>
                   <groupId>org.eclipse.m2e</groupId>
@@ -199,8 +168,8 @@
               </configuration>
           </plugin>
           <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs-maven-plugin</artifactId>
               <configuration>
                   <failOnError>true</failOnError>
               </configuration>

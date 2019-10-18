@@ -39,6 +39,11 @@
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
       <artifactId>addresstracker-model</artifactId>
+   </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

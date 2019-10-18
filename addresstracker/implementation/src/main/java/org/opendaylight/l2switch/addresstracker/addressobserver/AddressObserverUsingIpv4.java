@@ -7,13 +7,14 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
+
 
 /**
  * AddressObserver listens to IPv4 packets to find addresses (mac, ip) and store
@@ -59,7 +60,7 @@ public class AddressObserverUsingIpv4 implements Ipv4PacketListener {
 
         if (!IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
             addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
-                    new IpAddress(ipv4Packet.getSourceIpv4().getValue().toCharArray()), rawPacket.getIngress());
+                    IpAddressBuilder.getDefaultInstance(ipv4Packet.getSourceIpv4().getValue()), rawPacket.getIngress());
         }
     }
 }

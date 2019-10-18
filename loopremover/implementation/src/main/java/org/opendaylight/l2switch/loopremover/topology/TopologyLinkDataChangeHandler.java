@@ -280,7 +280,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             }
 
             if (nc != null) {
-                if (sameStatusPresent(nc.getAugmentation(StpStatusAwareNodeConnector.class),
+                if (sameStatusPresent(nc.augmentation(StpStatusAwareNodeConnector.class),
                         stpStatusAwareNodeConnector.getStatus())) {
                     return;
                 }
