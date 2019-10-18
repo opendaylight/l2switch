@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -44,7 +44,7 @@ public class Host {
     private final NodeBuilder nodeBuilder;
 
     public static Host createHost(Node node) {
-        HostNode hostNode = node.getAugmentation(HostNode.class);
+        HostNode hostNode = node.augmentation(HostNode.class);
         return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
     }
 
@@ -105,7 +105,7 @@ public class Host {
         }
         NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode))
                 .setTerminationPoint(tps);
-        node.setKey(new NodeKey(node.getNodeId()));
+        node.withKey(new NodeKey(node.getNodeId()));
 
         return node;
     }
@@ -226,7 +226,7 @@ public class Host {
     public synchronized void removeAttachmentPoints(AttachmentPointsBuilder apb) {
         LOG.debug("Setting attachment points {} to inactive state", apb);
         for (AttachmentPointsBuilder apbi : attachmentPointsBuilders) {
-            if (apbi.getKey().equals(apb.getKey())) {
+            if (apbi.key().equals(apb.key())) {
                 apbi.setActive(Boolean.FALSE);
             }
         }

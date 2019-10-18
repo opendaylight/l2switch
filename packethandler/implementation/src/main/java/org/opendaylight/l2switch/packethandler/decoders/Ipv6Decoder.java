@@ -107,7 +107,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                 builder.setExtensionHeaders(extensionHeaders);
             }
         } catch (BufferException | UnknownHostException e) {
-            LOG.debug("Exception while decoding IPv4 packet", e.getMessage());
+            LOG.debug("Exception while decoding IPv6 packet", e);
         }
 
         // build ipv6

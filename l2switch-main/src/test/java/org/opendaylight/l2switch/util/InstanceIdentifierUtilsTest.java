@@ -45,7 +45,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
-        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
+        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class).getId());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1), new FlowKey(new FlowId(STR_ID_1)));
         assertNotNull(flowInsId);
-        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class, TableKey.class).getId());
-        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class, FlowKey.class).getId().getValue());
+        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class).getId());
+        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class).getId().getValue());
     }
 }

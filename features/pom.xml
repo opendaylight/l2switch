@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>3.1.0</version>
+        <version>5.0.2</version>
         <relativePath/>
     </parent>
 
@@ -26,7 +26,9 @@
         <module>odl-l2switch-all</module>
         <module>odl-l2switch-switch</module>
         <module>odl-l2switch-switch-rest</module>
+        <!-- FIXME: uncomment when we have dlux
         <module>odl-l2switch-switch-ui</module>
+         -->
         <module>odl-l2switch-hosttracker</module>
         <module>odl-l2switch-addresstracker</module>
         <module>odl-l2switch-arphandler</module>

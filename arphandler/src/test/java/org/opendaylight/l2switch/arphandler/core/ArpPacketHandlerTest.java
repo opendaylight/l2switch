@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -27,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 
 public class ArpPacketHandlerTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private PacketDispatcher packetDispatcher;
     private ArpPacketHandler arpPacketHandler;
 

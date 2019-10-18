@@ -70,21 +70,21 @@ public class InventoryReader {
                 LOG.debug("Looking address{} in node : {}", macAddress, nodeInsId);
                 for (NodeConnector nc : node.getNodeConnector()) {
                     // Don't look for mac in discarding node connectors
-                    StpStatusAwareNodeConnector saNodeConnector = nc.getAugmentation(StpStatusAwareNodeConnector.class);
+                    StpStatusAwareNodeConnector saNodeConnector = nc.augmentation(StpStatusAwareNodeConnector.class);
                     if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
                         continue;
                     }
-                    LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.getKey());
-                    AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
+                    LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.key());
+                    AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
                     if (acnc != null) {
                         List<Addresses> addressesList = acnc.getAddresses();
                         for (Addresses add : addressesList) {
                             if (macAddress.equals(add.getMac())) {
                                 if (add.getLastSeen() > latest) {
                                     destNodeConnector = new NodeConnectorRef(
-                                            nodeInsId.child(NodeConnector.class, nc.getKey()));
+                                            nodeInsId.child(NodeConnector.class, nc.key()));
                                     latest = add.getLastSeen();
-                                    LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.getKey());
+                                    LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                                     break;
                                 }
                             }
