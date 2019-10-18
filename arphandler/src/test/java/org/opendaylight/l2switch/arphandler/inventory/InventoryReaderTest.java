@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -48,7 +49,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InventoryReaderTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private DataBroker dataBroker;
     private InventoryReader inventoryReader;
 
@@ -124,11 +125,11 @@ public class InventoryReaderTest {
     public void testReadInventory_Refresh() throws Exception {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
-        NodeConnector nc1 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        NodeConnector nc2 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
-        NodeConnector nc3 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("3")))
+        NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
+        NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
-        NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
+        NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();

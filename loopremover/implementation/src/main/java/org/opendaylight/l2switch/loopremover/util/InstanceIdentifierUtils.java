@@ -90,21 +90,21 @@ public final class InstanceIdentifierUtils {
      * @return the table id
      */
     public static Short getTableId(final InstanceIdentifier<Table> tablePath) {
-        return tablePath.firstKeyOf(Table.class, TableKey.class).getId();
+        return tablePath.firstKeyOf(Table.class).getId();
     }
 
     /**
      * Extracts NodeConnectorKey from node connector path.
      */
     public static NodeConnectorKey getNodeConnectorKey(final InstanceIdentifier<?> nodeConnectorPath) {
-        return nodeConnectorPath.firstKeyOf(NodeConnector.class, NodeConnectorKey.class);
+        return nodeConnectorPath.firstKeyOf(NodeConnector.class);
     }
 
     /**
      * Extracts NodeKey from node path.
      */
     public static NodeKey getNodeKey(final InstanceIdentifier<?> nodePath) {
-        return nodePath.firstKeyOf(Node.class, NodeKey.class);
+        return nodePath.firstKeyOf(Node.class);
     }
 
     public static InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,

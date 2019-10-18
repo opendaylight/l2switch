@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.loopremover.flow;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -32,7 +33,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InitialFlowWriterTest {
 
-    @MockitoAnnotations.Mock private SalFlowService salFlowService;
+    @Mock
+    private SalFlowService salFlowService;
     private InitialFlowWriter initialFlowWriter;
 
     @Before

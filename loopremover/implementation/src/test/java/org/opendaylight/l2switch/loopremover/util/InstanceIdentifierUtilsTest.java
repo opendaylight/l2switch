@@ -18,11 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InstanceIdentifierUtilsTest {
@@ -36,7 +33,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Node> insId = InstanceIdentifierUtils.createNodePath(new NodeId(STR_ID_1));
         assertNotNull(insId);
         assertNotNull(insId.firstIdentifierOf(Nodes.class));
-        assertEquals(STR_ID_1, insId.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
+        assertEquals(STR_ID_1, insId.firstKeyOf(Node.class).getId().getValue());
     }
 
     @Test
@@ -51,7 +48,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.createTablePath(
                 InstanceIdentifier.builder(Nodes.class).child(Node.class).build(), new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
-        assertEquals(NUM_ID_1.shortValue(), tableInsId.firstKeyOf(Table.class, TableKey.class).getId().shortValue());
+        assertEquals(NUM_ID_1.shortValue(), tableInsId.firstKeyOf(Table.class).getId().shortValue());
         assertNotNull(tableInsId.firstIdentifierOf(FlowCapableNode.class));
     }
 
@@ -60,8 +57,8 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<NodeConnector> ncInsId = InstanceIdentifierUtils.createNodeConnectorIdentifier(STR_ID_1,
                 STR_ID_2);
         assertNotNull(ncInsId);
-        assertEquals(STR_ID_1, ncInsId.firstKeyOf(Node.class, NodeKey.class).getId().getValue());
-        assertEquals(STR_ID_2, ncInsId.firstKeyOf(NodeConnector.class, NodeConnectorKey.class).getId().getValue());
+        assertEquals(STR_ID_1, ncInsId.firstKeyOf(Node.class).getId().getValue());
+        assertEquals(STR_ID_2, ncInsId.firstKeyOf(NodeConnector.class).getId().getValue());
     }
 
     @Test
@@ -78,7 +75,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
-        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
+        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class).getId());
     }
 
     @Test
@@ -86,6 +83,6 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Topology> topologyInsId = InstanceIdentifierUtils
                 .generateTopologyInstanceIdentifier(STR_ID_1);
         assertNotNull(topologyInsId);
-        assertEquals(STR_ID_1, topologyInsId.firstKeyOf(Topology.class, TopologyKey.class).getTopologyId().getValue());
+        assertEquals(STR_ID_1, topologyInsId.firstKeyOf(Topology.class).getTopologyId().getValue());
     }
 }

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
@@ -30,7 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlowWriterServiceImplTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private SalFlowService salFlowService;
     private FlowWriterServiceImpl flowWriterService;
     private InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier;

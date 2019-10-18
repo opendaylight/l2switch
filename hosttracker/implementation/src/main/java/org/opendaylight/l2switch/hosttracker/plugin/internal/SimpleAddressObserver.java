@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -187,7 +187,7 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         BigInteger id = BigInteger.valueOf(ketype.getIntValue()).abs()
                 .add(BigInteger.valueOf(srcMacAddr.hashCode()).abs().shiftLeft(16));
         addrs.setId(id);
-        addrs.setKey(new AddressesKey(addrs.getId()));
+        addrs.withKey(new AddressesKey(addrs.getId()));
         addrs.setVlan(vlanId);
         addrs.setIp(srcIpAddr);
         addrs.setMac(srcMacAddr);

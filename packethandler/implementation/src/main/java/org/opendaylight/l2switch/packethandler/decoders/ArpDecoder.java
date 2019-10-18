@@ -100,7 +100,7 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
                         "Unknown ProtocolType -- sourceProtocolAddress and destinationProtocolAddress are not decoded");
             }
         } catch (BufferException | UnknownHostException e) {
-            LOG.debug("Exception while decoding APR packet", e.getMessage());
+            LOG.debug("Exception while decoding APR packet", e);
         }
 
         // build arp

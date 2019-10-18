@@ -105,7 +105,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
             builder.setPayloadOffset(start);
             builder.setPayloadLength(end - start);
         } catch (BufferException | UnknownHostException e) {
-            LOG.debug("Exception while decoding IPv4 packet", e.getMessage());
+            LOG.debug("Exception while decoding IPv4 packet", e);
         }
 
         // build ipv4
