@@ -15,18 +15,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnectorBuilder;
@@ -86,8 +86,8 @@ public class InventoryReaderTest {
         Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
         Optional<Node> optionalNode = Optional.of(node);
 
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
+        FluentFuture checkedFuture = Mockito.mock(FluentFuture.class);
         when(checkedFuture.get()).thenReturn(optionalNode);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFuture);
@@ -144,8 +144,8 @@ public class InventoryReaderTest {
         Nodes nodes = new NodesBuilder().setNode(nodeList).build();
         Optional<Nodes> optionalNodes = Optional.of(nodes);
 
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
+        FluentFuture checkedFuture = Mockito.mock(FluentFuture.class);
         when(checkedFuture.get()).thenReturn(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFuture);

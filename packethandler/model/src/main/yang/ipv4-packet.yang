@@ -3,15 +3,8 @@ module ipv4-packet {
   namespace "urn:opendaylight:packet:ipv4";
   prefix ipv4;
 
-  import ietf-inet-types {
-    prefix inet;
-    revision-date 2013-07-15;
-  }
-
-  import base-packet {
-    prefix bpacket;
-    revision-date 2014-05-28;
-  }
+  import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+  import base-packet { prefix bpacket; revision-date 2014-05-28; }
 
   revision 2014-05-28 {
     description
@@ -224,8 +217,12 @@ module ipv4-packet {
       type binary;
     }
 
-
-    uses bpacket:packet-fields;
+    leaf ipv4-payload-offset {
+      type int32;
+    }
+    leaf ipv4-payload-length {
+      type int32;
+    }
   }
 
   notification ipv4-packet-received {

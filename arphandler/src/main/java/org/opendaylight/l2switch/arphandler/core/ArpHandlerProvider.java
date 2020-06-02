@@ -8,14 +8,15 @@
 
 package org.opendaylight.l2switch.arphandler.core;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.arphandler.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +27,14 @@ public class ArpHandlerProvider {
     private Registration floodInvListenerReg;
     private Registration topoNodeListenerReg;
 
-    private final NotificationProviderService notificationService;
+    private final NotificationService notificationService;
     private final DataBroker dataBroker;
     private final SalFlowService salFlowService;
     private final PacketProcessingService packetProcessingService;
     private final ArpHandlerConfig arpHandlerConfig;
 
     public ArpHandlerProvider(final DataBroker dataBroker,
-            final NotificationProviderService notificationProviderService,
+            final NotificationService notificationProviderService,
             final SalFlowService salFlowService,
             final PacketProcessingService packetProcessingService,
             final ArpHandlerConfig config) {
@@ -49,21 +50,21 @@ public class ArpHandlerProvider {
             //Setup proactive flow writer, which writes flood flows
             LOG.info("ArpHandler is in Proactive Flood Mode");
             ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, salFlowService);
-            floodFlowWriter.setFlowTableId(arpHandlerConfig.getFloodFlowTableId());
-            floodFlowWriter.setFlowPriority(arpHandlerConfig.getFloodFlowPriority());
-            floodFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getFloodFlowIdleTimeout());
-            floodFlowWriter.setFlowHardTimeout(arpHandlerConfig.getFloodFlowHardTimeout());
-            floodFlowWriter.setFlowInstallationDelay(arpHandlerConfig.getFloodFlowInstallationDelay());
+            floodFlowWriter.setFlowTableId(Uint16.valueOf(arpHandlerConfig.getFloodFlowTableId()).shortValue());
+            floodFlowWriter.setFlowPriority(arpHandlerConfig.getFloodFlowPriority().intValue());
+            floodFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getFloodFlowIdleTimeout().intValue());
+            floodFlowWriter.setFlowHardTimeout(arpHandlerConfig.getFloodFlowHardTimeout().intValue());
+            floodFlowWriter.setFlowInstallationDelay(arpHandlerConfig.getFloodFlowInstallationDelay().longValue());
             floodTopoListenerReg = floodFlowWriter.registerAsDataChangeListener();
             floodInvListenerReg = notificationService.registerNotificationListener(floodFlowWriter);
         } else {
             //Write initial flows to send arp to controller
             LOG.info("ArpHandler is in Reactive Mode");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(arpHandlerConfig.getArpFlowTableId());
-            initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority());
-            initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout());
-            initialFlowWriter.setFlowHardTimeout(arpHandlerConfig.getArpFlowHardTimeout());
+            initialFlowWriter.setFlowTableId(Uint16.valueOf(arpHandlerConfig.getArpFlowTableId()).shortValue());
+            initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority().intValue());
+            initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout().intValue());
+            initialFlowWriter.setFlowHardTimeout(arpHandlerConfig.getArpFlowHardTimeout().intValue());
             initialFlowWriter.setIsHybridMode(arpHandlerConfig.isIsHybridMode());
             topoNodeListenerReg = initialFlowWriter.registerAsDataChangeListener(dataBroker);
 
