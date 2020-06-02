@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public final class Utilities {
     }
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
-        List<Link> links = new ArrayList();
+        List<Link> links = new ArrayList<Link>();
         LinkBuilder srcdst = new LinkBuilder()//
                 .setSource(new SourceBuilder()//
                         .setSourceNode(srcNId)//
