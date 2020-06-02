@@ -7,12 +7,12 @@
  */
 package org.opendaylight.l2switch.inventory;
 
-import com.google.common.base.Optional;
-import java.util.List;
+import com.google.common.util.concurrent.FluentFuture;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
@@ -59,50 +59,53 @@ public class InventoryReader {
             return null;
         }
 
+        final FluentFuture<Optional<Node>> readFuture;
+        try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId);
+        }
+
+        final Optional<Node> dataObjectOptional;
+        try {
+            dataObjectOptional = readFuture.get();
+        } catch (InterruptedException e) {
+            LOG.error("Failed to read nodes from Operation data store.");
+            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
+        } catch (ExecutionException e) {
+            LOG.error("Failed to read nodes from Operation data store.");
+            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
+        }
+
+        if (dataObjectOptional.isEmpty()) {
+            return null;
+        }
+
+        final Node node = dataObjectOptional.orElseThrow();
+        LOG.debug("Looking address{} in node : {}", macAddress, nodeInsId);
+
         NodeConnectorRef destNodeConnector = null;
         long latest = -1;
-        ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
-        try {
-            Optional<Node> dataObjectOptional = null;
-            dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId).get();
-            if (dataObjectOptional.isPresent()) {
-                Node node = (Node) dataObjectOptional.get();
-                LOG.debug("Looking address{} in node : {}", macAddress, nodeInsId);
-                for (NodeConnector nc : node.getNodeConnector()) {
-                    // Don't look for mac in discarding node connectors
-                    StpStatusAwareNodeConnector saNodeConnector = nc.augmentation(StpStatusAwareNodeConnector.class);
-                    if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
-                        continue;
-                    }
-                    LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.key());
-                    AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
-                    if (acnc != null) {
-                        List<Addresses> addressesList = acnc.getAddresses();
-                        for (Addresses add : addressesList) {
-                            if (macAddress.equals(add.getMac())) {
-                                if (add.getLastSeen() > latest) {
-                                    destNodeConnector = new NodeConnectorRef(
-                                            nodeInsId.child(NodeConnector.class, nc.key()));
-                                    latest = add.getLastSeen();
-                                    LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
-                                    break;
-                                }
-                            }
+        for (NodeConnector nc : node.nonnullNodeConnector().values()) {
+            // Don't look for mac in discarding node connectors
+            StpStatusAwareNodeConnector saNodeConnector = nc.augmentation(StpStatusAwareNodeConnector.class);
+            if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
+                continue;
+            }
+            LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.key());
+            AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
+            if (acnc != null) {
+                for (Addresses add : acnc.nonnullAddresses().values()) {
+                    if (macAddress.equals(add.getMac())) {
+                        final long lastSeen = add.getLastSeen();
+                        if (lastSeen > latest) {
+                            destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.key()));
+                            latest = lastSeen;
+                            LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
+                            break;
                         }
                     }
                 }
             }
-        } catch (InterruptedException e) {
-            LOG.error("Failed to read nodes from Operation data store.");
-            readOnlyTransaction.close();
-            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
-        } catch (ExecutionException e) {
-            LOG.error("Failed to read nodes from Operation data store.");
-            readOnlyTransaction.close();
-            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
         }
-        readOnlyTransaction.close();
         return destNodeConnector;
     }
-
 }

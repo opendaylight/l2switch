@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownOperation;
@@ -40,12 +41,13 @@ public class ArpDecoderTest {
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67, // Dest Hardware Address
             0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
         };
-        NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new EthernetPacketBuilder().setPayloadOffset(5).setPayloadLength(33).build()).build());
-        ArpPacketReceived notification = new ArpDecoder(mock)
+        ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
 
         ArpPacket arpPacket = (ArpPacket) notification.getPacketChain().get(2).getPacket();
@@ -74,12 +76,14 @@ public class ArpDecoderTest {
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67, // Dest Hardware Address
             0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
         };
-        NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
-                .setPacket(new EthernetPacketBuilder().setPayloadOffset(8).setPayloadLength(36).build()).build());
-        ArpPacketReceived notification = new ArpDecoder(mock)
+                .setPacket(new EthernetPacketBuilder().setPayloadOffset(8).setPayloadLength(36).build())
+                .build());
+        ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
 
         ArpPacket arpPacket = (ArpPacket) notification.getPacketChain().get(2).getPacket();
@@ -105,12 +109,13 @@ public class ArpDecoderTest {
             0x00, 0x01, 0x08, 0x00, 0x06, 0x04, 0x00, 0x01, (byte)0xba, 0x43, 0x52, (byte)0xce, 0x09, (byte)0xf4, 0x0a,
             0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x02
         };
-        NotificationProviderService mock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
-        ArpPacketReceived notification = new ArpDecoder(mock)
+        ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
 
         ArpPacket arpPacket = (ArpPacket) notification.getPacketChain().get(2).getPacket();
