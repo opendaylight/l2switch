@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
  * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
@@ -90,7 +91,7 @@ public final class InstanceIdentifierUtils {
      * @return the table id
      */
     public static Short getTableId(final InstanceIdentifier<Table> tablePath) {
-        return tablePath.firstKeyOf(Table.class).getId();
+        return Uint16.valueOf(tablePath.firstKeyOf(Table.class).getId()).shortValue();
     }
 
     /**
