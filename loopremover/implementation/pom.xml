@@ -22,8 +22,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal-binding-api</artifactId>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>mdsal-binding-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.model</groupId>
+      <artifactId>ietf-topology</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
@@ -31,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller.model</groupId>
-      <artifactId>model-topology</artifactId>
+      <artifactId>model-inventory</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
