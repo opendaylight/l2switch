@@ -31,7 +31,12 @@ module icmp-packet {
             type uint16;
         }
 
-        uses bpacket:packet-fields;
+        leaf icmp-payload-offset {
+            type int32;
+        }
+        leaf icmp-payload-length {
+            type int32;
+        }
     }
 
     notification icmp-packet-received {
