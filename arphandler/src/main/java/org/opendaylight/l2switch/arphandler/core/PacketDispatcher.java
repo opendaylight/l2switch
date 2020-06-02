@@ -75,8 +75,8 @@ public class PacketDispatcher {
                 floodPacket(nodeId, payload, ingress, srcConnectorRef);
             }
         } else {
-            LOG.info("Cannot send packet out or flood as controller node connector is not available for node {}.",
-                    nodeId);
+            LOG.info("Cannot send packet out or flood as controller node connector is not available for "
+                     + "node {}.", nodeId);
         }
     }
 
@@ -128,6 +128,7 @@ public class PacketDispatcher {
         if (ingress == null || egress == null) {
             return;
         }
+
         InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
         TransmitPacketInput input = new TransmitPacketInputBuilder() //
                 .setPayload(payload) //
