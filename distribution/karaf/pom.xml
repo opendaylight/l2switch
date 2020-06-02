@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf4-parent</artifactId>
-    <version>5.0.11</version>
+    <version>7.0.5</version>
     <relativePath/>
   </parent>
   <artifactId>distribution-karaf</artifactId>
@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <karaf.localFeature>odl-l2switch-switch-ui</karaf.localFeature>
+    <karaf.localFeature>odl-l2switch-switch</karaf.localFeature>
   </properties>
 
   <dependencies>
@@ -21,7 +21,6 @@
     <dependency>
       <groupId>org.apache.karaf.features</groupId>
       <artifactId>framework</artifactId>
-      <version>${karaf.version}</version>
       <type>kar</type>
     </dependency>
     <dependency>

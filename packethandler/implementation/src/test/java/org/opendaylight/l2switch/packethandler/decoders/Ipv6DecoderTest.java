@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
@@ -45,13 +46,15 @@ public class Ipv6DecoderTest {
             0x01, 0x02, 0x03, 0x04, 0x05, // Data
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setEthPayloadOffset(14)
+                                                                                      .build()).build());
 
-        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(
+        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
         Ipv6Packet ipv6Packet = (Ipv6Packet) notification.getPacketChain().get(2).getPacket();
         assertEquals(6, ipv6Packet.getVersion().intValue());
@@ -64,8 +67,8 @@ public class Ipv6DecoderTest {
         assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
         assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
         assertNull(ipv6Packet.getExtensionHeaders());
-        assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
-        assertEquals(5, ipv6Packet.getPayloadLength().intValue());
+        assertEquals(54, ipv6Packet.getIpv6PayloadOffset().intValue());
+        assertEquals(5, ipv6Packet.getIpv6PayloadLength().intValue());
         assertTrue(Arrays.equals(payload, notification.getPayload()));
     }
 
@@ -88,13 +91,15 @@ public class Ipv6DecoderTest {
             0x01, 0x02, 0x03, 0x04, 0x05, // Data
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setEthPayloadOffset(14)
+                                                                                      .build()).build());
 
-        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(
+        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
         Ipv6Packet ipv6Packet = (Ipv6Packet) notification.getPacketChain().get(2).getPacket();
         assertEquals(6, ipv6Packet.getVersion().intValue());
@@ -110,8 +115,8 @@ public class Ipv6DecoderTest {
         assertEquals(0, ipv6Packet.getExtensionHeaders().get(0).getLength().intValue());
         assertTrue(
                 Arrays.equals(ipv6Packet.getExtensionHeaders().get(0).getData(), Arrays.copyOfRange(payload, 56, 62)));
-        assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
-        assertEquals(13, ipv6Packet.getPayloadLength().intValue());
+        assertEquals(54, ipv6Packet.getIpv6PayloadOffset().intValue());
+        assertEquals(13, ipv6Packet.getIpv6PayloadLength().intValue());
         assertTrue(Arrays.equals(payload, notification.getPayload()));
     }
 
@@ -135,13 +140,15 @@ public class Ipv6DecoderTest {
             0x01, 0x02, 0x03, 0x04, 0x05, // Data
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setEthPayloadOffset(14)
+                                                                                      .build()).build());
 
-        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(
+        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
         Ipv6Packet ipv6Packet = (Ipv6Packet) notification.getPacketChain().get(2).getPacket();
         assertEquals(6, ipv6Packet.getVersion().intValue());
@@ -161,8 +168,8 @@ public class Ipv6DecoderTest {
         assertEquals(0, ipv6Packet.getExtensionHeaders().get(1).getLength().intValue());
         assertTrue(
                 Arrays.equals(ipv6Packet.getExtensionHeaders().get(1).getData(), Arrays.copyOfRange(payload, 64, 70)));
-        assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
-        assertEquals(21, ipv6Packet.getPayloadLength().intValue());
+        assertEquals(54, ipv6Packet.getIpv6PayloadOffset().intValue());
+        assertEquals(21, ipv6Packet.getIpv6PayloadLength().intValue());
         assertTrue(Arrays.equals(payload, notification.getPayload()));
     }
 
@@ -185,13 +192,15 @@ public class Ipv6DecoderTest {
             0x04, 0x5f, 0x74, 0x63, 0x70, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x0c, 0x00, 0x01,
             0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
         };
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setEthPayloadOffset(14)
+                                                                                      .build()).build());
 
-        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(
+        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
         Ipv6Packet ipv6Packet = (Ipv6Packet) notification.getPacketChain().get(2).getPacket();
         assertEquals(6, ipv6Packet.getVersion().intValue());
@@ -204,8 +213,8 @@ public class Ipv6DecoderTest {
         assertEquals("fe80:0:0:0:a0e6:daff:fe67:ef95", ipv6Packet.getSourceIpv6().getValue());
         assertEquals("ff02:0:0:0:0:0:0:fb", ipv6Packet.getDestinationIpv6().getValue());
         assertNull(ipv6Packet.getExtensionHeaders());
-        assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
-        assertEquals(53, ipv6Packet.getPayloadLength().intValue());
+        assertEquals(54, ipv6Packet.getIpv6PayloadOffset().intValue());
+        assertEquals(53, ipv6Packet.getIpv6PayloadLength().intValue());
         assertTrue(Arrays.equals(payload, notification.getPayload()));
     }
 
@@ -227,13 +236,15 @@ public class Ipv6DecoderTest {
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, // Data
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setEthPayloadOffset(14)
+                                                                                       .build()).build());
 
-        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock).decode(
+        Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
         Ipv6Packet ipv6Packet = (Ipv6Packet) notification.getPacketChain().get(2).getPacket();
         assertEquals(6, ipv6Packet.getVersion().intValue());
@@ -246,8 +257,8 @@ public class Ipv6DecoderTest {
         assertEquals("123:4567:89ab:cdef:fedc:ba98:7654:3210", ipv6Packet.getSourceIpv6().getValue());
         assertEquals("fedc:ba98:7654:3210:123:4567:89ab:cdef", ipv6Packet.getDestinationIpv6().getValue());
         assertNull(ipv6Packet.getExtensionHeaders());
-        assertEquals(54, ipv6Packet.getPayloadOffset().intValue());
-        assertEquals(7, ipv6Packet.getPayloadLength().intValue());
+        assertEquals(54, ipv6Packet.getIpv6PayloadOffset().intValue());
+        assertEquals(7, ipv6Packet.getIpv6PayloadLength().intValue());
         assertTrue(Arrays.equals(payload, notification.getPayload()));
     }
 }
