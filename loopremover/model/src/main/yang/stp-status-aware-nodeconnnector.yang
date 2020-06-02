@@ -3,15 +3,8 @@ module stp-status-aware-node-connector {
   namespace "urn:opendaylight:l2switch:loopremover";
   prefix loopremover;
 
-
-  import yang-ext {
-    prefix ext;
-    revision-date "2013-07-09";
-  }
-  import opendaylight-inventory {
-    prefix inv;
-    revision-date 2013-08-19;
-  }
+  import yang-ext { prefix ext; revision-date "2013-07-09"; }
+  import opendaylight-inventory { prefix inv; revision-date 2013-08-19; }
 
   description
     "Loop remover stp status aware Data Model";
