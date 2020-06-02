@@ -15,20 +15,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
@@ -45,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InventoryReaderTest {
@@ -73,32 +73,25 @@ public class InventoryReaderTest {
     public void testGetNodeConnector() throws Exception {
         List<Addresses> addressesList = new ArrayList<Addresses>();
         addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build());
-        AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder()
-                .setAddresses(addressesList).build();
-        StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
-                .setStatus(StpStatus.Forwarding).build();
         NodeConnector nodeConnector = new NodeConnectorBuilder()
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+                .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
+                .addAugmentation(new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build())
+                .build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nodeConnector);
         Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
         Optional<Node> optionalNode = Optional.of(node);
 
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
-        when(checkedFuture.get()).thenReturn(optionalNode);
+        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
+        FluentFuture<Optional<Node>> checkedFuture = FluentFutures.immediateFluentFuture(optionalNode);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
-        assertNotNull(
-                inventoryReader
-                        .getNodeConnector(
-                                InstanceIdentifier.builder(Nodes.class)
-                                        .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
-                                new MacAddress("aa:bb:cc:dd:ee:ff")));
+        assertNotNull(inventoryReader.getNodeConnector(
+            InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
+            new MacAddress("aa:bb:cc:dd:ee:ff")));
         verify(readOnlyTransaction, times(1)).close();
     }
 
@@ -144,8 +137,8 @@ public class InventoryReaderTest {
         Nodes nodes = new NodesBuilder().setNode(nodeList).build();
         Optional<Nodes> optionalNodes = Optional.of(nodes);
 
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
+        FluentFuture checkedFuture = Mockito.mock(FluentFuture.class);
         when(checkedFuture.get()).thenReturn(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFuture);
