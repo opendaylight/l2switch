@@ -7,7 +7,8 @@
  */
 package org.opendaylight.l2switch.flow;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
 import java.util.concurrent.Future;
@@ -18,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -37,9 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -51,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of
  * FlowWriterService{@link org.opendaylight.l2switch.flow.FlowWriterService},
  * that builds required flow and writes to configuration data store using
- * provided {@link org.opendaylight.controller.md.sal.binding.api.DataBroker}.
+ * provided {@link org.opendaylight.mdsal.binding.api.DataBroker}.
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
@@ -74,8 +74,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private final AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
     public FlowWriterServiceImpl(SalFlowService salFlowService) {
-        Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
-        this.salFlowService = salFlowService;
+        this.salFlowService = requireNonNull(salFlowService);
     }
 
     public void setFlowTableId(short flowTableId) {
@@ -96,9 +95,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
 
     @Override
     public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
-
-        Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
-        Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
+        requireNonNull(destMac, "Destination mac address should not be null.");
+        requireNonNull(destNodeConnectorRef, "Destination port should not be null.");
 
         // do not add flow if both macs are same.
         if (sourceMac != null && destMac.equals(sourceMac)) {
@@ -114,25 +112,24 @@ public class FlowWriterServiceImpl implements FlowWriterService {
 
         // build a flow that target given mac id
         Flow flowBody = createMacToMacFlow(flowTableKey.getId(), flowPriority, sourceMac, destMac,
-                destNodeConnectorRef);
+            destNodeConnectorRef);
 
         // commit the flow in config data
         writeFlowToConfigData(flowPath, flowBody);
     }
 
+
     @Override
     public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef,
             MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
-        Preconditions.checkNotNull(sourceMac, "Source mac address should not be null.");
-        Preconditions.checkNotNull(sourceNodeConnectorRef, "Source port should not be null.");
-        Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
-        Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
+        requireNonNull(sourceMac, "Source mac address should not be null.");
+        requireNonNull(sourceNodeConnectorRef, "Source port should not be null.");
+        requireNonNull(destMac, "Destination mac address should not be null.");
+        requireNonNull(destNodeConnectorRef, "Destination port should not be null.");
 
         if (sourceNodeConnectorRef.equals(destNodeConnectorRef)) {
-            LOG.info(
-                    "In addMacToMacFlowsUsingShortestPath: No flows added. Source and Destination ports are same.");
+            LOG.info("In addMacToMacFlowsUsingShortestPath: No flows added. Source and Destination ports are same.");
             return;
-
         }
 
         // add destMac-To-sourceMac flow on source port
@@ -142,6 +139,14 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         addMacToMacFlow(sourceMac, destMac, destNodeConnectorRef);
     }
 
+
+    /**
+     * Build a flow path.
+     *
+     * @param nodeConnectorRef a reference to the Node Connector
+     * @param flowTableKey a reference to the flow table
+     * @return
+     */
     private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
         // generate unique flow key
@@ -161,7 +166,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @param destPort the destination port
      * @return the Flow
      */
-    private Flow createMacToMacFlow(Short tableId, int priority, MacAddress sourceMac, MacAddress destMac,
+    private Flow createMacToMacFlow(Uint8 tableId, int priority, MacAddress sourceMac, MacAddress destMac,
             NodeConnectorRef destPort) {
 
         // start building flow
@@ -184,43 +189,36 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         EthernetMatch ethernetMatch = ethernetMatchBuilder.build();
         Match match = new MatchBuilder().setEthernetMatch(ethernetMatch).build();
 
-        Uri destPortUri = destPort.getValue().firstKeyOf(NodeConnector.class).getId();
-
-        Action outputToControllerAction = new ActionBuilder() //
-                .setOrder(0)
-                .setAction(new OutputActionCaseBuilder() //
-                        .setOutputAction(new OutputActionBuilder() //
-                                .setMaxLength(0xffff) //
-                                .setOutputNodeConnector(destPortUri) //
-                                .build()) //
-                        .build()) //
-                .build();
-
-        // Create an Apply Action
-        ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(outputToControllerAction))
-                .build();
-
-        // Wrap our Apply Action in an Instruction
-        Instruction applyActionsInstruction = new InstructionBuilder() //
-                .setOrder(0)
-                .setInstruction(new ApplyActionsCaseBuilder()//
-                        .setApplyActions(applyActions) //
-                        .build()) //
-                .build();
-
-        // Put our Instruction in a list of Instructions
-        macToMacFlow.setMatch(match) //
-                .setInstructions(new InstructionsBuilder() //
-                        .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                        .build()) //
-                .setPriority(priority) //
-                .setBufferId(OFConstants.OFP_NO_BUFFER) //
-                .setHardTimeout(flowHardTimeout) //
-                .setIdleTimeout(flowIdleTimeout) //
-                .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
-                .setFlags(new FlowModFlags(false, false, false, false, false));
-
-        return macToMacFlow.build();
+        return macToMacFlow
+            .setMatch(match)
+            .setInstructions(new InstructionsBuilder()
+                // Wrap our Apply Action in an Instruction
+                .setInstruction(ImmutableList.of(new InstructionBuilder()
+                    .setOrder(0)
+                    .setInstruction(new ApplyActionsCaseBuilder()
+                        // Create an Apply Action
+                        .setApplyActions(new ApplyActionsBuilder()
+                            .setAction(ImmutableList.of(new ActionBuilder()
+                                .setOrder(0)
+                                .setAction(new OutputActionCaseBuilder()
+                                    .setOutputAction(new OutputActionBuilder()
+                                        .setMaxLength(Uint16.MAX_VALUE)
+                                        .setOutputNodeConnector(
+                                            destPort.getValue().firstKeyOf(NodeConnector.class).getId())
+                                        .build())
+                                    .build())
+                                .build()))
+                            .build())
+                        .build())
+                    .build()))
+                .build())
+            .setPriority(priority)
+            .setBufferId(OFConstants.OFP_NO_BUFFER)
+            .setHardTimeout(flowHardTimeout)
+            .setIdleTimeout(flowIdleTimeout)
+            .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+            .setFlags(new FlowModFlags(false, false, false, false, false))
+            .build();
     }
 
     /**
@@ -235,6 +233,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         final InstanceIdentifier<Table> tableInstanceId = flowPath.<Table>firstIdentifierOf(Table.class);
         final InstanceIdentifier<Node> nodeInstanceId = flowPath.<Node>firstIdentifierOf(Node.class);
         final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
+
         builder.setNode(new NodeRef(nodeInstanceId));
         builder.setFlowRef(new FlowRef(flowPath));
         builder.setFlowTable(new FlowTableRef(tableInstanceId));
