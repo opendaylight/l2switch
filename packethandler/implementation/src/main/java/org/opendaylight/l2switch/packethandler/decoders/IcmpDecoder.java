@@ -8,10 +8,11 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.List;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
@@ -31,8 +32,9 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
     private static final Logger LOG = LoggerFactory.getLogger(IcmpDecoder.class);
 
-    public IcmpDecoder(NotificationProviderService notificationProviderService) {
-        super(IcmpPacketReceived.class, notificationProviderService);
+    public IcmpDecoder(NotificationPublishService notificationProviderService,
+                       NotificationService notificationService) {
+        super(IcmpPacketReceived.class, notificationProviderService, notificationService);
     }
 
     /**
@@ -46,7 +48,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         // EthernetPacket
         List<PacketChain> packetChainList = ipv4PacketReceived.getPacketChain();
         Ipv4Packet ipv4Packet = (Ipv4Packet) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ipv4Packet.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ipv4Packet.getIpv4PayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ipv4PacketReceived.getPayload();
 
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
@@ -68,8 +70,8 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
                     * NetUtils.NUM_BITS_IN_A_BYTE;
             int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            builder.setPayloadOffset(start);
-            builder.setPayloadLength(end - start);
+            builder.setIcmpPayloadOffset(start);
+            builder.setIcmpPayloadLength(end - start);
         } catch (BufferException e) {
             LOG.debug("Exception while decoding ICMP packet", e);
         }
