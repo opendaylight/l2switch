@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.flow;
 
 import com.google.common.base.Preconditions;
@@ -51,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of
  * FlowWriterService{@link org.opendaylight.l2switch.flow.FlowWriterService},
  * that builds required flow and writes to configuration data store using
- * provided {@link org.opendaylight.controller.md.sal.binding.api.DataBroker}.
+ * provided {@link org.opendaylight.mdsal.binding.api.DataBroker}.
  */
 public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
@@ -95,7 +97,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     }
 
     @Override
-    public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
+    public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac,
+                                NodeConnectorRef destNodeConnectorRef) {
 
         Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
         Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
@@ -110,29 +113,32 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         TableKey flowTableKey = new TableKey(flowTableId);
 
         // build a flow path based on node connector to program flow
-        InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
+        InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef,
+                                                           flowTableKey);
 
         // build a flow that target given mac id
-        Flow flowBody = createMacToMacFlow(flowTableKey.getId(), flowPriority, sourceMac, destMac,
-                destNodeConnectorRef);
+        Flow flowBody = createMacToMacFlow(Uint16.valueOf(flowTableKey.getId()).shortValue(),
+                                                           flowPriority, sourceMac, destMac,
+                                                           destNodeConnectorRef);
 
         // commit the flow in config data
         writeFlowToConfigData(flowPath, flowBody);
     }
 
+
     @Override
-    public void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef,
-            MacAddress destMac, NodeConnectorRef destNodeConnectorRef) {
+    public void addBidirectionalMacToMacFlows(MacAddress sourceMac,
+                                              NodeConnectorRef sourceNodeConnectorRef,
+                                              MacAddress destMac,
+                                              NodeConnectorRef destNodeConnectorRef) {
         Preconditions.checkNotNull(sourceMac, "Source mac address should not be null.");
         Preconditions.checkNotNull(sourceNodeConnectorRef, "Source port should not be null.");
         Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
         Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
 
         if (sourceNodeConnectorRef.equals(destNodeConnectorRef)) {
-            LOG.info(
-                    "In addMacToMacFlowsUsingShortestPath: No flows added. Source and Destination ports are same.");
+            LOG.info("In addMacToMacFlowsUsingShortestPath: No flows added. Source and Destination ports are same.");
             return;
-
         }
 
         // add destMac-To-sourceMac flow on source port
@@ -142,6 +148,14 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         addMacToMacFlow(sourceMac, destMac, destNodeConnectorRef);
     }
 
+
+    /**
+     * Build a flow path.
+     *
+     * @param nodeConnectorRef a reference to the Node Connector
+     * @param flowTableKey a reference to the flow table
+     * @return
+     */
     private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
         // generate unique flow key
@@ -162,7 +176,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @return the Flow
      */
     private Flow createMacToMacFlow(Short tableId, int priority, MacAddress sourceMac, MacAddress destMac,
-            NodeConnectorRef destPort) {
+                                     NodeConnectorRef destPort) {
 
         // start building flow
         FlowBuilder macToMacFlow = new FlowBuilder() //
@@ -223,6 +237,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         return macToMacFlow.build();
     }
 
+
     /**
      * Starts and commits data change transaction which modifies provided flow
      * path with supplied body.
@@ -235,6 +250,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         final InstanceIdentifier<Table> tableInstanceId = flowPath.<Table>firstIdentifierOf(Table.class);
         final InstanceIdentifier<Node> nodeInstanceId = flowPath.<Node>firstIdentifierOf(Node.class);
         final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
+
         builder.setNode(new NodeRef(nodeInstanceId));
         builder.setFlowRef(new FlowRef(flowPath));
         builder.setFlowTable(new FlowTableRef(tableInstanceId));
