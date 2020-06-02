@@ -3,18 +3,9 @@ module ethernet-packet {
   namespace "urn:opendaylight:packet:ethernet";
   prefix ethernet;
 
-  import ietf-yang-types {
-    prefix yang;
-    revision-date 2013-07-15;
-  }
-  import packet-processing {
-    prefix pprocessing;
-    revision-date 2013-07-09;
-  }
-  import base-packet {
-    prefix bpacket;
-    revision-date 2014-05-28;
-  }
+  import ietf-yang-types { prefix yang; revision-date 2013-07-15; }
+  import packet-processing { prefix pprocessing; revision-date 2013-07-09; }
+  import base-packet { prefix bpacket; revision-date 2014-05-28; }
 
   revision 2014-05-28 {
     description
@@ -279,7 +270,12 @@ module ethernet-packet {
       type uint32;
     }
 
-    uses bpacket:packet-fields;
+    leaf eth-payload-offset {
+      type int32;
+    }
+    leaf eth-payload-length {
+      type int32;
+    }
   }
 
   notification ethernet-packet-received {

@@ -3,15 +3,8 @@ module ipv6-packet {
   namespace "urn:opendaylight:packet:ipv6";
   prefix ipv6;
 
-  import ietf-inet-types {
-    prefix inet;
-    revision-date 2013-07-15;
-  }
-
-  import base-packet {
-    prefix bpacket;
-    revision-date 2014-05-28;
-  }
+  import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+  import base-packet { prefix bpacket; revision-date 2014-05-28; }
 
   import ipv4-packet {
     prefix ipv4;
@@ -83,7 +76,12 @@ module ipv6-packet {
       }
     }
 
-    uses bpacket:packet-fields;
+    leaf ipv6-payload-offset {
+      type int32;
+    }
+    leaf ipv6-payload-length {
+      type int32;
+    }
   }
 
   notification ipv6-packet-received {
