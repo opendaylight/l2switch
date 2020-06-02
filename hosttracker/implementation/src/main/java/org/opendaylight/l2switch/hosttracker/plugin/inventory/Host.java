@@ -7,18 +7,24 @@
  */
 package org.opendaylight.l2switch.hosttracker.plugin.inventory;
 
+import static java.util.Objects.requireNonNull;
+
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Compare;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.host.AttachmentPointsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
@@ -45,16 +51,14 @@ public class Host {
 
     public static Host createHost(Node node) {
         HostNode hostNode = node.augmentation(HostNode.class);
-        return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
+        return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.nonnullAttachmentPoints());
     }
 
-    public Host(HostId hostId, List<Addresses> addrs, List<AttachmentPoints> aps) throws InvalidParameterException {
+    public Host(HostId hostId, Map<AddressesKey, Addresses> addrs, Map<AttachmentPointsKey, AttachmentPoints> aps) {
+        requireNonNull(hostId);
         hostNodeBuilder.setAddresses(addrs);
-        if (hostId == null) {
-            throw new InvalidParameterException("A host must have a HostId");
-        }
         hostNodeBuilder.setId(hostId);
-        for (AttachmentPoints ap : aps) {
+        for (AttachmentPoints ap : aps.values()) {
             attachmentPointsBuilders.add(new AttachmentPointsBuilder(ap));
         }
         nodeBuilder = createNodeBuilder(hostNodeBuilder, attachmentPointsBuilders);
@@ -86,7 +90,7 @@ public class Host {
             attachmentPoints.add(apb.build());
         }
         hostNodeBuilder.setAttachmentPoints(attachmentPoints);
-        return nodeBuilder.addAugmentation(HostNode.class, hostNodeBuilder.build()).build();
+        return nodeBuilder.addAugmentation(hostNodeBuilder.build()).build();
     }
 
     /**
@@ -96,15 +100,14 @@ public class Host {
      * @return A NodeBuilder with the same Id of HostNodeBuilder and a list of TerminationPoint corresponding to
      *     each HostNodeBuilder's AttachmentPoints.
      */
-    private NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
+    private static NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
         List<TerminationPoint> tps = new ArrayList<>();
         for (AttachmentPointsBuilder apb : apbs) {
             TerminationPoint tp = createTerminationPoint(hostNode);
             tps.add(tp);
             apb.setCorrespondingTp(tp.getTpId());
         }
-        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode))
-                .setTerminationPoint(tps);
+        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode)).setTerminationPoint(tps);
         node.withKey(new NodeKey(node.getNodeId()));
 
         return node;
@@ -127,11 +130,10 @@ public class Host {
      * @param hn HostNodeBuilder containing an Id
      * @return A new TerminationPoint with an unique TpId
      */
-    private TerminationPoint createTerminationPoint(HostNodeBuilder hn) {
-        TerminationPoint tp = new TerminationPointBuilder()
-                .setTpId(new TpId(NODE_PREFIX + hn.getId().getValue()))
-                .build();
-        return tp;
+    private static TerminationPoint createTerminationPoint(HostNodeBuilder hn) {
+        return new TerminationPointBuilder()
+            .setTpId(new TpId(NODE_PREFIX + hn.getId().getValue()))
+            .build();
     }
 
     /**
@@ -168,7 +170,7 @@ public class Host {
             org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node dstNode) {
         for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
             if (apb.isActive()) {
-                for (NodeConnector nc : dstNode.getNodeConnector()) {
+                for (NodeConnector nc : dstNode.nonnullNodeConnector().values()) {
                     if (nc.getId().getValue().equals(apb.getTpId().getValue())) {
                         return Utilities.createLinks(nodeBuilder.getNodeId(),
                                 apb.getCorrespondingTp(),
@@ -182,17 +184,24 @@ public class Host {
     }
 
     /**
-     * Updates this Host with the given Host. Merge the newHostNodeBuilder
-     * information into the hostToUpdate. Merges the list of addresses and the
-     * list of attachment points into the current host.
-     *
+     * Updates this Host with the given Host. Merge the newHostNodeBuilder information into the hostToUpdate. Merges
+     * the list of addresses and the list of attachment points into the current host.
      *
      * @param newHost The new Host to merge information with.
      */
     public synchronized void mergeHostWith(Host newHost) {
-        ListIterator<Addresses> oldLIAddrs;
-        for (Addresses newAddrs : newHost.hostNodeBuilder.getAddresses()) {
-            oldLIAddrs = this.hostNodeBuilder.getAddresses().listIterator();
+        // TODO: this algorithm is rather naive and based on former assumption of List. Now we have a Map, can we
+        //       perhaps do better?
+        Map<AddressesKey, Addresses> newAddresses = newHost.hostNodeBuilder.getAddresses();
+        if (newAddresses == null) {
+            newAddresses = Map.of();
+        }
+
+        for (Addresses newAddrs : newAddresses.values()) {
+            Map<AddressesKey, Addresses> oldAddresses = hostNodeBuilder.getAddresses();
+            oldAddresses = oldAddresses == null ? Map.of() : new HashMap<>(oldAddresses);
+
+            final var oldLIAddrs = oldAddresses.values().iterator();
             while (oldLIAddrs.hasNext()) {
                 Addresses oldAddrs = oldLIAddrs.next();
                 if (Compare.addresses(oldAddrs, newAddrs)) {
@@ -200,12 +209,16 @@ public class Host {
                     break;
                 }
             }
-            this.hostNodeBuilder.getAddresses().add(newAddrs);
+
+            Map<AddressesKey, Addresses> newAddrsMap = new HashMap<>();
+            for (AddressesKey key : oldAddresses.keySet()) {
+                newAddrsMap.put(key, newAddrs);
+            }
+            this.hostNodeBuilder.setAddresses(newAddrsMap);
         }
 
-        ListIterator<AttachmentPointsBuilder> oldLIAPs;
         for (AttachmentPointsBuilder newAPs : newHost.attachmentPointsBuilders) {
-            oldLIAPs = this.attachmentPointsBuilders.listIterator();
+            Iterator<AttachmentPointsBuilder> oldLIAPs = this.attachmentPointsBuilders.iterator();
             while (oldLIAPs.hasNext()) {
                 AttachmentPointsBuilder oldAPs = oldLIAPs.next();
                 if (Compare.attachmentPointsBuilder(oldAPs, newAPs)) {
