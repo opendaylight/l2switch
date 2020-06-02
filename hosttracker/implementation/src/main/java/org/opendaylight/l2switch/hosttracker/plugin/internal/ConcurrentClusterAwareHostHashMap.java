@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import java.util.Collection;
@@ -13,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -131,7 +132,7 @@ public class ConcurrentClusterAwareHostHashMap {
         final Node hostNode = host.getHostNode();
         final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                hostNode, true));
+                hostNode));
         putLocally(buildNodeIID, host);
         this.instanceIDs.put(buildNodeIID, host.getId());
         LOG.trace("Enqueued for MD-SAL transaction {}", hostNode.getNodeId());
@@ -149,7 +150,7 @@ public class ConcurrentClusterAwareHostHashMap {
             final Node hostNode = h.getHostNode();
             final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                    hostNode, true));
+                                   hostNode));
             putLocally(buildNodeIID, h);
             this.instanceIDs.put(buildNodeIID, h.getId());
             LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
@@ -169,7 +170,7 @@ public class ConcurrentClusterAwareHostHashMap {
         final Node hostNode = host.getHostNode();
         final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, buildNodeIID,
-                hostNode, true));
+                hostNode));
         LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
         return putLocally(buildNodeIID, host);
     }
