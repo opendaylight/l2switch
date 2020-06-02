@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import java.util.Arrays;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +19,12 @@ import org.slf4j.LoggerFactory;
  * convert primitive data types to stream of bits.
  */
 public final class BitBufferHelper {
-    private BitBufferHelper() {
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(BitBufferHelper.class);
 
     public static final long BYTE_MASK = 0xFF;
+
+    private BitBufferHelper() {
+    }
 
     // Getters
     // data: array where data are stored
@@ -333,7 +332,7 @@ public final class BitBufferHelper {
      * @param numBits the number of bits
      * @return numerical value of byte array passed
      */
-    public static long toNumber(@Nonnull byte[] array, int numBits) {
+    public static long toNumber(byte @NonNull [] array, int numBits) {
         int length = numBits / NetUtils.NUM_BITS_IN_A_BYTE;
         int bitsRest = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
         int startOffset = array.length - length;
