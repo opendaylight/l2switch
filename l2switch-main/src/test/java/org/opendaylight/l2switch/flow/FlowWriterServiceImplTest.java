@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlowWriterServiceImplTest {
-
     @Mock
     private SalFlowService salFlowService;
     private FlowWriterServiceImpl flowWriterService;
@@ -45,7 +44,6 @@ public class FlowWriterServiceImplTest {
 
     @Test
     public void addMacToMacFlowTest() {
-
         nodeConnectorInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
@@ -57,5 +55,4 @@ public class FlowWriterServiceImplTest {
         flowWriterService.addMacToMacFlow(sourceMac, destMac, nodeConnectorRef);
         verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
     }
-
 }

@@ -7,24 +7,25 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FluentFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
@@ -64,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpd
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
@@ -71,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,11 +169,12 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Registers as a data listener for Nodes.
      */
     public ListenerRegistration<ProactiveFloodFlowWriter> registerAsDataChangeListener() {
-        InstanceIdentifier<StpStatusAwareNodeConnector> path = InstanceIdentifier.<Nodes>builder(Nodes.class)
-                .<Node>child(Node.class).<NodeConnector>child(NodeConnector.class)
-                .<StpStatusAwareNodeConnector>augmentation(StpStatusAwareNodeConnector.class).build();
-        return dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(
-                LogicalDatastoreType.OPERATIONAL, path), this);
+        return dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class)
+                .child(NodeConnector.class)
+                .augmentation(StpStatusAwareNodeConnector.class)
+                .build()), this);
     }
 
     /**
@@ -212,18 +216,15 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
          * Installs a FloodFlow on each node.
          */
         private void installFloodFlows() {
-            Nodes nodes = null;
+            final FluentFuture<Optional<Nodes>> readFuture;
+            try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
+                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.create(Nodes.class));
+            }
+
+            final Nodes nodes;
             try {
-                InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier
-                        .<Nodes>builder(Nodes.class);
-                ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
-                Optional<Nodes> dataObjectOptional = null;
-                dataObjectOptional = readOnlyTransaction
-                        .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
-                if (dataObjectOptional.isPresent()) {
-                    nodes = dataObjectOptional.get();
-                }
-                readOnlyTransaction.close();
+                nodes = readFuture.get().orElse(null);
             } catch (InterruptedException e) {
                 LOG.error("Failed to read nodes from Operation data store.");
                 throw new RuntimeException("Failed to read nodes from Operation data store.", e);
@@ -240,11 +241,11 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                     stpStatusDataChangeEventProcessor.schedule(this, flowInstallationDelay, TimeUnit.MILLISECONDS);
                 }
             } else {
-                for (Node node : nodes.getNode()) {
+                for (Node node : nodes.nonnullNode().values()) {
                     // Install a FloodFlow on each node
-                    List<NodeConnector> nodeConnectors = node.getNodeConnector();
+                    final Map<NodeConnectorKey, NodeConnector> nodeConnectors = node.getNodeConnector();
                     if (nodeConnectors != null) {
-                        for (NodeConnector outerNodeConnector : nodeConnectors) {
+                        for (NodeConnector outerNodeConnector : nodeConnectors.values()) {
                             StpStatusAwareNodeConnector outerSaNodeConnector = outerNodeConnector
                                     .augmentation(StpStatusAwareNodeConnector.class);
                             if (outerSaNodeConnector != null
@@ -252,8 +253,9 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                 continue;
                             }
                             if (!outerNodeConnector.getId().toString().contains("LOCAL")) {
+                                int order = 0;
                                 ArrayList<Action> outputActions = new ArrayList<>();
-                                for (NodeConnector nodeConnector : nodeConnectors) {
+                                for (NodeConnector nodeConnector : nodeConnectors.values()) {
                                     if (!nodeConnector.getId().toString().contains("LOCAL")
                                             && !outerNodeConnector.equals(nodeConnector)) {
                                         // NodeConnectors without STP status
@@ -264,18 +266,16 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                                 .augmentation(StpStatusAwareNodeConnector.class);
                                         if (saNodeConnector == null
                                                 || StpStatus.Forwarding.equals(saNodeConnector.getStatus())) {
-                                            outputActions.add(new ActionBuilder() //
-                                                    .setOrder(
-                                                            0)
-                                                    .setAction(
-                                                            new OutputActionCaseBuilder() //
-                                                                    .setOutputAction(new OutputActionBuilder() //
-                                                                            .setMaxLength(0xffff) //
-                                                                            .setOutputNodeConnector(
-                                                                                    nodeConnector.getId()) //
-                                                                            .build()) //
-                                                                    .build()) //
-                                                    .build());
+                                            outputActions.add(new ActionBuilder()
+                                                .setOrder(order++)
+                                                .setAction(
+                                                    new OutputActionCaseBuilder()
+                                                    .setOutputAction(new OutputActionBuilder()
+                                                        .setMaxLength(Uint16.MAX_VALUE)
+                                                        .setOutputNodeConnector(nodeConnector.getId())
+                                                        .build())
+                                                    .build())
+                                                .build());
                                         }
                                     }
                                 }
@@ -283,16 +283,15 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                 // Add controller port to outputActions for
                                 // external ports only
                                 if (outerSaNodeConnector == null) {
-                                    outputActions.add(new ActionBuilder().setOrder(0).withKey(new ActionKey(0))
-                                            .setAction(
-                                                    new OutputActionCaseBuilder()
-                                                            .setOutputAction(new OutputActionBuilder()
-                                                                    .setMaxLength(0xffff)
-                                                                    .setOutputNodeConnector(new Uri(
-                                                                            OutputPortValues.CONTROLLER.toString()))
-                                                                    .build())
-                                                            .build())
-                                            .build());
+                                    outputActions.add(new ActionBuilder().withKey(new ActionKey(order++))
+                                        .setAction(
+                                            new OutputActionCaseBuilder()
+                                            .setOutputAction(new OutputActionBuilder()
+                                                .setMaxLength(Uint16.MAX_VALUE)
+                                                .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
+                                                .build())
+                                            .build())
+                                        .build());
                                 }
 
                                 // Create an Apply Action
