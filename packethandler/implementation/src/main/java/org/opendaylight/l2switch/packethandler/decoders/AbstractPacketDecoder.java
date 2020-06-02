@@ -9,20 +9,23 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 
 /**
- * A base class for all decoders. Each extended decoder should also implement a
- * notification listener that it can consume.
+ * A base class for all decoders. Each extended decoder should also implement a notification listener that it can
+ * consume.
  */
+// FIXME: Implement NotificationInterestLister equivalent when it is available again
 public abstract class AbstractPacketDecoder<C, P extends Notification>
-        implements NotificationProviderService.NotificationInterestListener, AutoCloseable {
+    implements AutoCloseable {
 
-    private final Class<P> producedPacketNotificationType;
-    private final NotificationProviderService notificationProviderService;
+    //private final Class<P> producedPacketNotificationType;
+    private final NotificationPublishService notificationProviderService;
+    private final NotificationService notificationService;
 
     private static final int CPUS = Runtime.getRuntime().availableProcessors();
     private final ExecutorService decodeAndPublishExecutor = Executors.newFixedThreadPool(CPUS);
@@ -33,25 +36,26 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
      * Constructor.
      */
     public AbstractPacketDecoder(Class<P> producedPacketNotificationType,
-            NotificationProviderService notificationProviderService) {
-        this.producedPacketNotificationType = producedPacketNotificationType;
+                                 NotificationPublishService notificationProviderService,
+                                 NotificationService notificationService) {
+        // this.producedPacketNotificationType = producedPacketNotificationType;
         this.notificationProviderService = notificationProviderService;
-        notificationProviderService.registerInterestListener(this);
+        this.notificationService = notificationService;
+        listenerRegistration = this.notificationService.registerNotificationListener(getConsumedNotificationListener());
     }
 
-    /**
-     * Keeps track of listeners registered for the notification that a decoder
-     * produces.
-     */
-    @Override
-    public synchronized void onNotificationSubscribtion(Class<? extends Notification> clazz) {
-        if (clazz != null && clazz.equals(producedPacketNotificationType)) {
-            if (listenerRegistration == null) {
-                NotificationListener notificationListener = getConsumedNotificationListener();
-                listenerRegistration = notificationProviderService.registerNotificationListener(notificationListener);
-            }
-        }
-    }
+//    /**
+//     * Keeps track of listeners registered for the notification that a decoder
+//     * produces.
+//     */
+//    public synchronized void onNotificationSubscribtion(Class<? extends Notification> clazz) {
+//        if (clazz != null && clazz.equals(producedPacketNotificationType)) {
+//            if (listenerRegistration == null) {
+//                NotificationListener notificationListener = getConsumedNotificationListener();
+//                listenerRegistration = notificationProviderService.registerNotificationListener(notificationListener);
+//            }
+//        }
+//    }
 
     /**
      * Every extended decoder should call this method on a receipt of a input
@@ -65,7 +69,12 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
                 packetNotification = decode(consumedPacketNotification);
             }
             if (packetNotification != null) {
-                notificationProviderService.publish(packetNotification);
+                try {
+                    notificationProviderService.putNotification(packetNotification);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while publishing notification", e);
+                }
             }
         });
     }
@@ -81,7 +90,7 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
     public abstract boolean canDecode(C consumedPacketNotification);
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (listenerRegistration != null) {
             listenerRegistration.close();
         }
