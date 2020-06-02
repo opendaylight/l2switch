@@ -25,14 +25,14 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
  */
 public final class InstanceIdentifierUtils {
-
     private InstanceIdentifierUtils() {
-        throw new UnsupportedOperationException("Utility class should never be instantiated");
+        // Hidden on purpose
     }
 
     /**
@@ -42,9 +42,7 @@ public final class InstanceIdentifierUtils {
      * @return the node InstanceIdentifier
      */
     public static InstanceIdentifier<Node> createNodePath(final NodeId nodeId) {
-        return InstanceIdentifier.builder(Nodes.class) //
-                .child(Node.class, new NodeKey(nodeId)) //
-                .build();
+        return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build();
     }
 
     /**
@@ -89,7 +87,7 @@ public final class InstanceIdentifierUtils {
      * @param tablePath the table path
      * @return the table id
      */
-    public static Short getTableId(final InstanceIdentifier<Table> tablePath) {
+    public static Uint8 getTableId(final InstanceIdentifier<Table> tablePath) {
         return tablePath.firstKeyOf(Table.class).getId();
     }
 

@@ -14,7 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
  * Service that adds packet forwarding flows to configuration data store.
  */
 public interface FlowWriterService {
-
     /**
      * Writes a flow that forwards packets to destPort if destination mac in
      * packet is destMac and source Mac in packet is sourceMac. If sourceMac is
@@ -40,6 +39,5 @@ public interface FlowWriterService {
      * @param destNodeConnectorRef the destination port NodeConnectorRef
      */
     void addBidirectionalMacToMacFlows(MacAddress sourceMac, NodeConnectorRef sourceNodeConnectorRef,
-            MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
-
+        MacAddress destMac, NodeConnectorRef destNodeConnectorRef);
 }
