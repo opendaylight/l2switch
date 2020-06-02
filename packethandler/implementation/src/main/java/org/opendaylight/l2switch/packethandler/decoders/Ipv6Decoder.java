@@ -12,10 +12,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
@@ -43,8 +44,9 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6Decoder.class);
 
-    public Ipv6Decoder(NotificationProviderService notificationProviderService) {
-        super(Ipv6PacketReceived.class, notificationProviderService);
+    public Ipv6Decoder(NotificationPublishService notificationProviderService,
+                       NotificationService notificationService) {
+        super(Ipv6PacketReceived.class, notificationProviderService, notificationService);
     }
 
     /**
@@ -58,7 +60,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getEthPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
@@ -79,8 +81,8 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
-            builder.setPayloadOffset((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE);
-            builder.setPayloadLength(builder.getIpv6Length());
+            builder.setIpv6PayloadOffset((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE);
+            builder.setIpv6PayloadLength(builder.getIpv6Length().intValue());
 
             // Decode the optional "extension headers"
             List<ExtensionHeaders> extensionHeaders = new ArrayList<>();

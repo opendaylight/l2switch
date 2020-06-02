@@ -7,47 +7,46 @@
  */
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OperationProcessor implements AutoCloseable, Runnable, TransactionChainListener {
+    private static final Logger LOG = LoggerFactory.getLogger(OperationProcessor.class);
     private static final int NUM_RETRY_SUBMIT = 2;
     private static final int OPS_PER_CHAIN = 256;
     private static final int QUEUE_DEPTH = 512;
 
-    private static final Logger LOG = LoggerFactory.getLogger(OperationProcessor.class);
+    private final BlockingQueue<HostTrackerOperation> queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
     private final DataBroker dataBroker;
-    private final BlockingQueue<HostTrackerOperation> queue;
-    private final AtomicReference<BindingTransactionChain> transactionChain = new AtomicReference<>();
+    private final AtomicReference<TransactionChain> transactionChain;
 
     OperationProcessor(final DataBroker dataBroker) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
-        this.queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
-        this.transactionChain.set(dataBroker.createTransactionChain(this));
+        this.dataBroker = requireNonNull(dataBroker);
+        this.transactionChain = new AtomicReference<>(dataBroker.createTransactionChain(this));
     }
 
     @Override
-    public void onTransactionChainFailed(TransactionChain<?, ?> chain, AsyncTransaction<?, ?> transaction,
-            Throwable cause) {
+    public void onTransactionChainFailed(TransactionChain chain, Transaction transaction, Throwable cause) {
         chainFailure();
     }
 
     @Override
-    public void onTransactionChainSuccessful(TransactionChain<?, ?> chain) {
+    public void onTransactionChainSuccessful(TransactionChain chain) {
+        // no-op
     }
 
     @Override
@@ -56,13 +55,12 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
         while (!done) {
             try {
                 HostTrackerOperation op = queue.take();
-                final BindingTransactionChain txChain = transactionChain.get();
+                final TransactionChain txChain = transactionChain.get();
                 if (txChain == null) {
                     break;
                 }
 
                 ReadWriteTransaction tx = txChain.newReadWriteTransaction();
-
                 int ops = 0;
                 while (op != null && ops < OPS_PER_CHAIN) {
                     op.applyOperation(tx);
@@ -80,7 +78,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
 
     @Override
     public void close() {
-        final BindingTransactionChain txChain = transactionChain.getAndSet(null);
+        final TransactionChain txChain = transactionChain.getAndSet(null);
         if (txChain != null) {
             txChain.close();
         }
@@ -88,7 +86,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
 
     private void chainFailure() {
         try {
-            final BindingTransactionChain prevChain = transactionChain.getAndSet(
+            final TransactionChain prevChain = transactionChain.getAndSet(
                     dataBroker.createTransactionChain(this));
             if (prevChain != null) {
                 prevChain.close();
@@ -108,7 +106,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
     }
 
     public void submitTransaction(final ReadWriteTransaction tx, final int tries) {
-        Futures.addCallback(tx.submit(), new FutureCallback<Object>() {
+        Futures.addCallback(tx.commit(), new FutureCallback<Object>() {
             @Override
             public void onSuccess(Object obj) {
                 LOG.trace("tx {} succeeded", tx.getIdentifier());
