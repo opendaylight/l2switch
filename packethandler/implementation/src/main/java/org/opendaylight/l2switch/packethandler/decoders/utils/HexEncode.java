@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import java.math.BigInteger;
@@ -32,7 +31,7 @@ public final class HexEncode {
         }
 
         String ret = "";
-        StringBuffer buf = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             if (i > 0) {
                 ret += ":";
@@ -40,32 +39,32 @@ public final class HexEncode {
             short u8byte = (short) (bytes[i] & 0xff);
             String tmp = Integer.toHexString(u8byte);
             if (tmp.length() == 1) {
-                buf.append("0");
+                sb.append("0");
             }
-            buf.append(tmp);
+            sb.append(tmp);
         }
-        ret = buf.toString();
+        ret = sb.toString();
         return ret;
     }
 
     public static String longToHexString(long val) {
         char[] arr = Long.toHexString(val).toCharArray();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         // prepend the right number of leading zeros
         int index = 0;
         for (; index < 16 - arr.length; index++) {
-            buf.append("0");
+            sb.append("0");
             if ((index & 0x01) == 1) {
-                buf.append(":");
+                sb.append(":");
             }
         }
         for (int j = 0; j < arr.length; j++) {
-            buf.append(arr[j]);
+            sb.append(arr[j]);
             if ((index + j & 0x01) == 1 && j < arr.length - 1) {
-                buf.append(":");
+                sb.append(":");
             }
         }
-        return buf.toString();
+        return sb.toString();
     }
 
     public static byte[] bytesFromHexString(String values) {
@@ -83,8 +82,7 @@ public final class HexEncode {
     }
 
     public static long stringToLong(String values) {
-        long value = new BigInteger(values.replaceAll(":", ""), 16).longValue();
-        return value;
+        return new BigInteger(values.replaceAll(":", ""), 16).longValue();
     }
 
     /**
@@ -95,19 +93,19 @@ public final class HexEncode {
             return "null";
         }
         String ret = "";
-        StringBuffer buf = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             if (i > 0) {
-                buf.append(":");
+                sb.append(":");
             }
             short u8byte = (short) (bytes[i] & 0xff);
             String tmp = Integer.toHexString(u8byte);
             if (tmp.length() == 1) {
-                buf.append("0");
+                sb.append("0");
             }
-            buf.append(tmp);
+            sb.append(tmp);
         }
-        ret = buf.toString();
+        ret = sb.toString();
         return ret;
     }
 }

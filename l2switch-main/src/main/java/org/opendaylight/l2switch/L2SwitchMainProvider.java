@@ -7,17 +7,18 @@
  */
 package org.opendaylight.l2switch;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.flow.FlowWriterServiceImpl;
 import org.opendaylight.l2switch.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.flow.ReactiveFlowWriter;
 import org.opendaylight.l2switch.inventory.InventoryReader;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.l2switch.config.rev140528.L2switchConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class L2SwitchMainProvider {
     private static final Logger LOG = LoggerFactory.getLogger(L2SwitchMainProvider.class);
@@ -25,15 +26,15 @@ public class L2SwitchMainProvider {
     private Registration reactFlowWriterReg;
 
     private final DataBroker dataService;
-    private final NotificationProviderService notificationService;
+    private final NotificationService notificationService;
     private final SalFlowService salFlowService;
     private final L2switchConfig mainConfig;
 
     public L2SwitchMainProvider(final DataBroker dataBroker,
-            final NotificationProviderService notificationService,
+            final NotificationService notificationPublishService,
             final SalFlowService salFlowService, final L2switchConfig config) {
         this.dataService = dataBroker;
-        this.notificationService = notificationService;
+        this.notificationService = notificationPublishService;
         this.salFlowService = salFlowService;
         this.mainConfig = config;
     }
@@ -41,10 +42,10 @@ public class L2SwitchMainProvider {
     public void init() {
         // Setup FlowWrtierService
         FlowWriterServiceImpl flowWriterService = new FlowWriterServiceImpl(salFlowService);
-        flowWriterService.setFlowTableId(mainConfig.getReactiveFlowTableId());
-        flowWriterService.setFlowPriority(mainConfig.getReactiveFlowPriority());
-        flowWriterService.setFlowIdleTimeout(mainConfig.getReactiveFlowIdleTimeout());
-        flowWriterService.setFlowHardTimeout(mainConfig.getReactiveFlowHardTimeout());
+        flowWriterService.setFlowTableId(mainConfig.getReactiveFlowTableId().toJava());
+        flowWriterService.setFlowPriority(mainConfig.getReactiveFlowPriority().toJava());
+        flowWriterService.setFlowIdleTimeout(mainConfig.getReactiveFlowIdleTimeout().toJava());
+        flowWriterService.setFlowHardTimeout(mainConfig.getReactiveFlowHardTimeout().toJava());
 
         // Setup InventoryReader
         InventoryReader inventoryReader = new InventoryReader(dataService);
@@ -53,10 +54,10 @@ public class L2SwitchMainProvider {
         if (mainConfig.isIsInstallDropallFlow()) {
             LOG.info("L2Switch will install a dropall flow on each switch");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(mainConfig.getDropallFlowTableId());
-            initialFlowWriter.setFlowPriority(mainConfig.getDropallFlowPriority());
-            initialFlowWriter.setFlowIdleTimeout(mainConfig.getDropallFlowIdleTimeout());
-            initialFlowWriter.setFlowHardTimeout(mainConfig.getDropallFlowHardTimeout());
+            initialFlowWriter.setFlowTableId(mainConfig.getDropallFlowTableId().toJava());
+            initialFlowWriter.setFlowPriority(mainConfig.getDropallFlowPriority().toJava());
+            initialFlowWriter.setFlowIdleTimeout(mainConfig.getDropallFlowIdleTimeout().toJava());
+            initialFlowWriter.setFlowHardTimeout(mainConfig.getDropallFlowHardTimeout().toJava());
             topoNodeListherReg = initialFlowWriter.registerAsDataChangeListener(dataService);
         }
         else {
@@ -72,7 +73,6 @@ public class L2SwitchMainProvider {
             ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
             reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
         }
-
         LOG.info("L2SwitchMain initialized.");
     }
 
