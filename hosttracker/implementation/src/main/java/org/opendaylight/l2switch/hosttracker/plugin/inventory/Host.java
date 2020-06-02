@@ -5,15 +5,19 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.hosttracker.plugin.inventory;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Compare;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostNodeBuilder;
@@ -45,7 +49,9 @@ public class Host {
 
     public static Host createHost(Node node) {
         HostNode hostNode = node.augmentation(HostNode.class);
-        return new Host(hostNode.getId(), hostNode.getAddresses(), hostNode.getAttachmentPoints());
+        List<Addresses> hostAddresses = new ArrayList<Addresses>(hostNode.getAddresses().values());
+        List<AttachmentPoints> hostAPs = new ArrayList<AttachmentPoints>(hostNode.getAttachmentPoints().values());
+        return new Host(hostNode.getId(), hostAddresses, hostAPs);
     }
 
     public Host(HostId hostId, List<Addresses> addrs, List<AttachmentPoints> aps) throws InvalidParameterException {
@@ -168,7 +174,7 @@ public class Host {
             org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node dstNode) {
         for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
             if (apb.isActive()) {
-                for (NodeConnector nc : dstNode.getNodeConnector()) {
+                for (NodeConnector nc : dstNode.getNodeConnector().values()) {
                     if (nc.getId().getValue().equals(apb.getTpId().getValue())) {
                         return Utilities.createLinks(nodeBuilder.getNodeId(),
                                 apb.getCorrespondingTp(),
@@ -191,8 +197,11 @@ public class Host {
      */
     public synchronized void mergeHostWith(Host newHost) {
         ListIterator<Addresses> oldLIAddrs;
-        for (Addresses newAddrs : newHost.hostNodeBuilder.getAddresses()) {
-            oldLIAddrs = this.hostNodeBuilder.getAddresses().listIterator();
+        List<Addresses> hostAddrs = new ArrayList<Addresses>(newHost.hostNodeBuilder.getAddresses().values());
+        for (Addresses newAddrs : hostAddrs) {
+            List<Addresses> oldAddrsList = new ArrayList<Addresses>(this.hostNodeBuilder.getAddresses().values());
+
+            oldLIAddrs = oldAddrsList.listIterator();
             while (oldLIAddrs.hasNext()) {
                 Addresses oldAddrs = oldLIAddrs.next();
                 if (Compare.addresses(oldAddrs, newAddrs)) {
@@ -200,7 +209,11 @@ public class Host {
                     break;
                 }
             }
-            this.hostNodeBuilder.getAddresses().add(newAddrs);
+            Map<AddressesKey, Addresses> newAddrsMap = new HashMap<AddressesKey, Addresses>();
+            for (AddressesKey key : this.hostNodeBuilder.getAddresses().keySet()) {
+                newAddrsMap.put(key, newAddrs);
+            }
+            this.hostNodeBuilder.setAddresses(newAddrsMap);
         }
 
         ListIterator<AttachmentPointsBuilder> oldLIAPs;
