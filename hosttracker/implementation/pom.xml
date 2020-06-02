@@ -12,67 +12,84 @@
     <artifactId>hosttracker-impl</artifactId>
     <packaging>bundle</packaging>
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528</Export-Package>
-                        <Import-Package>*</Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Export-Package>org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.host.tracker.impl.rev140528</Export-Package>
+              <Import-Package>*</Import-Package>
+            </instructions>
+          </configuration>
+        </plugin>
+      </plugins>
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+	  <version>6.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-api</artifactId>
+          <groupId>org.opendaylight.yangtools</groupId>
+          <artifactId>yang-common</artifactId>
+	  <version>5.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-common-util</artifactId>
+          <groupId>org.opendaylight.mdsal</groupId>
+          <artifactId>yang-binding</artifactId>
+	  <version>6.0.0</version>
+        </dependency>
+	<dependency>
+	  <groupId>org.opendaylight.mdsal</groupId>
+	  <artifactId>mdsal-binding-api</artifactId>
+	  <version>6.0.0</version>
+	</dependency>
+        <dependency>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+	  <version>3.0.2</version>
+          <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-common</artifactId>
+          <groupId>org.opendaylight.controller.model</groupId>
+          <artifactId>model-inventory</artifactId>
+	  <version>2.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>yang-binding</artifactId>
+          <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+          <artifactId>addresstracker-model</artifactId>
+          <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.controller.model</groupId>
-            <artifactId>model-inventory</artifactId>
-            <type>jar</type>
+          <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+          <artifactId>hosttracker-model</artifactId>
+          <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-            <artifactId>addresstracker-model</artifactId>
-            <type>jar</type>
+          <groupId>org.opendaylight.mdsal.model</groupId>
+          <artifactId>ietf-topology</artifactId>
+	 <!--   <version>2013.10.21.17.9</version> -->
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch.hosttracker</groupId>
-            <artifactId>hosttracker-model</artifactId>
-            <type>jar</type>
+          <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+          <artifactId>rfc6991-ietf-inet-types</artifactId>
+          <version>6.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-topology</artifactId>
+          <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+          <artifactId>rfc6991-ietf-yang-types</artifactId>
+          <version>6.0.0</version>
         </dependency>
     </dependencies>
 </project>

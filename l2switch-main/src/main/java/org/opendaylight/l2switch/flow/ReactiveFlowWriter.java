@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.flow;
 
 import org.opendaylight.l2switch.inventory.InventoryReader;
@@ -25,7 +26,8 @@ public class ReactiveFlowWriter implements ArpPacketListener {
     private final InventoryReader inventoryReader;
     private final FlowWriterService flowWriterService;
 
-    public ReactiveFlowWriter(InventoryReader inventoryReader, FlowWriterService flowWriterService) {
+    public ReactiveFlowWriter(InventoryReader inventoryReader,
+                              FlowWriterService flowWriterService) {
         this.inventoryReader = inventoryReader;
         this.flowWriterService = flowWriterService;
     }
@@ -60,17 +62,16 @@ public class ReactiveFlowWriter implements ArpPacketListener {
         if (packetReceived == null || packetReceived.getPacketChain() == null) {
             return;
         }
-
         RawPacket rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = (RawPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof ArpPacket) {
-                arpPacket = (ArpPacket) packetChain.getPacket();
+        for (PacketChain packet : packetReceived.getPacketChain()) {
+            if (packet.getPacket() instanceof RawPacket) {
+                rawPacket = (RawPacket) packet.getPacket();
+            } else if (packet.getPacket() instanceof EthernetPacket) {
+                ethernetPacket = (EthernetPacket) packet.getPacket();
+            } else if (packet.getPacket() instanceof ArpPacket) {
+                arpPacket = (ArpPacket) packet.getPacket();
             }
         }
         if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
@@ -81,6 +82,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
             writeFlows(rawPacket.getIngress(), ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
         }
     }
+
 
     /**
      * Invokes flow writer service to write bidirectional mac-mac flows on a

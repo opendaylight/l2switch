@@ -3,26 +3,11 @@ module address-tracker {
   namespace "urn:opendaylight:address-tracker";
   prefix address-tracker;
 
-  import yang-ext {
-    prefix ext;
-    revision-date "2013-07-09";
-  }
-  import ietf-inet-types {
-    prefix inet;
-    revision-date 2013-07-15;
-  }
-  import ietf-yang-types {
-    prefix yang;
-    revision-date 2013-07-15;
-  }
-  import opendaylight-inventory {
-    prefix inv;
-    revision-date 2013-08-19;
-  }
-  import ethernet-packet {
-    prefix ethernet;
-    revision-date 2014-05-28;
-  }
+  import yang-ext { prefix ext; revision-date "2013-07-09"; }
+  import ietf-inet-types { prefix inet;  revision-date 2013-07-15; }
+  import ietf-yang-types { prefix yang;  revision-date 2013-07-15; }
+  import opendaylight-inventory { prefix inv; revision-date 2013-08-19; }
+  import ethernet-packet { prefix ethernet;  revision-date 2014-05-28;  }
 
   description
     "Address Tracker Data Model";

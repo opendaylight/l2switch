@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.loopremover.util;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 /**
  * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
@@ -90,21 +92,21 @@ public final class InstanceIdentifierUtils {
      * @return the table id
      */
     public static Short getTableId(final InstanceIdentifier<Table> tablePath) {
-        return tablePath.firstKeyOf(Table.class, TableKey.class).getId();
+        return Uint16.valueOf(tablePath.firstKeyOf(Table.class).getId()).shortValue();
     }
 
     /**
      * Extracts NodeConnectorKey from node connector path.
      */
     public static NodeConnectorKey getNodeConnectorKey(final InstanceIdentifier<?> nodeConnectorPath) {
-        return nodeConnectorPath.firstKeyOf(NodeConnector.class, NodeConnectorKey.class);
+        return nodeConnectorPath.firstKeyOf(NodeConnector.class);
     }
 
     /**
      * Extracts NodeKey from node path.
      */
     public static NodeKey getNodeKey(final InstanceIdentifier<?> nodePath) {
-        return nodePath.firstKeyOf(Node.class, NodeKey.class);
+        return nodePath.firstKeyOf(Node.class);
     }
 
     public static InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,

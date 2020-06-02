@@ -36,7 +36,6 @@ public class ArpPacketHandler implements ArpPacketListener {
         if (packetReceived == null || packetReceived.getPacketChain() == null) {
             return;
         }
-
         RawPacket rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
@@ -52,7 +51,6 @@ public class ArpPacketHandler implements ArpPacketListener {
         if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
             return;
         }
-
         packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(),
                 ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }

@@ -12,8 +12,7 @@ module base-packet {
 
 
   revision 2014-05-28 {
-    description
-      "Base packet module draft.";
+    description "Base packet module draft.";
   }
 
   grouping packet-payload {

@@ -14,7 +14,7 @@
     <parent>
       <groupId>org.opendaylight.odlparent</groupId>
       <artifactId>odlparent-lite</artifactId>
-      <version>3.1.0</version>
+      <version>7.0.1</version>
       <relativePath/>
     </parent>
 
@@ -47,7 +47,6 @@
                 <artifactId>addresstracker-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}.arphandler</groupId>
                 <artifactId>arphandler-config</artifactId>
@@ -65,7 +64,6 @@
                 <artifactId>arphandler-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}.hosttracker</groupId>
                 <artifactId>hosttracker-config</artifactId>
@@ -88,7 +86,6 @@
                 <artifactId>hosttracker-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}.main</groupId>
                 <artifactId>main-config</artifactId>
@@ -106,7 +103,6 @@
                 <artifactId>main-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}.loopremover</groupId>
                 <artifactId>loopremover-config</artifactId>
@@ -129,7 +125,6 @@
                 <artifactId>loopremover-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}.packethandler</groupId>
                 <artifactId>packethandler-config</artifactId>
@@ -152,7 +147,6 @@
                 <artifactId>packethandler-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>features-l2switch</artifactId>
@@ -162,5 +156,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (c) 2016 Hewlett Packard Enterprise, Co. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
@@ -43,14 +45,15 @@ public class IcmpDecoderTest {
             0, 0, 0, 0 // CRC
         };
 
-        NotificationProviderService npServiceMock = Mockito.mock(NotificationProviderService.class);
+        NotificationPublishService npServiceMock = Mockito.mock(NotificationPublishService.class);
+        NotificationService mock2 = Mockito.mock(NotificationService.class);
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new Ipv4PacketBuilder()
-                .setPayloadOffset(34).build()).build());
+                .setIpv4PayloadOffset(34).build()).build());
 
-        IcmpPacketReceived notification = new IcmpDecoder(npServiceMock)
+        IcmpPacketReceived notification = new IcmpDecoder(npServiceMock, mock2)
                 .decode(new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload)
                         .build());
 

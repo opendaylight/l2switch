@@ -10,10 +10,11 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4PacketBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +41,9 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Decoder.class);
 
-    public Ipv4Decoder(NotificationProviderService notificationProviderService) {
-        super(Ipv4PacketReceived.class, notificationProviderService);
+    public Ipv4Decoder(NotificationPublishService notificationProviderService,
+                       NotificationService notificationService) {
+        super(Ipv4PacketReceived.class, notificationProviderService, notificationService);
     }
 
     /**
@@ -54,7 +57,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getEthPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
@@ -70,8 +73,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
             builder.setIpv4Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
             builder.setId(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
 
-            // Decode the flags -- Reserved, DF (Don't Fragment), MF (More
-            // Fragments)
+            // Decode the flags -- Reserved, DF (Don't Fragment), MF (More Fragments)
             builder.setReservedFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 48, 1)[0] & 0xff));
             if (builder.isReservedFlag()) {
                 LOG.debug("Reserved flag should be 0, but is 1.");
@@ -91,7 +93,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 128, 32)).getHostAddress()));
 
             // Decode the optional "options" parameter
-            int optionsSize = (builder.getIhl() - 5) * 32;
+            int optionsSize = (Uint32.valueOf(builder.getIhl()).intValue() - 5) * 32;
             if (optionsSize > 0) {
                 builder.setIpv4Options(BitBufferHelper.getBits(data, bitOffset + 160, optionsSize));
             }
@@ -102,10 +104,10 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     - 4 * NetUtils.NUM_BITS_IN_A_BYTE;
             int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            builder.setPayloadOffset(start);
-            builder.setPayloadLength(end - start);
+            builder.setIpv4PayloadOffset(start);
+            builder.setIpv4PayloadLength(end - start);
         } catch (BufferException | UnknownHostException e) {
-            LOG.debug("Exception while decoding IPv4 packet", e.getMessage());
+            LOG.debug("Exception while decoding IPv4 packet", e);
         }
 
         // build ipv4

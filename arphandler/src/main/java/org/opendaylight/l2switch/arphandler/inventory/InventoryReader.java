@@ -5,24 +5,25 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.arphandler.inventory;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
 public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InventoryReader.class);
+
     private final DataBroker dataService;
     // Key: SwitchId, Value: NodeConnectorRef that corresponds to NC between
     // controller & switch
@@ -56,7 +58,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
     private final List<Registration> listenerRegistrationList = new CopyOnWriteArrayList<>();
 
     private volatile boolean refreshData = false;
-    private final long refreshDataDelay = 20L;
+    private static final long REFRESH_DATA_DELAY = 20L;
     private volatile boolean refreshDataScheduled = false;
     private final ScheduledExecutorService nodeConnectorDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
 
@@ -83,16 +85,16 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                 .child(NodeConnector.class)
                 .build();
         this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, nodeConnector),
-                    (DataTreeChangeListener)this));
+                         DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,nodeConnector),
+                                                   (DataTreeChangeListener)this));
 
         InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto =
             InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
                 .build();
         this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-                new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
-                    (DataTreeChangeListener)this));
+                 DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
+                                           (DataTreeChangeListener)this));
     }
 
 
@@ -110,7 +112,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             synchronized (this) {
                 if (!refreshDataScheduled) {
                     nodeConnectorDataChangeEventProcessor.schedule(new NodeConnectorDataChangeEventProcessor(),
-                            refreshDataDelay, TimeUnit.MILLISECONDS);
+                            REFRESH_DATA_DELAY, TimeUnit.MILLISECONDS);
                     refreshDataScheduled = true;
                 }
             }
@@ -140,7 +142,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier
                     .<Nodes>builder(Nodes.class);
             Nodes nodes = null;
-            try (ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
+            try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
                 Optional<Nodes> dataObjectOptional = readOnlyTransaction
                         .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
                 if (dataObjectOptional.isPresent()) {
@@ -156,23 +158,23 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
             if (nodes != null) {
                 // Get NodeConnectors for each node
-                for (Node node : nodes.getNode()) {
+                for (Node node : nodes.getNode().values()) {
                     ArrayList<NodeConnectorRef> nodeConnectorRefs = new ArrayList<>();
-                    List<NodeConnector> nodeConnectors = node.getNodeConnector();
+                    List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>(node.getNodeConnector().values());
                     if (nodeConnectors != null) {
                         for (NodeConnector nodeConnector : nodeConnectors) {
                             // Read STP status for this NodeConnector
                             StpStatusAwareNodeConnector saNodeConnector = nodeConnector
-                                    .getAugmentation(StpStatusAwareNodeConnector.class);
+                                    .augmentation(StpStatusAwareNodeConnector.class);
                             if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
                                 continue;
                             }
-                            if (nodeConnector.getKey().toString().contains("LOCAL")) {
+                            if (nodeConnector.key().toString().contains("LOCAL")) {
                                 continue;
                             }
                             NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                                    .<Node, NodeKey>child(Node.class, node.getKey())
-                                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.getKey())
+                                    .<Node, NodeKey>child(Node.class, node.key())
+                                    .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.key())
                                     .build());
                             nodeConnectorRefs.add(ncRef);
                         }
@@ -180,11 +182,11 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
                     switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
                     NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                            .<Node, NodeKey>child(Node.class, node.getKey())
+                            .<Node, NodeKey>child(Node.class, node.key())
                             .<NodeConnector, NodeConnectorKey>child(NodeConnector.class,
                                     new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL")))
                             .build());
-                    LOG.debug("Local port for node {} is {}", node.getKey(), ncRef);
+                    LOG.debug("Local port for node {} is {}", node.key(), ncRef);
                     controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
                 }
             }
@@ -215,32 +217,31 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
         NodeConnectorRef destNodeConnector = null;
         long latest = -1;
-        ReadOnlyTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
+        ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction();
         try {
-            Optional<Node> dataObjectOptional = null;
-            dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId).get();
+            Optional<Node> dataObjectOptional = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                                                                         nodeInsId).get();
             if (dataObjectOptional.isPresent()) {
                 Node node = dataObjectOptional.get();
-                LOG.debug("Looking address{} in node : {}", macAddress, nodeInsId);
                 if (node.getNodeConnector() != null) {
-                    for (NodeConnector nc : node.getNodeConnector()) {
+                    for (NodeConnector nc : node.getNodeConnector().values()) {
                         // Don't look for mac in discarding node connectors
                         StpStatusAwareNodeConnector saNodeConnector = nc
-                                .getAugmentation(StpStatusAwareNodeConnector.class);
+                                .augmentation(StpStatusAwareNodeConnector.class);
                         if (saNodeConnector != null && StpStatus.Discarding.equals(saNodeConnector.getStatus())) {
                             continue;
                         }
-                        LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.getKey());
-                        AddressCapableNodeConnector acnc = nc.getAugmentation(AddressCapableNodeConnector.class);
+                        LOG.debug("Looking address{} in nodeconnector : {}", macAddress, nc.key());
+                        AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
                         if (acnc != null) {
-                            List<Addresses> addressesList = acnc.getAddresses();
+                            List<Addresses> addressesList = new ArrayList<Addresses>(acnc.getAddresses().values());
                             for (Addresses add : addressesList) {
                                 if (macAddress.equals(add.getMac())) {
                                     if (add.getLastSeen() > latest) {
                                         destNodeConnector = new NodeConnectorRef(
-                                                nodeInsId.child(NodeConnector.class, nc.getKey()));
+                                            nodeInsId.child(NodeConnector.class, nc.key()));
                                         latest = add.getLastSeen();
-                                        LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.getKey());
+                                        LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                                         break;
                                     }
                                 }

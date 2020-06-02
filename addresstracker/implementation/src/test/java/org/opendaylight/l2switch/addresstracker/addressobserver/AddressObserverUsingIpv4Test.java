@@ -50,8 +50,8 @@ public class AddressObserverUsingIpv4Test {
         AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
         addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
 
-        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+
+        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test

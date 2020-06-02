@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.arphandler.core;
 
 import static org.mockito.Matchers.any;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -27,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 
 public class ArpPacketHandlerTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private PacketDispatcher packetDispatcher;
     private ArpPacketHandler arpPacketHandler;
 
@@ -46,8 +48,9 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verify(packetDispatcher, times(1)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
-                any(MacAddress.class), any(MacAddress.class));
+        //verify(packetDispatcher, times(1)).dispatchPacket(any(byte[].class), any(NodeConnectorRef.class),
+        //        any(MacAddress.class), any(MacAddress.class));
+        verify(packetDispatcher, times(1)).dispatchPacket(null, null, null, null);
     }
 
     @Test

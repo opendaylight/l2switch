@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
@@ -30,11 +31,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlowWriterServiceImplTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private SalFlowService salFlowService;
     private FlowWriterServiceImpl flowWriterService;
     private InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier;
+    private InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier2;
     private NodeConnectorRef nodeConnectorRef;
+    private NodeConnectorRef nodeConnectorRef2;
 
     @Before
     public void initMocks() {
@@ -48,7 +51,11 @@ public class FlowWriterServiceImplTest {
         nodeConnectorInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
+        nodeConnectorInstanceIdentifier2 = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("node-id")))
+                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id"))).build();
         nodeConnectorRef = new NodeConnectorRef(nodeConnectorInstanceIdentifier);
+        nodeConnectorRef2 = new NodeConnectorRef(nodeConnectorInstanceIdentifier2);
 
         MacAddress sourceMac = new MacAddress("00:00:ac:f0:01:01");
         MacAddress destMac = new MacAddress("00:00:ac:f0:02:02");

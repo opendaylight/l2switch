@@ -4,17 +4,18 @@
   odl:use-default-for-reference-types="true">
 
   <reference id="dataBroker"
-    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+    interface="org.opendaylight.mdsal.binding.api.DataBroker"
     odl:type="default" />
   <reference id="notificationProviderService"
-    interface="org.opendaylight.controller.sal.binding.api.NotificationProviderService" />
+    interface="org.opendaylight.mdsal.binding.api.NotificationService" />
 
   <odl:clustered-app-config id="arpHandlerConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig">
   </odl:clustered-app-config>
 
   <odl:rpc-service id="salFlowService"
-    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+		   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+  
   <odl:rpc-service id="packetHandlerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
 

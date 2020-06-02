@@ -15,12 +15,13 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -32,7 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InitialFlowWriterTest {
 
-    @MockitoAnnotations.Mock private SalFlowService salFlowService;
+    @Mock private SalFlowService salFlowService;
     private InitialFlowWriter initialFlowWriter;
 
     @Before
@@ -52,13 +53,12 @@ public class InitialFlowWriterTest {
         DataObjectModification<Node> mockModification = Mockito.mock(DataObjectModification.class);
         when(mockModification.getDataAfter()).thenReturn(topoNode);
         when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
+        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         initialFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(250);
         verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
-
     }
 }

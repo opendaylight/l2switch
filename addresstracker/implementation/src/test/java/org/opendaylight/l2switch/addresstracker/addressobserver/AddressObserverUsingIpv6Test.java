@@ -54,7 +54,7 @@ public class AddressObserverUsingIpv6Test {
         addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+                any());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class AddressObserverUsingIpv6Test {
         addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+                                                        any(NodeConnectorRef.class));
     }
 
     @Test

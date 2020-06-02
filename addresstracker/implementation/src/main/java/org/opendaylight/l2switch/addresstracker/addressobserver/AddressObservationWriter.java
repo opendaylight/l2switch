@@ -5,25 +5,27 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
@@ -52,7 +54,7 @@ public class AddressObservationWriter {
     private long timestampUpdateInterval;
     private final DataBroker dataService;
     private final Map<NodeConnectorRef, NodeConnectorLock> lockMap = new ConcurrentHashMap<>();
-    private final Map<NodeConnectorLock, ListenableFuture<Void>> futureMap = new ConcurrentHashMap<>();
+    private final Map<NodeConnectorLock, FluentFuture> futureMap = new ConcurrentHashMap<>();
 
     /**
      * Construct an AddressTracker with the specified inputs.
@@ -87,7 +89,7 @@ public class AddressObservationWriter {
 
         synchronized (nodeConnectorLock) {
             // Ensure previous transaction finished writing to the db
-            ListenableFuture<Void> future = futureMap.get(nodeConnectorLock);
+            FluentFuture future = futureMap.get(nodeConnectorLock);
             if (future != null) {
                 try {
                     future.get();
@@ -104,7 +106,7 @@ public class AddressObservationWriter {
             List<Addresses> addresses = null;
 
             // Read existing address observations from data tree
-            ReadOnlyTransaction readTransaction = dataService.newReadOnlyTransaction();
+            ReadTransaction readTransaction = dataService.newReadOnlyTransaction();
 
             NodeConnector nc = null;
             try {
@@ -116,26 +118,25 @@ public class AddressObservationWriter {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
                 readTransaction.close();
-                throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
-                        e);
+                throw new RuntimeException("Error reading from operational store, node connector : "
+                                            + nodeConnectorRef, e);
             }
             readTransaction.close();
             if (nc == null) {
                 return;
             }
-            AddressCapableNodeConnector acnc = nc
-                    .getAugmentation(AddressCapableNodeConnector.class);
+            AddressCapableNodeConnector acnc = nc.augmentation(AddressCapableNodeConnector.class);
 
             // Address observations exist
             if (acnc != null && acnc.getAddresses() != null) {
                 // Search for this mac-ip pair in the existing address
                 // observations & update last-seen timestamp
-                addresses = acnc.getAddresses();
+                addresses = new ArrayList<Addresses>(acnc.getAddresses().values());
                 for (int i = 0; i < addresses.size(); i++) {
                     if (addresses.get(i).getIp().equals(ipAddress) && addresses.get(i).getMac().equals(macAddress)) {
                         if (now - addresses.get(i).getLastSeen() > timestampUpdateInterval) {
                             addressBuilder.setFirstSeen(addresses.get(i).getFirstSeen())
-                                    .setKey(addresses.get(i).getKey());
+                                    .withKey(addresses.get(i).key());
                             addresses.remove(i);
                             break;
                         } else {
@@ -149,8 +150,8 @@ public class AddressObservationWriter {
                 addresses = new ArrayList<>();
             }
 
-            if (addressBuilder.getKey() == null) {
-                addressBuilder.setKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
+            if (addressBuilder.key() == null) {
+                addressBuilder.withKey(new AddressesKey(BigInteger.valueOf(addressKey.getAndIncrement())));
             }
 
             // Add as an augmentation
@@ -164,18 +165,19 @@ public class AddressObservationWriter {
             final WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
             // Update this AddressCapableNodeConnector in the MD-SAL data tree
             writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
-            final ListenableFuture<Void> writeTxResultFuture = writeTransaction.submit();
-            Futures.addCallback(writeTxResultFuture, new FutureCallback<Void>() {
+
+            final FluentFuture writeTxResultFuture = writeTransaction.commit();
+            Futures.addCallback(writeTxResultFuture, new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(Void notUsed) {
+                public void onSuccess(CommitInfo notUsed) {
                     LOG.debug("AddressObservationWriter write successful for tx :{}",
-                            writeTransaction.getIdentifier());
+                               writeTransaction.getIdentifier());
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
                     LOG.error("AddressObservationWriter write transaction {} failed",
-                            writeTransaction.getIdentifier(), throwable.getCause());
+                               writeTransaction.getIdentifier(), throwable.getCause());
                 }
             }, MoreExecutors.directExecutor());
             futureMap.put(nodeConnectorLock, writeTxResultFuture);

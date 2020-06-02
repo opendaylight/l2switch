@@ -25,10 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class InstanceIdentifierUtilsTest {
 
-    private static final Short NUM_ID_1 = 1;
+    private static final Uint8 NUM_ID_1 = Uint8.valueOf(1);
     private static final String STR_ID_1 = "id1";
 
     @Test
@@ -45,7 +46,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
-        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class, TableKey.class).getId());
+        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class).getId());
     }
 
     @Test
@@ -56,7 +57,7 @@ public class InstanceIdentifierUtilsTest {
         InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1), new FlowKey(new FlowId(STR_ID_1)));
         assertNotNull(flowInsId);
-        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class, TableKey.class).getId());
-        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class, FlowKey.class).getId().getValue());
+        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class).getId());
+        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class).getId().getValue());
     }
 }

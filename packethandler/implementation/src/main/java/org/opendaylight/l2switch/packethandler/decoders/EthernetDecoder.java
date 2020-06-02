@@ -5,14 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.ArrayList;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -44,8 +46,9 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     public static final Integer ETHERTYPE_8021Q = 0x8100;
     public static final Integer ETHERTYPE_QINQ = 0x9100;
 
-    public EthernetDecoder(NotificationProviderService notificationProviderService) {
-        super(EthernetPacketReceived.class, notificationProviderService);
+    public EthernetDecoder(NotificationPublishService notificationProviderService,
+                           NotificationService notificationService) {
+        super(EthernetPacketReceived.class, notificationProviderService, notificationService);
     }
 
     @Override
@@ -82,9 +85,9 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
             // Deserialize the destination & source fields
             epBuilder.setDestinationMac(
-                    new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
+                        new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
             epBuilder.setSourceMac(
-                    new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
+                        new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
 
             // Deserialize the optional field 802.1Q headers
             Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));
@@ -136,8 +139,8 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             // Determine start & end of payload
             int payloadStart = (112 + extraHeaderBits) / NetUtils.NUM_BITS_IN_A_BYTE;
             int payloadEnd = data.length - 4;
-            epBuilder.setPayloadOffset(payloadStart);
-            epBuilder.setPayloadLength(payloadEnd - payloadStart);
+            epBuilder.setEthPayloadOffset(payloadStart);
+            epBuilder.setEthPayloadLength(payloadEnd - payloadStart);
 
             // Deserialize the CRC
             epBuilder.setCrc(BitBufferHelper

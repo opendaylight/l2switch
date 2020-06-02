@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>feature-repo-parent</artifactId>
-        <version>3.1.0</version>
+        <version>7.0.1</version>
         <relativePath/>
     </parent>
 
@@ -43,6 +43,7 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <!-- FIXME: uncomment when we have dlux
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-l2switch-switch-ui</artifactId>
@@ -50,6 +51,7 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-l2switch-hosttracker</artifactId>

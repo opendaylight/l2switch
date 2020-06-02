@@ -1,15 +1,16 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import java.math.BigInteger;
 import java.util.Date;
-import org.opendaylight.controller.sal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -187,7 +188,7 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         BigInteger id = BigInteger.valueOf(ketype.getIntValue()).abs()
                 .add(BigInteger.valueOf(srcMacAddr.hashCode()).abs().shiftLeft(16));
         addrs.setId(id);
-        addrs.setKey(new AddressesKey(addrs.getId()));
+        addrs.withKey(new AddressesKey(addrs.getId()));
         addrs.setVlan(vlanId);
         addrs.setIp(srcIpAddr);
         addrs.setMac(srcMacAddr);

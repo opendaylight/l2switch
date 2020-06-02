@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -27,17 +27,17 @@ public class AddressTrackerProvider {
     private static final String IPV6_PACKET_TYPE = "ipv6";
 
     private final List<Registration> listenerRegistrations = new ArrayList<>();
-    private final NotificationProviderService notificationService;
+    private final NotificationService notificationService;
     private final DataBroker dataBroker;
     private final Long timestampUpdateInterval;
     private final String observerAddressesFrom;
 
     public AddressTrackerProvider(final DataBroker dataBroker,
-            final NotificationProviderService notificationProviderService,
+            final NotificationService notificationService,
             final AddressTrackerConfig config) {
-        this.notificationService = notificationProviderService;
+        this.notificationService = notificationService;
         this.dataBroker = dataBroker;
-        this.timestampUpdateInterval = config.getTimestampUpdateInterval();
+        this.timestampUpdateInterval = config.getTimestampUpdateInterval().longValue();
         this.observerAddressesFrom = config.getObserveAddressesFrom();
     }
 
@@ -68,16 +68,15 @@ public class AddressTrackerProvider {
             // Register AddressObserver for notifications
             this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingIpv6));
         }
-
         LOG.info("AddressTracker initialized.");
     }
 
     public void close() {
         listenerRegistrations.forEach(reg -> reg.close());
-        LOG.info("AddressTracker torn down.", this);
+        LOG.info("AddressTracker torn down.");
     }
 
-    @Nonnull
+    @NonNull
     private Set<String> processObserveAddressesFrom(String observeAddressesFrom) {
         Set<String> packetTypes = new HashSet<>();
         if (observeAddressesFrom == null || observeAddressesFrom.isEmpty()) {

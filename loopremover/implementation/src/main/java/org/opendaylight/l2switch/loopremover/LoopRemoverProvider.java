@@ -5,16 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.loopremover;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +45,17 @@ public class LoopRemoverProvider {
         if (loopRemoverConfig.isIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId());
-            initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority());
-            initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout());
-            initialFlowWriter.setFlowHardTimeout(loopRemoverConfig.getLldpFlowHardTimeout());
+            initialFlowWriter.setFlowTableId(Uint16.valueOf(loopRemoverConfig.getLldpFlowTableId()).shortValue());
+            initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority().intValue());
+            initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout().intValue());
+            initialFlowWriter.setFlowHardTimeout(loopRemoverConfig.getLldpFlowHardTimeout().intValue());
             topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
         }
 
         // Register Topology DataChangeListener
         NetworkGraphService networkGraphService = new NetworkGraphImpl();
         this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
-        topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay());
+        topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay().longValue());
         topologyLinkDataChangeHandler.setTopologyId(loopRemoverConfig.getTopologyId());
         listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
 

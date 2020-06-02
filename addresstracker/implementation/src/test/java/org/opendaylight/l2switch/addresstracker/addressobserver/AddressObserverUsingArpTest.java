@@ -49,8 +49,7 @@ public class AddressObserverUsingArpTest {
         AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
         addressOberserverArp.onArpPacketReceived(arpReceived);
 
-        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+        verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test

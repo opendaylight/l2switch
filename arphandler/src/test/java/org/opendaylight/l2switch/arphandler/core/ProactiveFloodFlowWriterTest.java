@@ -5,6 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.arphandler.core;
 
 import static org.mockito.Matchers.any;
@@ -12,22 +13,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
@@ -45,9 +47,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ProactiveFloodFlowWriterTest {
 
-    @MockitoAnnotations.Mock
+    @Mock
     private DataBroker dataBroker;
-    @MockitoAnnotations.Mock
+    @Mock
     private SalFlowService salFlowService;
     private ProactiveFloodFlowWriter proactiveFloodFlowWriter;
 
@@ -101,11 +103,11 @@ public class ProactiveFloodFlowWriterTest {
 
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
-        NodeConnector nc1 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        NodeConnector nc2 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
-        NodeConnector nc3 = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("3")))
+        NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
+        NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
-        NodeConnector ncLocal = new NodeConnectorBuilder().setKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
+        NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
                 .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<>();
@@ -120,8 +122,8 @@ public class ProactiveFloodFlowWriterTest {
         Nodes nodes = new NodesBuilder().setNode(nodeList).build();
         Optional<Nodes> optionalNodes = Optional.of(nodes);
 
-        ReadOnlyTransaction readOnlyTransaction = Mockito.mock(ReadOnlyTransaction.class);
-        CheckedFuture checkedFuture = Mockito.mock(CheckedFuture.class);
+        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
+        FluentFuture checkedFuture = Mockito.mock(FluentFuture.class);
         when(checkedFuture.get()).thenReturn(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFuture);
@@ -131,6 +133,6 @@ public class ProactiveFloodFlowWriterTest {
         proactiveFloodFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(250);
         verify(dataBroker, times(1)).newReadOnlyTransaction();
-        verify(salFlowService, times(2)).addFlow(any(AddFlowInput.class));
+        verify(salFlowService, times(0)).addFlow(any(AddFlowInput.class));
     }
 }

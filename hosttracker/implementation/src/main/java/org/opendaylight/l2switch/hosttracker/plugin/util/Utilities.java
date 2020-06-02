@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (c) 2014 André Martins, Colin Dixon, Evan Zeller and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.hosttracker.plugin.util;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public final class Utilities {
     }
 
     public static List<Link> createLinks(NodeId srcNId, TpId srcTpId, NodeId dstNId, TpId dstTpId) {
-        List<Link> links = new ArrayList();
+        List<Link> links = new ArrayList<Link>();
         LinkBuilder srcdst = new LinkBuilder()//
                 .setSource(new SourceBuilder()//
                         .setSourceNode(srcNId)//
@@ -41,7 +42,7 @@ public final class Utilities {
                 .setDestination(new DestinationBuilder()//
                         .setDestNode(dstNId).setDestTp(dstTpId).build())//
                 .setLinkId(new LinkId(srcTpId.getValue() + "/" + dstTpId.getValue()));
-        srcdst.setKey(new LinkKey(srcdst.getLinkId()));
+        srcdst.withKey(new LinkKey(srcdst.getLinkId()));
         LinkBuilder dstsrc = new LinkBuilder()//
                 .setSource(new SourceBuilder()//
                         .setSourceNode(dstNId)//
@@ -49,7 +50,7 @@ public final class Utilities {
                 .setDestination(new DestinationBuilder()//
                         .setDestNode(srcNId).setDestTp(srcTpId).build())//
                 .setLinkId(new LinkId(dstTpId.getValue() + "/" + srcTpId.getValue()));
-        dstsrc.setKey(new LinkKey(dstsrc.getLinkId()));
+        dstsrc.withKey(new LinkKey(dstsrc.getLinkId()));
         links.add(dstsrc.build());
         links.add(srcdst.build());
         return links;
@@ -77,7 +78,7 @@ public final class Utilities {
     public static AttachmentPointsBuilder createAPsfromTP(TpId tpId) {
         AttachmentPointsBuilder at = new AttachmentPointsBuilder()//
                 .setTpId(tpId)//
-                .setKey(new AttachmentPointsKey(tpId));
+                .withKey(new AttachmentPointsKey(tpId));
         return at;
     }
 }
