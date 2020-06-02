@@ -5,9 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.opendaylight.l2switch.loopremover.topology;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -15,19 +15,21 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
@@ -100,8 +102,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     public ListenerRegistration<TopologyLinkDataChangeHandler> registerAsDataChangeListener() {
         InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).build();
-        return dataBroker.registerDataTreeChangeListener(new DataTreeIdentifier<>(
-                LogicalDatastoreType.OPERATIONAL, linkInstance), this);
+        return dataBroker.registerDataTreeChangeListener(
+                          DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, linkInstance), this);
     }
 
     /**
@@ -172,9 +174,9 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             networkGraphService.addLinks(links);
             final ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
             updateNodeConnectorStatus(readWriteTransaction);
-            Futures.addCallback(readWriteTransaction.submit(), new FutureCallback<Void>() {
+            Futures.addCallback(readWriteTransaction.commit(), new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(Void notUsed) {
+                public void onSuccess(CommitInfo result) {
                     LOG.debug("TopologyLinkDataChangeHandler write successful for tx :{}",
                             readWriteTransaction.getIdentifier());
                 }
@@ -192,7 +194,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             InstanceIdentifier<Topology> topologyInstanceIdentifier = InstanceIdentifierUtils
                     .generateTopologyInstanceIdentifier(topologyId);
             Topology topology = null;
-            ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
+            ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
             try {
                 Optional<Topology> topologyOptional = readOnlyTransaction
                         .read(LogicalDatastoreType.OPERATIONAL, topologyInstanceIdentifier).get();
@@ -209,7 +211,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             if (topology == null) {
                 return null;
             }
-            List<Link> links = topology.getLink();
+            List<Link> links = new ArrayList<Link>(topology.getLink().values());
             if (links == null || links.isEmpty()) {
                 return null;
             }
@@ -274,9 +276,9 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 }
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
-                readWriteTransaction.submit();
-                throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
-                        e);
+                readWriteTransaction.commit();
+                throw new RuntimeException("Error reading from operational store, node connector : "
+                                             + nodeConnectorRef, e);
             }
 
             if (nc != null) {
