@@ -1,4 +1,5 @@
 # UUID                                                                  	Group Name
 #
+bb899f12cbc2ab01d9bb3022d97826cb1a67dfac                                	saml/odl-gerrit-l2switch-committers
 c9025ab9ddc1e3171919e085449f22c54f8f7b54                                	GitHub Replication
 ldap:cn=odl-gerrit-l2switch-committers,ou=Groups,dc=freestandards,dc=org	ldap/odl-gerrit-l2switch-committers
