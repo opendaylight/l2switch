@@ -22,6 +22,30 @@
       "revId": "b897ffd20ab350e108e168d0140f30da7b3418d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "875756ff_f7e002c6",
+        "filename": "INFO.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6258
+      },
+      "writtenOn": "2020-10-19T23:35:00Z",
+      "side": 1,
+      "message": "For additions and removals we\u0027ll need to add a new link at the EOF which tcs approval. More details on adding/removing a person is here.\n\nhttps://docs.releng.linuxfoundation.org/en/latest/committer-management.html?highlight\u003dinfo%20yaml\n\nRobert, please point me to the TSC approval email/thread, I will update the INFO.yaml to reflect that.",
+      "parentUuid": "3e247aa1_faba17c7",
+      "range": {
+        "startLine": 52,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 19
+      },
+      "revId": "b897ffd20ab350e108e168d0140f30da7b3418d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
