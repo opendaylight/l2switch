@@ -16,9 +16,9 @@ import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.raw.packet.fields.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.raw.packet.fields.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
@@ -66,16 +66,17 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
         EthernetPacketReceivedBuilder builder = new EthernetPacketReceivedBuilder();
 
         // Save original rawPacket & set the payloadOffset/payloadLength fields
-        RawPacketBuilder rpb = new RawPacketBuilder().setIngress(packetReceived.getIngress())
+        RawPacketFieldsBuilder rpfb = new RawPacketFieldsBuilder().setIngress(packetReceived.getIngress())
                 .setConnectionCookie(packetReceived.getConnectionCookie()).setFlowCookie(packetReceived.getFlowCookie())
                 .setTableId(packetReceived.getTableId()).setPacketInReason(packetReceived.getPacketInReason())
                 .setPayloadOffset(0).setPayloadLength(data.length);
         if (packetReceived.getMatch() != null) {
-            rpb.setMatch(new MatchBuilder(packetReceived.getMatch()).build());
+            rpfb.setMatch(new MatchBuilder(packetReceived.getMatch()).build());
         }
-        RawPacket rp = rpb.build();
         ArrayList<PacketChain> packetChain = new ArrayList<>();
-        packetChain.add(new PacketChainBuilder().setPacket(rp).build());
+        packetChain.add(new PacketChainBuilder()
+            .setPacket(new RawPacketBuilder().setRawPacketFields(rpfb.build()).build())
+            .build());
 
         try {
             EthernetPacketBuilder epBuilder = new EthernetPacketBuilder();

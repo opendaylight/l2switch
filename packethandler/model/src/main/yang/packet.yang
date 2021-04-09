@@ -31,36 +31,61 @@ module base-packet {
     }
   }
 
-  grouping raw-packet-fields {
-    leaf ingress {
-      type inv:node-connector-ref;
-    }
-    leaf connection-cookie {
-      type pprocessing:connection-cookie;
-    }
-    leaf flow-cookie {
-      type flow-type:flow-cookie;
-    }
-    leaf table-id {
-      type table-type:table-id;
-    }
-    leaf packet-in-reason {
-      type identityref {
-        base pprocessing:packet-in-reason;
-      }
-    }
-    container match {
-      uses match-type:match;
-    }
-    uses packet-fields;
-  }
-
   grouping packet-chain-grp {
     list packet-chain {
+      // Note on the design here:
+      //
+      // We are inlining raw view of the packet, as these fields are being repeated
+      // in other cases. YANG semantics requires that individual case statements within
+      // a choice do not overlap on child QNames -- i.e. they differ in namespace or
+      // or localname. Since this structure is defined as a grouping, there is no way
+      // things like ipv4-packet-received can differentiate on namespace. We therefore
+      // enclose this case in an explicit case (to keep consistency with users) and a
+      // further container as the sole element.
+      //
+      // This guarantees the contents of packet-fields do not clash across cases, while
+      // keeping things reasonable (to an extent).
+      //
+      // TODO: a much better design would look like this:
+      //
+      // container packet {
+      //   uses packet-fields;
+      //
+      //   choice packet-type {
+      //     case raw-packet {
+      //       // .. the contents of raw-packet-fields ..
+      //     }
+      //   }
+      // }
+      //
+      // which still has a potential problem with naming fields, but at least it is not
+      // baked into the design.
       choice packet {
-         case raw-packet {
-           uses raw-packet-fields;
-         }
+        case raw-packet {
+          container raw-packet-fields {
+            leaf ingress {
+              type inv:node-connector-ref;
+            }
+            leaf connection-cookie {
+              type pprocessing:connection-cookie;
+            }
+            leaf flow-cookie {
+              type flow-type:flow-cookie;
+            }
+            leaf table-id {
+              type table-type:table-id;
+            }
+            leaf packet-in-reason {
+              type identityref {
+                base pprocessing:packet-in-reason;
+              }
+            }
+            container match {
+              uses match-type:match;
+            }
+            uses packet-fields;
+          }
+        }
       }
     }
   }

@@ -12,6 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPac
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 
 /**
@@ -37,12 +38,12 @@ public class ArpPacketHandler implements ArpPacketListener {
             return;
         }
 
-        RawPacket rawPacket = null;
+        RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
         for (PacketChain packetChain : packetReceived.getPacketChain()) {
             if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = (RawPacket) packetChain.getPacket();
+                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
             } else if (packetChain.getPacket() instanceof EthernetPacket) {
                 ethernetPacket = (EthernetPacket) packetChain.getPacket();
             } else if (packetChain.getPacket() instanceof ArpPacket) {
@@ -56,5 +57,4 @@ public class ArpPacketHandler implements ArpPacketListener {
         packetDispatcher.dispatchPacket(packetReceived.getPayload(), rawPacket.getIngress(),
                 ethernetPacket.getSourceMac(), ethernetPacket.getDestinationMac());
     }
-
 }

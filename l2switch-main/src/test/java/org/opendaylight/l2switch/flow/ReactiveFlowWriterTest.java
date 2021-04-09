@@ -8,7 +8,7 @@
 
 package org.opendaylight.l2switch.flow;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -57,7 +58,9 @@ public class ReactiveFlowWriterTest {
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
         packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new RawPacketBuilder().setIngress(nodeConnectorRef).build())
+            .setPacket(new RawPacketBuilder()
+                .setRawPacketFields(new RawPacketFieldsBuilder().setIngress(nodeConnectorRef).build())
+                .build())
             .build());
         packetChainList.add(new PacketChainBuilder()
             .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("00:00:00:00:00:01")).build())

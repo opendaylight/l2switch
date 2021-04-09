@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 
 public class ArpPacketHandlerTest {
@@ -39,7 +40,9 @@ public class ArpPacketHandlerTest {
     @Test
     public void onArpPacketReceivedTest() throws Exception {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
-        packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
+        packetChainList.add(new PacketChainBuilder()
+            .setPacket(new RawPacketBuilder().setRawPacketFields(new RawPacketFieldsBuilder().build()).build())
+            .build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();

@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.addresstracker.addressobserver;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
@@ -42,12 +43,12 @@ public class AddressObserverUsingIpv4 implements Ipv4PacketListener {
             return;
         }
 
-        RawPacket rawPacket = null;
+        RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         Ipv4Packet ipv4Packet = null;
         for (PacketChain packetChain : packetReceived.getPacketChain()) {
             if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = (RawPacket) packetChain.getPacket();
+                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
             } else if (packetChain.getPacket() instanceof EthernetPacket) {
                 ethernetPacket = (EthernetPacket) packetChain.getPacket();
             } else if (packetChain.getPacket() instanceof Ipv4Packet) {
