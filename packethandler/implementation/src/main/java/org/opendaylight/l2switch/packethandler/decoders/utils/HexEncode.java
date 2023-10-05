@@ -32,7 +32,8 @@ public final class HexEncode {
         }
 
         String ret = "";
-        StringBuffer buf = new StringBuffer();
+        //StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             if (i > 0) {
                 ret += ":";
@@ -50,7 +51,8 @@ public final class HexEncode {
 
     public static String longToHexString(long val) {
         char[] arr = Long.toHexString(val).toCharArray();
-        StringBuffer buf = new StringBuffer();
+        //StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // prepend the right number of leading zeros
         int index = 0;
         for (; index < 16 - arr.length; index++) {
@@ -95,7 +97,8 @@ public final class HexEncode {
             return "null";
         }
         String ret = "";
-        StringBuffer buf = new StringBuffer();
+        //StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             if (i > 0) {
                 buf.append(":");

@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -80,7 +81,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
      * @param config Default configuration
      */
     public HostTrackerImpl(final DataBroker dataService, final HostTrackerConfig config) {
-        Preconditions.checkNotNull(dataService, "dataBrokerService should not be null.");
+        Objects.requireNonNull(dataService, "dataBrokerService should not be null.");
         Preconditions.checkArgument(config.getHostPurgeAge() >= 0, "hostPurgeAgeInput must be non-negative");
         Preconditions.checkArgument(config.getHostPurgeInterval() >= 0, "hostPurgeIntervalInput must be non-negative");
         this.dataService = dataService;

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.l2switch.loopremover.topology;
 
-import com.google.common.base.Preconditions;
 import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
 import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Graph;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -101,7 +101,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
      */
     @Override
     public synchronized void removeLinks(List<Link> links) {
-        Preconditions.checkNotNull(networkGraph, "Graph is not initialized, add links first.");
+        Objects.requireNonNull(networkGraph, "Graph is not initialized, add links first.");
 
         if (links == null || links.isEmpty()) {
             LOG.info("In removeLinks: No link removed as links is null or empty.");

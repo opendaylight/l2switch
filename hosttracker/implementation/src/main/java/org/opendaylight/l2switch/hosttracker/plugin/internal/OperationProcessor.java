@@ -8,10 +8,10 @@
 
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,7 +35,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
     private final AtomicReference<TransactionChain> transactionChain = new AtomicReference<>();
 
     OperationProcessor(final DataBroker dataBroker) {
-        this.dataBroker = Preconditions.checkNotNull(dataBroker);
+        this.dataBroker = Objects.requireNonNull(dataBroker);
         this.queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
         this.transactionChain.set(dataBroker.createTransactionChain(this));
     }
