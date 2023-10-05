@@ -8,13 +8,13 @@
 
 package org.opendaylight.l2switch.loopremover.topology;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -70,8 +70,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     private final DataBroker dataBroker;
 
     public TopologyLinkDataChangeHandler(DataBroker dataBroker, NetworkGraphService networkGraphService) {
-        Preconditions.checkNotNull(dataBroker, "dataBroker should not be null.");
-        Preconditions.checkNotNull(networkGraphService, "networkGraphService should not be null.");
+        Objects.requireNonNull(dataBroker, "dataBroker should not be null.");
+        Objects.requireNonNull(networkGraphService, "networkGraphService should not be null.");
         this.dataBroker = dataBroker;
         this.networkGraphService = networkGraphService;
     }

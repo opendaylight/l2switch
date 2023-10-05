@@ -92,8 +92,8 @@ public class ConcurrentClusterAwareHostHashMap {
      *            the value's (Host's) InstanceIdentifier&lt;Node&gt;
      * @param value
      *            the Host to store locally.
-     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
-     *         if there was no mapping for <tt>key</tt>
+     * @return the previous value associated with key, or null
+     *         if there was no mapping for key.
      */
     public synchronized Host putLocally(InstanceIdentifier<Node> ii, Host value) {
         Host host = value;

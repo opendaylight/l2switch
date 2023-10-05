@@ -34,7 +34,7 @@
       <dependency>
         <groupId>org.opendaylight.openflowplugin</groupId>
         <artifactId>openflowplugin-artifacts</artifactId>
-        <version>0.11.0-SNAPSHOT</version>
+        <version>0.11.4</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>

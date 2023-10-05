@@ -8,9 +8,9 @@
 
 package org.opendaylight.l2switch.flow;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
@@ -76,7 +76,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private final AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
     public FlowWriterServiceImpl(SalFlowService salFlowService) {
-        Preconditions.checkNotNull(salFlowService, "salFlowService should not be null.");
+        Objects.requireNonNull(salFlowService, "salFlowService should not be null.");
         this.salFlowService = salFlowService;
     }
 
@@ -100,8 +100,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     public void addMacToMacFlow(MacAddress sourceMac, MacAddress destMac,
                                 NodeConnectorRef destNodeConnectorRef) {
 
-        Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
-        Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
+        Objects.requireNonNull(destMac, "Destination mac address should not be null.");
+        Objects.requireNonNull(destNodeConnectorRef, "Destination port should not be null.");
 
         // do not add flow if both macs are same.
         if (sourceMac != null && destMac.equals(sourceMac)) {
@@ -131,10 +131,10 @@ public class FlowWriterServiceImpl implements FlowWriterService {
                                               NodeConnectorRef sourceNodeConnectorRef,
                                               MacAddress destMac,
                                               NodeConnectorRef destNodeConnectorRef) {
-        Preconditions.checkNotNull(sourceMac, "Source mac address should not be null.");
-        Preconditions.checkNotNull(sourceNodeConnectorRef, "Source port should not be null.");
-        Preconditions.checkNotNull(destMac, "Destination mac address should not be null.");
-        Preconditions.checkNotNull(destNodeConnectorRef, "Destination port should not be null.");
+        Objects.requireNonNull(sourceMac, "Source mac address should not be null.");
+        Objects.requireNonNull(sourceNodeConnectorRef, "Source port should not be null.");
+        Objects.requireNonNull(destMac, "Destination mac address should not be null.");
+        Objects.requireNonNull(destNodeConnectorRef, "Destination port should not be null.");
 
         if (sourceNodeConnectorRef.equals(destNodeConnectorRef)) {
             LOG.info("In addMacToMacFlowsUsingShortestPath: No flows added. Source and Destination ports are same.");
