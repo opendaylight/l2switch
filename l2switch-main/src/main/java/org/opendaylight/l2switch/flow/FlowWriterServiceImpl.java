@@ -145,7 +145,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      *
      * @param nodeConnectorRef a reference to the Node Connector
      * @param flowTableKey a reference to the flow table
-     * @return
+     * @return Flow instance identifier
      */
     private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
