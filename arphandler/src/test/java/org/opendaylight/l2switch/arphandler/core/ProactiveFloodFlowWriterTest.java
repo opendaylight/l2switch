@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.arphandler.core;
 
 import static org.mockito.Matchers.any;
@@ -33,6 +32,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -116,7 +116,7 @@ public class ProactiveFloodFlowWriterTest {
         nodeConnectors.add(nc2);
         nodeConnectors.add(nc3);
         nodeConnectors.add(ncLocal);
-        Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
+        Node node = new NodeBuilder().setId(new NodeId("nodeId")).setNodeConnector(nodeConnectors).build();
 
         List<Node> nodeList = new ArrayList<>();
         nodeList.add(node);

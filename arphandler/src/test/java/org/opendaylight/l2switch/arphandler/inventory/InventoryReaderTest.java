@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class InventoryReaderTest {
 
@@ -71,16 +72,21 @@ public class InventoryReaderTest {
 
     @Test
     public void testGetNodeConnector() throws Exception {
-        List<Addresses> addressesList = new ArrayList<Addresses>();
-        addressesList.add(new AddressesBuilder().setLastSeen(0L).setMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build());
+        List<Addresses> addressesList = new ArrayList<>();
+        addressesList.add(new AddressesBuilder()
+            .setId(Uint64.ZERO)
+            .setLastSeen(0L)
+            .setMac(new MacAddress("aa:bb:cc:dd:ee:ff"))
+            .build());
         NodeConnector nodeConnector = new NodeConnectorBuilder()
-                .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
-                .addAugmentation(new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build())
-                .build();
+            .setId(new NodeConnectorId("connId"))
+            .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
+            .addAugmentation(new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build())
+            .build();
 
-        List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
+        List<NodeConnector> nodeConnectors = new ArrayList<>();
         nodeConnectors.add(nodeConnector);
-        Node node = new NodeBuilder().setNodeConnector(nodeConnectors).build();
+        Node node = new NodeBuilder().setId(new NodeId("nodeId")).setNodeConnector(nodeConnectors).build();
         Optional<Node> optionalNode = Optional.of(node);
 
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
@@ -121,9 +127,9 @@ public class InventoryReaderTest {
         NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
         NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
         NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
         NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nc1);
