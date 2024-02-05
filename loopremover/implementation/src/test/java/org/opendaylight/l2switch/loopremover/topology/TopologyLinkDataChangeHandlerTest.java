@@ -31,6 +31,7 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
@@ -152,7 +154,7 @@ public class TopologyLinkDataChangeHandlerTest {
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         // End setup code
-        Topology topology = new TopologyBuilder().setLink(Map.of()).build();
+        Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(Map.of()).build();
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
@@ -185,7 +187,7 @@ public class TopologyLinkDataChangeHandlerTest {
         // getLinksFromTopology
         List<Link> links = new ArrayList<>();
         links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
-        Topology topology = new TopologyBuilder().setLink(links).build();
+        Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(links).build();
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
@@ -220,7 +222,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(networkGraphService.getLinksInMst()).thenReturn(mstLinks);
 
         // checkIfExistAndUpdateNodeConnector
-        NodeConnector nodeConnector = new NodeConnectorBuilder().build();
+        NodeConnector nodeConnector = new NodeConnectorBuilder().setId(new NodeConnectorId("connId")).build();
         Optional<NodeConnector> optionalNodeConnector = Optional.of(nodeConnector);
         FluentFuture<Optional<NodeConnector>> checkedFutureNc =
             FluentFutures.immediateFluentFuture(optionalNodeConnector);
@@ -254,7 +256,7 @@ public class TopologyLinkDataChangeHandlerTest {
         // getLinksFromTopology
         List<Link> links = new ArrayList<>();
         links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
-        Topology topology = new TopologyBuilder().setLink(links).build();
+        Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(links).build();
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
@@ -290,6 +292,7 @@ public class TopologyLinkDataChangeHandlerTest {
 
         // checkIfExistAndUpdateNodeConnector
         NodeConnector nodeConnector = new NodeConnectorBuilder()
+                .setId(new NodeConnectorId("connId"))
                 .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
                 .build();
         Optional<NodeConnector> optionalNodeConnector = Optional.of(nodeConnector);
