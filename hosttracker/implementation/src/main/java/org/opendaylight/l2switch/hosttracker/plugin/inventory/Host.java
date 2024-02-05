@@ -92,7 +92,7 @@ public class Host {
             attachmentPoints.add(apb.build());
         }
         hostNodeBuilder.setAttachmentPoints(attachmentPoints);
-        return nodeBuilder.addAugmentation(HostNode.class, hostNodeBuilder.build()).build();
+        return nodeBuilder.addAugmentation(hostNodeBuilder.build()).build();
     }
 
     /**

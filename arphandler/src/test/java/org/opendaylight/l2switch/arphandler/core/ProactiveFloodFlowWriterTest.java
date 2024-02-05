@@ -106,9 +106,9 @@ public class ProactiveFloodFlowWriterTest {
         NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
         NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
         NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
         NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<>();
         nodeConnectors.add(nc1);

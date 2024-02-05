@@ -12,7 +12,7 @@
   </odl:clustered-app-config>
 
   <odl:rpc-service id="salFlowService"
-    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev140528.SalFlowService" />
 
   <bean id="loopRemover"
     class="org.opendaylight.l2switch.loopremover.LoopRemoverProvider"

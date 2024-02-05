@@ -21,12 +21,12 @@
     <dependency>
       <groupId>org.opendaylight.mdsal</groupId>
       <artifactId>mdsal-binding-api</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.6</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.mdsal</groupId>
       <artifactId>yang-binding</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.6</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>org.opendaylight.controller.model</groupId>
       <artifactId>model-inventory</artifactId>
-      <version>2.0.0</version>
+      <version>3.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>

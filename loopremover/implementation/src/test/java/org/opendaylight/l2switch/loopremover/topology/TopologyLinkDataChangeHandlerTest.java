@@ -296,8 +296,8 @@ public class TopologyLinkDataChangeHandlerTest {
         // checkIfExistAndUpdateNodeConnector
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Forwarding).build();
-        NodeConnector nodeConnector = new NodeConnectorBuilder()
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+        NodeConnector nodeConnector = new NodeConnectorBuilder().addAugmentation(stpStatusAwareNodeConnector).build();
+//                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
         Optional<NodeConnector> optionalNodeConnector = Optional.of(nodeConnector);
         FluentFuture checkedFutureNc = Mockito.mock(FluentFuture.class);
         when(checkedFutureNc.get()).thenReturn(optionalNodeConnector);

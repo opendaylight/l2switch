@@ -78,8 +78,8 @@ public class InventoryReaderTest {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Forwarding).build();
         NodeConnector nodeConnector = new NodeConnectorBuilder()
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector)
+                .addAugmentation(addressCapableNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nodeConnector);
@@ -128,9 +128,9 @@ public class InventoryReaderTest {
         NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
         NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
         NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
         NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nc1);

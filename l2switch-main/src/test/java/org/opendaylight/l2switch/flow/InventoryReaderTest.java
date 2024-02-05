@@ -104,13 +104,13 @@ public class InventoryReaderTest {
 
         NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
         NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2")))
-                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+                .addAugmentation(addressCapableNodeConnector).build();
         NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector)
+                .addAugmentation(addressCapableNodeConnector).build();
         NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-                .addAugmentation(StpStatusAwareNodeConnector.class, stpStatusAwareNodeConnector)
-                .addAugmentation(AddressCapableNodeConnector.class, addressCapableNodeConnector).build();
+                .addAugmentation(stpStatusAwareNodeConnector)
+                .addAugmentation(addressCapableNodeConnector).build();
 
         List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
         nodeConnectors.add(nc1);
