@@ -8,13 +8,13 @@
 package org.opendaylight.l2switch.loopremover.topology;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -84,7 +84,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(0)).clear();
     }
@@ -101,7 +101,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(1)).clear();
     }
@@ -118,7 +118,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(0)).clear();
     }
@@ -135,7 +135,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(networkGraphService, times(1)).clear();
     }
@@ -162,7 +162,7 @@ public class TopologyLinkDataChangeHandlerTest {
             .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(0)).newReadWriteTransaction();
         verify(networkGraphService, times(0)).addLinks(any(List.class));
@@ -229,7 +229,7 @@ public class TopologyLinkDataChangeHandlerTest {
         when(readWriteTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(checkedFutureNc);
 
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(1)).newReadWriteTransaction();
         verify(networkGraphService, times(1)).addLinks(any(ArrayList.class));
@@ -301,10 +301,10 @@ public class TopologyLinkDataChangeHandlerTest {
         when(readWriteTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                .thenReturn(checkedFutureNc);
 
-        topologyLinkDataChangeHandler.onDataTreeChanged(Collections.singletonList(mockChange));
+        topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(1)).newReadWriteTransaction();
-        verify(networkGraphService, times(1)).addLinks(any(ArrayList.class));
+        verify(networkGraphService, times(1)).addLinks(anyList());
         verify(networkGraphService, times(1)).getAllLinks();
         verify(networkGraphService, times(1)).getLinksInMst();
         verify(readWriteTransaction, times(2)).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class),
