@@ -5,13 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.flow;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
@@ -43,7 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class InventoryReaderTest {
 
@@ -53,14 +52,10 @@ public class InventoryReaderTest {
     private ReadTransaction readOnlyTransaction;
     private Optional<Node> dataObjectOptional = Optional.empty();
     @Mock
-    private FluentFuture checkedFuture;
-    @Mock
     private Node node;
 
     private InventoryReader inventoryReader;
     private InstanceIdentifier<Node> nodeInstanceIdentifier;
-
-    private NodeRef nodeRef;
 
     @Before
     public void init() {
@@ -75,27 +70,33 @@ public class InventoryReaderTest {
                 .child(Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
-                .thenReturn(checkedFuture);
-        when(checkedFuture.get()).thenReturn(dataObjectOptional);
+                .thenReturn(FluentFutures.immediateFluentFuture(dataObjectOptional));
         if (dataObjectOptional.isPresent()) {
             node = dataObjectOptional.get();
         }
-        //when(dataObjectOptional.isPresent()).thenReturn(true);
-        //when(dataObjectOptional.get()).thenReturn(node);
 
         long now = new Date().getTime();
         IpAddress ipAddress1 = new IpAddress(Ipv4Address.getDefaultInstance("10.0.0.1"));
         MacAddress macAddress1 = new MacAddress("00:00:00:00:00:01");
-        final Addresses address1 = new AddressesBuilder().setIp(ipAddress1).setMac(macAddress1).setFirstSeen(now)
-                .setLastSeen(now).build();
+        final Addresses address1 = new AddressesBuilder()
+            .setId(Uint64.ZERO)
+            .setIp(ipAddress1)
+            .setMac(macAddress1)
+            .setFirstSeen(now)
+            .setLastSeen(now)
+            .build();
         IpAddress ipAddress2 = new IpAddress(Ipv4Address.getDefaultInstance("10.0.0.2"));
         MacAddress macAddress2 = new MacAddress("00:00:00:00:00:02");
-        final Addresses address2 = new AddressesBuilder().setIp(ipAddress2).setMac(macAddress2).setFirstSeen(now)
-                .setLastSeen(now).build();
-        List<Addresses> addressList = new ArrayList<Addresses>();
+        final Addresses address2 = new AddressesBuilder()
+            .setId(Uint64.ONE)
+            .setIp(ipAddress2)
+            .setMac(macAddress2)
+            .setFirstSeen(now)
+            .setLastSeen(now)
+            .build();
+        List<Addresses> addressList = new ArrayList<>();
         addressList.add(address1);
-        //error when adding 2nd item
-        //addressList.add(address2);
+        addressList.add(address2);
         AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder()
                 .setAddresses(addressList).build();
 
