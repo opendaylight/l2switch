@@ -22,6 +22,29 @@
       },
       "revId": "a56fdcda827ba6cf8178dd4785ac3016a9cf4607",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8078b98a_a7cc3e7d",
+        "filename": "loopremover/implementation/src/test/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandlerTest.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-02-14T04:08:51Z",
+      "side": 1,
+      "message": "raw type, but that does not bother anyone, does it?!",
+      "range": {
+        "startLine": 302,
+        "startChar": 8,
+        "endLine": 302,
+        "endChar": 20
+      },
+      "revId": "a56fdcda827ba6cf8178dd4785ac3016a9cf4607",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
