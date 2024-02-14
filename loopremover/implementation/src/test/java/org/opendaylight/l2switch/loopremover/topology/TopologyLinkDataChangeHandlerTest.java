@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 
 public class TopologyLinkDataChangeHandlerTest {
     @Mock
@@ -185,9 +186,10 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology
-        List<Link> links = new ArrayList<>();
-        links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
-        Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(links).build();
+        Topology topology = new TopologyBuilder()
+            .setTopologyId(new TopologyId("topo"))
+            .setLink(BindingMap.of(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build()))
+            .build();
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
@@ -254,9 +256,10 @@ public class TopologyLinkDataChangeHandlerTest {
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology
-        List<Link> links = new ArrayList<>();
-        links.add(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build());
-        Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(links).build();
+        Topology topology = new TopologyBuilder()
+            .setTopologyId(new TopologyId("topo"))
+            .setLink(BindingMap.of(new LinkBuilder().setLinkId(new LinkId("openflow:1")).build()))
+            .build();
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);

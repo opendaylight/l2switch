@@ -9,7 +9,6 @@ package org.opendaylight.l2switch.loopremover.flow;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -218,8 +218,9 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
 
             // Create an Apply Action
-            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList
-                    .of(getSendToControllerAction())).build();
+            ApplyActions applyActions = new ApplyActionsBuilder()
+                .setAction(BindingMap.of(getSendToControllerAction()))
+                .build();
 
             // Wrap our Apply Action in an Instruction
             Instruction applyActionsInstruction = new InstructionBuilder() //
@@ -233,7 +234,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             lldpFlow
                     .setMatch(match) //
                     .setInstructions(new InstructionsBuilder() //
-                            .setInstruction(ImmutableList.of(applyActionsInstruction)) //
+                            .setInstruction(BindingMap.of(applyActionsInstruction)) //
                             .build()) //
                     .setPriority(priority) //
                     .setBufferId(OFConstants.OFP_NO_BUFFER) //
