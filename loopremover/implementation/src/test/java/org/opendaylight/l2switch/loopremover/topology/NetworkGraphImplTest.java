@@ -73,7 +73,7 @@ public class NetworkGraphImplTest {
                 .setDestination(new DestinationBuilder().setDestNode(new NodeId("openflow:3"))
                         .setDestTp(new TpId("openflow:3")).build())
                 .build();
-        List<Link> links = new ArrayList<Link>();
+        List<Link> links = new ArrayList<>();
         links.add(link1);
         links.add(link2);
 
@@ -110,11 +110,11 @@ public class NetworkGraphImplTest {
                 .setDestination(new DestinationBuilder().setDestNode(new NodeId("openflow:4"))
                         .setDestTp(new TpId("openflow:4")).build())
                 .build();
-        List<Link> links = new ArrayList<Link>();
+        List<Link> links = new ArrayList<>();
         links.add(link1);
         links.add(link2);
         links.add(link3);
-        List<Link> removeLinks = new ArrayList<Link>();
+        List<Link> removeLinks = new ArrayList<>();
         removeLinks.add(link1);
 
         networkGraphImpl.addLinks(links);
@@ -179,7 +179,7 @@ public class NetworkGraphImplTest {
                 .setDestination(new DestinationBuilder().setDestNode(new NodeId("openflow:1"))
                         .setDestTp(new TpId("openflow:1:3")).build())
                 .build();
-        List<Link> links = new ArrayList<Link>();
+        List<Link> links = new ArrayList<>();
         links.add(link1);
         links.add(link2);
         links.add(link3);
