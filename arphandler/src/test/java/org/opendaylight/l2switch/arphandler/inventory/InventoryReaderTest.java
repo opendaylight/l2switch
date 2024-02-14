@@ -10,34 +10,29 @@ package org.opendaylight.l2switch.arphandler.inventory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.FluentFuture;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnectorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
@@ -46,53 +41,55 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class InventoryReaderTest {
-
     @Mock
     private DataBroker dataBroker;
+    @Mock
+    private ReadTransaction readOnlyTransaction;
+    @Mock
+    private InstanceIdentifier<Node> mockInstanceIdentifier;
+    @Mock
+    private MacAddress mockMacAddress;
+
     private InventoryReader inventoryReader;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    public void before() {
         inventoryReader = new InventoryReader(dataBroker);
     }
 
     @Test
     public void testGetControllerSwitchConnectors() throws Exception {
-        assertEquals(0, inventoryReader.getControllerSwitchConnectors().size());
+        assertEquals(Map.of(), inventoryReader.getControllerSwitchConnectors());
     }
 
     @Test
     public void testGetSwitchNodeConnectors() throws Exception {
-        assertEquals(0, inventoryReader.getSwitchNodeConnectors().size());
+        assertEquals(Map.of(), inventoryReader.getSwitchNodeConnectors());
     }
 
     @Test
     public void testGetNodeConnector() throws Exception {
-        List<Addresses> addressesList = new ArrayList<>();
-        addressesList.add(new AddressesBuilder()
-            .setId(Uint64.ZERO)
-            .setLastSeen(0L)
-            .setMac(new MacAddress("aa:bb:cc:dd:ee:ff"))
-            .build());
-        NodeConnector nodeConnector = new NodeConnectorBuilder()
-            .setId(new NodeConnectorId("connId"))
-            .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
-            .addAugmentation(new AddressCapableNodeConnectorBuilder().setAddresses(addressesList).build())
+        Node node = new NodeBuilder().setId(new NodeId("nodeId"))
+            .setNodeConnector(BindingMap.of(new NodeConnectorBuilder()
+                .setId(new NodeConnectorId("connId"))
+                .addAugmentation(new StpStatusAwareNodeConnectorBuilder().setStatus(StpStatus.Forwarding).build())
+                .addAugmentation(new AddressCapableNodeConnectorBuilder()
+                    .setAddresses(BindingMap.of(new AddressesBuilder()
+                        .setId(Uint64.ZERO)
+                        .setLastSeen(0L)
+                        .setMac(new MacAddress("aa:bb:cc:dd:ee:ff"))
+                        .build()))
+                    .build())
+                .build()))
             .build();
 
-        List<NodeConnector> nodeConnectors = new ArrayList<>();
-        nodeConnectors.add(nodeConnector);
-        Node node = new NodeBuilder().setId(new NodeId("nodeId")).setNodeConnector(nodeConnectors).build();
-        Optional<Node> optionalNode = Optional.of(node);
-
-        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        FluentFuture<Optional<Node>> checkedFuture = FluentFutures.immediateFluentFuture(optionalNode);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
-                .thenReturn(checkedFuture);
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.of(node)));
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         assertNotNull(inventoryReader.getNodeConnector(
@@ -103,13 +100,13 @@ public class InventoryReaderTest {
 
     @Test
     public void testGetNodeConnector_NullNodeInsId() throws Exception {
-        assertNull(inventoryReader.getNodeConnector(null, Mockito.mock(MacAddress.class)));
+        assertNull(inventoryReader.getNodeConnector(null, mockMacAddress));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
     public void testGetNodeConnector_NullMacAddress() throws Exception {
-        assertNull(inventoryReader.getNodeConnector(Mockito.mock(InstanceIdentifier.class), null));
+        assertNull(inventoryReader.getNodeConnector(mockInstanceIdentifier, null));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
@@ -124,29 +121,25 @@ public class InventoryReaderTest {
     public void testReadInventory_Refresh() throws Exception {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
-        NodeConnector nc1 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        NodeConnector nc2 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("2"))).build();
-        NodeConnector nc3 = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("3")))
-                .addAugmentation(stpStatusAwareNodeConnector).build();
-        NodeConnector ncLocal = new NodeConnectorBuilder().withKey(new NodeConnectorKey(new NodeConnectorId("LOCAL")))
-                .addAugmentation(stpStatusAwareNodeConnector).build();
 
-        List<NodeConnector> nodeConnectors = new ArrayList<NodeConnector>();
-        nodeConnectors.add(nc1);
-        nodeConnectors.add(nc2);
-        nodeConnectors.add(nc3);
-        nodeConnectors.add(ncLocal);
-        Node node = new NodeBuilder().setId(new NodeId("1")).setNodeConnector(nodeConnectors).build();
+        Node node = new NodeBuilder().setId(new NodeId("1"))
+            .setNodeConnector(BindingMap.of(
+                new NodeConnectorBuilder().setId(new NodeConnectorId("1")).build(),
+                new NodeConnectorBuilder().setId(new NodeConnectorId("2")).build(),
+                new NodeConnectorBuilder()
+                    .setId(new NodeConnectorId("3"))
+                    .addAugmentation(stpStatusAwareNodeConnector)
+                    .build(),
+                new NodeConnectorBuilder()
+                    .setId(new NodeConnectorId("LOCAL"))
+                    .addAugmentation(stpStatusAwareNodeConnector)
+                    .build()))
+            .build();
 
-        List<Node> nodeList = new ArrayList<Node>();
-        nodeList.add(node);
-        Nodes nodes = new NodesBuilder().setNode(nodeList).build();
-        Optional<Nodes> optionalNodes = Optional.of(nodes);
+        Nodes nodes = new NodesBuilder().setNode(BindingMap.of(node)).build();
 
-        ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        FluentFuture<Optional<Nodes>> checkedFuture = FluentFutures.immediateFluentFuture(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
-                .thenReturn(checkedFuture);
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.of(nodes)));
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         inventoryReader.setRefreshData(true);
