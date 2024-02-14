@@ -5,12 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.arphandler.core;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
@@ -136,7 +134,7 @@ public class PacketDispatcher {
                 .setIngress(ingress)
                 .build();
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(packetProcessingService.transmitPacket(input)),
+        Futures.addCallback(packetProcessingService.transmitPacket(input),
             new FutureCallback<RpcResult<?>>() {
                 @Override
                 public void onSuccess(RpcResult<?> result) {
