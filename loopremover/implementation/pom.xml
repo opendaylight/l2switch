@@ -17,11 +17,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.mdsal</groupId>
       <artifactId>mdsal-binding-api</artifactId>
     </dependency>
@@ -58,20 +53,11 @@
       <artifactId>loopremover-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>openflowplugin-api</artifactId>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
