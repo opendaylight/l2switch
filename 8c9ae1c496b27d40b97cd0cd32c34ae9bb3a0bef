@@ -16,6 +16,52 @@
       "message": "recheck",
       "revId": "8c9ae1c496b27d40b97cd0cd32c34ae9bb3a0bef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eaa89470_1c13f38c",
+        "filename": "loopremover/implementation/src/main/java/org/opendaylight/l2switch/loopremover/topology/NetworkGraphImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-02-14T00:34:44Z",
+      "side": 1,
+      "message": "we use static imports port requireNonNull",
+      "range": {
+        "startLine": 104,
+        "startChar": 8,
+        "endLine": 104,
+        "endChar": 30
+      },
+      "revId": "8c9ae1c496b27d40b97cd0cd32c34ae9bb3a0bef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ab33eb2_622519bf",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/utils/HexEncode.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-02-14T00:34:44Z",
+      "side": 1,
+      "message": "just remove old crud: we have git to preserve history and SonarCloud flags commented-out code.",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 48
+      },
+      "revId": "8c9ae1c496b27d40b97cd0cd32c34ae9bb3a0bef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
