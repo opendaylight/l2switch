@@ -166,7 +166,7 @@ public class Host {
     public synchronized List<Link> createLinks(
             org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node dstNode) {
         for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
-            if (apb.isActive()) {
+            if (apb.getActive()) {
                 for (NodeConnector nc : dstNode.nonnullNodeConnector().values()) {
                     if (nc.getId().getValue().equals(apb.getTpId().getValue())) {
                         return Utilities.createLinks(nodeBuilder.getNodeId(),
@@ -265,7 +265,7 @@ public class Host {
      */
     public synchronized boolean isOrphan() {
         for (AttachmentPointsBuilder attachmentPointsBuilder : attachmentPointsBuilders) {
-            if (attachmentPointsBuilder.isActive()) {
+            if (attachmentPointsBuilder.getActive()) {
                 return false;
             }
         }

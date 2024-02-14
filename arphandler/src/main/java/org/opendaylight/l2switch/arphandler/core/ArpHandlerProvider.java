@@ -44,7 +44,7 @@ public class ArpHandlerProvider {
     }
 
     public void init() {
-        if (arpHandlerConfig.isIsProactiveFloodMode()) {
+        if (arpHandlerConfig.getIsProactiveFloodMode()) {
             //Setup proactive flow writer, which writes flood flows
             LOG.info("ArpHandler is in Proactive Flood Mode");
             ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, salFlowService);
@@ -63,7 +63,7 @@ public class ArpHandlerProvider {
             initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority().toJava());
             initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout().toJava());
             initialFlowWriter.setFlowHardTimeout(arpHandlerConfig.getArpFlowHardTimeout().toJava());
-            initialFlowWriter.setIsHybridMode(arpHandlerConfig.isIsHybridMode());
+            initialFlowWriter.setIsHybridMode(arpHandlerConfig.getIsHybridMode());
             topoNodeListenerReg = initialFlowWriter.registerAsDataChangeListener(dataBroker);
 
             // Setup InventoryReader

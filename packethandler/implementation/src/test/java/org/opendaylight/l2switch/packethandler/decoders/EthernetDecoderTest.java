@@ -97,7 +97,7 @@ public class EthernetDecoderTest {
         assertEquals(1, ethernetPacket.getHeader8021q().size());
         assertEquals(Header8021qType.VlanTagged, ethernetPacket.getHeader8021q().get(0).getTPID());
         assertEquals(7, ethernetPacket.getHeader8021q().get(0).getPriorityCode().intValue());
-        assertTrue(ethernetPacket.getHeader8021q().get(0).isDropEligible());
+        assertTrue(ethernetPacket.getHeader8021q().get(0).getDropEligible());
         assertEquals(4095, ethernetPacket.getHeader8021q().get(0).getVlan().getValue().intValue());
         assertEquals("01:23:45:67:89:ab", ethernetPacket.getDestinationMac().getValue());
         assertEquals("cd:ef:01:23:45:67", ethernetPacket.getSourceMac().getValue());
@@ -130,11 +130,11 @@ public class EthernetDecoderTest {
         assertEquals(2, ethernetPacket.getHeader8021q().size());
         assertEquals(Header8021qType.QInQ, ethernetPacket.getHeader8021q().get(0).getTPID());
         assertEquals(7, ethernetPacket.getHeader8021q().get(0).getPriorityCode().intValue());
-        assertTrue(ethernetPacket.getHeader8021q().get(0).isDropEligible());
+        assertTrue(ethernetPacket.getHeader8021q().get(0).getDropEligible());
         assertEquals(4095, ethernetPacket.getHeader8021q().get(0).getVlan().getValue().intValue());
         assertEquals(Header8021qType.VlanTagged, ethernetPacket.getHeader8021q().get(1).getTPID());
         assertEquals(5, ethernetPacket.getHeader8021q().get(1).getPriorityCode().intValue());
-        assertFalse(ethernetPacket.getHeader8021q().get(1).isDropEligible());
+        assertFalse(ethernetPacket.getHeader8021q().get(1).getDropEligible());
         assertEquals(10, ethernetPacket.getHeader8021q().get(1).getVlan().getValue().intValue());
         assertEquals("01:23:45:67:89:ab", ethernetPacket.getDestinationMac().getValue());
         assertEquals("cd:ef:01:23:45:67", ethernetPacket.getSourceMac().getValue());

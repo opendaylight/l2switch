@@ -74,7 +74,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
             // Decode the flags -- Reserved, DF (Don't Fragment), MF (More Fragments)
             builder.setReservedFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 48, 1)[0] & 0xff));
-            if (builder.isReservedFlag()) {
+            if (builder.getReservedFlag()) {
                 LOG.debug("Reserved flag should be 0, but is 1.");
             }
             // "& 0xff" removes the sign of the Java byte

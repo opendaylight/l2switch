@@ -38,7 +38,7 @@ public class LoopRemoverProvider {
 
     public void init() {
         //Write initial flows
-        if (loopRemoverConfig.isIsInstallLldpFlow()) {
+        if (loopRemoverConfig.getIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
             initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId().toJava());

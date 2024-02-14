@@ -50,7 +50,7 @@ public class L2SwitchMainProvider {
         InventoryReader inventoryReader = new InventoryReader(dataService);
 
         // Write initial flows
-        if (mainConfig.isIsInstallDropallFlow()) {
+        if (mainConfig.getIsInstallDropallFlow()) {
             LOG.info("L2Switch will install a dropall flow on each switch");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
             initialFlowWriter.setFlowTableId(mainConfig.getDropallFlowTableId().toJava());
@@ -63,7 +63,7 @@ public class L2SwitchMainProvider {
             LOG.info("Dropall flows will not be installed");
         }
 
-        if (mainConfig.isIsLearningOnlyMode()) {
+        if (mainConfig.getIsLearningOnlyMode()) {
             LOG.info("L2Switch is in Learning Only Mode");
         }
         else {
