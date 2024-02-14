@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e35dbbde_df544525",
+        "filename": "loopremover/implementation/src/test/java/org/opendaylight/l2switch/loopremover/topology/TopologyLinkDataChangeHandlerTest.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-02-14T04:07:29Z",
+      "side": 1,
+      "message": "Yeah... disabling test assertions is always the right thing to do. Why do we even bother writing these, right?!?!?!",
+      "range": {
+        "startLine": 234,
+        "startChar": 7,
+        "endLine": 242,
+        "endChar": 11
+      },
+      "revId": "a56fdcda827ba6cf8178dd4785ac3016a9cf4607",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
