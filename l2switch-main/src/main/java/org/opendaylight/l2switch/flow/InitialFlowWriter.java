@@ -188,8 +188,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         private Flow createDropAllFlow(Short tableId, int priority) {
 
             // start building flow
-            FlowBuilder dropAll = new FlowBuilder() //
-                    .setTableId(tableId) //
+            FlowBuilder dropAll = new FlowBuilder()
+                    .setTableId(tableId)
                     .setFlowName("dropall");
 
             // use its own hash code for id.
@@ -198,7 +198,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             Match match = new MatchBuilder().build();
 
 
-            Action dropAllAction = new ActionBuilder() //
+            Action dropAllAction = new ActionBuilder()
                     .setOrder(0)
                     .setAction(new DropActionCaseBuilder().build())
                     .build();
@@ -208,23 +208,23 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
 
             // Wrap our Apply Action in an Instruction
-            Instruction applyActionsInstruction = new InstructionBuilder() //
+            Instruction applyActionsInstruction = new InstructionBuilder()
                     .setOrder(0)
-                    .setInstruction(new ApplyActionsCaseBuilder()//
-                            .setApplyActions(applyActions) //
-                            .build()) //
+                    .setInstruction(new ApplyActionsCaseBuilder()
+                            .setApplyActions(applyActions)
+                            .build())
                     .build();
 
             // Put our Instruction in a list of Instructions
             dropAll
-                    .setMatch(match) //
-                    .setInstructions(new InstructionsBuilder() //
-                            .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                            .build()) //
-                    .setPriority(priority) //
-                    .setBufferId(OFConstants.OFP_NO_BUFFER) //
-                    .setHardTimeout(flowHardTimeout) //
-                    .setIdleTimeout(flowIdleTimeout) //
+                    .setMatch(match)
+                    .setInstructions(new InstructionsBuilder()
+                            .setInstruction(ImmutableList.of(applyActionsInstruction))
+                            .build())
+                    .setPriority(priority)
+                    .setBufferId(OFConstants.OFP_NO_BUFFER)
+                    .setHardTimeout(flowHardTimeout)
+                    .setIdleTimeout(flowIdleTimeout)
                     .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
 

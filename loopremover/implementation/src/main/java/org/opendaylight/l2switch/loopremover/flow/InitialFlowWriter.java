@@ -200,8 +200,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         private Flow createLldpToControllerFlow(Short tableId, int priority) {
 
             // start building flow
-            FlowBuilder lldpFlow = new FlowBuilder() //
-                    .setTableId(tableId) //
+            FlowBuilder lldpFlow = new FlowBuilder()
+                    .setTableId(tableId)
                     .setFlowName("lldptocntrl");
 
             // use its own hash code for id.
@@ -219,23 +219,23 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .of(getSendToControllerAction())).build();
 
             // Wrap our Apply Action in an Instruction
-            Instruction applyActionsInstruction = new InstructionBuilder() //
+            Instruction applyActionsInstruction = new InstructionBuilder()
                     .setOrder(0)
-                    .setInstruction(new ApplyActionsCaseBuilder()//
-                            .setApplyActions(applyActions) //
-                            .build()) //
+                    .setInstruction(new ApplyActionsCaseBuilder()
+                            .setApplyActions(applyActions)
+                            .build())
                     .build();
 
             // Put our Instruction in a list of Instructions
             lldpFlow
-                    .setMatch(match) //
-                    .setInstructions(new InstructionsBuilder() //
-                            .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                            .build()) //
-                    .setPriority(priority) //
-                    .setBufferId(OFConstants.OFP_NO_BUFFER) //
-                    .setHardTimeout(flowHardTimeout) //
-                    .setIdleTimeout(flowIdleTimeout) //
+                    .setMatch(match)
+                    .setInstructions(new InstructionsBuilder()
+                            .setInstruction(ImmutableList.of(applyActionsInstruction))
+                            .build())
+                    .setPriority(priority)
+                    .setBufferId(OFConstants.OFP_NO_BUFFER)
+                    .setHardTimeout(flowHardTimeout)
+                    .setIdleTimeout(flowIdleTimeout)
                     .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
 

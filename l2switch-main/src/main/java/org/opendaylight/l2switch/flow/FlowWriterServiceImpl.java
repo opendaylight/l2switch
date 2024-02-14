@@ -170,17 +170,17 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             NodeConnectorRef destPort) {
 
         // start building flow
-        FlowBuilder macToMacFlow = new FlowBuilder() //
-                .setTableId(tableId) //
+        FlowBuilder macToMacFlow = new FlowBuilder()
+                .setTableId(tableId)
                 .setFlowName("mac2mac");
 
         // use its own hash code for id.
         macToMacFlow.setId(new FlowId(Long.toString(macToMacFlow.hashCode())));
 
         // create a match that has mac to mac ethernet match
-        EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder() //
-                .setEthernetDestination(new EthernetDestinationBuilder() //
-                        .setAddress(destMac) //
+        EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
+                .setEthernetDestination(new EthernetDestinationBuilder()
+                        .setAddress(destMac)
                         .build());
         // set source in the match only if present
         if (sourceMac != null) {

@@ -295,21 +295,21 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                                 }
 
                                 // Create an Apply Action
-                                ApplyActions applyActions = new ApplyActionsBuilder() //
+                                ApplyActions applyActions = new ApplyActionsBuilder()
                                         .setAction(ImmutableList.copyOf(outputActions)).build();
 
                                 // Wrap our Apply Action in an Instruction
-                                Instruction applyActionsInstruction = new InstructionBuilder() //
+                                Instruction applyActionsInstruction = new InstructionBuilder()
                                         .setOrder(0)
-                                        .setInstruction(new ApplyActionsCaseBuilder()//
-                                                .setApplyActions(applyActions) //
-                                                .build()) //
+                                        .setInstruction(new ApplyActionsCaseBuilder()
+                                                .setApplyActions(applyActions)
+                                                .build())
                                         .build();
 
                                 FlowBuilder floodFlowBuilder = createBaseFlowForPortMatch(outerNodeConnector);
-                                floodFlowBuilder.setInstructions(new InstructionsBuilder() //
-                                        .setInstruction(ImmutableList.of(applyActionsInstruction)) //
-                                        .build()); //
+                                floodFlowBuilder.setInstructions(new InstructionsBuilder()
+                                        .setInstruction(ImmutableList.of(applyActionsInstruction))
+                                        .build());
 
                                 writeFlowToSwitch(node.getId(), floodFlowBuilder.build());
                             }
@@ -325,11 +325,11 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
 
             Match match = new MatchBuilder().setInPort(nc.getId()).build();
 
-            floodFlow.setMatch(match) //
-                    .setPriority(flowPriority) //
-                    .setBufferId(OFConstants.OFP_NO_BUFFER) //
-                    .setHardTimeout(flowHardTimeout) //
-                    .setIdleTimeout(flowIdleTimeout) //
+            floodFlow.setMatch(match)
+                    .setPriority(flowPriority)
+                    .setBufferId(OFConstants.OFP_NO_BUFFER)
+                    .setHardTimeout(flowHardTimeout)
+                    .setIdleTimeout(flowIdleTimeout)
                     .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
             return floodFlow;

@@ -129,11 +129,11 @@ public class PacketDispatcher {
             return;
         }
         InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
-        TransmitPacketInput input = new TransmitPacketInputBuilder() //
-                .setPayload(payload) //
-                .setNode(new NodeRef(egressNodePath)) //
-                .setEgress(egress) //
-                .setIngress(ingress) //
+        TransmitPacketInput input = new TransmitPacketInputBuilder()
+                .setPayload(payload)
+                .setNode(new NodeRef(egressNodePath))
+                .setEgress(egress)
+                .setIngress(ingress)
                 .build();
 
         Futures.addCallback(JdkFutureAdapters.listenInPoolThread(packetProcessingService.transmitPacket(input)),

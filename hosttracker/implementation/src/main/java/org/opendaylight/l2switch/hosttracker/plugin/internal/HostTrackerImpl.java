@@ -108,19 +108,19 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
     public void init() {
         processorThread.start();
 
-        InstanceIdentifier<Addresses> addrCapableNodeConnectors = //
-                InstanceIdentifier.builder(Nodes.class) //
+        InstanceIdentifier<Addresses> addrCapableNodeConnectors =
+                InstanceIdentifier.builder(Nodes.class)
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class)
-                        .child(NodeConnector.class) //
-                        .augmentation(AddressCapableNodeConnector.class)//
+                        .child(NodeConnector.class)
+                        .augmentation(AddressCapableNodeConnector.class)
                         .child(Addresses.class).build();
         this.addrsNodeListenerRegistration = dataService.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, addrCapableNodeConnectors),
             // FIXME: add an specialized object instead of going through raw types!
             (DataTreeChangeListener)this);
 
-        InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)//
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))//
+        InstanceIdentifier<HostNode> hostNodes = InstanceIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
                 .child(Node.class)
                 .augmentation(HostNode.class).build();
         this.hostNodeListenerRegistration = dataService.registerDataTreeChangeListener(
@@ -128,7 +128,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
             // FIXME: add an specialized object instead of going through raw types!
             (DataTreeChangeListener)this);
 
-        InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(NetworkTopology.class)//
+        InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
                 .child(Link.class).build();
 
@@ -158,7 +158,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
 ////                    processHost(result, dataObject, node);
 //                }
 //            }
-//
+
 //            @Override
 //            public void onFailure(Throwable arg0) {
 //            }
