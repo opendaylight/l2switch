@@ -5,11 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.loopremover.flow;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableList;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,6 +62,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,37 +77,36 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
     private static final String FLOW_ID_PREFIX = "L2switch-";
-    private static  final int LLDP_ETHER_TYPE = 35020;
+    private static final Uint32 LLDP_ETHER_TYPE = Uint32.valueOf(35020);
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
+    private Uint8 flowTableId = Uint8.ZERO;
+    private Uint16 flowPriority = Uint16.ZERO;
+    private Uint16 flowIdleTimeout = Uint16.ZERO;
+    private Uint16 flowHardTimeout = Uint16.ZERO;
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-
     public InitialFlowWriter(SalFlowService salFlowService) {
-        this.salFlowService = salFlowService;
+        this.salFlowService = requireNonNull(salFlowService);
     }
 
-    public void setFlowTableId(short flowTableId) {
-        this.flowTableId = flowTableId;
+    public void setFlowTableId(Uint8 flowTableId) {
+        this.flowTableId = requireNonNull(flowTableId);
     }
 
-    public void setFlowPriority(int flowPriority) {
-        this.flowPriority = flowPriority;
+    public void setFlowPriority(Uint16 flowPriority) {
+        this.flowPriority = requireNonNull(flowPriority);
     }
 
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
-        this.flowIdleTimeout = flowIdleTimeout;
+    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
+        this.flowIdleTimeout = requireNonNull(flowIdleTimeout);
     }
 
-    public void setFlowHardTimeout(int flowHardTimeout) {
-        this.flowHardTimeout = flowHardTimeout;
+    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
+        this.flowHardTimeout = requireNonNull(flowHardTimeout);
     }
 
     public ListenerRegistration<InitialFlowWriter> registerAsDataChangeListener(DataBroker dataBroker) {
@@ -197,7 +200,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             return tableId.child(Flow.class, flowKey);
         }
 
-        private Flow createLldpToControllerFlow(Short tableId, int priority) {
+        private Flow createLldpToControllerFlow(Uint8 tableId, Uint16 priority) {
 
             // start building flow
             FlowBuilder lldpFlow = new FlowBuilder() //
@@ -208,7 +211,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             lldpFlow.setId(new FlowId(Long.toString(lldpFlow.hashCode())));
             EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
                     .setEthernetType(new EthernetTypeBuilder()
-                            .setType(new EtherType(Long.valueOf(LLDP_ETHER_TYPE))).build());
+                            .setType(new EtherType(LLDP_ETHER_TYPE)).build());
 
             Match match = new MatchBuilder()
                     .setEthernetMatch(ethernetMatchBuilder.build())
@@ -236,7 +239,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .setBufferId(OFConstants.OFP_NO_BUFFER) //
                     .setHardTimeout(flowHardTimeout) //
                     .setIdleTimeout(flowIdleTimeout) //
-                    .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+                    .setCookie(new FlowCookie(Uint64.fromLongBits(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
 
             return lldpFlow.build();
@@ -248,7 +251,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .withKey(new ActionKey(0))
                     .setAction(new OutputActionCaseBuilder()
                             .setOutputAction(new OutputActionBuilder()
-                                    .setMaxLength(0xffff)
+                                    .setMaxLength(Uint16.MAX_VALUE)
                                     .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
                                     .build())
                             .build())
