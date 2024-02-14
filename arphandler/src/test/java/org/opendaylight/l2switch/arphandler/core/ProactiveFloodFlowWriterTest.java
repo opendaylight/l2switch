@@ -7,14 +7,12 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -45,6 +43,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class ProactiveFloodFlowWriterTest {
 
@@ -67,22 +68,22 @@ public class ProactiveFloodFlowWriterTest {
 
     @Test
     public void testSetFlowTableId() throws Exception {
-        proactiveFloodFlowWriter.setFlowTableId((short) 0);
+        proactiveFloodFlowWriter.setFlowTableId(Uint8.ZERO);
     }
 
     @Test
     public void testSetFlowPriority() throws Exception {
-        proactiveFloodFlowWriter.setFlowPriority(0);
+        proactiveFloodFlowWriter.setFlowPriority(Uint16.ZERO);
     }
 
     @Test
     public void testSetFlowIdleTimeout() throws Exception {
-        proactiveFloodFlowWriter.setFlowIdleTimeout(0);
+        proactiveFloodFlowWriter.setFlowIdleTimeout(Uint16.ZERO);
     }
 
     @Test
     public void testSetFlowHardTimeout() throws Exception {
-        proactiveFloodFlowWriter.setFlowHardTimeout(0);
+        proactiveFloodFlowWriter.setFlowHardTimeout(Uint16.ZERO);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,19 +119,15 @@ public class ProactiveFloodFlowWriterTest {
         nodeConnectors.add(ncLocal);
         Node node = new NodeBuilder().setId(new NodeId("nodeId")).setNodeConnector(nodeConnectors).build();
 
-        List<Node> nodeList = new ArrayList<>();
-        nodeList.add(node);
-        Nodes nodes = new NodesBuilder().setNode(nodeList).build();
-        Optional<Nodes> optionalNodes = Optional.of(nodes);
+        Nodes nodes = new NodesBuilder().setNode(BindingMap.of(node)).build();
 
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        FluentFuture<Optional<Nodes>> checkedFuture = FluentFutures.immediateFluentFuture(optionalNodes);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
-                .thenReturn(checkedFuture);
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.of(nodes)));
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
+        proactiveFloodFlowWriter.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(250);
         verify(dataBroker, times(1)).newReadOnlyTransaction();
         verify(salFlowService, times(2)).addFlow(any(AddFlowInput.class));

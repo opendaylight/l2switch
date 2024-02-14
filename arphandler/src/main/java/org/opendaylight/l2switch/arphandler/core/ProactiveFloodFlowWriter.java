@@ -7,9 +7,9 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
-import com.google.common.collect.ImmutableList;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.FluentFuture;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -72,8 +72,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,36 +98,36 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     private volatile boolean flowRefreshScheduled = false;
     private volatile boolean threadReschedule = false;
     private long flowInstallationDelay;
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
+    private Uint8 flowTableId = Uint8.ZERO;
+    private Uint16 flowPriority = Uint16.ZERO;
+    private Uint16 flowIdleTimeout = Uint16.ZERO;
+    private Uint16 flowHardTimeout = Uint16.ZERO;
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
     public ProactiveFloodFlowWriter(DataBroker dataBroker, SalFlowService salFlowService) {
-        this.dataBroker = dataBroker;
-        this.salFlowService = salFlowService;
+        this.dataBroker = requireNonNull(dataBroker);
+        this.salFlowService = requireNonNull(salFlowService);
     }
 
     public void setFlowInstallationDelay(long flowInstallationDelay) {
         this.flowInstallationDelay = flowInstallationDelay;
     }
 
-    public void setFlowTableId(short flowTableId) {
-        this.flowTableId = flowTableId;
+    public void setFlowTableId(Uint8 flowTableId) {
+        this.flowTableId = requireNonNull(flowTableId);
     }
 
-    public void setFlowPriority(int flowPriority) {
-        this.flowPriority = flowPriority;
+    public void setFlowPriority(Uint16 flowPriority) {
+        this.flowPriority = requireNonNull(flowPriority);
     }
 
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
-        this.flowIdleTimeout = flowIdleTimeout;
+    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
+        this.flowIdleTimeout = requireNonNull(flowIdleTimeout);
     }
 
-    public void setFlowHardTimeout(int flowHardTimeout) {
-        this.flowHardTimeout = flowHardTimeout;
+    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
+        this.flowHardTimeout = requireNonNull(flowHardTimeout);
     }
 
     @Override
@@ -296,7 +299,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
 
                                 // Create an Apply Action
                                 ApplyActions applyActions = new ApplyActionsBuilder()
-                                        .setAction(ImmutableList.copyOf(outputActions)).build();
+                                        .setAction(BindingMap.ordered(outputActions)).build();
 
                                 // Wrap our Apply Action in an Instruction
                                 Instruction applyActionsInstruction = new InstructionBuilder()
@@ -308,7 +311,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
 
                                 FlowBuilder floodFlowBuilder = createBaseFlowForPortMatch(outerNodeConnector);
                                 floodFlowBuilder.setInstructions(new InstructionsBuilder()
-                                        .setInstruction(ImmutableList.of(applyActionsInstruction))
+                                        .setInstruction(BindingMap.of(applyActionsInstruction))
                                         .build());
 
                                 writeFlowToSwitch(node.getId(), floodFlowBuilder.build());
@@ -330,7 +333,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
                     .setBufferId(OFConstants.OFP_NO_BUFFER)
                     .setHardTimeout(flowHardTimeout)
                     .setIdleTimeout(flowIdleTimeout)
-                    .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+                    .setCookie(new FlowCookie(Uint64.fromLongBits(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
             return floodFlow;
         }

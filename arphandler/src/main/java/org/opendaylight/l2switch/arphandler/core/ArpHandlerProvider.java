@@ -48,10 +48,10 @@ public class ArpHandlerProvider {
             //Setup proactive flow writer, which writes flood flows
             LOG.info("ArpHandler is in Proactive Flood Mode");
             ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, salFlowService);
-            floodFlowWriter.setFlowTableId(arpHandlerConfig.getFloodFlowTableId().toJava());
-            floodFlowWriter.setFlowPriority(arpHandlerConfig.getFloodFlowPriority().toJava());
-            floodFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getFloodFlowIdleTimeout().toJava());
-            floodFlowWriter.setFlowHardTimeout(arpHandlerConfig.getFloodFlowHardTimeout().toJava());
+            floodFlowWriter.setFlowTableId(arpHandlerConfig.getFloodFlowTableId());
+            floodFlowWriter.setFlowPriority(arpHandlerConfig.getFloodFlowPriority());
+            floodFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getFloodFlowIdleTimeout());
+            floodFlowWriter.setFlowHardTimeout(arpHandlerConfig.getFloodFlowHardTimeout());
             floodFlowWriter.setFlowInstallationDelay(arpHandlerConfig.getFloodFlowInstallationDelay().toJava());
             floodTopoListenerReg = floodFlowWriter.registerAsDataChangeListener();
             floodInvListenerReg = notificationService.registerNotificationListener(floodFlowWriter);
@@ -59,10 +59,10 @@ public class ArpHandlerProvider {
             //Write initial flows to send arp to controller
             LOG.info("ArpHandler is in Reactive Mode");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(arpHandlerConfig.getArpFlowTableId().toJava());
-            initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority().toJava());
-            initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout().toJava());
-            initialFlowWriter.setFlowHardTimeout(arpHandlerConfig.getArpFlowHardTimeout().toJava());
+            initialFlowWriter.setFlowTableId(arpHandlerConfig.getArpFlowTableId());
+            initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority());
+            initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout());
+            initialFlowWriter.setFlowHardTimeout(arpHandlerConfig.getArpFlowHardTimeout());
             initialFlowWriter.setIsHybridMode(arpHandlerConfig.getIsHybridMode());
             topoNodeListenerReg = initialFlowWriter.registerAsDataChangeListener(dataBroker);
 

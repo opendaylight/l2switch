@@ -5,11 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.arphandler.flow;
 
-import com.google.common.collect.ImmutableList;
-import java.math.BigInteger;
+import static java.util.Objects.requireNonNull;
+
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -64,7 +63,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,37 +80,37 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(InitialFlowWriter.class);
 
     private static final String FLOW_ID_PREFIX = "L2switch-";
+    private static final EtherType ARP_ETHER_TYPE = new EtherType(Uint32.valueOf(KnownEtherType.Arp.getIntValue()));
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
     private final SalFlowService salFlowService;
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
+    private Uint8 flowTableId = Uint8.ZERO;
+    private Uint16 flowPriority = Uint16.ZERO;
+    private Uint16 flowIdleTimeout = Uint16.ZERO;
+    private Uint16 flowHardTimeout = Uint16.ZERO;
     private boolean isHybridMode;
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-
     public InitialFlowWriter(SalFlowService salFlowService) {
-        this.salFlowService = salFlowService;
+        this.salFlowService = requireNonNull(salFlowService);
     }
 
-    public void setFlowTableId(short flowTableId) {
-        this.flowTableId = flowTableId;
+    public void setFlowTableId(Uint8 flowTableId) {
+        this.flowTableId = requireNonNull(flowTableId);
     }
 
-    public void setFlowPriority(int flowPriority) {
-        this.flowPriority = flowPriority;
+    public void setFlowPriority(Uint16 flowPriority) {
+        this.flowPriority = requireNonNull(flowPriority);
     }
 
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
-        this.flowIdleTimeout = flowIdleTimeout;
+    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
+        this.flowIdleTimeout = requireNonNull(flowIdleTimeout);
     }
 
-    public void setFlowHardTimeout(int flowHardTimeout) {
-        this.flowHardTimeout = flowHardTimeout;
+    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
+        this.flowHardTimeout = requireNonNull(flowHardTimeout);
     }
 
     public void setIsHybridMode(boolean isHybridMode) {
@@ -202,7 +206,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             return tableId.child(Flow.class, flowKey);
         }
 
-        private Flow createArpToControllerFlow(Short tableId, int priority) {
+        private Flow createArpToControllerFlow(Uint8 tableId, Uint16 priority) {
 
             // start building flow
             FlowBuilder arpFlow = new FlowBuilder()
@@ -212,22 +216,39 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             // use its own hash code for id.
             arpFlow.setId(new FlowId(Long.toString(arpFlow.hashCode())));
             EthernetMatchBuilder ethernetMatchBuilder = new EthernetMatchBuilder()
-                    .setEthernetType(new EthernetTypeBuilder()
-                            .setType(new EtherType(Long.valueOf(KnownEtherType.Arp.getIntValue()))).build());
+                    .setEthernetType(new EthernetTypeBuilder().setType(ARP_ETHER_TYPE).build());
 
             Match match = new MatchBuilder()
                     .setEthernetMatch(ethernetMatchBuilder.build())
                     .build();
 
             List<Action> actions = new ArrayList<>();
-            actions.add(getSendToControllerAction());
+            actions.add(new ActionBuilder()
+                .setOrder(0)
+                .withKey(new ActionKey(0))
+                .setAction(new OutputActionCaseBuilder()
+                    .setOutputAction(new OutputActionBuilder()
+                        .setMaxLength(Uint16.MAX_VALUE)
+                        .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
+                        .build())
+                    .build())
+                .build());
             if (isHybridMode) {
-                actions.add(getNormalAction());
+                actions.add(new ActionBuilder()
+                    .setOrder(1)
+                    .withKey(new ActionKey(1))
+                    .setAction(new OutputActionCaseBuilder()
+                        .setOutputAction(new OutputActionBuilder()
+                            .setMaxLength(Uint16.MAX_VALUE)
+                            .setOutputNodeConnector(new Uri(OutputPortValues.NORMAL.toString()))
+                            .build())
+                        .build())
+                    .build());
             }
 
             // Create an Apply Action
             ApplyActions applyActions = new ApplyActionsBuilder()
-                    .setAction(ImmutableList.copyOf(actions))
+                    .setAction(BindingMap.ordered(actions))
                     .build();
 
             // Wrap our Apply Action in an Instruction
@@ -242,57 +263,28 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             arpFlow
                     .setMatch(match)
                     .setInstructions(new InstructionsBuilder()
-                            .setInstruction(ImmutableList.of(applyActionsInstruction))
+                            .setInstruction(BindingMap.of(applyActionsInstruction))
                             .build())
                     .setPriority(priority)
                     .setBufferId(OFConstants.OFP_NO_BUFFER)
                     .setHardTimeout(flowHardTimeout)
                     .setIdleTimeout(flowIdleTimeout)
-                    .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+                    .setCookie(new FlowCookie(Uint64.fromLongBits(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
 
             return arpFlow.build();
         }
 
-        private Action getSendToControllerAction() {
-            Action sendToController = new ActionBuilder()
-                    .setOrder(0)
-                    .withKey(new ActionKey(0))
-                    .setAction(new OutputActionCaseBuilder()
-                            .setOutputAction(new OutputActionBuilder()
-                                    .setMaxLength(0xffff)
-                                    .setOutputNodeConnector(new Uri(OutputPortValues.CONTROLLER.toString()))
-                                    .build())
-                            .build())
-                    .build();
-            return sendToController;
-        }
-
-        private Action getNormalAction() {
-            Action normal = new ActionBuilder()
-                    .setOrder(0)
-                    .withKey(new ActionKey(0))
-                    .setAction(new OutputActionCaseBuilder()
-                            .setOutputAction(new OutputActionBuilder()
-                                    .setMaxLength(0xffff)
-                                    .setOutputNodeConnector(new Uri(OutputPortValues.NORMAL.toString()))
-                                    .build())
-                            .build())
-                    .build();
-            return normal;
-        }
-
-        private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
-                                                                       InstanceIdentifier<Table> tableInstanceId,
-                                                                       InstanceIdentifier<Flow> flowPath,
-                                                                       Flow flow) {
-            LOG.trace("Adding flow to node {}",nodeInstanceId.firstKeyOf(Node.class).getId().getValue());
-            final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
-            builder.setNode(new NodeRef(nodeInstanceId));
-            builder.setFlowRef(new FlowRef(flowPath));
-            builder.setFlowTable(new FlowTableRef(tableInstanceId));
-            builder.setTransactionUri(new Uri(flow.getId().getValue()));
-            return salFlowService.addFlow(builder.build());
+        private ListenableFuture<RpcResult<AddFlowOutput>> writeFlowToController(
+                InstanceIdentifier<Node> nodeInstanceId, InstanceIdentifier<Table> tableInstanceId,
+                InstanceIdentifier<Flow> flowPath, Flow flow) {
+            LOG.trace("Adding flow to node {}", nodeInstanceId.firstKeyOf(Node.class).getId().getValue());
+            return salFlowService.addFlow(new AddFlowInputBuilder(flow)
+                .setNode(new NodeRef(nodeInstanceId))
+                .setFlowRef(new FlowRef(flowPath))
+                .setFlowTable(new FlowTableRef(tableInstanceId))
+                .setTransactionUri(new Uri(flow.getId().getValue()))
+                .build());
         }
     }
 }
