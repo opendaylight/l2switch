@@ -41,10 +41,10 @@ public class LoopRemoverProvider {
         if (loopRemoverConfig.getIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId().toJava());
-            initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority().toJava());
-            initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout().toJava());
-            initialFlowWriter.setFlowHardTimeout(loopRemoverConfig.getLldpFlowHardTimeout().toJava());
+            initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId());
+            initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority());
+            initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout());
+            initialFlowWriter.setFlowHardTimeout(loopRemoverConfig.getLldpFlowHardTimeout());
             topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
         }
 
