@@ -10,15 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>single-feature-parent</artifactId>
-        <version>8.1.9</version>
-        <relativePath/>
+        <groupId>org.opendaylight.l2switch</groupId>
+        <artifactId>feature-parent</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+        <relativePath>../feature-parent</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>odl-l2switch-packethandler</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: L2Switch :: PacketHandler</name>
@@ -27,14 +25,12 @@
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-southbound</artifactId>
-            <version>0.12.4</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.l2switch.packethandler</groupId>
             <artifactId>packethandler-impl</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
