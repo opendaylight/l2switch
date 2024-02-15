@@ -129,11 +129,10 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         Set<InstanceIdentifier<?>> nodeIds = new HashSet<>();
         for (DataTreeModification<Node> change: changes) {
             DataObjectModification<Node> rootNode = change.getRootNode();
-            final InstanceIdentifier<Node> identifier = change.getRootPath().getRootIdentifier();
             switch (rootNode.getModificationType()) {
                 case WRITE:
                     if (rootNode.getDataBefore() == null) {
-                        nodeIds.add(identifier);
+                        nodeIds.add(change.getRootPath().getRootIdentifier());
                     }
                     break;
                 default:
