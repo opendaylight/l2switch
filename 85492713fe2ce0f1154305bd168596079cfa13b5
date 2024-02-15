@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66e80b20_3e9c2e8f",
+        "filename": "hosttracker/implementation/src/test/java/org/opendaylight/l2switch/hosttracker/plugin/internal/HostTrackerImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-02-15T10:16:27Z",
+      "side": 1,
+      "message": "powermock should not be used",
+      "range": {
+        "startLine": 54,
+        "startChar": 8,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "85492713fe2ce0f1154305bd168596079cfa13b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
