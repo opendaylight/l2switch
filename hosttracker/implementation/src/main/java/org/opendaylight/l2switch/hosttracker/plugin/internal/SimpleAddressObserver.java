@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * A Simple Address Observer based on l2switch address observer.
@@ -187,7 +188,9 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
          */
         BigInteger id = BigInteger.valueOf(ketype.getIntValue()).abs()
                 .add(BigInteger.valueOf(srcMacAddr.hashCode()).abs().shiftLeft(16));
-        addrs.setId(id);
+        Uint64 newid = Uint64.valueOf(id);
+
+        addrs.setId(newid);
         addrs.withKey(new AddressesKey(addrs.getId()));
         addrs.setVlan(vlanId);
         addrs.setIp(srcIpAddr);
