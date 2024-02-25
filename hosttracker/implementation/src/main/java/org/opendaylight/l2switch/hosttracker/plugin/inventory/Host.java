@@ -34,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,13 +67,9 @@ public class Host {
     }
 
     public Host(Addresses addrs, NodeConnector nodeConnector) throws InvalidParameterException {
-        List<Addresses> setAddrs = new ArrayList<>();
-        if (addrs != null) {
-            setAddrs.add(addrs);
-        }
-        hostNodeBuilder.setAddresses(setAddrs);
         HostId hostId = requireNonNull(createHostId(addrs),
             "This host doesn't contain a valid MAC address to assign a valid HostId");
+        hostNodeBuilder.setAddresses(BindingMap.of(addrs));
         hostNodeBuilder.setId(hostId);
         if (nodeConnector != null) {
             AttachmentPointsBuilder apb = Utilities.createAPsfromNodeConnector(nodeConnector);
@@ -82,11 +80,13 @@ public class Host {
     }
 
     public synchronized Node getHostNode() {
-        List<AttachmentPoints> attachmentPoints = new ArrayList<>();
+        Map<AttachmentPointsKey, AttachmentPoints> attachmentPointsMap =
+                new HashMap<AttachmentPointsKey, AttachmentPoints>();
         for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
-            attachmentPoints.add(apb.build());
+            AttachmentPoints builtAttachmentPoints = apb.build();
+            attachmentPointsMap.put(builtAttachmentPoints.key(), builtAttachmentPoints);
         }
-        hostNodeBuilder.setAttachmentPoints(attachmentPoints);
+        hostNodeBuilder.setAttachmentPoints(attachmentPointsMap);
         return nodeBuilder.addAugmentation(hostNodeBuilder.build()).build();
     }
 
@@ -98,13 +98,14 @@ public class Host {
      *     each HostNodeBuilder's AttachmentPoints.
      */
     private static NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
-        List<TerminationPoint> tps = new ArrayList<>();
+        Map<TerminationPointKey, TerminationPoint> tpsMap =
+                new HashMap<TerminationPointKey, TerminationPoint>();
         for (AttachmentPointsBuilder apb : apbs) {
             TerminationPoint tp = createTerminationPoint(hostNode);
-            tps.add(tp);
+            tpsMap.put(tp.key(), tp);
             apb.setCorrespondingTp(tp.getTpId());
         }
-        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode)).setTerminationPoint(tps);
+        NodeBuilder node = new NodeBuilder().setNodeId(createNodeId(hostNode)).setTerminationPoint(tpsMap);
         node.withKey(new NodeKey(node.getNodeId()));
 
         return node;
