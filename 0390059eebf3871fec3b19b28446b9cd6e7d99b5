@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b78a1b6_d33d97ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-02-27T08:53:38Z",
+      "side": 1,
+      "message": "Please try to follow https://cbea.ms/git-commit/",
+      "revId": "0390059eebf3871fec3b19b28446b9cd6e7d99b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bd7ba80_ada8eae6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-02-27T08:53:38Z",
+      "side": 1,
+      "message": "Please see correct order of following, for example in previous patches or other projects:\nJIRA:\u003cif applicable\u003e\nChange-Id:\nSigned-off-by:",
+      "revId": "0390059eebf3871fec3b19b28446b9cd6e7d99b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "160ea76b_627583a3",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-02-27T08:53:38Z",
+      "side": 1,
+      "message": "Can be inlined.",
+      "revId": "0390059eebf3871fec3b19b28446b9cd6e7d99b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
