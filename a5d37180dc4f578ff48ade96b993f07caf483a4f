@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c486a910_8992825e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-02-28T15:31:10Z",
+      "side": 1,
+      "message": "Hi Ivan, please let me know if I still need to modify the code at Host.java.",
+      "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b5fca63_f18e9fd9",
@@ -14,6 +31,24 @@
       "writtenOn": "2024-02-27T19:25:37Z",
       "side": 1,
       "message": "IMO this chnages the logic from using empty list in case addrs i null to throwing an exception.",
+      "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d388687_adc01a58",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/inventory/Host.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-02-28T15:31:10Z",
+      "side": 1,
+      "message": "Correct! The question I have is: what is better, to use an empty Map or to throw an exception? Since line 74 throws an exception when there is no valid MAC address, I thought the same should apply for a non-address. If you think it is better to maintain the original logic, I would change it back.",
+      "parentUuid": "0b5fca63_f18e9fd9",
       "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
