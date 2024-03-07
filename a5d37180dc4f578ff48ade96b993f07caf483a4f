@@ -71,6 +71,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "934c334b_d8dd184f",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/inventory/Host.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-03-07T23:36:45Z",
+      "side": 1,
+      "message": "This has been addressed in the other comment.",
+      "parentUuid": "8b152c7a_d28a5961",
+      "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37455561_40a28734",
@@ -84,6 +102,24 @@
       "writtenOn": "2024-03-07T16:49:45Z",
       "side": 1,
       "message": "Aha, so we can move this logic completely up 😄.",
+      "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e2388b0_474b40e9",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/inventory/Host.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-03-07T23:36:45Z",
+      "side": 1,
+      "message": "Yes! So I moved this up and then there is no need to verify again if \"addrs !\u003d null\": When I tried to add the \"if\" back, even the Java editor told me that it was redundant. So now we just check once that the address is valid, and then set the Address and hostId one after the other.",
+      "parentUuid": "37455561_40a28734",
       "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
