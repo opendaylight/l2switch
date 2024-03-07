@@ -51,6 +51,24 @@
       "parentUuid": "0b5fca63_f18e9fd9",
       "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b152c7a_d28a5961",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/inventory/Host.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-03-07T16:45:28Z",
+      "side": 1,
+      "message": "Change it back, at least for now 😊.",
+      "parentUuid": "5d388687_adc01a58",
+      "revId": "a5d37180dc4f578ff48ade96b993f07caf483a4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
