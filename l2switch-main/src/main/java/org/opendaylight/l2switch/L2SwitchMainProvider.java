@@ -41,10 +41,10 @@ public class L2SwitchMainProvider {
     public void init() {
         // Setup FlowWrtierService
         FlowWriterServiceImpl flowWriterService = new FlowWriterServiceImpl(salFlowService);
-        flowWriterService.setFlowTableId(mainConfig.getReactiveFlowTableId().toJava());
-        flowWriterService.setFlowPriority(mainConfig.getReactiveFlowPriority().toJava());
-        flowWriterService.setFlowIdleTimeout(mainConfig.getReactiveFlowIdleTimeout().toJava());
-        flowWriterService.setFlowHardTimeout(mainConfig.getReactiveFlowHardTimeout().toJava());
+        flowWriterService.setFlowTableId(mainConfig.getReactiveFlowTableId());
+        flowWriterService.setFlowPriority(mainConfig.getReactiveFlowPriority());
+        flowWriterService.setFlowIdleTimeout(mainConfig.getReactiveFlowIdleTimeout());
+        flowWriterService.setFlowHardTimeout(mainConfig.getReactiveFlowHardTimeout());
 
         // Setup InventoryReader
         InventoryReader inventoryReader = new InventoryReader(dataService);
@@ -53,10 +53,10 @@ public class L2SwitchMainProvider {
         if (mainConfig.getIsInstallDropallFlow()) {
             LOG.info("L2Switch will install a dropall flow on each switch");
             InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
-            initialFlowWriter.setFlowTableId(mainConfig.getDropallFlowTableId().toJava());
-            initialFlowWriter.setFlowPriority(mainConfig.getDropallFlowPriority().toJava());
-            initialFlowWriter.setFlowIdleTimeout(mainConfig.getDropallFlowIdleTimeout().toJava());
-            initialFlowWriter.setFlowHardTimeout(mainConfig.getDropallFlowHardTimeout().toJava());
+            initialFlowWriter.setFlowTableId(mainConfig.getDropallFlowTableId());
+            initialFlowWriter.setFlowPriority(mainConfig.getDropallFlowPriority());
+            initialFlowWriter.setFlowIdleTimeout(mainConfig.getDropallFlowIdleTimeout());
+            initialFlowWriter.setFlowHardTimeout(mainConfig.getDropallFlowHardTimeout());
             topoNodeListherReg = initialFlowWriter.registerAsDataChangeListener(dataService);
         }
         else {
