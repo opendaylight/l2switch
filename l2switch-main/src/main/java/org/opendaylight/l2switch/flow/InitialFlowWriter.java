@@ -7,8 +7,6 @@
  */
 package org.opendaylight.l2switch.flow;
 
-import com.google.common.collect.ImmutableList;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +52,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,28 +73,28 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
+    private Uint8 flowTableId = Uint8.ZERO;
+    private Uint16 flowPriority = Uint16.ZERO;
+    private Uint16 flowIdleTimeout = Uint16.ZERO;
+    private Uint16 flowHardTimeout = Uint16.ZERO;
 
     public InitialFlowWriter(SalFlowService salFlowService) {
         this.salFlowService = salFlowService;
     }
 
-    public void setFlowTableId(short flowTableId) {
+    public void setFlowTableId(Uint8 flowTableId) {
         this.flowTableId = flowTableId;
     }
 
-    public void setFlowPriority(int flowPriority) {
+    public void setFlowPriority(Uint16 flowPriority) {
         this.flowPriority = flowPriority;
     }
 
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
+    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
         this.flowIdleTimeout = flowIdleTimeout;
     }
 
-    public void setFlowHardTimeout(int flowHardTimeout) {
+    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
         this.flowHardTimeout = flowHardTimeout;
     }
 
@@ -185,7 +187,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             return tableId.child(Flow.class, flowKey);
         }
 
-        private Flow createDropAllFlow(Short tableId, int priority) {
+        private Flow createDropAllFlow(Uint8 tableId, Uint16 priority) {
 
             // start building flow
             FlowBuilder dropAll = new FlowBuilder()
@@ -204,7 +206,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
 
             // Create an Apply Action
-            ApplyActions applyActions = new ApplyActionsBuilder().setAction(ImmutableList.of(dropAllAction))
+            ApplyActions applyActions = new ApplyActionsBuilder().setAction(BindingMap.of(dropAllAction))
                     .build();
 
             // Wrap our Apply Action in an Instruction
@@ -219,13 +221,13 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             dropAll
                     .setMatch(match)
                     .setInstructions(new InstructionsBuilder()
-                            .setInstruction(ImmutableList.of(applyActionsInstruction))
+                            .setInstruction(BindingMap.of(applyActionsInstruction))
                             .build())
                     .setPriority(priority)
                     .setBufferId(OFConstants.OFP_NO_BUFFER)
                     .setHardTimeout(flowHardTimeout)
                     .setIdleTimeout(flowIdleTimeout)
-                    .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+                    .setCookie(new FlowCookie(Uint64.valueOf(flowCookieInc.getAndIncrement())))
                     .setFlags(new FlowModFlags(false, false, false, false, false));
 
             return dropAll.build();

@@ -9,8 +9,6 @@ package org.opendaylight.l2switch.flow;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.ImmutableList;
-import java.math.BigInteger;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
@@ -48,8 +46,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +65,10 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private static final String FLOW_ID_PREFIX = "L2switch-";
 
     private final SalFlowService salFlowService;
-    private short flowTableId;
-    private int flowPriority;
-    private int flowIdleTimeout;
-    private int flowHardTimeout;
+    private Uint8 flowTableId = Uint8.ZERO;
+    private Uint16 flowPriority = Uint16.ZERO;
+    private Uint16 flowIdleTimeout = Uint16.ZERO;
+    private Uint16 flowHardTimeout = Uint16.ZERO;
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
@@ -77,19 +77,19 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         this.salFlowService = requireNonNull(salFlowService);
     }
 
-    public void setFlowTableId(short flowTableId) {
+    public void setFlowTableId(Uint8 flowTableId) {
         this.flowTableId = flowTableId;
     }
 
-    public void setFlowPriority(int flowPriority) {
+    public void setFlowPriority(Uint16 flowPriority) {
         this.flowPriority = flowPriority;
     }
 
-    public void setFlowIdleTimeout(int flowIdleTimeout) {
+    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
         this.flowIdleTimeout = flowIdleTimeout;
     }
 
-    public void setFlowHardTimeout(int flowHardTimeout) {
+    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
         this.flowHardTimeout = flowHardTimeout;
     }
 
@@ -166,7 +166,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @param destPort the destination port
      * @return the Flow
      */
-    private Flow createMacToMacFlow(Uint8 tableId, int priority, MacAddress sourceMac, MacAddress destMac,
+    private Flow createMacToMacFlow(Uint8 tableId, Uint16 priority, MacAddress sourceMac, MacAddress destMac,
             NodeConnectorRef destPort) {
 
         // start building flow
@@ -193,12 +193,12 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             .setMatch(match)
             .setInstructions(new InstructionsBuilder()
                 // Wrap our Apply Action in an Instruction
-                .setInstruction(ImmutableList.of(new InstructionBuilder()
+                .setInstruction(BindingMap.of(new InstructionBuilder()
                     .setOrder(0)
                     .setInstruction(new ApplyActionsCaseBuilder()
                         // Create an Apply Action
                         .setApplyActions(new ApplyActionsBuilder()
-                            .setAction(ImmutableList.of(new ActionBuilder()
+                            .setAction(BindingMap.of(new ActionBuilder()
                                 .setOrder(0)
                                 .setAction(new OutputActionCaseBuilder()
                                     .setOutputAction(new OutputActionBuilder()
@@ -216,7 +216,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
             .setBufferId(OFConstants.OFP_NO_BUFFER)
             .setHardTimeout(flowHardTimeout)
             .setIdleTimeout(flowIdleTimeout)
-            .setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())))
+            .setCookie(new FlowCookie(Uint64.valueOf(flowCookieInc.getAndIncrement())))
             .setFlags(new FlowModFlags(false, false, false, false, false))
             .build();
     }
