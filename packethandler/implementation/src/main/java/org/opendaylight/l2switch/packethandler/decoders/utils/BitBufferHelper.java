@@ -9,6 +9,9 @@ package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import java.util.Arrays;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +49,84 @@ public final class BitBufferHelper {
     }
 
     /**
+     * Returns the Uint8 value for the byte array passed. Size of byte array is
+     * restricted to 8 bits (1 byte).
+     *
+     * @param data the byte array
+     * @return Uint8 value
+     */
+    public static Uint8 getUint8(byte[] data) {
+        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 8) {
+            LOG.error("getUint8",
+                    new BufferException("Container is too small for the number of requested bits"));
+        }
+        return Uint8.valueOf(toNumber(data));
+    }
+
+    /**
+     * Returns the Uint16 value for the byte array passed. Size of byte array is
+     * restricted to 16 bits (2 bytes).
+     *
+     * @param data the byte array
+     * @return Uint16 value
+     */
+    public static Uint16 getUint16(byte[] data) {
+        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 16) {
+            LOG.error("getUint16",
+                    new BufferException("Container is too small for the number of requested bits"));
+        }
+        return Uint16.valueOf(toNumber(data));
+    }
+
+    /**
+     * Returns the Uint16 value for the last numBits of the byte array passed.
+     * Size of numBits is restricted to 16 bits (2 bytes).
+     *
+     * @param data the byte array
+     * @param numBits last number of bits
+     * @return the Uint16 value of byte array
+     */
+    public static Uint16 getUint16(byte[] data, int numBits) {
+        if (numBits > 16) {
+            LOG.error("getUint16",
+                    new BufferException("Container is too small for the number of requested bits"));
+        }
+        int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
+        byte[] bits = null;
+        try {
+            bits = getBits(data, startOffset, numBits);
+        } catch (BufferException e) {
+            LOG.error("getUint16 failed", e);
+            return Uint16.ZERO;
+        }
+        return Uint16.valueOf(toNumber(bits, numBits));
+    }
+
+    /**
+     * Returns the Uint32 value for the byte array passed. Size of byte array is
+     * restricted to 32 bits (4 bytes).
+     *
+     * @param data the byte array
+     * @return Uint32 value
+     */
+    public static Uint32 getUint32(byte[] data) {
+        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 32) {
+            LOG.error("getUint32",
+                    new BufferException("Container is too small for the number of requested bits"));
+        }
+        return Uint32.valueOf(toNumber(data));
+    }
+
+    /**
      * Returns the short value for the last numBits of the byte array passed.
      * Size of numBits is restricted to Short.SIZE.
      *
      * @param data the byte array
      * @param numBits last number of bits
      * @return the short value of byte array
+     * @deprecated Use {@link #getUint16(byte[], int)} instead.
      */
+    @Deprecated(forRemoval = true)
     public static short getShort(byte[] data, int numBits) {
         if (numBits > Short.SIZE) {
             LOG.error("getShort", new BufferException("Container is too small for the number of requested bits"));
@@ -89,7 +163,9 @@ public final class BitBufferHelper {
      * @param data the byte array
      * @param numBits the number of bits
      * @return the integer value of byte array
+     * @deprecated Use {@link #getUint16(byte[], int)} instead.
      */
+    @Deprecated(forRemoval = true)
     public static int getInt(byte[] data, int numBits) {
         if (numBits > Integer.SIZE) {
             LOG.error("getInt", new BufferException("Container is too small for the number of requested bits"));
@@ -126,7 +202,9 @@ public final class BitBufferHelper {
      * @param data the byte array
      * @param numBits the number of bits
      * @return the integer value of byte array
+     * @deprecated Delete this method since it was not used
      */
+    @Deprecated(forRemoval = true)
     public static long getLong(byte[] data, int numBits) {
         if (numBits > Long.SIZE) {
             LOG.error("getLong", new BufferException("Container is too small for the number of requested bits"));
@@ -151,7 +229,9 @@ public final class BitBufferHelper {
      *
      * @param data the byte array
      * @return long - the integer value of byte array
+     * @deprecated Delete this method since it was not used
      */
+    @Deprecated(forRemoval = true)
     public static long getLong(byte[] data) {
         if (data.length > Long.SIZE) {
             LOG.error("getLong", new BufferException("Container is too small for the number of requested bits"));

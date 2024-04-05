@@ -54,15 +54,15 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
         try {
             // Decode the ICMP type and ICMP code
-            builder.setType(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 0, 8)));
-            builder.setCode(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 8)));
+            builder.setType(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 0, 8)));
+            builder.setCode(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 8, 8)));
 
             // Decode the checksum
-            builder.setCrc(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
+            builder.setCrc(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
 
             // Decode the identifier and sequence number
-            builder.setIdentifier(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
-            builder.setSequenceNumber(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 48, 16)));
+            builder.setIdentifier(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
+            builder.setSequenceNumber(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 48, 16)));
 
             // Decode the ICMP Payload
             int payloadStartInBits = bitOffset + 64;

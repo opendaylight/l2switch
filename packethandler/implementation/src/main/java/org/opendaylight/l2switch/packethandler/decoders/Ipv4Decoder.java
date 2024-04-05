@@ -61,16 +61,16 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
         try {
-            builder.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
+            builder.setVersion(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset, 4)));
             if (builder.getVersion().intValue() != 4) {
                 LOG.debug("Version should be 4, but is {}", builder.getVersion());
             }
 
-            builder.setIhl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 4, 4)));
-            builder.setDscp(new Dscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 8, 6))));
-            builder.setEcn(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 14, 2)));
-            builder.setIpv4Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
-            builder.setId(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
+            builder.setIhl(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 4, 4)));
+            builder.setDscp(new Dscp(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 8, 6))));
+            builder.setEcn(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 14, 2)));
+            builder.setIpv4Length(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
+            builder.setId(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
 
             // Decode the flags -- Reserved, DF (Don't Fragment), MF (More Fragments)
             builder.setReservedFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 48, 1)[0] & 0xff));
@@ -81,11 +81,11 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
             builder.setDfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 49, 1)[0] & 0xff));
             builder.setMfFlag(1 == (BitBufferHelper.getBits(data, bitOffset + 50, 1)[0] & 0xff));
 
-            builder.setFragmentOffset(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 51, 13)));
-            builder.setTtl(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 64, 8)));
+            builder.setFragmentOffset(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 51, 13)));
+            builder.setTtl(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 64, 8)));
             builder.setProtocol(KnownIpProtocols
                     .forValue(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 72, 8))));
-            builder.setChecksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 80, 16)));
+            builder.setChecksum(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 80, 16)));
             builder.setSourceIpv4(Ipv4Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 96, 32)).getHostAddress()));
             builder.setDestinationIpv4(Ipv4Address.getDefaultInstance(

@@ -66,8 +66,8 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
                     KnownEtherType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16))));
 
             // Decode the hardware-length and protocol-length fields
-            builder.setHardwareLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 32, 8)));
-            builder.setProtocolLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 40, 8)));
+            builder.setHardwareLength(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 32, 8)));
+            builder.setProtocolLength(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 40, 8)));
 
             // Decode the operation field
             builder.setOperation(

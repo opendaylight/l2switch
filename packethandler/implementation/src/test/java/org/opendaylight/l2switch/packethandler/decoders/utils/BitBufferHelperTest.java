@@ -9,6 +9,8 @@ package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class BitBufferHelperTest {
 
@@ -314,7 +316,7 @@ public class BitBufferHelperTest {
     @Test
     public void testToLongGetter() {
         byte[] data = { 1, 1 };
-        Assert.assertTrue(BitBufferHelper.getLong(data) == 257L);
+        Assert.assertTrue(Uint32.valueOf(257L).equals(BitBufferHelper.getUint32(data)));
     }
 
     @Test
@@ -619,56 +621,50 @@ public class BitBufferHelperTest {
         data[0] = 7;
         data[1] = 8;
         int length = 9; // num bits
-        Assert.assertTrue(BitBufferHelper.getShort(data, length) == 264);
+        Assert.assertTrue(Uint16.valueOf(264).equals(BitBufferHelper.getUint16(data, length)));
 
         data[0] = 6;
         data[1] = 8;
-        short result = BitBufferHelper.getShort(data, length);
-        Assert.assertTrue(result == 8);
+        Assert.assertTrue(Uint16.valueOf(8).equals(BitBufferHelper.getUint16(data, length)));
 
         data[0] = 8;
         data[1] = 47;
-        result = BitBufferHelper.getShort(data, length);
-        Assert.assertTrue(result == 47);
+        Assert.assertTrue(Uint16.valueOf(47).equals(BitBufferHelper.getUint16(data, length)));
 
         // [0000 0001] [0001 0100] [0110 0100]
         byte[] data1 = new byte[2];
         data1[0] = 1;
         data1[1] = 20; // data1[2] = 100;
         length = 15;
-        result = BitBufferHelper.getShort(data1, length);
-        Assert.assertTrue(result == 276);
+        Assert.assertTrue(Uint16.valueOf(276).equals(BitBufferHelper.getUint16(data1, length)));
 
         byte[] data2 = new byte[2];
         data2[0] = 64;
         data2[1] = 99; // data2[2] = 100;
         length = 13;
-        result = BitBufferHelper.getShort(data2, length);
-        Assert.assertTrue(result == 99);
+        Assert.assertTrue(Uint16.valueOf(99).equals(BitBufferHelper.getUint16(data2, length)));
 
         byte[] data3 = { 100, 50 };
-        result = BitBufferHelper.getShort(data3);
-        Assert.assertTrue(result == 25650);
+        Assert.assertTrue(Uint16.valueOf(25650).equals(BitBufferHelper.getUint16(data3)));
     }
 
     @Test
     public void testToIntVarLength() throws Exception {
         byte[] data = { (byte) 255, (byte) 128 };
         int length = 9; // num bits
-        Assert.assertTrue(BitBufferHelper.getInt(data, length) == 384);
+        Assert.assertTrue(Uint16.valueOf(384).equals(BitBufferHelper.getUint16(data, length)));
 
         byte[] data2 = { 0, 8 };
-        Assert.assertTrue(BitBufferHelper.getInt(data2, 9) == 8);
+        Assert.assertTrue(Uint16.valueOf(8).equals(BitBufferHelper.getUint16(data2, 9)));
 
         byte[] data3 = { 1, 1, 1 };
-        Assert.assertTrue(BitBufferHelper.getInt(data3) == 65793);
+        Assert.assertTrue(Uint32.valueOf(65793).equals(BitBufferHelper.getUint32(data3)));
 
         byte[] data4 = { 1, 1, 1 };
-        Assert.assertTrue(BitBufferHelper.getInt(data4) == 65793);
+        Assert.assertTrue(Uint32.valueOf(65793).equals(BitBufferHelper.getUint32(data4)));
 
         byte[] data5 = { 1, 1 };
-        Assert.assertTrue(BitBufferHelper.getInt(data5) == 257);
-
+        Assert.assertTrue(Uint32.valueOf(257).equals(BitBufferHelper.getUint32(data5)));
     }
 
     @Test

@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.fields.ExtensionHeadersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6PacketBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,18 +66,18 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
         try {
-            builder.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
+            builder.setVersion(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset, 4)));
             if (builder.getVersion().intValue() != 6) {
                 LOG.debug("Version should be 6, but is {}", builder.getVersion());
             }
 
-            builder.setDscp(new Dscp(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 4, 6))));
-            builder.setEcn(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 10, 2)));
-            builder.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset + 12, 20)));
-            builder.setIpv6Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
+            builder.setDscp(new Dscp(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 4, 6))));
+            builder.setEcn(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 10, 2)));
+            builder.setFlowLabel(BitBufferHelper.getUint32(BitBufferHelper.getBits(data, bitOffset + 12, 20)));
+            builder.setIpv6Length(BitBufferHelper.getUint16(BitBufferHelper.getBits(data, bitOffset + 32, 16)));
             builder.setNextHeader(KnownIpProtocols
                     .forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 48, 8))));
-            builder.setHopLimit(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset + 56, 8)));
+            builder.setHopLimit(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 56, 8)));
             builder.setSourceIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
@@ -99,8 +100,11 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                 int start = (336 + extHeaderOffset + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE;
                 int end = start + 6 + octetLength;
 
-                extensionHeaders.add(new ExtensionHeadersBuilder().setNextHeader(nextHeader).setLength(octetLength)
-                        .setData(Arrays.copyOfRange(data, start, end)).build());
+                extensionHeaders.add(new ExtensionHeadersBuilder()
+                        .setNextHeader(nextHeader)
+                        .setLength(Uint16.valueOf(octetLength))
+                        .setData(Arrays.copyOfRange(data, start, end))
+                        .build());
 
                 // Update the NextHeader field
                 extHeaderOffset += 64 + octetLength * NetUtils.NUM_BITS_IN_A_BYTE;

@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +104,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
                 byte[] vlanBytes = BitBufferHelper.getBits(data, 112 + extraHeaderBits, 16);
 
                 // Remove the sign & right-shift to get the priority code
-                headerBuilder.setPriorityCode((short) ((vlanBytes[0] & 0xff) >> 5));
+                headerBuilder.setPriorityCode(Uint8.valueOf((short) ((vlanBytes[0] & 0xff) >> 5)));
 
                 // Remove the sign & remove priority code bits & right-shift to
                 // get drop-eligible bit
@@ -110,7 +112,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
                 // Remove priority code & drop-eligible bits, to get the VLAN-id
                 vlanBytes[0] = (byte) (vlanBytes[0] & 0x0F);
-                headerBuilder.setVlan(new VlanId(BitBufferHelper.getInt(vlanBytes)));
+                headerBuilder.setVlan(new VlanId(BitBufferHelper.getUint16(vlanBytes)));
 
                 // Add 802.1Q header to the growing collection
                 headerList.add(headerBuilder.build());
@@ -131,7 +133,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             if (nextField >= ETHERTYPE_MIN) {
                 epBuilder.setEthertype(KnownEtherType.forValue(nextField));
             } else if (nextField <= LENGTH_MAX) {
-                epBuilder.setEthernetLength(nextField);
+                epBuilder.setEthernetLength(Uint16.valueOf(nextField));
             } else {
                 LOG.debug("Undefined header, value is not valid EtherType or length.  Value is {}", nextField);
             }
@@ -144,7 +146,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
             // Deserialize the CRC
             epBuilder.setCrc(BitBufferHelper
-                    .getLong(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NUM_BITS_IN_A_BYTE, 32)));
+                    .getUint32(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NUM_BITS_IN_A_BYTE, 32)));
 
             // Set EthernetPacket field
             packetChain.add(new PacketChainBuilder().setPacket(epBuilder.build()).build());
