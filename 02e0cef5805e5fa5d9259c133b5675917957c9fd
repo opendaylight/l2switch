@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ffb242a_493f0dd9",
+        "filename": "packethandler/implementation/src/test/java/org/opendaylight/l2switch/packethandler/decoders/utils/BitBufferHelperTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-04-09T06:28:55Z",
+      "side": 1,
+      "message": "getUint8 for short values..",
+      "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
