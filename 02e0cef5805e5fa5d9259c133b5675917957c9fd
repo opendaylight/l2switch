@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9a15e48_defe6743",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-04-09T14:40:57Z",
+      "side": 1,
+      "message": "Uint8 will not work because it cannot contain the 2 bytes long data array. Please take a look at the text in the reply. Cheers!",
+      "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ffb242a_493f0dd9",
@@ -14,6 +31,24 @@
       "writtenOn": "2024-04-09T06:28:55Z",
       "side": 1,
       "message": "getUint8 for short values..",
+      "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3d68d88_4b5cd4a3",
+        "filename": "packethandler/implementation/src/test/java/org/opendaylight/l2switch/packethandler/decoders/utils/BitBufferHelperTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-04-09T14:40:57Z",
+      "side": 1,
+      "message": "Uint8 will not work because it is just 1 byte long. The \"data\" array has 2 bytes, and the test uses 9 bits (length\u003d9). Therefore, the \"data\" array needs to be stored in a Uint16, which is 2 bytes long. Actually, the test performs the following:\n\ndata[0],data[1]\u003d 00000111,00001000\ngetUint16(data,length) \u003d 100001000\nwhich is equal to 264 (decimal).\n\nBTW, a short type in Java is a signed 2-bytes long number.",
+      "parentUuid": "5ffb242a_493f0dd9",
       "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
