@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "123659c4_2d8aa2e5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-04-12T14:39:14Z",
+      "side": 1,
+      "message": "Hi Ivan. These solution is explained with further details in my email at the Discuss list:\nhttps://lists.opendaylight.org/g/Discuss/message/9090\n\nThere is only one line of code that employs the \"getUint16(byte[], int)\" method, testToIntVarLength at BitBufferHelperTest.java, and it only uses 2 bytes of data. The most efficient solution is to employ a Uint16 type. However, it is also possible to use a Uint32 type, but this will require to create a new \"getUint32(byte[], int)\" method that will only be used for this test case.",
+      "parentUuid": "b326640b_28c9afeb",
+      "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "818eeaad_859168cd",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-04-11T14:10:18Z",
       "side": 1,
       "message": "Uint64?\nhttps://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html",
+      "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7701d59e_88985cc2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-04-12T14:39:14Z",
+      "side": 1,
+      "message": "Just as explained in my email to the Discuss list:\nhttps://lists.opendaylight.org/g/Discuss/message/9090\n\nThe long data type is 8 bytes long, but it only uses 65 bits to represent a positive number. Therefore, ODL used a long to store only 4 bytes of unsigned data, which is the first 32 bits of the long type. This means that, because of the way ODL handles this data, the most efficient replacement for a long type is a Uint32. Please, take a look at the code and let me know if you think I have missed something.",
+      "parentUuid": "818eeaad_859168cd",
       "revId": "02e0cef5805e5fa5d9259c133b5675917957c9fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
