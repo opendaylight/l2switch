@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4PacketBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
@@ -103,8 +104,8 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     - 4 * NetUtils.NUM_BITS_IN_A_BYTE;
             int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            builder.setPayloadOffset(start);
-            builder.setPayloadLength(end - start);
+            builder.setPayloadOffset(Uint32.valueOf(start));
+            builder.setPayloadLength(Uint32.valueOf(end - start));
         } catch (BufferException | UnknownHostException e) {
             LOG.debug("Exception while decoding IPv4 packet", e);
         }

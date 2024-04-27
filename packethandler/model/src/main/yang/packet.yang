@@ -24,10 +24,10 @@ module base-packet {
 
   grouping packet-fields {
     leaf payload-offset {
-      type int32;
+      type uint32;
     }
     leaf payload-length {
-      type int32;
+      type uint32;
     }
   }
 
