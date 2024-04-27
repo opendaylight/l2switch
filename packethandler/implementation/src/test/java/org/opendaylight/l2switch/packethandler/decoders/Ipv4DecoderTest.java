@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class Ipv4DecoderTest {
 
@@ -53,7 +54,11 @@ public class Ipv4DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv4PacketReceived notification = new Ipv4Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload).build());
@@ -107,7 +112,11 @@ public class Ipv4DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(16).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(16))
+                                .build())
+                        .build());
 
         Ipv4PacketReceived notification = new Ipv4Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload).build());
@@ -162,7 +171,11 @@ public class Ipv4DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(18).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(18))
+                                .build())
+                        .build());
 
         Ipv4PacketReceived notification = new Ipv4Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload).build());
@@ -210,7 +223,11 @@ public class Ipv4DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv4PacketReceived notification = new Ipv4Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(ethPayload).build());

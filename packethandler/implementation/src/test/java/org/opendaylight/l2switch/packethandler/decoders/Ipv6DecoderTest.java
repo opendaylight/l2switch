@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class Ipv6DecoderTest {
 
@@ -51,7 +52,11 @@ public class Ipv6DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
@@ -95,7 +100,11 @@ public class Ipv6DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
@@ -143,7 +152,11 @@ public class Ipv6DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
@@ -194,7 +207,11 @@ public class Ipv6DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());
@@ -237,7 +254,11 @@ public class Ipv6DecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
 
         Ipv6PacketReceived notification = new Ipv6Decoder(npServiceMock, mock2).decode(
                 new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(payload).build());

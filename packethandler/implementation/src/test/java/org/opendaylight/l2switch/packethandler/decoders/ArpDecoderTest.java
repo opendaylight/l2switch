@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class ArpDecoderTest {
 
@@ -46,7 +47,11 @@ public class ArpDecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
-                .setPacket(new EthernetPacketBuilder().setPayloadOffset(5).setPayloadLength(33).build()).build());
+                .setPacket(new EthernetPacketBuilder()
+                        .setPayloadOffset(Uint32.valueOf(5))
+                        .setPayloadLength(Uint32.valueOf(33))
+                        .build())
+                .build());
         ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
 
@@ -81,7 +86,10 @@ public class ArpDecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
-                .setPacket(new EthernetPacketBuilder().setPayloadOffset(8).setPayloadLength(36).build())
+                .setPacket(new EthernetPacketBuilder()
+                        .setPayloadOffset(Uint32.valueOf(8))
+                        .setPayloadLength(Uint32.valueOf(36))
+                        .build())
                 .build());
         ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
@@ -114,7 +122,11 @@ public class ArpDecoderTest {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(
-                new PacketChainBuilder().setPacket(new EthernetPacketBuilder().setPayloadOffset(14).build()).build());
+                new PacketChainBuilder()
+                        .setPacket(new EthernetPacketBuilder()
+                                .setPayloadOffset(Uint32.valueOf(14))
+                                .build())
+                        .build());
         ArpPacketReceived notification = new ArpDecoder(mock, mock2)
                 .decode(new EthernetPacketReceivedBuilder().setPacketChain(packetChainList).setPayload(packet).build());
 

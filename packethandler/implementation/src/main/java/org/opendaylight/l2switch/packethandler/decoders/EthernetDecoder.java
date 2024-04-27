@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +71,14 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
         EthernetPacketReceivedBuilder builder = new EthernetPacketReceivedBuilder();
 
         // Save original rawPacket & set the payloadOffset/payloadLength fields
-        RawPacketFieldsBuilder rpfb = new RawPacketFieldsBuilder().setIngress(packetReceived.getIngress())
-                .setConnectionCookie(packetReceived.getConnectionCookie()).setFlowCookie(packetReceived.getFlowCookie())
-                .setTableId(packetReceived.getTableId()).setPacketInReason(packetReceived.getPacketInReason())
-                .setPayloadOffset(0).setPayloadLength(data.length);
+        RawPacketFieldsBuilder rpfb = new RawPacketFieldsBuilder()
+                .setIngress(packetReceived.getIngress())
+                .setConnectionCookie(packetReceived.getConnectionCookie())
+                .setFlowCookie(packetReceived.getFlowCookie())
+                .setTableId(packetReceived.getTableId())
+                .setPacketInReason(packetReceived.getPacketInReason())
+                .setPayloadOffset(Uint32.ZERO)
+                .setPayloadLength(Uint32.valueOf(data.length));
         if (packetReceived.getMatch() != null) {
             rpfb.setMatch(new MatchBuilder(packetReceived.getMatch()).build());
         }
@@ -141,8 +146,8 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             // Determine start & end of payload
             int payloadStart = (112 + extraHeaderBits) / NetUtils.NUM_BITS_IN_A_BYTE;
             int payloadEnd = data.length - 4;
-            epBuilder.setPayloadOffset(payloadStart);
-            epBuilder.setPayloadLength(payloadEnd - payloadStart);
+            epBuilder.setPayloadOffset(Uint32.valueOf(payloadStart));
+            epBuilder.setPayloadLength(Uint32.valueOf(payloadEnd - payloadStart));
 
             // Deserialize the CRC
             epBuilder.setCrc(BitBufferHelper
