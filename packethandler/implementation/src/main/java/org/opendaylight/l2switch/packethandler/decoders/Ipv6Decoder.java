@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6PacketBuilder;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
@@ -82,8 +83,8 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
-            builder.setPayloadOffset((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE);
-            builder.setPayloadLength(builder.getIpv6Length().toJava());
+            builder.setPayloadOffset(Uint32.valueOf((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE));
+            builder.setPayloadLength(builder.getIpv6Length().toUint32());
 
             // Decode the optional "extension headers"
             List<ExtensionHeaders> extensionHeaders = new ArrayList<>();

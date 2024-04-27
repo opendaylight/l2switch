@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
 import org.opendaylight.yangtools.yang.binding.NotificationListener;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         // EthernetPacket
         List<PacketChain> packetChainList = ipv4PacketReceived.getPacketChain();
         Ipv4Packet ipv4Packet = (Ipv4Packet) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ipv4Packet.getPayloadOffset() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ipv4Packet.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ipv4PacketReceived.getPayload();
 
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
@@ -70,8 +71,8 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
                     * NetUtils.NUM_BITS_IN_A_BYTE;
             int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
             int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            builder.setPayloadOffset(start);
-            builder.setPayloadLength(end - start);
+            builder.setPayloadOffset(Uint32.valueOf(start));
+            builder.setPayloadLength(Uint32.valueOf(end - start));
         } catch (BufferException e) {
             LOG.debug("Exception while decoding ICMP packet", e);
         }

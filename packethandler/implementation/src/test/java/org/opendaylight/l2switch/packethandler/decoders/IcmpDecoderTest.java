@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.IcmpP
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.icmp.packet.received.packet.chain.packet.IcmpPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4PacketBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class IcmpDecoderTest {
     @Test
@@ -50,7 +51,9 @@ public class IcmpDecoderTest {
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder()
-            .setPacket(new Ipv4PacketBuilder().setPayloadOffset(34).build())
+            .setPacket(new Ipv4PacketBuilder()
+                    .setPayloadOffset(Uint32.valueOf(34))
+                    .build())
             .build());
 
         IcmpPacketReceived notification = new IcmpDecoder(npServiceMock, mock2)
