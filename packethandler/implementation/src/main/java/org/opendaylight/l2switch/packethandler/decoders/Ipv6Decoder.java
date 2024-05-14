@@ -84,7 +84,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
             builder.setPayloadOffset(Uint32.valueOf((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE));
-            builder.setPayloadLength(Uint32.valueOf(builder.getIpv6Length()));
+            builder.setPayloadLength(builder.getIpv6Length().toUint32());
 
             // Decode the optional "extension headers"
             List<ExtensionHeaders> extensionHeaders = new ArrayList<>();
