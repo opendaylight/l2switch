@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class InventoryReaderTest {
@@ -94,11 +95,8 @@ public class InventoryReaderTest {
             .setFirstSeen(now)
             .setLastSeen(now)
             .build();
-        List<Addresses> addressList = new ArrayList<>();
-        addressList.add(address1);
-        addressList.add(address2);
         AddressCapableNodeConnector addressCapableNodeConnector = new AddressCapableNodeConnectorBuilder()
-                .setAddresses(addressList).build();
+                .setAddresses(BindingMap.of(address1, address2)).build();
 
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
