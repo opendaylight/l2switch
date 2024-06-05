@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
@@ -61,7 +61,7 @@ public class AddressObserverUsingIpv4 implements Ipv4PacketListener {
 
         if (!IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
             addressObservationWriter.addAddress(ethernetPacket.getSourceMac(),
-                    IpAddressBuilder.getDefaultInstance(ipv4Packet.getSourceIpv4().getValue()), rawPacket.getIngress());
+                IetfInetUtil.ipAddressFor(ipv4Packet.getSourceIpv4().getValue()), rawPacket.getIngress());
         }
     }
 }
