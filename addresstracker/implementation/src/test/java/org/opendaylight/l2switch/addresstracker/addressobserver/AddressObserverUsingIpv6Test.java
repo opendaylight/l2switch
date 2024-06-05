@@ -54,7 +54,7 @@ public class AddressObserverUsingIpv6Test {
 
         Ipv6PacketReceived ipv6PktReceived = new Ipv6PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv6 addressObserverIpv6 = new AddressObserverUsingIpv6(addressObservationWriterMock);
-        addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
+        addressObserverIpv6.onNotification(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
@@ -64,7 +64,7 @@ public class AddressObserverUsingIpv6Test {
 
         Ipv6PacketReceived ipv6PktReceived = new Ipv6PacketReceivedBuilder().setPacketChain(null).build();
         AddressObserverUsingIpv6 addressObserverIpv6 = new AddressObserverUsingIpv6(addressObservationWriterMock);
-        addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
+        addressObserverIpv6.onNotification(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
@@ -81,7 +81,7 @@ public class AddressObserverUsingIpv6Test {
 
         Ipv6PacketReceived ipv6PktReceived = new Ipv6PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv6 addressObserverIpv6 = new AddressObserverUsingIpv6(addressObservationWriterMock);
-        addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
+        addressObserverIpv6.onNotification(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
@@ -100,7 +100,7 @@ public class AddressObserverUsingIpv6Test {
 
         Ipv6PacketReceived ipv6PktReceived = new Ipv6PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv6 addressObserverIpv6 = new AddressObserverUsingIpv6(addressObservationWriterMock);
-        addressObserverIpv6.onIpv6PacketReceived(ipv6PktReceived);
+        addressObserverIpv6.onNotification(ipv6PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));

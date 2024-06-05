@@ -51,7 +51,7 @@ public class AddressObserverUsingIpv4Test {
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
-        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+        addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
@@ -61,7 +61,7 @@ public class AddressObserverUsingIpv4Test {
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(null).build();
         AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
-        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+        addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
@@ -78,7 +78,7 @@ public class AddressObserverUsingIpv4Test {
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
-        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+        addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
@@ -97,7 +97,7 @@ public class AddressObserverUsingIpv4Test {
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
         AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
-        addressObserverIpv4.onIpv4PacketReceived(ipv4PktReceived);
+        addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));

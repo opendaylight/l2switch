@@ -7,12 +7,12 @@
  */
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
 
@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.
  * these address observations for each node-connector. These packets are
  * returned to the network after the addresses are learned.
  */
-public class AddressObserverUsingIpv6 implements Ipv6PacketListener {
+public class AddressObserverUsingIpv6 implements Listener<Ipv6PacketReceived> {
     private static final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
 
     private final AddressObservationWriter addressObservationWriter;
@@ -37,7 +37,7 @@ public class AddressObserverUsingIpv6 implements Ipv6PacketListener {
      *            The incoming packet.
      */
     @Override
-    public void onIpv6PacketReceived(Ipv6PacketReceived packetReceived) {
+    public void onNotification(Ipv6PacketReceived packetReceived) {
         if (packetReceived == null || packetReceived.getPacketChain() == null) {
             return;
         }

@@ -15,6 +15,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.address.tracker.config.rev160621.AddressTrackerConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +54,20 @@ public class AddressTrackerProvider {
         }
 
         if (packetTypes.contains(ARP_PACKET_TYPE)) {
-            AddressObserverUsingArp addressObserverUsingArp = new AddressObserverUsingArp(addressObservationWriter);
             // Register AddressObserver for notifications
-            this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingArp));
+            this.listenerRegistrations.add(notificationService.registerListener(ArpPacketReceived.class,
+                new AddressObserverUsingArp(addressObservationWriter)));
         }
 
         if (packetTypes.contains(IPV4_PACKET_TYPE)) {
-            AddressObserverUsingIpv4 addressObserverUsingIpv4 = new AddressObserverUsingIpv4(addressObservationWriter);
             // Register AddressObserver for notifications
-            this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingIpv4));
+            this.listenerRegistrations.add(notificationService.registerListener(Ipv4PacketReceived.class,
+                new AddressObserverUsingIpv4(addressObservationWriter)));
         }
         if (packetTypes.contains(IPV6_PACKET_TYPE)) {
-            AddressObserverUsingIpv6 addressObserverUsingIpv6 = new AddressObserverUsingIpv6(addressObservationWriter);
             // Register AddressObserver for notifications
-            this.listenerRegistrations.add(notificationService.registerNotificationListener(addressObserverUsingIpv6));
+            this.listenerRegistrations.add(notificationService.registerListener(Ipv6PacketReceived.class,
+                new AddressObserverUsingIpv6(addressObservationWriter)));
         }
         LOG.info("AddressTracker initialized.");
     }
