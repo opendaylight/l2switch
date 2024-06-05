@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,6 +35,7 @@ public class OperationProcessor implements AutoCloseable, Runnable, TransactionC
     private final DataBroker dataBroker;
     private final AtomicReference<TransactionChain> transactionChain;
 
+    @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
     OperationProcessor(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
         this.transactionChain = new AtomicReference<>(dataBroker.createTransactionChain(this));

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
@@ -35,6 +36,7 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
     /**
      * Constructor.
      */
+    @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
     public AbstractPacketDecoder(Class<P> producedPacketNotificationType,
                                  NotificationPublishService notificationProviderService,
                                  NotificationService notificationService) {
