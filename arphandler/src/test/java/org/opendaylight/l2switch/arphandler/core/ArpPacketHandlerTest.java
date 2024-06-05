@@ -9,7 +9,7 @@ package org.opendaylight.l2switch.arphandler.core;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.ArrayList;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class ArpPacketHandlerTest {
     @Test
     public void onArpPacketReceivedTest_NullInput() throws Exception {
         arpPacketHandler.onArpPacketReceived(null);
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 
     @Test
@@ -104,6 +104,6 @@ public class ArpPacketHandlerTest {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         arpPacketHandler.onArpPacketReceived(arpReceived);
 
-        verifyZeroInteractions(packetDispatcher);
+        verifyNoInteractions(packetDispatcher);
     }
 }

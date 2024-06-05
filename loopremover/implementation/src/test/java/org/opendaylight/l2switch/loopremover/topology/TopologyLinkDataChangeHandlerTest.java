@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
@@ -76,7 +77,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataNoRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -93,7 +97,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -110,7 +117,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataNoRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -127,7 +137,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -145,7 +158,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_NoLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -175,7 +191,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_WithLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
@@ -245,7 +264,10 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_WithStpLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.create(Link.class);
+        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class)
+            .child(Link.class)
+            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);

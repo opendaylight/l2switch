@@ -63,15 +63,19 @@ public class PacketDispatcherTest {
 
     @Test
     public void testSendPacketOut_NullIngress() throws Exception {
-        packetDispatcher.sendPacketOut(null, null,
-                new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)));
+        packetDispatcher.sendPacketOut(null, null, new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class)
+            .child(NodeConnector.class)
+            .build()));
         verify(packetProcessingService, times(0)).transmitPacket(any(TransmitPacketInput.class));
     }
 
     @Test
     public void testSendPacketOut_NullEgress() throws Exception {
-        packetDispatcher.sendPacketOut(null, new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)),
-                null);
+        packetDispatcher.sendPacketOut(null, new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class)
+            .child(NodeConnector.class)
+            .build()), null);
         verify(packetProcessingService, times(0)).transmitPacket(any(TransmitPacketInput.class));
     }
 
@@ -90,7 +94,10 @@ public class PacketDispatcherTest {
         when(inventoryReader.getSwitchNodeConnectors()).thenReturn(switchNodeConnectors);
 
         packetDispatcher.floodPacket("", null, new NodeConnectorRef(ncInsId2),
-                new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)));
+                new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+                    .child(Node.class)
+                    .child(NodeConnector.class)
+                    .build()));
         verify(inventoryReader, times(0)).setRefreshData(true);
         verify(inventoryReader, times(0)).readInventory();
         verify(packetProcessingService, times(2)).transmitPacket(any(TransmitPacketInput.class));
@@ -102,8 +109,15 @@ public class PacketDispatcherTest {
         when(switchNodeConnectors.get(any(String.class))).thenReturn(null);
         when(inventoryReader.getSwitchNodeConnectors()).thenReturn(switchNodeConnectors);
 
-        packetDispatcher.floodPacket("", null, new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)),
-                new NodeConnectorRef(InstanceIdentifier.create(NodeConnector.class)));
+        packetDispatcher.floodPacket("", null,
+            new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class)
+                .child(NodeConnector.class)
+                .build()),
+            new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class)
+                .child(NodeConnector.class)
+                .build()));
         verify(inventoryReader, times(1)).setRefreshData(true);
         verify(inventoryReader, times(1)).readInventory();
         verify(packetProcessingService, times(0)).transmitPacket(any(TransmitPacketInput.class));
