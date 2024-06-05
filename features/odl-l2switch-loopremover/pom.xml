@@ -29,7 +29,7 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.odlparent</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-jung-2.1</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
