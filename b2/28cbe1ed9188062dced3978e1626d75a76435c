@@ -1,0 +1,8 @@
+Verified+1: Robert Varga <nite@hq.sk>
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Wed, 05 Jun 2024 07:39:35 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/l2switch/+/111544
+Project: l2switch
+Branch: refs/heads/master
