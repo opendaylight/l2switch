@@ -73,7 +73,7 @@ public class InventoryReaderTest {
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
                 .thenReturn(FluentFutures.immediateFluentFuture(dataObjectOptional));
         if (dataObjectOptional.isPresent()) {
-            node = dataObjectOptional.get();
+            node = dataObjectOptional.orElseThrow();
         }
 
         long now = new Date().getTime();

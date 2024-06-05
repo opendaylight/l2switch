@@ -200,7 +200,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
         }
     }
 
-    private class StpStatusDataChangeEventProcessor implements Runnable {
+    private final class StpStatusDataChangeEventProcessor implements Runnable {
         @Override
         public void run() {
             LOG.debug("In flow refresh thread.");

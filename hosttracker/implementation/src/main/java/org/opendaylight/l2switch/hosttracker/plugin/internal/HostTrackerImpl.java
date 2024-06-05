@@ -238,7 +238,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         }
         if (opNode != null && opNode.isPresent()
                 && opNodeConnector != null && opNodeConnector.isPresent()) {
-            processHost(opNode.get(), opNodeConnector.get(), addrs);
+            processHost(opNode.orElseThrow(), opNodeConnector.orElseThrow(), addrs);
         }
     }
 
@@ -302,7 +302,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
             return false;
         }
         if (optionalNT.isPresent()) {
-            NetworkTopology networkTopo = optionalNT.get();
+            NetworkTopology networkTopo = optionalNT.orElseThrow();
             for (Topology t : networkTopo.nonnullTopology().values()) {
                 if (t.getLink() != null) {
                     for (Link l : t.nonnullLink().values()) {

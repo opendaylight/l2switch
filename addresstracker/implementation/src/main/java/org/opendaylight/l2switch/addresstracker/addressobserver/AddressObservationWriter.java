@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class AddressObservationWriter {
     private static final Logger LOG = LoggerFactory.getLogger(AddressObservationWriter.class);
 
-    private static class NodeConnectorLock {
+    private static final class NodeConnectorLock {
     }
 
     private final AtomicLong addressKey = new AtomicLong(0);

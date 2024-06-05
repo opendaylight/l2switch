@@ -148,7 +148,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                 Optional<Nodes> dataObjectOptional = readOnlyTransaction
                         .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
                 if (dataObjectOptional.isPresent()) {
-                    nodes = dataObjectOptional.get();
+                    nodes = dataObjectOptional.orElseThrow();
                 }
             } catch (InterruptedException e) {
                 LOG.error("Failed to read nodes from Operation data store.");
@@ -268,7 +268,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
         return destNodeConnector;
     }
 
-    private class NodeConnectorDataChangeEventProcessor implements Runnable {
+    private final class NodeConnectorDataChangeEventProcessor implements Runnable {
 
         @Override
         public void run() {

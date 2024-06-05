@@ -155,7 +155,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
     }
 
-    private class TopologyDataChangeEventProcessor implements Runnable {
+    private final class TopologyDataChangeEventProcessor implements Runnable {
 
         @Override
         public void run() {
