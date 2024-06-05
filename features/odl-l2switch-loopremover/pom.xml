@@ -29,12 +29,6 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.odlparent</groupId>
-            <artifactId>odl-jung-2.1</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.l2switch.loopremover</groupId>
             <artifactId>loopremover-impl</artifactId>
         </dependency>
