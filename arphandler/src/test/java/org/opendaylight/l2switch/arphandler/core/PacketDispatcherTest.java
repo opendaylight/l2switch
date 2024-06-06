@@ -46,9 +46,7 @@ public class PacketDispatcherTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        packetDispatcher = new PacketDispatcher();
-        packetDispatcher.setPacketProcessingService(packetProcessingService);
-        packetDispatcher.setInventoryReader(inventoryReader);
+        packetDispatcher = new PacketDispatcher(inventoryReader, packetProcessingService);
 
         doReturn(RpcResultBuilder.success().buildFuture()).when(packetProcessingService).transmitPacket(any());
     }

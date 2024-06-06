@@ -36,7 +36,7 @@ public class NetworkGraphImpl implements NetworkGraphService {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkGraphImpl.class);
 
     @GuardedBy("this")
-    private Graph<NodeId, Link> networkGraph;
+    private Graph<NodeId, Link> networkGraph = null;
     private final Set<String> linkAdded = new HashSet<>();
 
     // Enable following lines when shortest path functionality is required.
