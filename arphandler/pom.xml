@@ -16,20 +16,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.mdsal</groupId>
-      <artifactId>mdsal-binding-api</artifactId>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.openflowplugin.model</groupId>
-      <artifactId>model-flow-service</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.openflowplugin.model</groupId>
-      <artifactId>model-topology</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>yang-common</artifactId>
+      <groupId>net.sf.jung</groupId>
+      <artifactId>jung-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.l2switch.packethandler</groupId>
@@ -44,12 +37,24 @@
       <artifactId>loopremover-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.jung</groupId>
-      <artifactId>jung-api</artifactId>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>mdsal-binding-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>openflowplugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-service</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-topology</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>yang-common</artifactId>
     </dependency>
   </dependencies>
 

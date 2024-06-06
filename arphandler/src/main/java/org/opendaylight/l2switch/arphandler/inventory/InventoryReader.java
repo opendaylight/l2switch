@@ -141,12 +141,10 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                 return;
             }
             // Read Inventory
-            InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier
-                    .<Nodes>builder(Nodes.class);
             Nodes nodes = null;
             try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
                 Optional<Nodes> dataObjectOptional = readOnlyTransaction
-                        .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
+                        .read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class)).get();
                 if (dataObjectOptional.isPresent()) {
                     nodes = dataObjectOptional.orElseThrow();
                 }
