@@ -7,6 +7,8 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -29,17 +31,14 @@ import org.slf4j.LoggerFactory;
  * PacketDispatcher sends packets out to the network.
  */
 public class PacketDispatcher {
-
     private static final Logger LOG = LoggerFactory.getLogger(PacketDispatcher.class);
-    private InventoryReader inventoryReader;
-    private PacketProcessingService packetProcessingService;
 
-    public void setPacketProcessingService(PacketProcessingService packetProcessingService) {
-        this.packetProcessingService = packetProcessingService;
-    }
+    private final InventoryReader inventoryReader;
+    private final PacketProcessingService packetProcessingService;
 
-    public void setInventoryReader(InventoryReader inventoryReader) {
-        this.inventoryReader = inventoryReader;
+    public PacketDispatcher(InventoryReader inventoryReader, PacketProcessingService packetProcessingService) {
+        this.inventoryReader = requireNonNull(inventoryReader);
+        this.packetProcessingService = requireNonNull(packetProcessingService);
     }
 
     /**
