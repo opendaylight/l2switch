@@ -14,6 +14,7 @@ import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -28,9 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.V
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.fields.Header8021qBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -41,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Ethernet Packet Decoder.
  */
 public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketReceived>
-        implements PacketProcessingListener {
+        implements Listener<PacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(EthernetDecoder.class);
     public static final Integer LENGTH_MAX = 1500;
     public static final Integer ETHERTYPE_MIN = 1536;
@@ -54,7 +53,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     }
 
     @Override
-    public void onPacketReceived(PacketReceived packetReceived) {
+    public void onNotification(PacketReceived packetReceived) {
         decodeAndPublish(packetReceived);
     }
 
@@ -174,8 +173,13 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     }
 
     @Override
-    public NotificationListener getConsumedNotificationListener() {
+    public Listener<PacketReceived> getConsumedListener() {
         return this;
+    }
+
+    @Override
+    public Class<EthernetPacketReceived> getPacketType() {
+        return EthernetPacketReceived.class;
     }
 
     @Override

@@ -17,12 +17,12 @@ import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.fields.ExtensionHeaders;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.fields.ExtensionHeadersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6PacketBuilder;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * IPv6 Packet Decoder.
  */
 public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, Ipv6PacketReceived>
-        implements EthernetPacketListener {
+        implements Listener<EthernetPacketReceived> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6Decoder.class);
 
@@ -128,12 +127,17 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     @Override
-    public NotificationListener getConsumedNotificationListener() {
+    public Listener<EthernetPacketReceived> getConsumedListener() {
         return this;
     }
 
     @Override
-    public void onEthernetPacketReceived(EthernetPacketReceived notification) {
+    public Class<Ipv6PacketReceived> getPacketType() {
+        return Ipv6PacketReceived.class;
+    }
+
+    @Override
+    public void onNotification(EthernetPacketReceived notification) {
         decodeAndPublish(notification);
     }
 

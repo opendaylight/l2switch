@@ -16,6 +16,7 @@ import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
@@ -24,11 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * ARP (Address Resolution Protocol) Packet Decoder.
  */
 public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, ArpPacketReceived>
-        implements EthernetPacketListener {
+        implements Listener<EthernetPacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpDecoder.class);
 
     public ArpDecoder(NotificationPublishService notificationProviderService, NotificationService notificationService) {
@@ -112,12 +111,17 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
     }
 
     @Override
-    public NotificationListener getConsumedNotificationListener() {
+    public Listener<EthernetPacketReceived> getConsumedListener() {
         return this;
     }
 
     @Override
-    public void onEthernetPacketReceived(EthernetPacketReceived notification) {
+    public Class<ArpPacketReceived> getPacketType() {
+        return ArpPacketReceived.class;
+    }
+
+    @Override
+    public void onNotification(EthernetPacketReceived notification) {
         decodeAndPublish(notification);
     }
 

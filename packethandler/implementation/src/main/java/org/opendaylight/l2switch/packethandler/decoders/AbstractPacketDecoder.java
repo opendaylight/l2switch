@@ -12,9 +12,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.binding.NotificationListener;
 
 /**
  * A base class for all decoders. Each extended decoder should also implement a notification listener that it can
@@ -43,7 +43,8 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
         // this.producedPacketNotificationType = producedPacketNotificationType;
         this.notificationProviderService = notificationProviderService;
         this.notificationService = notificationService;
-        listenerRegistration = this.notificationService.registerNotificationListener(getConsumedNotificationListener());
+        listenerRegistration = this.notificationService
+                .registerListener(getPacketType(), getConsumedListener());
     }
 
 //    /**
@@ -87,7 +88,11 @@ public abstract class AbstractPacketDecoder<C, P extends Notification>
      */
     public abstract P decode(C consumedPacketNotification);
 
-    public abstract NotificationListener getConsumedNotificationListener();
+//    public abstract NotificationListener getConsumedNotificationListener();
+
+    public abstract Listener<?> getConsumedListener();
+
+    public abstract Class getPacketType();
 
     public abstract boolean canDecode(C consumedPacketNotification);
 
