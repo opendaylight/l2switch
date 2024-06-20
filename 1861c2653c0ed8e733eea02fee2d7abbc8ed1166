@@ -18,6 +18,41 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aeba6da4_530eb919",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-20T18:54:30Z",
+      "side": 1,
+      "message": "Git places my signature like that when I submit the patch. I will try to correct it when I amend it.",
+      "parentUuid": "7148ab3c_670bc370",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d85afad7_912341b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-20T18:54:30Z",
+      "side": 1,
+      "message": "These are my replies to the comments that are not fixable. The others will be addressed in my following amend. Thanks!",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6112652e_077ec2d8",
@@ -31,6 +66,24 @@
       "writtenOn": "2024-06-20T07:18:16Z",
       "side": 1,
       "message": "Is this related?",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb0d3f52_948b6252",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-20T18:54:30Z",
+      "side": 1,
+      "message": "It is not. I just ignored this comment since it does not seem to be related.",
+      "parentUuid": "6112652e_077ec2d8",
       "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
