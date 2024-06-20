@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7148ab3c_670bc370",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-06-20T07:18:16Z",
+      "side": 1,
+      "message": "Signature should be the last line.",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6112652e_077ec2d8",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-06-20T07:18:16Z",
+      "side": 1,
+      "message": "Is this related?",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78f9343b_b7e47436",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-06-20T07:18:16Z",
+      "side": 1,
+      "message": "Can be one line.",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97c46b0b_a7ad0cf4",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-06-20T07:18:16Z",
+      "side": 1,
+      "message": "We do not need commented lines.",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
