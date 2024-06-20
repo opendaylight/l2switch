@@ -105,6 +105,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e5c4105_20ae9b71",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-20T19:33:57Z",
+      "side": 1,
+      "message": "This has been fixed in the latest version of this patch.",
+      "parentUuid": "78f9343b_b7e47436",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97c46b0b_a7ad0cf4",
@@ -118,6 +136,24 @@
       "writtenOn": "2024-06-20T07:18:16Z",
       "side": 1,
       "message": "We do not need commented lines.",
+      "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcec283c_60b3ce12",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-20T19:33:57Z",
+      "side": 1,
+      "message": "This line has been deleted in the latest version.",
+      "parentUuid": "97c46b0b_a7ad0cf4",
       "revId": "1861c2653c0ed8e733eea02fee2d7abbc8ed1166",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
