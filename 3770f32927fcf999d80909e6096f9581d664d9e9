@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f213dc1d_f29a408b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-27T16:54:57Z",
+      "side": 1,
+      "message": "Because registerNotificationListener (also in NotificationService) has been deprecated, so now we should use registerListener. I can add this comment if we need to amend this patch or if you want me to.",
+      "parentUuid": "4c48b6a9_5193aae7",
+      "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "135e66c8_b210d15f",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -31,6 +49,23 @@
       "writtenOn": "2024-06-20T19:33:57Z",
       "side": 1,
       "message": "This two comments have been fixed in the latest version of this patch.",
+      "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acf56e52_c8bcd685",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-27T16:54:57Z",
+      "side": 1,
+      "message": "I am providing an answer to the two comments. However, I am not completely sure if there is a need to modify this code and how.",
       "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -48,6 +83,24 @@
       "writtenOn": "2024-06-27T16:02:30Z",
       "side": 1,
       "message": "Can we get type from listener?",
+      "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82f0ce43_a579e620",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-06-27T16:54:57Z",
+      "side": 1,
+      "message": "We cannot, so we need to define (or find) the packet type when calling registerListener. BTW, there is a warning about this abstract class because we are not defining a return parameter between \u003c \u003e. I tried \u003c?\u003e, just as in getConsumedListener, but this did not work.",
+      "parentUuid": "2b0d7bd3_d58a44ab",
       "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
