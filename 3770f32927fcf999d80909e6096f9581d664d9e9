@@ -88,6 +88,23 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c32c816c_6919eb97",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-07-11T11:35:46Z",
+      "side": 1,
+      "message": "To the future there are possible some improvements (needs to be more investigated):\n- rework `PacketHandlerProvider` to be like `AddressTrackerProvider` - just collect `Registration`(s) and then close them\n- this requires `AbstractPacketDecoder` to do NOT implement `Autocloseable`\n- and this requires removal of `decodeAndPublishExecutor` ExecutorService from AbstractPacketDecoder\n- IMO its not necessary to have its own executor service for each *PacketDecoder, but I do not have executor service usage guide at hand 😊",
+      "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f1d309d_7f994603",
