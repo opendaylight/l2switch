@@ -124,6 +124,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6b134ee1_a6879371",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-07-11T15:19:11Z",
+      "side": 1,
+      "message": "Not possible.",
+      "parentUuid": "5f1d309d_7f994603",
+      "revId": "3770f32927fcf999d80909e6096f9581d664d9e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2b0d7bd3_d58a44ab",
         "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/AbstractPacketDecoder.java",
         "patchSetId": 2
