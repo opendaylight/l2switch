@@ -74,7 +74,7 @@ public class ReactiveFlowWriterTest {
     public void onArpPacketReceivedTest() {
 
         ArpPacketReceived arpPacketReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        reactiveFlowWriter.onArpPacketReceived(arpPacketReceived);
+        reactiveFlowWriter.onNotification(arpPacketReceived);
 
     }
 

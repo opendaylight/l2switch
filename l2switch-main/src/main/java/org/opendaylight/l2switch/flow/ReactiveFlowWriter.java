@@ -8,10 +8,10 @@
 package org.opendaylight.l2switch.flow;
 
 import org.opendaylight.l2switch.inventory.InventoryReader;
+import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 /**
  * This class listens to certain type of packets and writes a mac to mac flows.
  */
-public class ReactiveFlowWriter implements ArpPacketListener {
+public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
     private final InventoryReader inventoryReader;
     private final FlowWriterService flowWriterService;
 
@@ -57,7 +57,7 @@ public class ReactiveFlowWriter implements ArpPacketListener {
     }
 
     @Override
-    public void onArpPacketReceived(ArpPacketReceived packetReceived) {
+    public void onNotification(ArpPacketReceived packetReceived) {
         if (packetReceived == null || packetReceived.getPacketChain() == null) {
             return;
         }

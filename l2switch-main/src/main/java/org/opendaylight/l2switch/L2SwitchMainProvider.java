@@ -15,6 +15,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.l2switch.config.rev140528.L2switchConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class L2SwitchMainProvider {
             // Setup reactive flow writer
             LOG.info("L2Switch will react to network traffic and install flows");
             ReactiveFlowWriter reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
-            reactFlowWriterReg = notificationService.registerNotificationListener(reactiveFlowWriter);
+            reactFlowWriterReg = notificationService.registerListener(ArpPacketReceived.class, reactiveFlowWriter);
         }
         LOG.info("L2SwitchMain initialized.");
     }
