@@ -46,21 +46,21 @@ public class ArpPacketHandlerTest {
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verify(packetDispatcher, times(1)).dispatchPacket(null, null, null, null);
     }
 
     @Test
     public void onArpPacketReceivedTest_NullInput() throws Exception {
-        arpPacketHandler.onArpPacketReceived(null);
+        arpPacketHandler.onNotification(null);
         verifyNoInteractions(packetDispatcher);
     }
 
     @Test
     public void onArpPacketReceivedTest_NullPacketChain() throws Exception {
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verifyNoInteractions(packetDispatcher);
     }
@@ -69,7 +69,7 @@ public class ArpPacketHandlerTest {
     public void onArpPacketReceivedTest_EmptyPacketChain() throws Exception {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verifyNoInteractions(packetDispatcher);
     }
@@ -80,7 +80,7 @@ public class ArpPacketHandlerTest {
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verifyNoInteractions(packetDispatcher);
     }
@@ -91,7 +91,7 @@ public class ArpPacketHandlerTest {
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new ArpPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verifyNoInteractions(packetDispatcher);
     }
@@ -102,7 +102,7 @@ public class ArpPacketHandlerTest {
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
         packetChainList.add(new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build());
         ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        arpPacketHandler.onArpPacketReceived(arpReceived);
+        arpPacketHandler.onNotification(arpReceived);
 
         verifyNoInteractions(packetDispatcher);
     }
