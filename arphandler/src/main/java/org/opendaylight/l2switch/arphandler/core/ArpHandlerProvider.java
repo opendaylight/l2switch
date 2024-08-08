@@ -13,6 +13,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ public class ArpHandlerProvider {
     private static final Logger LOG = LoggerFactory.getLogger(ArpHandlerProvider.class);
     private Registration listenerRegistration;
     private Registration floodTopoListenerReg;
-    private Registration floodInvListenerReg;
     private Registration topoNodeListenerReg;
 
     private final NotificationService notificationService;
@@ -54,7 +54,6 @@ public class ArpHandlerProvider {
             floodFlowWriter.setFlowHardTimeout(arpHandlerConfig.getFloodFlowHardTimeout());
             floodFlowWriter.setFlowInstallationDelay(arpHandlerConfig.getFloodFlowInstallationDelay().toJava());
             floodTopoListenerReg = floodFlowWriter.registerAsDataChangeListener();
-            floodInvListenerReg = notificationService.registerNotificationListener(floodFlowWriter);
         } else {
             //Write initial flows to send arp to controller
             LOG.info("ArpHandler is in Reactive Mode");
@@ -76,7 +75,7 @@ public class ArpHandlerProvider {
             ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
 
             // Register ArpPacketHandler
-            this.listenerRegistration = notificationService.registerNotificationListener(arpPacketHandler);
+            this.listenerRegistration = notificationService.registerListener(ArpPacketReceived.class, arpPacketHandler);
         }
         LOG.info("ArpHandler initialized.");
     }
@@ -87,9 +86,6 @@ public class ArpHandlerProvider {
         }
         if (floodTopoListenerReg != null) {
             floodTopoListenerReg.close();
-        }
-        if (floodInvListenerReg != null) {
-            floodInvListenerReg.close();
         }
         if (topoNodeListenerReg != null) {
             topoNodeListenerReg.close();

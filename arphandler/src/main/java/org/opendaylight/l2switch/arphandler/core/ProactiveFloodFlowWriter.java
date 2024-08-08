@@ -56,14 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeUpdated;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.OpendaylightInventoryListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -85,8 +80,7 @@ import org.slf4j.LoggerFactory;
  * mode, flood flows are automatically written to each switch and less traffic
  * is sent to the controller.
  */
-public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatusAwareNodeConnector>,
-        OpendaylightInventoryListener {
+public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatusAwareNodeConnector> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProactiveFloodFlowWriter.class);
 
@@ -128,44 +122,6 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
 
     public void setFlowHardTimeout(Uint16 flowHardTimeout) {
         this.flowHardTimeout = requireNonNull(flowHardTimeout);
-    }
-
-    @Override
-    public void onNodeConnectorRemoved(NodeConnectorRemoved notification) {
-        // do nothing
-    }
-
-    @Override
-    public void onNodeConnectorUpdated(NodeConnectorUpdated notification) {
-        // do nothing
-    }
-
-    @Override
-    public void onNodeRemoved(NodeRemoved notification) {
-        // do nothing
-    }
-
-    /**
-     * Install flood flows when a node comes up/down.
-     *
-     * @param notification
-     *            Notification for when a node comes up.
-     */
-    @Override
-    public void onNodeUpdated(NodeUpdated notification) {
-        if (!flowRefreshScheduled) {
-            synchronized (this) {
-                if (!flowRefreshScheduled) {
-                    stpStatusDataChangeEventProcessor.schedule(new StpStatusDataChangeEventProcessor(),
-                            flowInstallationDelay, TimeUnit.MILLISECONDS);
-                    flowRefreshScheduled = true;
-                    LOG.debug("Scheduled Flows for refresh.");
-                }
-            }
-        } else {
-            LOG.debug("Already scheduled for flow refresh.");
-            threadReschedule = true;
-        }
     }
 
     /**
