@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f074fe78_0b1b2089",
+        "filename": "arphandler/src/main/java/org/opendaylight/l2switch/arphandler/core/ProactiveFloodFlowWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-08-26T17:45:24Z",
+      "side": 0,
+      "message": "please migrate this code to Listener, retaining NodeUpdated reference. \n\nthe migration away from NodeUpdated should be done in a separate patch -- which requires a bit of digging in openflowplugin.git to understand where the replacement listener should be anchored at. Unfortunately this was done around https://git.opendaylight.org/gerrit/c/controller/+/8255, so the details are sketchy and quite scattered.",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 155,
+        "endChar": 29
+      },
+      "revId": "e3f4c022839ac5f43fa5aafc634cd37e9cf37c12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
