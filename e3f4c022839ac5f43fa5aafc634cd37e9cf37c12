@@ -22,6 +22,30 @@
       },
       "revId": "e3f4c022839ac5f43fa5aafc634cd37e9cf37c12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d60727d9_2a866d67",
+        "filename": "arphandler/src/main/java/org/opendaylight/l2switch/arphandler/core/ProactiveFloodFlowWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-09-30T20:36:11Z",
+      "side": 0,
+      "message": "This has been done in the last update of this patch.",
+      "parentUuid": "f074fe78_0b1b2089",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 155,
+        "endChar": 29
+      },
+      "revId": "e3f4c022839ac5f43fa5aafc634cd37e9cf37c12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
