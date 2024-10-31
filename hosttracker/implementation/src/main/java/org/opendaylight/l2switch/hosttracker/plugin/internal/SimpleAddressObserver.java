@@ -9,7 +9,10 @@ package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.Set;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.opendaylight.mdsal.binding.api.NotificationService.CompositeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -17,98 +20,96 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * A Simple Address Observer based on l2switch address observer.
  */
-public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
-
+public class SimpleAddressObserver {
     private static final String IPV4_IP_TO_IGNORE = "0.0.0.0";
     private static final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
 
     private final HostTrackerImpl hostTrackerImpl;
     private final NotificationService notificationService;
 
-    public SimpleAddressObserver(HostTrackerImpl hostTrackerImpl, NotificationService notificationService) {
+    public SimpleAddressObserver(final HostTrackerImpl hostTrackerImpl, final NotificationService notificationService) {
         this.hostTrackerImpl = hostTrackerImpl;
         this.notificationService = notificationService;
-
     }
 
-    void registerAsNotificationListener() {
-        this.notificationService.registerNotificationListener(this);
+    Registration registerAsNotificationListener() {
+        return notificationService.registerCompositeListener(new CompositeListener(Set.of(
+            new CompositeListener.Component<>(ArpPacketReceived.class, this::onArpPacketReceived),
+            new CompositeListener.Component<>(Ipv4PacketReceived.class, this::onIpv4PacketReceived),
+            new CompositeListener.Component<>(Ipv6PacketReceived.class, this::onIpv6PacketReceived))));
     }
 
-    @Override
-    public void onArpPacketReceived(ArpPacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
+    @NonNullByDefault
+    private void onArpPacketReceived(final ArpPacketReceived packetReceived) {
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof ArpPacket) {
-                arpPacket = (ArpPacket) packetChain.getPacket();
+        for (var packetChain : packetReceived.nonnullPacketChain()) {
+            // TODO: use an enhanced switch when we have Java 21
+            final var packet = packetChain.getPacket();
+            if (packet instanceof RawPacket raw) {
+                rawPacket = raw.getRawPacketFields();
+            } else if (packet instanceof EthernetPacket ethernet) {
+                ethernetPacket = ethernet;
+            } else if (packet instanceof ArpPacket arp) {
+                arpPacket = arp;
             }
         }
         if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
             return;
         }
-        VlanId vlanId = null;
+
+        final VlanId vlanId;
         if (ethernetPacket.getEthertype().equals(KnownEtherType.VlanTagged)) {
             vlanId = ethernetPacket.getHeader8021q().get(0).getVlan();
+        } else {
+            vlanId = null;
         }
-        MacAddress sourceMac = ethernetPacket.getSourceMac();
-        IpAddress ipAddress = null;
+
+        final IpAddress ipAddress;
         if (arpPacket.getProtocolType().equals(KnownEtherType.Ipv4)) {
             ipAddress = new IpAddress(new Ipv4Address(arpPacket.getSourceProtocolAddress()));
+        } else {
+            ipAddress = null;
         }
-        Addresses addrs = createAddresses(sourceMac, vlanId, ipAddress, ethernetPacket.getEthertype());
-        if (addrs == null) {
-            return;
+        final var addrs = createAddresses(ethernetPacket.getSourceMac(), vlanId, ipAddress,
+            ethernetPacket.getEthertype());
+        if (addrs != null) {
+            hostTrackerImpl.packetReceived(addrs, rawPacket.getIngress().getValue());
         }
-        NodeConnectorRef ingress = rawPacket.getIngress();
-        hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    @Override
-    public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
+    @NonNullByDefault
+    private void onIpv4PacketReceived(final Ipv4PacketReceived packetReceived) {
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         Ipv4Packet ipv4Packet = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof Ipv4Packet) {
-                ipv4Packet = (Ipv4Packet) packetChain.getPacket();
+        for (var packetChain : packetReceived.nonnullPacketChain()) {
+            // TODO: use an enhanced switch when we have Java 21
+            final var packet = packetChain.getPacket();
+            if (packet instanceof RawPacket raw) {
+                rawPacket = raw.getRawPacketFields();
+            } else if (packet instanceof EthernetPacket ethernet) {
+                ethernetPacket = ethernet;
+            } else if (packet instanceof Ipv4Packet ipv4) {
+                ipv4Packet = ipv4;
             }
         }
         if (rawPacket == null || ethernetPacket == null || ipv4Packet == null) {
@@ -134,48 +135,44 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    @Override
-    public void onIpv6PacketReceived(Ipv6PacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
+    @NonNullByDefault
+    private void onIpv6PacketReceived(final Ipv6PacketReceived packetReceived) {
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         Ipv6Packet ipv6Packet = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof Ipv6Packet) {
-                ipv6Packet = (Ipv6Packet) packetChain.getPacket();
+        for (var packetChain : packetReceived.nonnullPacketChain()) {
+            if (packetChain.getPacket() instanceof RawPacket raw) {
+                rawPacket = raw.getRawPacketFields();
+            } else if (packetChain.getPacket() instanceof EthernetPacket ethernet) {
+                ethernetPacket = ethernet;
+            } else if (packetChain.getPacket() instanceof Ipv6Packet ipv6) {
+                ipv6Packet = ipv6;
             }
         }
         if (rawPacket == null || ethernetPacket == null || ipv6Packet == null) {
             return;
         }
+
         if (IPV6_IP_TO_IGNORE.equals(ipv6Packet.getSourceIpv6().getValue())) {
             return;
         }
 
-        VlanId vlanId = null;
+        final VlanId vlanId;
         if (ethernetPacket.getEthertype().equals(KnownEtherType.VlanTagged)) {
             vlanId = ethernetPacket.getHeader8021q().get(0).getVlan();
+        } else {
+            vlanId = null;
         }
-        MacAddress sourceMac = ethernetPacket.getSourceMac();
-        IpAddress ipAddress = new IpAddress(ipv6Packet.getSourceIpv6());
 
-        Addresses addrs = createAddresses(sourceMac, vlanId, ipAddress, ethernetPacket.getEthertype());
-        if (addrs == null) {
-            return;
+        final var addrs = createAddresses(ethernetPacket.getSourceMac(), vlanId,
+            new IpAddress(ipv6Packet.getSourceIpv6()), ethernetPacket.getEthertype());
+        if (addrs != null) {
+            hostTrackerImpl.packetReceived(addrs, rawPacket.getIngress().getValue());
         }
-        NodeConnectorRef ingress = rawPacket.getIngress();
-        hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    private Addresses createAddresses(MacAddress srcMacAddr, VlanId vlanId, IpAddress srcIpAddr,
-            KnownEtherType ketype) {
+    private static Addresses createAddresses(final MacAddress srcMacAddr, final VlanId vlanId,
+            final IpAddress srcIpAddr, final KnownEtherType ketype) {
         AddressesBuilder addrs = new AddressesBuilder();
         if (srcMacAddr == null || srcIpAddr == null) {
             return null;
