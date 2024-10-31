@@ -17,27 +17,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
  * A Simple Address Observer based on l2switch address observer.
  */
-public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListener, Ipv6PacketListener {
+public class SimpleAddressObserver implements NotificationService.Listener<EthernetPacketReceived> {
 
     private static final String IPV4_IP_TO_IGNORE = "0.0.0.0";
     private static final String IPV6_IP_TO_IGNORE = "0:0:0:0:0:0:0:0";
@@ -48,34 +43,39 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
     public SimpleAddressObserver(HostTrackerImpl hostTrackerImpl, NotificationService notificationService) {
         this.hostTrackerImpl = hostTrackerImpl;
         this.notificationService = notificationService;
-
     }
 
     void registerAsNotificationListener() {
-        this.notificationService.registerNotificationListener(this);
+        this.notificationService.registerListener(EthernetPacketReceived.class, this);
     }
 
     @Override
-    public void onArpPacketReceived(ArpPacketReceived packetReceived) {
+    public void onNotification(EthernetPacketReceived packetReceived) {
         if (packetReceived == null || packetReceived.getPacketChain() == null) {
             return;
         }
-
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
-        ArpPacket arpPacket = null;
+
         for (PacketChain packetChain : packetReceived.getPacketChain()) {
             if (packetChain.getPacket() instanceof RawPacket) {
                 rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
             } else if (packetChain.getPacket() instanceof EthernetPacket) {
                 ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof ArpPacket) {
-                arpPacket = (ArpPacket) packetChain.getPacket();
+            } else if (rawPacket != null && ethernetPacket != null) {
+                if (packetChain.getPacket() instanceof ArpPacket arpPacket) {
+                    onArpPacketReceived(rawPacket, ethernetPacket, arpPacket);
+                } else if (packetChain.getPacket() instanceof Ipv4Packet ipv4Packet) {
+                    onIpv4PacketReceived(rawPacket, ethernetPacket, ipv4Packet);
+                } else if (packetChain.getPacket() instanceof Ipv6Packet ipv6Packet) {
+                    onIpv6PacketReceived(rawPacket, ethernetPacket, ipv6Packet);
+                }
             }
         }
-        if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
-            return;
-        }
+    }
+
+    private void onArpPacketReceived(RawPacketFields rawPacket, EthernetPacket ethernetPacket,
+                                    ArpPacket arpPacket) {
         VlanId vlanId = null;
         if (ethernetPacket.getEthertype().equals(KnownEtherType.VlanTagged)) {
             vlanId = ethernetPacket.getHeader8021q().get(0).getVlan();
@@ -93,28 +93,8 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    @Override
-    public void onIpv4PacketReceived(Ipv4PacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
-        RawPacketFields rawPacket = null;
-        EthernetPacket ethernetPacket = null;
-        Ipv4Packet ipv4Packet = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof Ipv4Packet) {
-                ipv4Packet = (Ipv4Packet) packetChain.getPacket();
-            }
-        }
-        if (rawPacket == null || ethernetPacket == null || ipv4Packet == null) {
-            return;
-        }
-
+    private void onIpv4PacketReceived(RawPacketFields rawPacket, EthernetPacket ethernetPacket,
+                                     Ipv4Packet ipv4Packet) {
         if (IPV4_IP_TO_IGNORE.equals(ipv4Packet.getSourceIpv4().getValue())) {
             return;
         }
@@ -134,27 +114,8 @@ public class SimpleAddressObserver implements ArpPacketListener, Ipv4PacketListe
         hostTrackerImpl.packetReceived(addrs, ingress.getValue());
     }
 
-    @Override
-    public void onIpv6PacketReceived(Ipv6PacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
-        RawPacketFields rawPacket = null;
-        EthernetPacket ethernetPacket = null;
-        Ipv6Packet ipv6Packet = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof Ipv6Packet) {
-                ipv6Packet = (Ipv6Packet) packetChain.getPacket();
-            }
-        }
-        if (rawPacket == null || ethernetPacket == null || ipv6Packet == null) {
-            return;
-        }
+    private void onIpv6PacketReceived(RawPacketFields rawPacket, EthernetPacket ethernetPacket,
+                                     Ipv6Packet ipv6Packet) {
         if (IPV6_IP_TO_IGNORE.equals(ipv6Packet.getSourceIpv6().getValue())) {
             return;
         }
