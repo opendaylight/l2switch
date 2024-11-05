@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0de8400a_87fa38e4",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-05T15:20:52Z",
+      "side": 1,
+      "message": "https://medium.com/@mgm06bm/pattern-matching-in-java-2cafc44ba5f0",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "99beb591_edd19ea1",
         "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
         "patchSetId": 1
