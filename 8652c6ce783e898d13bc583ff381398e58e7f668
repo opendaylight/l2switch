@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2175cfe7_4576c544",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-11-06T14:16:30Z",
+      "side": 1,
+      "message": "Fixed typo.",
+      "parentUuid": "c31d85ca_a13d4fe7",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0de8400a_87fa38e4",
         "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2024-11-05T15:20:52Z",
       "side": 1,
       "message": "https://medium.com/@mgm06bm/pattern-matching-in-java-2cafc44ba5f0",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f730767_29c1ab13",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-11-06T14:16:30Z",
+      "side": 1,
+      "message": "Pattern matching has been employed for arpPacket, ipv4Packet and ipv6Packet. Pattern matching has not been used for ethernetPacket and rawPacket since both need to be initialized to null. Notice that these changes assume that rawPacket and ethernetPacket are obtained before the other types of packets.",
+      "parentUuid": "0de8400a_87fa38e4",
       "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "27837669_f99569b0",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-11-06T14:16:30Z",
+      "side": 1,
+      "message": "Changed to private.",
+      "parentUuid": "99beb591_edd19ea1",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3834a73f_34bd4eb4",
         "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
         "patchSetId": 1
@@ -65,6 +119,24 @@
       "writtenOn": "2024-11-05T15:18:41Z",
       "side": 1,
       "message": "private?",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9fb0c9f_8ca0ccf8",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2024-11-06T14:16:30Z",
+      "side": 1,
+      "message": "Changed to private.",
+      "parentUuid": "3834a73f_34bd4eb4",
       "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
