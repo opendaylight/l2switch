@@ -50,6 +50,24 @@
       "message": "Are we going to have three classes like?\n\n`ArpPacketObserver implements NotificationService.Listener\u003cArpPacketReceived\u003e` instead?",
       "revId": "dc2b45c73da169bc14b9161bb227429865701140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c00d6fa8_90678eec",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-11-14T19:20:58Z",
+      "side": 1,
+      "message": "yes, but tucked away behind lambdas, using NotificationService.CompositeListener",
+      "parentUuid": "fc28ae34_dc3d41f0",
+      "revId": "dc2b45c73da169bc14b9161bb227429865701140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }

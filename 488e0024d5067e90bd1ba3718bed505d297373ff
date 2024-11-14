@@ -16,6 +16,24 @@
       "message": "IMo we can still use ArpPacketReceived, only ArpPacketListener is deprecated.",
       "revId": "488e0024d5067e90bd1ba3718bed505d297373ff",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1283fcbc_87e57a23",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-11-14T19:20:58Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "6fafa65e_176fd6f2",
+      "revId": "488e0024d5067e90bd1ba3718bed505d297373ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }

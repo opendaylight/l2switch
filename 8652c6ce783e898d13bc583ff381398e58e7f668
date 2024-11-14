@@ -107,6 +107,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fc526e2_28ff799c",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2024-11-14T19:20:58Z",
+      "side": 1,
+      "message": "this was effectively revered and converted to use JEP394",
+      "parentUuid": "b3fe9041_bb19d224",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99beb591_edd19ea1",
