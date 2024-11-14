@@ -16,6 +16,23 @@
       "message": "Ivan, thanks for your comments! They have certainly been useful to improve this code.",
       "revId": "dc2b45c73da169bc14b9161bb227429865701140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc28ae34_dc3d41f0",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-14T16:31:51Z",
+      "side": 1,
+      "message": "Are we going to have three classes like?\n\n`ArpPacketObserver implements NotificationService.Listener\u003cArpPacketReceived\u003e` instead?",
+      "revId": "dc2b45c73da169bc14b9161bb227429865701140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
