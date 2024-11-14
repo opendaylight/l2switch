@@ -36,6 +36,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcdfa3ba_662b9f90",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-14T16:23:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2175cfe7_4576c544",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0de8400a_87fa38e4",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "Pattern matching has been employed for arpPacket, ipv4Packet and ipv6Packet. Pattern matching has not been used for ethernetPacket and rawPacket since both need to be initialized to null. Notice that these changes assume that rawPacket and ethernetPacket are obtained before the other types of packets.",
       "parentUuid": "0de8400a_87fa38e4",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3fe9041_bb19d224",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-14T16:23:05Z",
+      "side": 1,
+      "message": "RawPacketFields packetFields \u003d null;\n        EthernetPacket packet \u003d null;\n\n        for (PacketChain packetChain : packetReceived.getPacketChain()) {\n            if (packetChain.getPacket() instanceof RawPacket rawPacket) {\n                packetFields \u003d rawPacket.getRawPacketFields();\n            } else if (packetChain.getPacket() instanceof EthernetPacket ethernetPacket) {\n                packet \u003d ethernetPacket;\n            } else if (packetFields !\u003d null \u0026\u0026 packet !\u003d null) {\n                if (packetChain.getPacket() instanceof ArpPacket arpPacket) {\n                    onArpPacketReceived(packetFields, packet, arpPacket);\n                } else if (packetChain.getPacket() instanceof Ipv4Packet ipv4Packet) {\n                    onIpv4PacketReceived(packetFields, packet, ipv4Packet);\n                } else if (packetChain.getPacket() instanceof Ipv6Packet ipv6Packet) {\n                    onIpv6PacketReceived(packetFields, packet, ipv6Packet);\n                }\n            }\n        }",
+      "parentUuid": "0f730767_29c1ab13",
       "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -106,6 +142,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5994e1cd_ab00be08",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-14T16:23:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27837669_f99569b0",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3834a73f_34bd4eb4",
@@ -137,6 +191,24 @@
       "side": 1,
       "message": "Changed to private.",
       "parentUuid": "3834a73f_34bd4eb4",
+      "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ad9509f_fd63a9e2",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/SimpleAddressObserver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-14T16:23:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9fb0c9f_8ca0ccf8",
       "revId": "8652c6ce783e898d13bc583ff381398e58e7f668",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
