@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25bf306f_b59549b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-11-15T13:37:51Z",
+      "side": 1,
+      "message": "But anyway where SimpleAddressObserver is going to be used?",
+      "revId": "cd080ff030e0b8678518a13aa6fbc59a699fcff0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
