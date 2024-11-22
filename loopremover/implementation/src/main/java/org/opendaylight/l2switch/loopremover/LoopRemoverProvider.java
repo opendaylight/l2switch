@@ -11,7 +11,7 @@ import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -26,7 +26,7 @@ public final class LoopRemoverProvider implements AutoCloseable {
     private Registration topoNodeListnerReg;
 
     // FIXME: an @Activate constructor which deals with dynamic config
-    public LoopRemoverProvider(final DataBroker dataBroker, final RpcConsumerRegistry rpcService,
+    public LoopRemoverProvider(final DataBroker dataBroker, final RpcService rpcService,
             final LoopRemoverConfig config) {
         // Write initial flows
         if (config.getIsInstallLldpFlow()) {
