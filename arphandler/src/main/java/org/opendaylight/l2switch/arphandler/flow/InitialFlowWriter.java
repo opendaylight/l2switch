@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherTyp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -117,7 +116,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         this.isHybridMode = isHybridMode;
     }
 
-    public ListenerRegistration<InitialFlowWriter> registerAsDataChangeListener(DataBroker dataBroker) {
+    public Registration registerAsDataChangeListener(DataBroker dataBroker) {
         InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class).build();
         return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
@@ -125,7 +124,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     @Override
-    public void onDataTreeChanged(Collection<DataTreeModification<Node>> changes) {
+    public void onDataTreeChanged(List<DataTreeModification<Node>> changes) {
         Set<InstanceIdentifier<?>> nodeIds = new HashSet<>();
         for (DataTreeModification<Node> change: changes) {
             DataObjectModification<Node> rootNode = change.getRootNode();
