@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -67,7 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -147,7 +147,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     /**
      * Registers as a data listener for Nodes.
      */
-    public ListenerRegistration<ProactiveFloodFlowWriter> registerAsDataChangeListener() {
+    public Registration registerAsDataChangeListener() {
         return dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class)
@@ -160,7 +160,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Install flows when a link comes up/down.
      */
     @Override
-    public void onDataTreeChanged(Collection<DataTreeModification<StpStatusAwareNodeConnector>> changes) {
+    public void onDataTreeChanged(List<DataTreeModification<StpStatusAwareNodeConnector>> changes) {
         if (!flowRefreshScheduled) {
             synchronized (this) {
                 if (!flowRefreshScheduled) {
