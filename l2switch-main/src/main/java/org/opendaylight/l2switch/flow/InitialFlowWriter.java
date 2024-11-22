@@ -10,8 +10,8 @@ package org.opendaylight.l2switch.flow;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -95,13 +95,13 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         this.flowHardTimeout = flowHardTimeout;
     }
 
-    public ListenerRegistration<InitialFlowWriter> registerAsDataChangeListener(final DataBroker dataBroker) {
+    public Registration registerAsDataChangeListener(final DataBroker dataBroker) {
         return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
             InstanceIdentifier.builder(Nodes.class).child(Node.class).build()), this);
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
         final var nodeIds = new HashSet<InstanceIdentifier<?>>();
         for (var change : changes) {
             final var rootNode = change.getRootNode();

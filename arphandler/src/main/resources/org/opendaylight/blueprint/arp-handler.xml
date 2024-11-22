@@ -7,7 +7,7 @@
   <reference id="notificationProviderService"
     interface="org.opendaylight.mdsal.binding.api.NotificationService" />
   <reference id="rpcService"
-             interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
+             interface="org.opendaylight.mdsal.binding.api.RpcService" />
 
   <odl:clustered-app-config id="arpHandlerConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig">
