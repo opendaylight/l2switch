@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -166,7 +165,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
     }
 
     @Override
-    public void onDataTreeChanged(Collection<DataTreeModification<DataObject>> changes) {
+    public void onDataTreeChanged(List<DataTreeModification<DataObject>> changes) {
         exec.submit(() -> {
             for (DataTreeModification<?> change: changes) {
                 DataObjectModification<?> rootNode = change.getRootNode();

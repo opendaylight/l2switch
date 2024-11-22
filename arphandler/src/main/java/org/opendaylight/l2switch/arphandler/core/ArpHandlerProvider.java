@@ -11,7 +11,7 @@ import org.opendaylight.l2switch.arphandler.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
@@ -30,11 +30,11 @@ public class ArpHandlerProvider {
 
     private final NotificationService notificationService;
     private final DataBroker dataBroker;
-    private final RpcConsumerRegistry rpcService;
+    private final RpcService rpcService;
     private final ArpHandlerConfig arpHandlerConfig;
 
     public ArpHandlerProvider(final DataBroker dataBroker, final NotificationService notificationProviderService,
-            final RpcConsumerRegistry rpcService, final ArpHandlerConfig config) {
+            final RpcService rpcService, final ArpHandlerConfig config) {
         this.notificationService = notificationProviderService;
         this.dataBroker = dataBroker;
         this.rpcService = rpcService;

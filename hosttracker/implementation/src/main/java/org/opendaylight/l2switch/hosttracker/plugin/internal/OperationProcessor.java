@@ -17,35 +17,37 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
-import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class OperationProcessor implements AutoCloseable, Runnable, TransactionChainListener {
+final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(OperationProcessor.class);
     private static final int NUM_RETRY_SUBMIT = 2;
     private static final int OPS_PER_CHAIN = 256;
     private static final int QUEUE_DEPTH = 512;
 
     private final BlockingQueue<HostTrackerOperation> queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
+    private final AtomicReference<TransactionChain> transactionChain = new AtomicReference<>();
     private final DataBroker dataBroker;
-    private final AtomicReference<TransactionChain> transactionChain;
 
     OperationProcessor(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-        this.transactionChain = new AtomicReference<>(dataBroker.createTransactionChain(this));
+
+        final var chain = dataBroker.createTransactionChain();
+        transactionChain.set(chain);
+        chain.addCallback(this);
     }
 
     @Override
-    public void onTransactionChainFailed(TransactionChain chain, Transaction transaction, Throwable cause) {
+    public void onFailure(Throwable cause) {
         chainFailure();
     }
 
     @Override
-    public void onTransactionChainSuccessful(TransactionChain chain) {
+    public void onSuccess(Empty result) {
         // no-op
     }
 
@@ -86,8 +88,9 @@ final class OperationProcessor implements AutoCloseable, Runnable, TransactionCh
 
     private void chainFailure() {
         try {
-            final TransactionChain prevChain = transactionChain.getAndSet(
-                    dataBroker.createTransactionChain(this));
+            final var nextChain = dataBroker.createTransactionChain();
+            final var prevChain = transactionChain.getAndSet(nextChain);
+            nextChain.addCallback(this);
             if (prevChain != null) {
                 prevChain.close();
             }
