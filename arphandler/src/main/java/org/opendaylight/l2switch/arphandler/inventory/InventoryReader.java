@@ -5,12 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.arphandler.inventory;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +107,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
     }
 
     @Override
-    public void onDataTreeChanged(Collection<DataTreeModification<DataObject>> changes) {
+    public void onDataTreeChanged(List<DataTreeModification<DataObject>> changes) {
         if (!refreshDataScheduled) {
             synchronized (this) {
                 if (!refreshDataScheduled) {
@@ -123,7 +121,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
 
     public void close() {
-        listenerRegistrationList.forEach(reg -> reg.close());
+        listenerRegistrationList.forEach(Registration::close);
     }
 
     /**

@@ -5,7 +5,7 @@
   <reference id="dataBroker"
     interface="org.opendaylight.mdsal.binding.api.DataBroker" />
   <reference id="rpcService"
-    interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
+    interface="org.opendaylight.mdsal.binding.api.RpcService" />
 
   <odl:clustered-app-config id="loopRemoverConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig">
