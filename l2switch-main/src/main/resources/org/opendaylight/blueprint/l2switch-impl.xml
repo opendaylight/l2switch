@@ -6,13 +6,12 @@
     interface="org.opendaylight.mdsal.binding.api.DataBroker" />
   <reference id="notificationPublishService"
     interface="org.opendaylight.mdsal.binding.api.NotificationService" />
+  <reference id="flowService"
+    interface="org.opendaylight.mdsal.binding.api.RpcService" />
 
   <odl:clustered-app-config id="l2switchConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.l2switch.config.rev140528.L2switchConfig">
   </odl:clustered-app-config>
-
-  <reference id="flowService"
-    interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
 
   <bean id="mainProvider" class="org.opendaylight.l2switch.L2SwitchMainProvider"
     init-method="init" destroy-method="close">

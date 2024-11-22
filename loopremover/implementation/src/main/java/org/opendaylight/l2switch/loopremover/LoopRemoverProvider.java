@@ -12,7 +12,7 @@ import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -23,17 +23,17 @@ public class LoopRemoverProvider {
     private static final Logger LOG = LoggerFactory.getLogger(LoopRemoverProvider.class);
 
     private final DataBroker dataService;
-    private final RpcConsumerRegistry rpcFlowService;
+    private final RpcService rpcFlowService;
     private final LoopRemoverConfig loopRemoverConfig;
 
     private Registration listenerRegistration;
     private Registration topoNodeListnerReg;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
-    public LoopRemoverProvider(final DataBroker dataBroker, final RpcConsumerRegistry flowService,
+    public LoopRemoverProvider(final DataBroker dataBroker, final RpcService rpcService,
             final LoopRemoverConfig config) {
         this.dataService = dataBroker;
-        this.rpcFlowService = flowService;
+        this.rpcFlowService = rpcService;
         this.loopRemoverConfig = config;
     }
 

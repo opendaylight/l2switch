@@ -9,8 +9,8 @@ package org.opendaylight.l2switch.flow;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,7 +101,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
         final var nodeIds = new HashSet<InstanceIdentifier<?>>();
         for (var change : changes) {
             final var rootNode = change.getRootNode();
