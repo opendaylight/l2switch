@@ -23,8 +23,7 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -35,13 +34,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class InitialFlowWriterTest {
 
     @Mock
-    private SalFlowService salFlowService;
+    private AddFlow addFlow;
     private InitialFlowWriter initialFlowWriter;
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        initialFlowWriter = new InitialFlowWriter(salFlowService);
+        initialFlowWriter = new InitialFlowWriter(addFlow);
     }
 
     @SuppressWarnings("unchecked")
@@ -62,6 +61,6 @@ public class InitialFlowWriterTest {
 
         initialFlowWriter.onDataTreeChanged(Collections.singletonList(mockChange));
         Thread.sleep(250);
-        verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
+        verify(addFlow, times(1)).invoke(any());
     }
 }
