@@ -12,7 +12,8 @@ import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.loop.remover.config.rev140528.LoopRemoverConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -22,17 +23,17 @@ public class LoopRemoverProvider {
     private static final Logger LOG = LoggerFactory.getLogger(LoopRemoverProvider.class);
 
     private final DataBroker dataService;
-    private final SalFlowService salFlowService;
+    private final RpcConsumerRegistry rpcFlowService;
     private final LoopRemoverConfig loopRemoverConfig;
 
     private Registration listenerRegistration;
     private Registration topoNodeListnerReg;
     private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
-    public LoopRemoverProvider(final DataBroker dataBroker, final SalFlowService salFlowService,
+    public LoopRemoverProvider(final DataBroker dataBroker, final RpcConsumerRegistry flowService,
             final LoopRemoverConfig config) {
         this.dataService = dataBroker;
-        this.salFlowService = salFlowService;
+        this.rpcFlowService = flowService;
         this.loopRemoverConfig = config;
     }
 
@@ -40,7 +41,7 @@ public class LoopRemoverProvider {
         //Write initial flows
         if (loopRemoverConfig.getIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
-            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
+            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(rpcFlowService.getRpc(AddFlow.class));
             initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId());
             initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority());
             initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout());

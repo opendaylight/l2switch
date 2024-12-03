@@ -32,10 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
@@ -66,7 +66,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final String FLOW_ID_PREFIX = "L2switch-";
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
-    private final SalFlowService salFlowService;
+    private final AddFlow addFlow;
 
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
@@ -75,8 +75,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private Uint16 flowIdleTimeout = Uint16.ZERO;
     private Uint16 flowHardTimeout = Uint16.ZERO;
 
-    public InitialFlowWriter(final SalFlowService salFlowService) {
-        this.salFlowService = salFlowService;
+    public InitialFlowWriter(final AddFlow flowService) {
+        this.addFlow = flowService;
     }
 
     public void setFlowTableId(final Uint8 flowTableId) {
@@ -210,10 +210,11 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         }
 
         private Future<RpcResult<AddFlowOutput>> writeFlowToController(final InstanceIdentifier<Node> nodeInstanceId,
-                final InstanceIdentifier<Table> tableInstanceId, final InstanceIdentifier<Flow> flowPath,
-                final Flow flow) {
+                                                                       final InstanceIdentifier<Table> tableInstanceId,
+                                                                       final InstanceIdentifier<Flow> flowPath,
+                                                                       final Flow flow) {
             LOG.trace("Adding flow to node {}", nodeInstanceId.firstKeyOf(Node.class).getId().getValue());
-            return salFlowService.addFlow(new AddFlowInputBuilder(flow)
+            return addFlow.invoke(new AddFlowInputBuilder(flow)
                 .setNode(new NodeRef(nodeInstanceId))
                 .setFlowRef(new FlowRef(flowPath))
                 .setFlowTable(new FlowTableRef(tableInstanceId))
