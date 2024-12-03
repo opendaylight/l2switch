@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlowWriterServiceImplTest {
     @Mock
-    private SalFlowService salFlowService;
+    private AddFlow addFlow;
     private FlowWriterServiceImpl flowWriterService;
     private InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier;
     private NodeConnectorRef nodeConnectorRef;
@@ -38,7 +38,7 @@ public class FlowWriterServiceImplTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        flowWriterService = new FlowWriterServiceImpl(salFlowService);
+        flowWriterService = new FlowWriterServiceImpl(addFlow);
     }
 
     @Test
@@ -52,6 +52,6 @@ public class FlowWriterServiceImplTest {
         MacAddress destMac = new MacAddress("00:00:ac:f0:02:02");
 
         flowWriterService.addMacToMacFlow(sourceMac, destMac, nodeConnectorRef);
-        verify(salFlowService, times(1)).addFlow(any(AddFlowInput.class));
+        verify(addFlow, times(1)).invoke(any(AddFlowInput.class));
     }
 }
