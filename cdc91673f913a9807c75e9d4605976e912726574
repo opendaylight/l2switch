@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3717fc41_63006e68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2024-12-05T11:29:03Z",
+      "side": 1,
+      "message": "Exception: \nUnable to find a matching constructor on class org.opendaylight.l2switch.loopremover.LoopRemoverProvide\n\nSee: https://s3-logs.opendaylight.org/logs/releng/vex-yul-odl-jenkins-1/l2switch-maven-verify-master-mvn38-openjdk17/28/features/odl-l2switch-loopremover/target/SFT/karaf.log.gz",
+      "revId": "cdc91673f913a9807c75e9d4605976e912726574",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
