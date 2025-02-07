@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9ad0be8_bb64c392",
+        "filename": "loopremover/implementation/src/main/resources/org/opendaylight/blueprint/loop-remover.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-07T15:58:14Z",
+      "side": 1,
+      "message": "should be \u0027reference\u0027, just like DataBroker injection above",
+      "range": {
+        "startLine": 12,
+        "startChar": 3,
+        "endLine": 12,
+        "endChar": 18
+      },
+      "revId": "987eb97b6e584a1e27a04142710da637093aaf93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
