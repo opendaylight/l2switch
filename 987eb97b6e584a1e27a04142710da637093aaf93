@@ -22,6 +22,30 @@
       },
       "revId": "987eb97b6e584a1e27a04142710da637093aaf93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "488e3d80_ca9f3c16",
+        "filename": "loopremover/implementation/src/main/resources/org/opendaylight/blueprint/loop-remover.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2025-02-08T19:29:46Z",
+      "side": 1,
+      "message": "This has been done!",
+      "parentUuid": "d9ad0be8_bb64c392",
+      "range": {
+        "startLine": 12,
+        "startChar": 3,
+        "endLine": 12,
+        "endChar": 18
+      },
+      "revId": "987eb97b6e584a1e27a04142710da637093aaf93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
