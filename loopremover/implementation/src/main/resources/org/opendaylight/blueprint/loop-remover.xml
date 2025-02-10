@@ -13,10 +13,9 @@
 
   <bean id="loopRemover"
     class="org.opendaylight.l2switch.loopremover.LoopRemoverProvider"
-    init-method="init" destroy-method="close">
+    destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="rpcService" />
     <argument ref="loopRemoverConfig" />
   </bean>
-
 </blueprint>

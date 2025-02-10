@@ -9,7 +9,6 @@ package org.opendaylight.l2switch.loopremover;
 
 import org.opendaylight.l2switch.loopremover.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.loopremover.topology.NetworkGraphImpl;
-import org.opendaylight.l2switch.loopremover.topology.NetworkGraphService;
 import org.opendaylight.l2switch.loopremover.topology.TopologyLinkDataChangeHandler;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
@@ -19,52 +18,45 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoopRemoverProvider {
+// FIXME: @Component(service = { }) once we have the required constructor
+public final class LoopRemoverProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(LoopRemoverProvider.class);
-
-    private final DataBroker dataService;
-    private final RpcConsumerRegistry rpcService;
-    private final LoopRemoverConfig loopRemoverConfig;
 
     private Registration listenerRegistration;
     private Registration topoNodeListnerReg;
-    private TopologyLinkDataChangeHandler topologyLinkDataChangeHandler;
 
+    // FIXME: an @Activate constructor which deals with dynamic config
     public LoopRemoverProvider(final DataBroker dataBroker, final RpcConsumerRegistry rpcService,
             final LoopRemoverConfig config) {
-        this.dataService = dataBroker;
-        this.rpcService = rpcService;
-        this.loopRemoverConfig = config;
-    }
-
-    public void init() {
-        //Write initial flows
-        if (loopRemoverConfig.getIsInstallLldpFlow()) {
+        // Write initial flows
+        if (config.getIsInstallLldpFlow()) {
             LOG.info("LoopRemover will install an lldp flow");
-            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(rpcService.getRpc(AddFlow.class));
-            initialFlowWriter.setFlowTableId(loopRemoverConfig.getLldpFlowTableId());
-            initialFlowWriter.setFlowPriority(loopRemoverConfig.getLldpFlowPriority());
-            initialFlowWriter.setFlowIdleTimeout(loopRemoverConfig.getLldpFlowIdleTimeout());
-            initialFlowWriter.setFlowHardTimeout(loopRemoverConfig.getLldpFlowHardTimeout());
-            topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataService);
+            var initialFlowWriter = new InitialFlowWriter(rpcService.getRpc(AddFlow.class));
+            initialFlowWriter.setFlowTableId(config.getLldpFlowTableId());
+            initialFlowWriter.setFlowPriority(config.getLldpFlowPriority());
+            initialFlowWriter.setFlowIdleTimeout(config.getLldpFlowIdleTimeout());
+            initialFlowWriter.setFlowHardTimeout(config.getLldpFlowHardTimeout());
+            topoNodeListnerReg = initialFlowWriter.registerAsDataChangeListener(dataBroker);
         }
 
         // Register Topology DataChangeListener
-        NetworkGraphService networkGraphService = new NetworkGraphImpl();
-        this.topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataService, networkGraphService);
-        topologyLinkDataChangeHandler.setGraphRefreshDelay(loopRemoverConfig.getGraphRefreshDelay().toJava());
-        topologyLinkDataChangeHandler.setTopologyId(loopRemoverConfig.getTopologyId());
+        var topologyLinkDataChangeHandler = new TopologyLinkDataChangeHandler(dataBroker, new NetworkGraphImpl());
+        topologyLinkDataChangeHandler.setGraphRefreshDelay(config.getGraphRefreshDelay().toJava());
+        topologyLinkDataChangeHandler.setTopologyId(config.getTopologyId());
         listenerRegistration = topologyLinkDataChangeHandler.registerAsDataChangeListener();
-
         LOG.info("LoopRemover initialized.");
     }
 
-    public void close() throws Exception {
+    // FIXME: @Deactivate
+    @Override
+    public void close() {
         if (listenerRegistration != null) {
             listenerRegistration.close();
+            listenerRegistration = null;
         }
         if (topoNodeListnerReg != null) {
             topoNodeListnerReg.close();
+            topoNodeListnerReg = null;
         }
         LOG.info("LoopRemover (instance {}) torn down.", this);
     }
