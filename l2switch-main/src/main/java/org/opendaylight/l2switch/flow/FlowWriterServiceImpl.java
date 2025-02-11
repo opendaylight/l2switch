@@ -24,10 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
@@ -64,7 +64,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private static final Logger LOG = LoggerFactory.getLogger(FlowWriterServiceImpl.class);
     private static final String FLOW_ID_PREFIX = "L2switch-";
 
-    private final SalFlowService salFlowService;
+    private final AddFlow addFlow;
     private Uint8 flowTableId = Uint8.ZERO;
     private Uint16 flowPriority = Uint16.ZERO;
     private Uint16 flowIdleTimeout = Uint16.ZERO;
@@ -73,8 +73,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2a00000000000000L);
 
-    public FlowWriterServiceImpl(SalFlowService salFlowService) {
-        this.salFlowService = requireNonNull(salFlowService);
+    public FlowWriterServiceImpl(AddFlow addFlow) {
+        this.addFlow = requireNonNull(addFlow);
     }
 
     public void setFlowTableId(Uint8 flowTableId) {
@@ -230,7 +230,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @return transaction commit
      */
     private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath, Flow flow) {
-        return salFlowService.addFlow(new AddFlowInputBuilder(flow)
+        return addFlow.invoke(new AddFlowInputBuilder(flow)
             .setNode(new NodeRef(flowPath.firstIdentifierOf(Node.class)))
             .setFlowRef(new FlowRef(flowPath))
             .setFlowTable(new FlowTableRef(flowPath.firstIdentifierOf(Table.class)))
