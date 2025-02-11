@@ -38,10 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
@@ -83,7 +83,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private static final EtherType ARP_ETHER_TYPE = new EtherType(Uint32.valueOf(KnownEtherType.Arp.getIntValue()));
 
     private final ExecutorService initialFlowExecutor = Executors.newCachedThreadPool();
-    private final SalFlowService salFlowService;
+    private final AddFlow addFlow;
     private Uint8 flowTableId = Uint8.ZERO;
     private Uint16 flowPriority = Uint16.ZERO;
     private Uint16 flowIdleTimeout = Uint16.ZERO;
@@ -93,8 +93,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-    public InitialFlowWriter(SalFlowService salFlowService) {
-        this.salFlowService = requireNonNull(salFlowService);
+    public InitialFlowWriter(AddFlow addFlow) {
+        this.addFlow = requireNonNull(addFlow);
     }
 
     public void setFlowTableId(Uint8 flowTableId) {
@@ -165,7 +165,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             for (InstanceIdentifier<?> nodeId : nodeIds) {
                 if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
                     InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if (invNodeId.firstKeyOf(Node.class).getId().getValue().contains("openflow:")) {
+                    if (requireNonNull(invNodeId.firstKeyOf(Node.class)).getId().getValue().contains("openflow:")) {
                         addInitialFlows(invNodeId);
                     }
                 }
@@ -277,8 +277,10 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         private ListenableFuture<RpcResult<AddFlowOutput>> writeFlowToController(
                 InstanceIdentifier<Node> nodeInstanceId, InstanceIdentifier<Table> tableInstanceId,
                 InstanceIdentifier<Flow> flowPath, Flow flow) {
-            LOG.trace("Adding flow to node {}", nodeInstanceId.firstKeyOf(Node.class).getId().getValue());
-            return salFlowService.addFlow(new AddFlowInputBuilder(flow)
+            LOG.trace("Adding flow to node {}", requireNonNull(nodeInstanceId.firstKeyOf(Node.class))
+                    .getId()
+                    .getValue());
+            return addFlow.invoke(new AddFlowInputBuilder(flow)
                 .setNode(new NodeRef(nodeInstanceId))
                 .setFlowRef(new FlowRef(flowPath))
                 .setFlowTable(new FlowTableRef(tableInstanceId))
