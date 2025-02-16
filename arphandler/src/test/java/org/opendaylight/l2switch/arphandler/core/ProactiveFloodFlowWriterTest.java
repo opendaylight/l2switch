@@ -24,8 +24,8 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -45,7 +45,7 @@ public class ProactiveFloodFlowWriterTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
-    private SalFlowService salFlowService;
+    private AddFlow addFlow;
     @Mock
     private ReadTransaction readOnlyTransaction;
     @Mock
@@ -58,7 +58,7 @@ public class ProactiveFloodFlowWriterTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        proactiveFloodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, salFlowService);
+        proactiveFloodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, addFlow);
     }
 
     @Test
@@ -124,6 +124,6 @@ public class ProactiveFloodFlowWriterTest {
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
         proactiveFloodFlowWriter.onDataTreeChanged(List.of(mockChange));
         verify(dataBroker, after(250)).newReadOnlyTransaction();
-        verify(salFlowService, times(2)).addFlow(any(AddFlowInput.class));
+        verify(addFlow, times(2)).invoke(any(AddFlowInput.class));
     }
 }

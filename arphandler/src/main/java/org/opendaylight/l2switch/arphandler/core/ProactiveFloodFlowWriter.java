@@ -41,10 +41,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
@@ -90,7 +90,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     private static final String FLOW_ID_PREFIX = "L2switch-";
 
     private final DataBroker dataBroker;
-    private final SalFlowService salFlowService;
+    private final AddFlow addFlow;
     private final ScheduledExecutorService stpStatusDataChangeEventProcessor = Executors.newScheduledThreadPool(1);
     private volatile boolean flowRefreshScheduled = false;
     private volatile boolean threadReschedule = false;
@@ -102,9 +102,9 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-    public ProactiveFloodFlowWriter(DataBroker dataBroker, SalFlowService salFlowService) {
+    public ProactiveFloodFlowWriter(DataBroker dataBroker, AddFlow addFlow) {
         this.dataBroker = requireNonNull(dataBroker);
-        this.salFlowService = requireNonNull(salFlowService);
+        this.addFlow = requireNonNull(addFlow);
     }
 
     public void setFlowInstallationDelay(long flowInstallationDelay) {
@@ -204,10 +204,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
             final Nodes nodes;
             try {
                 nodes = readFuture.get().orElse(null);
-            } catch (InterruptedException e) {
-                LOG.error("Failed to read nodes from Operation data store.");
-                throw new RuntimeException("Failed to read nodes from Operation data store.", e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read nodes from Operation data store.");
                 throw new RuntimeException("Failed to read nodes from Operation data store.", e);
             }
@@ -330,7 +327,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
             final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow).setNode(new NodeRef(nodeInstanceId))
                     .setFlowTable(new FlowTableRef(tableInstanceId)).setFlowRef(new FlowRef(flowPath))
                     .setTransactionUri(new Uri(flow.getId().getValue()));
-            return salFlowService.addFlow(builder.build());
+            return addFlow.invoke(builder.build());
         }
     }
 }

@@ -11,7 +11,8 @@ import org.opendaylight.l2switch.arphandler.flow.InitialFlowWriter;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
@@ -29,18 +30,18 @@ public class ArpHandlerProvider {
 
     private final NotificationService notificationService;
     private final DataBroker dataBroker;
-    private final SalFlowService salFlowService;
+    private final RpcConsumerRegistry rpcService;
     private final PacketProcessingService packetProcessingService;
     private final ArpHandlerConfig arpHandlerConfig;
 
     public ArpHandlerProvider(final DataBroker dataBroker,
             final NotificationService notificationProviderService,
-            final SalFlowService salFlowService,
+            final RpcConsumerRegistry rpcService,
             final PacketProcessingService packetProcessingService,
             final ArpHandlerConfig config) {
         this.notificationService = notificationProviderService;
         this.dataBroker = dataBroker;
-        this.salFlowService = salFlowService;
+        this.rpcService = rpcService;
         this.packetProcessingService = packetProcessingService;
         this.arpHandlerConfig = config;
     }
@@ -49,7 +50,8 @@ public class ArpHandlerProvider {
         if (arpHandlerConfig.getIsProactiveFloodMode()) {
             //Setup proactive flow writer, which writes flood flows
             LOG.info("ArpHandler is in Proactive Flood Mode");
-            ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, salFlowService);
+            ProactiveFloodFlowWriter floodFlowWriter = new ProactiveFloodFlowWriter(dataBroker,
+                    rpcService.getRpc(AddFlow.class));
             floodFlowWriter.setFlowTableId(arpHandlerConfig.getFloodFlowTableId());
             floodFlowWriter.setFlowPriority(arpHandlerConfig.getFloodFlowPriority());
             floodFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getFloodFlowIdleTimeout());
@@ -60,7 +62,7 @@ public class ArpHandlerProvider {
         } else {
             //Write initial flows to send arp to controller
             LOG.info("ArpHandler is in Reactive Mode");
-            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(salFlowService);
+            InitialFlowWriter initialFlowWriter = new InitialFlowWriter(rpcService.getRpc(AddFlow.class));
             initialFlowWriter.setFlowTableId(arpHandlerConfig.getArpFlowTableId());
             initialFlowWriter.setFlowPriority(arpHandlerConfig.getArpFlowPriority());
             initialFlowWriter.setFlowIdleTimeout(arpHandlerConfig.getArpFlowIdleTimeout());
