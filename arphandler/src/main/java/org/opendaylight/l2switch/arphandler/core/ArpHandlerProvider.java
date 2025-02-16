@@ -16,7 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddF
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class ArpHandlerProvider {
 
             // Setup PacketDispatcher
             PacketDispatcher packetDispatcher = new PacketDispatcher(inventoryReader,
-                rpcService.getRpcService(PacketProcessingService.class));
+                rpcService.getRpc(TransmitPacket.class));
 
             // Setup ArpPacketHandler
             ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
