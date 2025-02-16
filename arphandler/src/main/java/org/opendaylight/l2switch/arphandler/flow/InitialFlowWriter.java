@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
@@ -63,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -118,17 +118,15 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     public ListenerRegistration<InitialFlowWriter> registerAsDataChangeListener(DataBroker dataBroker) {
-        InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class).build();
         return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                nodeInstanceIdentifier), this);
+            InstanceIdentifier.builder(Nodes.class).child(Node.class).build()), this);
     }
 
     @Override
     public void onDataTreeChanged(Collection<DataTreeModification<Node>> changes) {
-        Set<InstanceIdentifier<?>> nodeIds = new HashSet<>();
-        for (DataTreeModification<Node> change: changes) {
-            DataObjectModification<Node> rootNode = change.getRootNode();
+        var nodeIds = new HashSet<InstanceIdentifier<Node>>();
+        for (var change: changes) {
+            var rootNode = change.getRootNode();
             switch (rootNode.getModificationType()) {
                 case WRITE:
                     if (rootNode.getDataBefore() == null) {
@@ -150,9 +148,9 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        private final Set<InstanceIdentifier<?>> nodeIds;
+        private final Set<InstanceIdentifier<Node>> nodeIds;
 
-        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(final Set<InstanceIdentifier<Node>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
@@ -162,15 +160,11 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                 return;
             }
 
-            for (InstanceIdentifier<?> nodeId : nodeIds) {
-                if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
-                    InstanceIdentifier<Node> invNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if (requireNonNull(invNodeId.firstKeyOf(Node.class)).getId().getValue().contains("openflow:")) {
-                        addInitialFlows(invNodeId);
-                    }
+            for (var nodeId : nodeIds) {
+                if (KeyedInstanceIdentifier.keyOf(nodeId).getId().getValue().contains("openflow:")) {
+                    addInitialFlows(nodeId);
                 }
             }
-
         }
 
         /**
