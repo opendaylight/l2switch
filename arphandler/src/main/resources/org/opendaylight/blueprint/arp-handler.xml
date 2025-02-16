@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
   <reference id="dataBroker"
     interface="org.opendaylight.mdsal.binding.api.DataBroker" />
   <reference id="notificationProviderService"
     interface="org.opendaylight.mdsal.binding.api.NotificationService" />
   <reference id="rpcService"
-             interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
+    interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
 
+  <!-- FIXME: eliminate this stanza and replace with OSGi DS -->
   <odl:clustered-app-config id="arpHandlerConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.handler.config.rev140528.ArpHandlerConfig">
   </odl:clustered-app-config>
-
-  <odl:rpc-service id="packetHandlerService"
-    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
 
   <bean id="arpHandlerProvider"
     class="org.opendaylight.l2switch.arphandler.core.ArpHandlerProvider"
@@ -22,7 +19,6 @@
     <argument ref="dataBroker" />
     <argument ref="notificationProviderService" />
     <argument ref="rpcService" />
-    <argument ref="packetHandlerService" />
     <argument ref="arpHandlerConfig" />
   </bean>
 

@@ -31,18 +31,13 @@ public class ArpHandlerProvider {
     private final NotificationService notificationService;
     private final DataBroker dataBroker;
     private final RpcConsumerRegistry rpcService;
-    private final PacketProcessingService packetProcessingService;
     private final ArpHandlerConfig arpHandlerConfig;
 
-    public ArpHandlerProvider(final DataBroker dataBroker,
-            final NotificationService notificationProviderService,
-            final RpcConsumerRegistry rpcService,
-            final PacketProcessingService packetProcessingService,
-            final ArpHandlerConfig config) {
+    public ArpHandlerProvider(final DataBroker dataBroker, final NotificationService notificationProviderService,
+            final RpcConsumerRegistry rpcService, final ArpHandlerConfig config) {
         this.notificationService = notificationProviderService;
         this.dataBroker = dataBroker;
         this.rpcService = rpcService;
-        this.packetProcessingService = packetProcessingService;
         this.arpHandlerConfig = config;
     }
 
@@ -74,7 +69,8 @@ public class ArpHandlerProvider {
             InventoryReader inventoryReader = new InventoryReader(dataBroker);
 
             // Setup PacketDispatcher
-            PacketDispatcher packetDispatcher = new PacketDispatcher(inventoryReader, packetProcessingService);
+            PacketDispatcher packetDispatcher = new PacketDispatcher(inventoryReader,
+                rpcService.getRpcService(PacketProcessingService.class));
 
             // Setup ArpPacketHandler
             ArpPacketHandler arpPacketHandler = new ArpPacketHandler(packetDispatcher);
