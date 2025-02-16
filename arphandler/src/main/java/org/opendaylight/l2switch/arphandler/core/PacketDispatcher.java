@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -34,11 +34,11 @@ public class PacketDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(PacketDispatcher.class);
 
     private final InventoryReader inventoryReader;
-    private final PacketProcessingService packetProcessingService;
+    private final TransmitPacket transmitPacket;
 
-    public PacketDispatcher(InventoryReader inventoryReader, PacketProcessingService packetProcessingService) {
+    public PacketDispatcher(InventoryReader inventoryReader, TransmitPacket transmitPacket) {
         this.inventoryReader = requireNonNull(inventoryReader);
-        this.packetProcessingService = requireNonNull(packetProcessingService);
+        this.transmitPacket = requireNonNull(transmitPacket);
     }
 
     /**
@@ -133,18 +133,17 @@ public class PacketDispatcher {
                 .setIngress(ingress)
                 .build();
 
-        Futures.addCallback(packetProcessingService.transmitPacket(input),
-            new FutureCallback<RpcResult<?>>() {
-                @Override
-                public void onSuccess(RpcResult<?> result) {
-                    LOG.debug("transmitPacket was successful");
-                }
+        Futures.addCallback(transmitPacket.invoke(input), new FutureCallback<RpcResult<?>>() {
+            @Override
+            public void onSuccess(RpcResult<?> result) {
+                LOG.debug("transmitPacket was successful");
+            }
 
-                @Override
-                public void onFailure(Throwable failure) {
-                    LOG.debug("transmitPacket for {} failed", input, failure);
-                }
-            }, MoreExecutors.directExecutor());
+            @Override
+            public void onFailure(Throwable failure) {
+                LOG.debug("transmitPacket for {} failed", input, failure);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     private void refreshInventoryReader() {
@@ -152,8 +151,7 @@ public class PacketDispatcher {
         inventoryReader.readInventory();
     }
 
-    private InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
+    private static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
         return nodeChild.firstIdentifierOf(Node.class);
     }
-
 }
