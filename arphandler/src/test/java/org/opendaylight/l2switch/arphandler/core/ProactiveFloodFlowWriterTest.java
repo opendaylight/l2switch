@@ -13,16 +13,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
@@ -49,10 +45,6 @@ public class ProactiveFloodFlowWriterTest {
     private AddFlow addFlow;
     @Mock
     private ReadTransaction readOnlyTransaction;
-    @Mock
-    private DataTreeModification<StpStatusAwareNodeConnector> mockChange;
-    @Mock
-    private DataObjectModification<StpStatusAwareNodeConnector> mockModification;
 
     private ProactiveFloodFlowWriter proactiveFloodFlowWriter;
 
@@ -90,14 +82,11 @@ public class ProactiveFloodFlowWriterTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(), any(DataTreeChangeListener.class));
+        verify(dataBroker, times(1)).registerDataListener(any(), any());
     }
 
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
-        when(mockChange.getRootNode()).thenReturn(mockModification);
-
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 
@@ -123,7 +112,7 @@ public class ProactiveFloodFlowWriterTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
-        proactiveFloodFlowWriter.onDataTreeChanged(List.of(mockChange));
+        proactiveFloodFlowWriter.dataChangedTo(null);
         verify(dataBroker, after(250)).newReadOnlyTransaction();
         verify(addFlow, times(2)).invoke(any(AddFlowInput.class));
     }

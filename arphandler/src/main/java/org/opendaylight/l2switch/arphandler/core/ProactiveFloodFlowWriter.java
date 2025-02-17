@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -21,9 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
-import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -82,7 +80,7 @@ import org.slf4j.LoggerFactory;
  * mode, flood flows are automatically written to each switch and less traffic
  * is sent to the controller.
  */
-public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatusAwareNodeConnector>,
+public class ProactiveFloodFlowWriter implements DataListener<StpStatusAwareNodeConnector>,
         NotificationService.Listener<EthernetPacketReceived> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProactiveFloodFlowWriter.class);
@@ -148,8 +146,8 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Registers as a data listener for Nodes.
      */
     public Registration registerAsDataChangeListener() {
-        return dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
+        return dataBroker.registerDataListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
@@ -160,7 +158,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Install flows when a link comes up/down.
      */
     @Override
-    public void onDataTreeChanged(List<DataTreeModification<StpStatusAwareNodeConnector>> changes) {
+    public void dataChangedTo(StpStatusAwareNodeConnector data) {
         if (!flowRefreshScheduled) {
             synchronized (this) {
                 if (!flowRefreshScheduled) {
