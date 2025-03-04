@@ -7,8 +7,8 @@
  */
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
-import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.openflowplugin.common.txchain.TransactionChainManager;
 
 interface HostTrackerOperation {
-    void applyOperation(ReadWriteTransaction tx);
+    void applyOperation(TransactionChainManager tx);
 }

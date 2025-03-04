@@ -41,6 +41,11 @@
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-topology</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-common</artifactId>
+            <version>0.17.3</version>
+        </dependency>
     </dependencies>
 
     <build>

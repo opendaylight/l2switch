@@ -71,7 +71,8 @@ public class ConcurrentClusterAwareLinkHashMap {
             LOG.debug("Links to remove from local & MD-SAL database: {}", links);
             for (Link l : links) {
                 if (e.getValue().equals(l.getLinkId())) {
-                    this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));
+                    this.opProcessor.enqueueOperation(tx ->
+                            tx.addDeleteOperationToTxChain(LogicalDatastoreType.OPERATIONAL, e.getKey()));
                     this.linkHashMap.remove(e.getValue());
                     break;
                 }
