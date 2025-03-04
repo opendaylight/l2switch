@@ -135,34 +135,6 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         this.linkNodeListenerRegistration = dataService.registerDataTreeChangeListener(
             // FIXME: add an specialized object instead of going through raw types!
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, linkIID), (DataTreeChangeListener)this);
-
-        //Processing addresses that existed before we register as a data change listener.
-//        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
-//        InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
-//        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin
-//                = addrCapableNodeConnectors.firstIdentifierOf(
-//                    org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
-//        ListenableFuture<Optional<NodeConnector>> dataFuture = newReadOnlyTransaction.read(
-//            LogicalDatastoreType.OPERATIONAL, iinc);
-//        try {
-//            NodeConnector get = dataFuture.get().get();
-//            log.trace("test "+get);
-//        } catch (InterruptedException | ExecutionException ex) {
-//            java.util.logging.Logger.getLogger(HostTrackerImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        Futures.addCallback(dataFuture, new FutureCallback<Optional<NodeConnector>>() {
-//            @Override
-//            public void onSuccess(final Optional<NodeConnector> result) {
-//                if (result.isPresent()) {
-//                    log.trace("Processing NEW NODE? " + result.get().getId().getValue());
-////                    processHost(result, dataObject, node);
-//                }
-//            }
-
-//            @Override
-//            public void onFailure(Throwable arg0) {
-//            }
-//        });
     }
 
     @Override
@@ -360,14 +332,16 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.key(), topologyId);
                 LOG.trace("Writing link from MD_SAL: {}", lIID.toString());
                 opProcessor.enqueueOperation(
-                    tx -> tx.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, lIID, l));
+                    tx ->
+                            tx.mergeToTransaction(LogicalDatastoreType.OPERATIONAL, lIID, l, true));
             }
         }
         if (linksToRemove != null) {
             for (Link l : linksToRemove) {
                 final InstanceIdentifier<Link> lIID = Utilities.buildLinkIID(l.key(), topologyId);
                 LOG.trace("Removing link from MD_SAL: {}", lIID.toString());
-                opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL,  lIID));
+                opProcessor.enqueueOperation(tx ->
+                        tx.addDeleteOperationToTxChain(LogicalDatastoreType.OPERATIONAL,  lIID));
             }
         }
     }
