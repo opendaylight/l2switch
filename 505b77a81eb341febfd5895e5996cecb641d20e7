@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70e262ce_fba265f2",
+        "filename": "hosttracker/implementation/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-03-06T12:46:34Z",
+      "side": 1,
+      "message": "compile is default scope, no need to declare\n\nhttps://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Scope",
+      "revId": "505b77a81eb341febfd5895e5996cecb641d20e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
