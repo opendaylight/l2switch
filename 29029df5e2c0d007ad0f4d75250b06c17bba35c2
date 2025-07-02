@@ -16,6 +16,23 @@
       "message": "This has been fixed. Thanks!",
       "revId": "29029df5e2c0d007ad0f4d75250b06c17bba35c2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81ac8c6f_555808f4",
+        "filename": "hosttracker/implementation/src/main/java/org/opendaylight/l2switch/hosttracker/plugin/internal/OperationProcessor.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-07-02T08:26:38Z",
+      "side": 1,
+      "message": "I really component from another project what you need?\n\nSee: https://docs.opendaylight.org/en/latest/release-notes/upgrade-process.html#removed-dom-transactionchainlistener",
+      "revId": "29029df5e2c0d007ad0f4d75250b06c17bba35c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
