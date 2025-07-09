@@ -13,6 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -111,20 +112,21 @@ public final class InstanceIdentifierUtils {
 				.child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue))).build();
 	}
 
-//	public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
-//		return nodeConnectorRef.getValue().firstIdentifierOf(Node.class);
-//	}
-//
-//	public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
-//			final TableKey flowTableKey) {
-//		return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
-//				.child(Table.class, flowTableKey).build();
-//	}
-//
-//	public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
-//			final TableKey flowTableKey, final FlowKey flowKey) {
-//		return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
-//	}
+	public static DataObjectIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
+		return (DataObjectIdentifier<Node>) nodeConnectorRef.getValue();
+	}
+
+	public static DataObjectIdentifier<Table> generateFlowTableInstanceIdentifier(
+			final NodeConnectorRef nodeConnectorRef, final TableKey flowTableKey) {
+		return generateNodeInstanceIdentifier(nodeConnectorRef).toBuilder().augmentation(FlowCapableNode.class)
+				.child(Table.class, flowTableKey).build();
+	}
+
+	public static DataObjectIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
+			final TableKey flowTableKey, final FlowKey flowKey) {
+		return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).toBuilder()
+				.child(Flow.class, flowKey).build();
+	}
 
 	public static InstanceIdentifier<Topology> generateTopologyInstanceIdentifier(final String topologyId) {
 		return InstanceIdentifier.builder(NetworkTopology.class)
