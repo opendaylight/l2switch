@@ -13,8 +13,9 @@ import java.util.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
+import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.Notification;
+
 
 /**
  * A base class for all decoders. Each extended decoder should also implement a notification listener that it can
