@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class ConcurrentClusterAwareLinkHashMap {
     /**
      * The instance identifiers for each Link submitted to MD-SAL.
      */
-    private final ConcurrentHashMap<InstanceIdentifier<Link>, LinkId> instanceIDs = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<DataObjectIdentifier<Link>, LinkId> instanceIDs = new ConcurrentHashMap<>();
 
     /**
      * The local Links' HashMap.
@@ -54,7 +55,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      * @return the previous value associated with {@code key}, or
      *         {@code null} if there was no mapping for {@code key}
      */
-    public synchronized Link putLocally(InstanceIdentifier<Link> ii, Link link) {
+    public synchronized Link putLocally(DataObjectIdentifier<Link> ii, Link link) {
         LOG.trace("Putting locally {}", link.getLinkId());
         this.instanceIDs.put(ii, link.getLinkId());
         return this.linkHashMap.put(link.getLinkId(), link);
@@ -67,7 +68,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      *            the links to remove.
      */
     public synchronized void removeAll(List<Link> links) {
-        for (final Map.Entry<InstanceIdentifier<Link>, LinkId> e : this.instanceIDs.entrySet()) {
+        for (final Map.Entry<DataObjectIdentifier<Link>, LinkId> e : this.instanceIDs.entrySet()) {
             LOG.debug("Links to remove from local & MD-SAL database: {}", links);
             for (Link l : links) {
                 if (e.getValue().equals(l.getLinkId())) {
@@ -96,7 +97,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      *            the InstanceIdentifier&lt;Link&gt; of the Link to remove.
      * @return the removed Link if exits, null if it doesn't exist.
      */
-    public synchronized Link removeLocally(InstanceIdentifier<Link> iiL) {
+    public synchronized Link removeLocally(DataObjectIdentifier<Link> iiL) {
         LinkId linkId = this.instanceIDs.remove(iiL);
         if (linkId != null) {
             return this.linkHashMap.remove(linkId);
@@ -113,7 +114,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      * @return the removed Link if exits, null if it doesn't exist.
      */
     public synchronized Link removeLocally(LinkId key) {
-        Iterator<Entry<InstanceIdentifier<Link>, LinkId>> iterator = this.instanceIDs.entrySet().iterator();
+        Iterator<Entry<DataObjectIdentifier<Link>, LinkId>> iterator = this.instanceIDs.entrySet().iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getValue().equals(key)) {
                 iterator.remove();
