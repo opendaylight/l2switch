@@ -9,7 +9,6 @@
 package org.opendaylight.l2switch.arphandler.inventory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,17 +84,16 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void registerAsDataChangeListener() {
-		InstanceIdentifier<NodeConnector> nodeConnector = InstanceIdentifier.builder(Nodes.class).child(Node.class)
+		DataObjectIdentifier<NodeConnector> nodeConnector = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
 				.child(NodeConnector.class).build();
 		this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-				DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, nodeConnector),
-				(DataTreeChangeListener) this));
+				DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, nodeConnector), (DataTreeChangeListener) this));
 
-		InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto = InstanceIdentifier
+		DataObjectIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto = DataObjectIdentifier
 				.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
 				.augmentation(StpStatusAwareNodeConnector.class).build();
 		this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-				DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
+				DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
 				(DataTreeChangeListener) this));
 	}
 
@@ -108,7 +106,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 	}
 
 	@Override
-	public void onDataTreeChanged(Collection<DataTreeModification<DataObject>> changes) {
+	public void onDataTreeChanged(List<DataTreeModification<DataObject>> changes) {
 		if (!refreshDataScheduled) {
 			synchronized (this) {
 				if (!refreshDataScheduled) {
@@ -168,7 +166,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 						if (nodeConnector.key().toString().contains("LOCAL")) {
 							continue;
 						}
-						NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
+						NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.<Nodes>builder(Nodes.class)
 								.<Node, NodeKey>child(Node.class, node.key())
 								.<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.key())
 								.build());
@@ -176,7 +174,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 					}
 
 					switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
-					NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
+					NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.<Nodes>builder(Nodes.class)
 							.<Node, NodeKey>child(Node.class, node.key())
 							.<NodeConnector, NodeConnectorKey>child(NodeConnector.class,
 									new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL")))
@@ -252,7 +250,8 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 						if (lastSeen > latest) {
 							latest = lastSeen;
 							LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
-							destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.key()));
+							destNodeConnector = new NodeConnectorRef(
+									nodeInsId.toBuilder().child(NodeConnector.class, nc.key()).build());
 							break;
 						}
 					}

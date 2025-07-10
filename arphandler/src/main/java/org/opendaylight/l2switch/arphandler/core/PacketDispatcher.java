@@ -15,12 +15,15 @@ import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
+import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
+import org.opendaylight.yangtools.binding.BindingInstanceIdentifier.Step;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.KeyStep;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -96,15 +99,29 @@ public class PacketDispatcher {
 				return;
 			}
 		}
+		String origId = extractNodeConnectorId(origIngress);
+		if (origId == null) {
+			LOG.warn("Cannot extract original ingress NodeConnector ID");
+			return;
+		}
+
 		for (NodeConnectorRef ncRef : nodeConnectors) {
-			String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class).firstKeyOf(NodeConnector.class)
-					.getId().getValue();
-			// Don't flood on discarding node connectors & origIngress
-			if (!ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class)
-					.firstKeyOf(NodeConnector.class).getId().getValue())) {
+			String ncId = extractNodeConnectorId(ncRef);
+			if (ncId != null && !ncId.equals(origId)) {
 				sendPacketOut(payload, origIngress, ncRef);
 			}
 		}
+
+	}
+
+	private String extractNodeConnectorId(NodeConnectorRef ref) {
+		BindingInstanceIdentifier instanceId = ref.getValue();
+		for (Step step : instanceId.steps()) {
+			if (step instanceof KeyStep keyStep && keyStep.key() instanceof NodeConnectorKey) {
+				return ((NodeConnectorKey) keyStep.key()).getId().getValue();
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -118,7 +135,7 @@ public class PacketDispatcher {
 		if (ingress == null || egress == null) {
 			return;
 		}
-		InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
+		BindingInstanceIdentifier egressNodePath = egress.getValue();
 		TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(payload)
 				.setNode(new NodeRef(egressNodePath)).setEgress(egress).setIngress(ingress).build();
 
@@ -140,7 +157,7 @@ public class PacketDispatcher {
 		inventoryReader.readInventory();
 	}
 
-	private static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
-		return nodeChild.firstIdentifierOf(Node.class);
-	}
+	//private static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
+	//	return nodeChild.firstIdentifierOf(Node.class);
+	//}
 }
