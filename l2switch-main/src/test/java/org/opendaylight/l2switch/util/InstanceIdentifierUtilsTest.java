@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class InstanceIdentifierUtilsTest {
@@ -34,15 +34,15 @@ public class InstanceIdentifierUtilsTest {
     @Test
     public void testGenerateNodeInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+        		DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
         assertNotNull(InstanceIdentifierUtils.generateNodeInstanceIdentifier(ncRef));
     }
 
     @Test
     public void testGenerateFlowTableInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
-        InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
+        		DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+        DataObjectIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
         assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class).getId());
@@ -51,9 +51,9 @@ public class InstanceIdentifierUtilsTest {
     @Test
     public void testGenerateFlowInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
+        		DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
                         .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1))).build());
-        InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
+        DataObjectIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1), new FlowKey(new FlowId(STR_ID_1)));
         assertNotNull(flowInsId);
         assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class).getId());
