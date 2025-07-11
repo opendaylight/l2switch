@@ -62,7 +62,7 @@ public class AddressObservationWriterTest {
         nodeConnector = mock(NodeConnector.class);
         when(dataService.newReadOnlyTransaction()).thenReturn(readTransaction);
         checkedFuture = FluentFutures.immediateFluentFuture(Optional.of(nodeConnector));
-        when(readTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
 
         addrCapableNc = mock(AddressCapableNodeConnector.class);
