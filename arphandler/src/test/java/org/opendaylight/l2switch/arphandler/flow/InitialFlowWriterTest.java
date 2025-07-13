@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InitialFlowWriterTest {
@@ -50,8 +51,8 @@ public class InitialFlowWriterTest {
     public void onDataChange_Valid() throws Exception {
         when(mockModification.getDataAfter()).thenReturn(new NodeBuilder().setId(new NodeId("openflow:1")).build());
         when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build()));
+        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
+                DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build()));
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         initialFlowWriter.onDataTreeChanged(List.of(mockChange));

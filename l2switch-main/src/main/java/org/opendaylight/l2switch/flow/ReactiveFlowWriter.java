@@ -8,6 +8,7 @@
 package org.opendaylight.l2switch.flow;
 
 import org.opendaylight.l2switch.inventory.InventoryReader;
+import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -18,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * This class listens to certain type of packets and writes a mac to mac flows.
@@ -95,8 +97,12 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
      *            The destination MacAddress of the packet.
      */
     public void writeFlows(NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
-        NodeConnectorRef destNodeConnector = inventoryReader
-                .getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
+    	DataObjectIdentifier<?> doi = (DataObjectIdentifier<?>) ingress.getValue();
+        // Use your utility to get the node identifier
+        DataObjectIdentifier<Node> nodeId = InstanceIdentifierUtils.firstIdentifierOf(doi, Node.class);
+
+        // Use nodeId in your downstream call
+        NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(nodeId, destMac);
         if (destNodeConnector != null) {
             flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
         }
