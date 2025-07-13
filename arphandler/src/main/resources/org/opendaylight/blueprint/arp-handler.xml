@@ -6,7 +6,7 @@
   <reference id="notificationProviderService"
     interface="org.opendaylight.mdsal.binding.api.NotificationService" />
   <reference id="rpcService"
-    interface="org.opendaylight.mdsal.binding.api.RpcConsumerRegistry" />
+    interface="org.opendaylight.mdsal.binding.api.RpcService" />
 
   <!-- FIXME: eliminate this stanza and replace with OSGi DS -->
   <odl:clustered-app-config id="arpHandlerConfig"
