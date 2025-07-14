@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -54,14 +55,14 @@ public class AddressObservationWriterTest {
         macAddress = new MacAddress("ba:43:52:ce:09:f4");
         ipAddress = new IpAddress(new Ipv4Address("10.0.0.1"));
         realNcRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+                DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
 
         readTransaction = mock(ReadTransaction.class);
         dataService = mock(DataBroker.class);
         nodeConnector = mock(NodeConnector.class);
         when(dataService.newReadOnlyTransaction()).thenReturn(readTransaction);
         checkedFuture = FluentFutures.immediateFluentFuture(Optional.of(nodeConnector));
-        when(readTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
 
         addrCapableNc = mock(AddressCapableNodeConnector.class);

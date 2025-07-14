@@ -39,9 +39,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -51,7 +53,7 @@ public class InventoryReaderTest {
     @Mock
     private ReadTransaction readOnlyTransaction;
     @Mock
-    private InstanceIdentifier<Node> mockInstanceIdentifier;
+    private DataObjectIdentifier<Node> mockInstanceIdentifier;
     @Mock
     private MacAddress mockMacAddress;
 
@@ -94,7 +96,7 @@ public class InventoryReaderTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         assertNotNull(inventoryReader.getNodeConnector(
-            InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
+                DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
             new MacAddress("aa:bb:cc:dd:ee:ff")));
         verify(readOnlyTransaction, times(1)).close();
     }
