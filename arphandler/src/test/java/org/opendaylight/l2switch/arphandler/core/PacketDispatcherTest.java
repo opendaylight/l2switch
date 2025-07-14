@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
+import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
@@ -56,7 +58,7 @@ class PacketDispatcherTest {
     void testSendPacketOut() {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
-        InstanceIdentifier<NodeConnector> ncInsId1 = InstanceIdentifier.builder(Nodes.class).child(Node.class)
+        DataObjectIdentifier<NodeConnector> ncInsId1 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         packetDispatcher.sendPacketOut(null, new NodeConnectorRef(ncInsId1), new NodeConnectorRef(ncInsId1));
         verify(transmitPacket, times(1)).invoke(any());
@@ -64,7 +66,7 @@ class PacketDispatcherTest {
 
     @Test
     void testSendPacketOut_NullIngress() {
-        packetDispatcher.sendPacketOut(null, null, new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+        packetDispatcher.sendPacketOut(null, null, new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class)
             .child(NodeConnector.class)
             .build()));
@@ -73,7 +75,7 @@ class PacketDispatcherTest {
 
     @Test
     void testSendPacketOut_NullEgress() {
-        packetDispatcher.sendPacketOut(null, new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+        packetDispatcher.sendPacketOut(null, new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class)
             .child(NodeConnector.class)
             .build()), null);
@@ -85,9 +87,9 @@ class PacketDispatcherTest {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
         var nodeConnectors = new ArrayList<NodeConnectorRef>();
-        var ncInsId1 = InstanceIdentifier.builder(Nodes.class).child(Node.class)
+        var ncInsId1 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
-        var ncInsId2 = InstanceIdentifier.builder(Nodes.class).child(Node.class)
+        var ncInsId2 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2"))).build();
         nodeConnectors.add(new NodeConnectorRef(ncInsId1));
         nodeConnectors.add(new NodeConnectorRef(ncInsId1));
@@ -96,7 +98,7 @@ class PacketDispatcherTest {
         when(inventoryReader.getSwitchNodeConnectors()).thenReturn(switchNodeConnectors);
 
         packetDispatcher.floodPacket("", null, new NodeConnectorRef(ncInsId2),
-                new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+                new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
                     .child(Node.class)
                     .child(NodeConnector.class)
                     .build()));
@@ -111,11 +113,11 @@ class PacketDispatcherTest {
         when(inventoryReader.getSwitchNodeConnectors()).thenReturn(switchNodeConnectors);
 
         packetDispatcher.floodPacket("", null,
-            new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+            new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .build()),
-            new NodeConnectorRef(InstanceIdentifier.builder(Nodes.class)
+            new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .build()));
@@ -126,7 +128,7 @@ class PacketDispatcherTest {
 
     @Test
     void testDispatchPacket_noDispatch() {
-        var ncInsId = InstanceIdentifier.builder(Nodes.class)
+        var ncInsId = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("1")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         when(controllerSwitchConnectors.get(any(String.class))).thenReturn(null);
@@ -142,7 +144,7 @@ class PacketDispatcherTest {
     void testDispatchPacket_toSendPacketOut() {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
-        var ncInsId1 = InstanceIdentifier.builder(Nodes.class)
+        var ncInsId1 = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("1")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         var ncRef1 = new NodeConnectorRef(ncInsId1);
@@ -160,7 +162,7 @@ class PacketDispatcherTest {
     void testDispatchPacket_toFloodPacket() {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
-        var ncInsId1 = InstanceIdentifier.builder(Nodes.class)
+        var ncInsId1 = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("1")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         var ncRef1 = new NodeConnectorRef(ncInsId1);
@@ -169,7 +171,7 @@ class PacketDispatcherTest {
         when(inventoryReader.getNodeConnector(any(), any())).thenReturn(null);
 
         var nodeConnectors = new ArrayList<NodeConnectorRef>();
-        var ncInsId2 = InstanceIdentifier.builder(Nodes.class)
+        var ncInsId2 = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("2")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2"))).build();
         nodeConnectors.add(new NodeConnectorRef(ncInsId1));
