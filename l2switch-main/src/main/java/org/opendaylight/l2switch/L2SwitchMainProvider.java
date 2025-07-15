@@ -13,7 +13,7 @@ import org.opendaylight.l2switch.flow.ReactiveFlowWriter;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.l2switch.config.rev140528.L2switchConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
@@ -28,12 +28,12 @@ public class L2SwitchMainProvider {
 
     private final DataBroker dataService;
     private final NotificationService notificationService;
-    private final RpcConsumerRegistry rpcService;
+    private final RpcService rpcService;
     private final L2switchConfig mainConfig;
 
     public L2SwitchMainProvider(final DataBroker dataBroker,
             final NotificationService notificationPublishService,
-            final RpcConsumerRegistry rpcService, final L2switchConfig config) {
+            final RpcService rpcService, final L2switchConfig config) {
         this.dataService = dataBroker;
         this.notificationService = notificationPublishService;
         this.rpcService = rpcService;

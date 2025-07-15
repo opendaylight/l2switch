@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ReactiveFlowWriterTest {
@@ -42,7 +43,7 @@ public class ReactiveFlowWriterTest {
     @Mock
     private NodeConnectorRef destNodeConnectorRef;
     private ReactiveFlowWriter reactiveFlowWriter;
-    private InstanceIdentifier<Node> nodeInstanceIdentifier;
+    private DataObjectIdentifier<Node> nodeInstanceIdentifier;
     private NodeConnectorRef nodeConnectorRef;
     private ArrayList<PacketChain> packetChainList;
 
@@ -54,7 +55,7 @@ public class ReactiveFlowWriterTest {
         MockitoAnnotations.initMocks(this);
         reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
 
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class).build();
+        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class).child(Node.class).build();
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
         packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
@@ -81,12 +82,12 @@ public class ReactiveFlowWriterTest {
     @Test
     public void writeFlowsTest() {
 
-        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class)))
+        when(inventoryReader.getNodeConnector(any(DataObjectIdentifier.class), any(MacAddress.class)))
             .thenReturn(destNodeConnectorRef);
         reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"),
                 new MacAddress("00:00:00:00:00:02"));
 
-        verify(inventoryReader, times(1)).getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class));
+        verify(inventoryReader, times(1)).getNodeConnector(any(DataObjectIdentifier.class), any(MacAddress.class));
         verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class),
                 any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
 
