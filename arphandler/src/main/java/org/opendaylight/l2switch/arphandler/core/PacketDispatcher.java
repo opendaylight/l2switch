@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
@@ -22,6 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
+import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.PropertyIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -56,15 +60,15 @@ public class PacketDispatcher {
     public void dispatchPacket(byte[] payload, NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
         inventoryReader.readInventory();
 
-        String nodeId = ingress.getValue().firstIdentifierOf(Node.class).firstKeyOf(Node.class).getId().getValue();
+        final var nodePath = getNodePath(ingress.getValue());
+        String nodeId = nodePath.firstKeyOf(Node.class).getId().getValue();
         NodeConnectorRef srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
 
         if (srcConnectorRef == null) {
             refreshInventoryReader();
             srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
         }
-        NodeConnectorRef destNodeConnector = inventoryReader
-                .getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
+        NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(nodePath, destMac);
         if (srcConnectorRef != null) {
             if (destNodeConnector != null) {
                 sendPacketOut(payload, srcConnectorRef, destNodeConnector);
@@ -101,14 +105,20 @@ public class PacketDispatcher {
             }
         }
         for (NodeConnectorRef ncRef : nodeConnectors) {
-            String ncId = ncRef.getValue().firstIdentifierOf(NodeConnector.class)
-                    .firstKeyOf(NodeConnector.class).getId().getValue();
+            final var ncId = getNodeConnectorId(ncRef);
             // Don't flood on discarding node connectors & origIngress
-            if (!ncId.equals(origIngress.getValue().firstIdentifierOf(NodeConnector.class)
-                    .firstKeyOf(NodeConnector.class).getId().getValue())) {
+            if (!ncId.equals(getNodeConnectorId(origIngress))) {
                 sendPacketOut(payload, origIngress, ncRef);
             }
         }
+    }
+
+    private static NodeConnectorId getNodeConnectorId(NodeConnectorRef ncRef) {
+        final var container = switch (ncRef.getValue()) {
+            case DataObjectIdentifier<?> doi -> doi;
+            case PropertyIdentifier<?, ?> pi -> pi.container();
+        };
+        return container.toLegacy().firstKeyOf(NodeConnector.class).getId();
     }
 
     /**
@@ -128,7 +138,7 @@ public class PacketDispatcher {
         InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
         TransmitPacketInput input = new TransmitPacketInputBuilder()
                 .setPayload(payload)
-                .setNode(new NodeRef(egressNodePath))
+                .setNode(new NodeRef(egressNodePath.toIdentifier()))
                 .setEgress(egress)
                 .setIngress(ingress)
                 .build();
@@ -151,7 +161,14 @@ public class PacketDispatcher {
         inventoryReader.readInventory();
     }
 
-    private static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
-        return nodeChild.firstIdentifierOf(Node.class);
+    private static InstanceIdentifier<Node> getNodePath(final BindingInstanceIdentifier path) {
+        return getNodePath(switch (path) {
+            case DataObjectIdentifier<?> doi -> doi;
+            case PropertyIdentifier<?, ?> pi -> pi.container();
+        });
+    }
+
+    private static InstanceIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
+        return nodeChild.toLegacy().firstIdentifierOf(Node.class);
     }
 }

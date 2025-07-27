@@ -21,8 +21,10 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
@@ -31,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ReactiveFlowWriterTest {
@@ -42,11 +45,9 @@ public class ReactiveFlowWriterTest {
     @Mock
     private NodeConnectorRef destNodeConnectorRef;
     private ReactiveFlowWriter reactiveFlowWriter;
-    private InstanceIdentifier<Node> nodeInstanceIdentifier;
+    private DataObjectIdentifier<Node> nodeInstanceIdentifier;
     private NodeConnectorRef nodeConnectorRef;
     private ArrayList<PacketChain> packetChainList;
-
-
 
     @Before
     public void initMocks() {
@@ -54,7 +55,9 @@ public class ReactiveFlowWriterTest {
         MockitoAnnotations.initMocks(this);
         reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
 
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).child(Node.class).build();
+        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class)
+            .child(Node.class, new NodeKey(new NodeId("abc")))
+            .build();
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
         packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
@@ -72,10 +75,8 @@ public class ReactiveFlowWriterTest {
 
     @Test
     public void onArpPacketReceivedTest() {
-
         ArpPacketReceived arpPacketReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         reactiveFlowWriter.onNotification(arpPacketReceived);
-
     }
 
     @Test

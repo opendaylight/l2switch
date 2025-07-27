@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class AddressObservationWriter {
     private long timestampUpdateInterval;
     private final DataBroker dataService;
     private final Map<NodeConnectorRef, NodeConnectorLock> lockMap = new ConcurrentHashMap<>();
-    private final Map<NodeConnectorLock, FluentFuture<CommitInfo>> futureMap = new ConcurrentHashMap<>();
+    private final Map<NodeConnectorLock, FluentFuture<? extends CommitInfo>> futureMap = new ConcurrentHashMap<>();
 
     /**
      * Construct an AddressTracker with the specified inputs.
@@ -88,7 +88,7 @@ public class AddressObservationWriter {
 
         synchronized (nodeConnectorLock) {
             // Ensure previous transaction finished writing to the db
-            FluentFuture<CommitInfo> future = futureMap.get(nodeConnectorLock);
+            final var future = futureMap.get(nodeConnectorLock);
             if (future != null) {
                 try {
                     future.get();
@@ -107,7 +107,7 @@ public class AddressObservationWriter {
             final FluentFuture<Optional<NodeConnector>> readFuture;
             try (ReadTransaction readTransaction = dataService.newReadOnlyTransaction()) {
                 readFuture = readTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                    (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue());
+                    (DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue());
             }
 
             final NodeConnector nc;
@@ -158,14 +158,15 @@ public class AddressObservationWriter {
             acncBuilder.setAddresses(addresses);
 
             // build Instance Id for AddressCapableNodeConnector
-            InstanceIdentifier<AddressCapableNodeConnector> addressCapableNcInstanceId =
-                    ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
-                            .getValue()).augmentation(AddressCapableNodeConnector.class);
+            final var addressCapableNcInstanceId = ((DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue())
+                .toBuilder()
+                .augmentation(AddressCapableNodeConnector.class)
+                .build();
             final WriteTransaction writeTransaction = dataService.newWriteOnlyTransaction();
             // Update this AddressCapableNodeConnector in the MD-SAL data tree
             writeTransaction.merge(LogicalDatastoreType.OPERATIONAL, addressCapableNcInstanceId, acncBuilder.build());
 
-            final FluentFuture writeTxResultFuture = writeTransaction.commit();
+            final var writeTxResultFuture = writeTransaction.commit();
             Futures.addCallback(writeTxResultFuture, new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(CommitInfo notUsed) {

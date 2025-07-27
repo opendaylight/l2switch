@@ -67,9 +67,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -316,18 +317,23 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
          * flow path with supplied body.
          */
         private Future<RpcResult<AddFlowOutput>> writeFlowToSwitch(NodeId nodeId, Flow flow) {
-            InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.<Nodes>builder(Nodes.class)
-                    .<Node, NodeKey>child(Node.class, new NodeKey(nodeId)).build();
-            InstanceIdentifier<Table> tableInstanceId = nodeInstanceId
-                    .<FlowCapableNode>augmentation(FlowCapableNode.class)
-                    .<Table, TableKey>child(Table.class, new TableKey(flowTableId));
-            InstanceIdentifier<Flow> flowPath = tableInstanceId.<Flow, FlowKey>child(Flow.class,
-                    new FlowKey(new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()))));
+            final var nodeInstanceId = DataObjectIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(nodeId))
+                .build();
+            final var tableInstanceId = nodeInstanceId.toBuilder()
+                .augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flowTableId))
+                .build();
+            final var flowPath = tableInstanceId.toBuilder()
+                .child(Flow.class, new FlowKey(new FlowId(FLOW_ID_PREFIX + flowIdInc.getAndIncrement())))
+                .build();
 
-            final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow).setNode(new NodeRef(nodeInstanceId))
-                    .setFlowTable(new FlowTableRef(tableInstanceId)).setFlowRef(new FlowRef(flowPath))
-                    .setTransactionUri(new Uri(flow.getId().getValue()));
-            return addFlow.invoke(builder.build());
+            return addFlow.invoke(new AddFlowInputBuilder(flow)
+                .setNode(new NodeRef(nodeInstanceId))
+                .setFlowTable(new FlowTableRef(tableInstanceId))
+                .setFlowRef(new FlowRef(flowPath))
+                .setTransactionUri(new Uri(flow.getId().getValue()))
+                .build());
         }
     }
 }
