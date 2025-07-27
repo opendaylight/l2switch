@@ -45,8 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -203,8 +204,8 @@ public class FlowWriterServiceImpl implements FlowWriterService {
                                 .setAction(new OutputActionCaseBuilder()
                                     .setOutputAction(new OutputActionBuilder()
                                         .setMaxLength(Uint16.MAX_VALUE)
-                                        .setOutputNodeConnector(
-                                            destPort.getValue().firstKeyOf(NodeConnector.class).getId())
+                                        .setOutputNodeConnector(((DataObjectIdentifier<?>) destPort.getValue())
+                                            .toLegacy().firstKeyOf(NodeConnector.class).getId())
                                         .build())
                                     .build())
                                 .build()))
@@ -231,9 +232,9 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      */
     private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath, Flow flow) {
         return addFlow.invoke(new AddFlowInputBuilder(flow)
-            .setNode(new NodeRef(flowPath.firstIdentifierOf(Node.class)))
-            .setFlowRef(new FlowRef(flowPath))
-            .setFlowTable(new FlowTableRef(flowPath.firstIdentifierOf(Table.class)))
+            .setNode(new NodeRef(flowPath.firstIdentifierOf(Node.class).toIdentifier()))
+            .setFlowRef(new FlowRef(flowPath.toIdentifier()))
+            .setFlowTable(new FlowTableRef(flowPath.firstIdentifierOf(Table.class).toIdentifier()))
             .setTransactionUri(new Uri(flow.getId().getValue()))
             .build());
     }
