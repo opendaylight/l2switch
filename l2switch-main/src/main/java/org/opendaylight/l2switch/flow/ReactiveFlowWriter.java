@@ -18,6 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.PropertyIdentifier;
 
 /**
  * This class listens to certain type of packets and writes a mac to mac flows.
@@ -58,20 +60,21 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
 
     @Override
     public void onNotification(ArpPacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
+        if (packetReceived == null) {
             return;
         }
 
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
-            if (packetChain.getPacket() instanceof RawPacket) {
-                rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
-            } else if (packetChain.getPacket() instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packetChain.getPacket();
-            } else if (packetChain.getPacket() instanceof ArpPacket) {
-                arpPacket = (ArpPacket) packetChain.getPacket();
+        for (PacketChain packetChain : packetReceived.nonnullPacketChain()) {
+            switch (packetChain.getPacket()) {
+                case ArpPacket arp -> arpPacket = arp;
+                case EthernetPacket eth -> ethernetPacket = eth;
+                case RawPacket raw -> rawPacket = raw.getRawPacketFields();
+                case null, default -> {
+                    // No-op
+                }
             }
         }
         if (rawPacket == null || ethernetPacket == null || arpPacket == null) {
@@ -95,8 +98,13 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
      *            The destination MacAddress of the packet.
      */
     public void writeFlows(NodeConnectorRef ingress, MacAddress srcMac, MacAddress destMac) {
+        final var ingressId = switch (ingress.getValue()) {
+            case DataObjectIdentifier<?> doi -> doi;
+            case PropertyIdentifier<?, ?> pi -> pi.container();
+        };
+
         NodeConnectorRef destNodeConnector = inventoryReader
-                .getNodeConnector(ingress.getValue().firstIdentifierOf(Node.class), destMac);
+                .getNodeConnector(ingressId.toLegacy().firstIdentifierOf(Node.class), destMac);
         if (destNodeConnector != null) {
             flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
         }
