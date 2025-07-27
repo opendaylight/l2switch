@@ -32,16 +32,50 @@
       <artifactId>mdsal-binding-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>mdsal-common-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+      <artifactId>rfc6991-ietf-inet-types</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+      <artifactId>rfc6991-ietf-yang-types</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.model</groupId>
+      <artifactId>opendaylight-l2-types</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>openflowplugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-base</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
       <artifactId>model-flow-service</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-inventory</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>concepts</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
       <artifactId>yang-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>util</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
