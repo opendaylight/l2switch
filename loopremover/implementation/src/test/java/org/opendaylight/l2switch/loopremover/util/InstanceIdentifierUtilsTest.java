@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -65,14 +66,14 @@ public class InstanceIdentifierUtilsTest {
     @Test
     public void testGenerateNodeInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+            DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
         assertNotNull(InstanceIdentifierUtils.generateNodeInstanceIdentifier(ncRef));
     }
 
     @Test
     public void testGenerateFlowTableInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
+            DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
         InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
