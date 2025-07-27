@@ -97,7 +97,8 @@ public class InventoryReader {
                     if (macAddress.equals(add.getMac())) {
                         final long lastSeen = add.getLastSeen();
                         if (lastSeen > latest) {
-                            destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.key()));
+                            destNodeConnector = new NodeConnectorRef(
+                                nodeInsId.child(NodeConnector.class, nc.key()).toIdentifier());
                             latest = lastSeen;
                             LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                             break;

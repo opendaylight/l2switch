@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -246,7 +247,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
                     .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
                             link.getSource().getSourceTp().getValue());
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
+            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
         }
 
         private NodeConnectorRef getDestNodeConnectorRef(Link link) {
@@ -254,7 +255,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                     .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
                             link.getDestination().getDestTp().getValue());
 
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
+            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
         }
 
         private void updateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef,
@@ -270,7 +271,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             final Optional<NodeConnector> dataObjectOptional;
             try {
                 dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                        (InstanceIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
+                        (DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
                 readWriteTransaction.commit();
@@ -291,9 +292,10 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             }
 
             // build instance id for StpStatusAwareNodeConnector
-            InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNcInstanceId =
-                ((InstanceIdentifier<NodeConnector>) nodeConnectorRef
-                    .getValue()).augmentation(StpStatusAwareNodeConnector.class);
+            final var stpStatusAwareNcInstanceId = ((DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue())
+                .toBuilder()
+                .augmentation(StpStatusAwareNodeConnector.class)
+                .build();
             // update StpStatusAwareNodeConnector in operational store
             readWriteTransaction.merge(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNcInstanceId,
                 stpStatusAwareNodeConnector);

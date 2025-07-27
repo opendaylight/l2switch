@@ -33,11 +33,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,18 +168,18 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                         if (nodeConnector.key().toString().contains("LOCAL")) {
                             continue;
                         }
-                        NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                            .<Node, NodeKey>child(Node.class, node.key())
-                            .<NodeConnector, NodeConnectorKey>child(NodeConnector.class, nodeConnector.key())
+                        NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
+                            .child(Node.class, node.key())
+                            .child(NodeConnector.class, nodeConnector.key())
                             .build());
                         nodeConnectorRefs.add(ncRef);
                     }
 
                     switchNodeConnectors.put(node.getId().getValue(), nodeConnectorRefs);
-                    NodeConnectorRef ncRef = new NodeConnectorRef(InstanceIdentifier.<Nodes>builder(Nodes.class)
-                            .<Node, NodeKey>child(Node.class, node.key())
-                            .<NodeConnector, NodeConnectorKey>child(NodeConnector.class,
-                                    new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL")))
+                    NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
+                            .child(Node.class, node.key())
+                            .child(NodeConnector.class,
+                                new NodeConnectorKey(new NodeConnectorId(node.getId().getValue() + ":LOCAL")))
                             .build());
                     LOG.debug("Local port for node {} is {}", node.key(), ncRef);
                     controllerSwitchConnectors.put(node.getId().getValue(), ncRef);
@@ -254,7 +254,9 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                         if (lastSeen > latest) {
                             latest = lastSeen;
                             LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
-                            destNodeConnector = new NodeConnectorRef(nodeInsId.child(NodeConnector.class, nc.key()));
+                            destNodeConnector = new NodeConnectorRef(nodeInsId.toBuilder()
+                                .child(NodeConnector.class, nc.key())
+                                .build().toIdentifier());
                             break;
                         }
                     }
