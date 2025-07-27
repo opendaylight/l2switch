@@ -15,8 +15,8 @@
             <artifactId>addresstracker-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.openflowplugin.model</groupId>
-            <artifactId>model-topology</artifactId>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>ietf-topology</artifactId>
         </dependency>
     </dependencies>
 
