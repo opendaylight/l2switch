@@ -18,12 +18,24 @@
       <artifactId>mdsal-binding-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.openflowplugin.model</groupId>
-      <artifactId>model-flow-service</artifactId>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>mdsal-common-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+      <artifactId>rfc6991-ietf-inet-types</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+      <artifactId>rfc6991-ietf-yang-types</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
-      <artifactId>model-topology</artifactId>
+      <artifactId>model-inventory</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>concepts</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
@@ -36,6 +48,12 @@
     <dependency>
       <groupId>org.opendaylight.l2switch.addresstracker</groupId>
       <artifactId>addresstracker-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>util</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
