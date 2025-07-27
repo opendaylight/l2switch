@@ -13,6 +13,10 @@
   <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <odlparent.dependency.enforce>true</odlparent.dependency.enforce>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>

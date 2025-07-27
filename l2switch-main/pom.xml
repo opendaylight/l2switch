@@ -11,6 +11,11 @@
   <artifactId>main-impl</artifactId>
   <packaging>bundle</packaging>
 
+  <properties>
+    <!-- FIXME: remove this -->
+    <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.opendaylight.mdsal</groupId>
