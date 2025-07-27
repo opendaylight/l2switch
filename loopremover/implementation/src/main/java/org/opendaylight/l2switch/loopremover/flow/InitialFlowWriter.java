@@ -58,9 +58,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -265,12 +265,12 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                                                                        Flow flow) {
             LOG.trace("Adding flow to node {}",
                     requireNonNull(nodeInstanceId.firstKeyOf(Node.class)).getId().getValue());
-            final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow);
-            builder.setNode(new NodeRef(nodeInstanceId));
-            builder.setFlowRef(new FlowRef(flowPath));
-            builder.setFlowTable(new FlowTableRef(tableInstanceId));
-            builder.setTransactionUri(new Uri(flow.getId().getValue()));
-            return addFlow.invoke(builder.build());
+            return addFlow.invoke(new AddFlowInputBuilder(flow)
+                .setNode(new NodeRef(nodeInstanceId.toIdentifier()))
+                .setFlowRef(new FlowRef(flowPath.toIdentifier()))
+                .setFlowTable(new FlowTableRef(tableInstanceId.toIdentifier()))
+                .setTransactionUri(new Uri(flow.getId().getValue()))
+                .build());
         }
     }
 }
