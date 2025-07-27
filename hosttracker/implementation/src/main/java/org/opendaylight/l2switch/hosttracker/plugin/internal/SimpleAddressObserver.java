@@ -32,8 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.Ipv6PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.PropertyIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -98,7 +100,11 @@ public class SimpleAddressObserver {
         }
 
         InstanceIdentifier<?> ingress() {
-            return raw.getRawPacketFields().getIngress().getValue();
+            final var id = raw.getRawPacketFields().getIngress().getValue();
+            return switch (id) {
+                case DataObjectIdentifier<?> doi -> doi.toLegacy();
+                case PropertyIdentifier<?, ?> pi -> throw new IllegalStateException("Unsupported ingress " + id);
+            };
         }
     }
 
