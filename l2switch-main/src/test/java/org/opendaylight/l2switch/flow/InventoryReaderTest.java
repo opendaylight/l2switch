@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.flow;
 
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -40,9 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class InventoryReaderTest {
@@ -51,7 +51,7 @@ public class InventoryReaderTest {
     private DataBroker dataService;
     @Mock
     private ReadTransaction readOnlyTransaction;
-    private Optional<Node> dataObjectOptional = Optional.empty();
+    private final Optional<Node> dataObjectOptional = Optional.empty();
     @Mock
     private Node node;
 
