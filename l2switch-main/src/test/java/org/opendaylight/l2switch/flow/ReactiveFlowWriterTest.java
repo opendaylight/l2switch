@@ -46,8 +46,6 @@ public class ReactiveFlowWriterTest {
     private NodeConnectorRef nodeConnectorRef;
     private ArrayList<PacketChain> packetChainList;
 
-
-
     @Before
     public void initMocks() {
 
@@ -72,10 +70,8 @@ public class ReactiveFlowWriterTest {
 
     @Test
     public void onArpPacketReceivedTest() {
-
         ArpPacketReceived arpPacketReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         reactiveFlowWriter.onNotification(arpPacketReceived);
-
     }
 
     @Test
