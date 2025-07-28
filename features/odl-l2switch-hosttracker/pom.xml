@@ -23,7 +23,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-l2switch-addresstracker</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
