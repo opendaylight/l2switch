@@ -34,6 +34,5 @@
         <!-- FIXME: uncomment when we have dlux
         <module>odl-l2switch-switch-ui</module>
          -->
-        <module>odl-l2switch-all</module>
     </modules>
 </project>

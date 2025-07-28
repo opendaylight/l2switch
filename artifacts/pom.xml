@@ -158,13 +158,6 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>odl-l2switch-all</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>odl-l2switch-addresstracker</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>

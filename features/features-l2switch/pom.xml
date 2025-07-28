@@ -36,12 +36,6 @@
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.l2switch</groupId>
-            <artifactId>odl-l2switch-all</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-l2switch-switch</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
