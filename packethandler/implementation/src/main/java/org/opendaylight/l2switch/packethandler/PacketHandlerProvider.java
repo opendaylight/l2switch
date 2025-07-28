@@ -7,7 +7,10 @@
  */
 package org.opendaylight.l2switch.packethandler;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
@@ -16,31 +19,38 @@ import org.opendaylight.l2switch.packethandler.decoders.Ipv4Decoder;
 import org.opendaylight.l2switch.packethandler.decoders.Ipv6Decoder;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PacketHandlerProvider implements AutoCloseable {
+@Singleton
+@Component(service = { })
+public final class PacketHandlerProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PacketHandlerProvider.class);
 
-    private final ImmutableSet<AbstractPacketDecoder<?, ?>> decoders;
+    private final List<AbstractPacketDecoder<?, ?>> decoders;
 
-    public PacketHandlerProvider(final NotificationPublishService notificationPublishService,
-            final NotificationService notificationService) {
-        decoders = new ImmutableSet.Builder<AbstractPacketDecoder<?, ?>>()
-            .add(new EthernetDecoder(notificationPublishService, notificationService))
-            .add(new ArpDecoder(notificationPublishService, notificationService))
-            .add(new Ipv4Decoder(notificationPublishService, notificationService))
-            .add(new Ipv6Decoder(notificationPublishService, notificationService))
-            .add(new IcmpDecoder(notificationPublishService, notificationService))
-            .build();
+    @Inject
+    @Activate
+    public PacketHandlerProvider(@Reference final NotificationPublishService notificationPublishService,
+            final @Reference NotificationService notificationService) {
+        decoders = List.of(
+            new EthernetDecoder(notificationPublishService, notificationService),
+            new ArpDecoder(notificationPublishService, notificationService),
+            new Ipv4Decoder(notificationPublishService, notificationService),
+            new Ipv6Decoder(notificationPublishService, notificationService),
+            new IcmpDecoder(notificationPublishService, notificationService));
         LOG.info("PacketHandler initialized.");
     }
 
     @Override
+    @Deactivate
+    @PreDestroy
     public void close() {
-        for (AbstractPacketDecoder<?, ?> decoder : decoders) {
-            decoder.close();
-        }
+        decoders.forEach(AbstractPacketDecoder::close);
         LOG.info("PacketHandler (instance {}) torn down.", this);
     }
 }
