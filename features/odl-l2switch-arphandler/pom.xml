@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.l2switch</groupId>
-            <artifactId>odl-l2switch-packethandler</artifactId>
+            <artifactId>odl-l2switch-addresstracker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

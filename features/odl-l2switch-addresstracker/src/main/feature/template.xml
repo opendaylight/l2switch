@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.6.0" name="odl-l2switch-addresstracker">
+    <repository>mvn:org.opendaylight.l2switch/odl-l2switch-packethandler/{{versionAsInProject}}/xml/features</repository>
+    <feature name="odl-l2switch-addresstracker">
+        <feature version="{{versionAsInProject}}">odl-l2switch-packethandler</feature>
+        <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-impl/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch.addresstracker/addresstracker-model/{{versionAsInProject}}</bundle>
+    </feature>
+</features>
