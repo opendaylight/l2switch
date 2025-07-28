@@ -25,14 +25,12 @@
         <dependency>
             <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-l2switch-hosttracker</artifactId>
-            <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-l2switch-arphandler</artifactId>
-            <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

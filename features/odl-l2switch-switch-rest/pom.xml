@@ -25,7 +25,6 @@
         <dependency>
             <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>odl-l2switch-switch</artifactId>
-            <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
