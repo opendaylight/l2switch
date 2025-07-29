@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>hosttracker.aggregator</name>
     <parent>
-        <groupId>org.opendaylight.l2switch</groupId>
-        <artifactId>l2switch-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>14.0.8</version>
+        <relativePath/>
     </parent>
-    <artifactId>hosttracker.aggregator</artifactId>
+
     <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+    <artifactId>hosttracker.aggregator</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
-        <module>model</module>
         <module>implementation</module>
+        <module>model</module>
     </modules>
 </project>
