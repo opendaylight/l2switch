@@ -8,7 +8,6 @@
         <relativePath>../../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.loopremover</groupId>
     <artifactId>loopremover-impl</artifactId>
     <packaging>bundle</packaging>
 
@@ -31,7 +30,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch.loopremover</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>loopremover-model</artifactId>
         </dependency>
         <dependency>

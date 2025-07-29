@@ -8,18 +8,13 @@
         <relativePath>../../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.addresstracker</groupId>
     <artifactId>addresstracker-model</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.openflowplugin.model</groupId>
-            <artifactId>model-inventory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-common</artifactId>
+            <groupId>org.opendaylight.l2switch</groupId>
+            <artifactId>packethandler-model</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
@@ -34,8 +29,12 @@
             <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch.packethandler</groupId>
-            <artifactId>packethandler-model</artifactId>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-inventory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-common</artifactId>
         </dependency>
     </dependencies>
 
