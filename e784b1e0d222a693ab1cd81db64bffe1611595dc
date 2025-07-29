@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18b4501a_b717ab76",
+        "filename": "arphandler/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-07-29T10:28:37Z",
+      "side": 1,
+      "message": "this is not correct, it should be yangtools/binding-spec",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 21
+      },
+      "revId": "e784b1e0d222a693ab1cd81db64bffe1611595dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
