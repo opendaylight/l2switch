@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <karaf.localFeature>odl-l2switch-switch</karaf.localFeature>
+        <karaf.localFeature>odl-l2switch-switch-rest</karaf.localFeature>
     </properties>
 
     <dependencyManagement>
