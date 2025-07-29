@@ -22,7 +22,7 @@
     <modules>
         <module>artifacts</module>
         <module>features</module>
-        <module>parent</module>
+        <module>binding-parent</module>
         <module>distribution/karaf</module>
 
         <module>addresstracker</module>
