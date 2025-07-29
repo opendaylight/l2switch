@@ -13,12 +13,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>yang-ext</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
             <artifactId>model-inventory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>codegen-extensions</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>

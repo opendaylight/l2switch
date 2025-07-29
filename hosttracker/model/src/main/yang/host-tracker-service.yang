@@ -6,7 +6,7 @@ module host-tracker-service {
     import address-tracker {prefix at;}
     import opendaylight-inventory {prefix inv;}
     import network-topology {prefix "topo"; revision-date "2013-10-21"; }
-    import yang-ext {prefix ext;}
+    import odl-codegen-extensions {prefix oce;}
 
     revision 2014-06-24 {
         description
@@ -37,7 +37,7 @@ module host-tracker-service {
     }
 
     augment "/topo:network-topology/topo:topology/topo:node" {
-        ext:augment-identifier "host-node";
+        oce:augment-identifier "host-node";
         uses host;
     }
 }
