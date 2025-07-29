@@ -14,16 +14,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.l2switch.packethandler</groupId>
-            <artifactId>packethandler-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>addresstracker-model</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.l2switch.loopremover</groupId>
             <artifactId>loopremover-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.l2switch.packethandler</groupId>
+            <artifactId>packethandler-model</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>

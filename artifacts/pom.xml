@@ -24,24 +24,24 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>addresstracker-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>addresstracker-config</artifactId>
                 <version>${project.version}</version>
                 <type>xml</type>
                 <classifier>config</classifier>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>addresstracker-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>addresstracker-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
