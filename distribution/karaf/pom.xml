@@ -9,14 +9,12 @@
     </parent>
 
     <groupId>org.opendaylight.l2switch</groupId>
-    <artifactId>distribution-karaf</artifactId>
+    <artifactId>l2switch-karaf</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <karaf.localFeature>odl-l2switch-switch</karaf.localFeature>
-        <!-- DO NOT deploy the karaf artifact -->
-        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencyManagement>
