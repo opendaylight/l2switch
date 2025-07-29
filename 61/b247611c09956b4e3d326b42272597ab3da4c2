@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng ODL
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Tue, 29 Jul 2025 10:06:15 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/l2switch/+/117202
+Project: l2switch
+Branch: refs/heads/master
