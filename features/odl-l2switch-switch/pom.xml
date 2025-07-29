@@ -13,7 +13,7 @@
         <groupId>org.opendaylight.l2switch</groupId>
         <artifactId>feature-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../feature-parent</relativePath>
+        <relativePath>../feature-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>odl-l2switch-switch</artifactId>
