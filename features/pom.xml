@@ -35,8 +35,6 @@
         <module>odl-l2switch-packethandler</module>
         <module>odl-l2switch-switch</module>
         <module>odl-l2switch-switch-rest</module>
-        <!-- FIXME: uncomment when we have dlux
         <module>odl-l2switch-switch-ui</module>
-         -->
     </modules>
 </project>

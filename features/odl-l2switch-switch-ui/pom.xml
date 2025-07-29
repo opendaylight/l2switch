@@ -30,15 +30,17 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
-            <artifactId>odl-mdsal-apidocs</artifactId>
+            <artifactId>odl-restconf-openapi</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <!-- FIXME: uncomment when we have dlux
         <dependency>
             <groupId>org.opendaylight.dluxapps</groupId>
             <artifactId>odl-dluxapps-topology</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        -->
     </dependencies>
 </project>
