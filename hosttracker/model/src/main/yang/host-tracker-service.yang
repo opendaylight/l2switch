@@ -2,11 +2,10 @@ module host-tracker-service {
     namespace "urn:opendaylight:host-tracker";
     prefix host-track;
 
-    import ietf-yang-types {prefix yang;}
-    import address-tracker {prefix at;}
-    import opendaylight-inventory {prefix inv;}
-    import network-topology {prefix "topo"; revision-date "2013-10-21"; }
-    import odl-codegen-extensions {prefix oce;}
+    import address-tracker { prefix at; }
+    import opendaylight-inventory { prefix inv; }
+    import network-topology { prefix "topo"; revision-date "2013-10-21"; }
+    import odl-codegen-extensions { prefix oce; }
 
     revision 2014-06-24 {
         description

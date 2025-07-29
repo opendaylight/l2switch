@@ -3,10 +3,6 @@ module arp-packet {
   namespace "urn:opendaylight:packet:arp";
   prefix arp;
 
-  import ietf-inet-types {
-    prefix inet;
-    revision-date 2013-07-15;
-  }
   import base-packet {
     prefix bpacket;
     revision-date 2014-05-28;
