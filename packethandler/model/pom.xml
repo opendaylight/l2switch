@@ -8,11 +8,18 @@
         <relativePath>../../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.packethandler</groupId>
     <artifactId>packethandler-model</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+            <artifactId>rfc6991-ietf-inet-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+            <artifactId>rfc6991-ietf-yang-types</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
             <artifactId>model-flow-base</artifactId>
@@ -24,14 +31,6 @@
         <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
             <artifactId>model-inventory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
-            <artifactId>rfc6991-ietf-inet-types</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
-            <artifactId>rfc6991-ietf-yang-types</artifactId>
         </dependency>
     </dependencies>
 

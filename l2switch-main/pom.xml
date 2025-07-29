@@ -8,7 +8,6 @@
         <relativePath>../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.main</groupId>
     <artifactId>main-impl</artifactId>
     <packaging>bundle</packaging>
 
@@ -19,8 +18,28 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.opendaylight.l2switch</groupId>
+            <artifactId>packethandler-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.l2switch</groupId>
+            <artifactId>packethandler-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.l2switch</groupId>
+            <artifactId>addresstracker-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.l2switch</groupId>
+            <artifactId>loopremover-model</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
@@ -33,26 +52,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch.packethandler</groupId>
-            <artifactId>packethandler-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch.packethandler</groupId>
-            <artifactId>packethandler-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch.addresstracker</groupId>
-            <artifactId>addresstracker-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch.loopremover</groupId>
-            <artifactId>loopremover-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.openflowplugin</groupId>
-            <artifactId>openflowplugin-api</artifactId>
         </dependency>
     </dependencies>
 

@@ -8,7 +8,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+    <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>addresstracker.aggregator</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>

@@ -3,7 +3,7 @@
     <repository>mvn:org.opendaylight.openflowplugin/odl-openflowplugin-southbound/{{versionAsInProject}}/xml/features</repository>
     <feature name="odl-l2switch-packethandler">
         <feature version="{{semVerRange}}">odl-openflowplugin-southbound</feature>
-        <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-impl/{{versionAsInProject}}</bundle>
-        <bundle>mvn:org.opendaylight.l2switch.packethandler/packethandler-model/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/packethandler-impl/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/packethandler-model/{{versionAsInProject}}</bundle>
     </feature>
 </features>

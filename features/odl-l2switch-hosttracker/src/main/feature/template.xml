@@ -3,7 +3,7 @@
     <repository>mvn:org.opendaylight.l2switch/odl-l2switch-addresstracker/{{versionAsInProject}}/xml/features</repository>
     <feature name="odl-l2switch-hosttracker">
         <feature version="{{versionAsInProject}}">odl-l2switch-addresstracker</feature>
-        <bundle>mvn:org.opendaylight.l2switch.hosttracker/hosttracker-impl/{{versionAsInProject}}</bundle>
-        <bundle>mvn:org.opendaylight.l2switch.hosttracker/hosttracker-model/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/hosttracker-impl/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/hosttracker-model/{{versionAsInProject}}</bundle>
     </feature>
 </features>

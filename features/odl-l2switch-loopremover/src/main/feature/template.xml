@@ -7,7 +7,7 @@
         <bundle>wrap:mvn:net.sf.jung/jung-api/{{versionAsInProject}}</bundle>
         <bundle>wrap:mvn:net.sf.jung/jung-algorithms/{{versionAsInProject}}</bundle>
         <bundle>wrap:mvn:net.sf.jung/jung-graph-impl/{{versionAsInProject}}</bundle>
-        <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-impl/{{versionAsInProject}}</bundle>
-        <bundle>mvn:org.opendaylight.l2switch.loopremover/loopremover-model/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/loopremover-impl/{{versionAsInProject}}</bundle>
+        <bundle>mvn:org.opendaylight.l2switch/loopremover-model/{{versionAsInProject}}</bundle>
     </feature>
 </features>
