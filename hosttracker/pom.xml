@@ -8,7 +8,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+    <groupId>org.opendaylight.l2switch</groupId>
     <artifactId>hosttracker.aggregator</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>

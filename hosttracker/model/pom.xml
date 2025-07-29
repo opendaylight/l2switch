@@ -8,14 +8,13 @@
         <relativePath>../../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opendaylight.l2switch.hosttracker</groupId>
     <artifactId>hosttracker-model</artifactId>
     <packaging>bundle</packaging>
     <name>hosttracker-model</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>addresstracker-model</artifactId>
         </dependency>
         <dependency>

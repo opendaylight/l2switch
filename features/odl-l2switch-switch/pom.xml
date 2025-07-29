@@ -35,7 +35,7 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch.main</groupId>
+            <groupId>org.opendaylight.l2switch</groupId>
             <artifactId>main-impl</artifactId>
         </dependency>
     </dependencies>
