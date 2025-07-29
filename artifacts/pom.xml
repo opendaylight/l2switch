@@ -25,18 +25,6 @@
         <dependencies>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>addresstracker-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>addresstracker-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>addresstracker-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -47,32 +35,8 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>arphandler-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>arphandler-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>arphandler-impl</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>hosttracker-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>hosttracker-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
@@ -86,35 +50,6 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>main-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>main-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>main-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>loopremover-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>loopremover-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
                 <artifactId>loopremover-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -125,15 +60,8 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>packethandler-config</artifactId>
+                <artifactId>main-impl</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.l2switch</groupId>
-                <artifactId>packethandler-config</artifactId>
-                <version>${project.version}</version>
-                <type>xml</type>
-                <classifier>config</classifier>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.l2switch</groupId>
