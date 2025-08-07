@@ -21,10 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
-import org.opendaylight.yangtools.binding.BindingInstanceIdentifier.Step;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.KeyStep;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +114,7 @@ public class PacketDispatcher {
 
 	private String extractNodeConnectorId(NodeConnectorRef ref) {
 		BindingInstanceIdentifier instanceId = ref.getValue();
-		for (Step step : instanceId.steps()) {
+		for (BindingInstanceIdentifier.Step step : instanceId.steps()) {
 			if (step instanceof KeyStep keyStep && keyStep.key() instanceof NodeConnectorKey) {
 				return ((NodeConnectorKey) keyStep.key()).getId().getValue();
 			}
