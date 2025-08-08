@@ -10,34 +10,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.opendaylight.l2switch</groupId>
-        <artifactId>feature-parent</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
-        <relativePath>../feature-parent</relativePath>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>single-feature-parent</artifactId>
+        <version>13.1.3</version>
+        <relativePath/>
     </parent>
 
-    <artifactId>odl-l2switch-switch-ui</artifactId>
+    <groupId>org.opendaylight.l2switch</groupId>
+    <artifactId>odl-l2switch-all</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>OpenDaylight :: L2Switch :: Switch UI</name>
+    <name>OpenDaylight :: L2Switch :: All</name>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-l2switch-switch-rest</artifactId>
+            <artifactId>odl-l2switch-switch</artifactId>
             <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.netconf</groupId>
-            <artifactId>odl-mdsal-apidocs</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.dluxapps</groupId>
-            <artifactId>odl-dluxapps-topology</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

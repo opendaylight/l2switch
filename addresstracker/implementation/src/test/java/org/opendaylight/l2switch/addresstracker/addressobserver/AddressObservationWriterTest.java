@@ -28,16 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.AddressCapableNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.Addresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.address.tracker.rev140617.address.node.connector.AddressesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AddressObservationWriterTest {
 
@@ -57,10 +54,8 @@ public class AddressObservationWriterTest {
     public void init() throws Exception {
         macAddress = new MacAddress("ba:43:52:ce:09:f4");
         ipAddress = new IpAddress(new Ipv4Address("10.0.0.1"));
-        realNcRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("foo")))
-            .build());
+        realNcRef = new NodeConnectorRef(
+                DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class).build());
 
         readTransaction = mock(ReadTransaction.class);
         dataService = mock(DataBroker.class);
@@ -92,9 +87,9 @@ public class AddressObservationWriterTest {
         AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
         addressObservationWriter.setTimestampUpdateInterval(20L);
         addressObservationWriter.addAddress(macAddress, ipAddress, realNcRef);
-        verify(readTransaction, times(1)).read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class));
+        verify(readTransaction, times(1)).read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(readTransaction, times(1)).close();
-        verify(writeTransaction, times(1)).merge(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class),
+        verify(writeTransaction, times(1)).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class),
                 any(AddressCapableNodeConnector.class));
         verify(writeTransaction, times(1)).commit();
     }
@@ -105,9 +100,9 @@ public class AddressObservationWriterTest {
         AddressObservationWriter addressObservationWriter = new AddressObservationWriter(dataService);
         addressObservationWriter.setTimestampUpdateInterval(20L);
         addressObservationWriter.addAddress(macAddress, null, realNcRef);
-        verify(readTransaction, times(0)).read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class));
+        verify(readTransaction, times(0)).read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(readTransaction, times(0)).close();
-        verify(writeTransaction, times(0)).merge(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class),
+        verify(writeTransaction, times(0)).merge(any(LogicalDatastoreType.class), any(InstanceIdentifier.class),
                 any(AddressCapableNodeConnector.class));
         verify(writeTransaction, times(0)).commit();
     }

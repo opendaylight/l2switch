@@ -3,8 +3,10 @@ module stp-status-aware-node-connector {
   namespace "urn:opendaylight:l2switch:loopremover";
   prefix loopremover;
 
-  import odl-codegen-extensions {
-    prefix oce;
+
+  import yang-ext {
+    prefix ext;
+    revision-date "2013-07-09";
   }
   import opendaylight-inventory {
     prefix inv;
@@ -38,7 +40,7 @@ module stp-status-aware-node-connector {
     }
   }
   augment "/inv:nodes/inv:node/inv:node-connector" {
-    oce:augment-identifier "stp-status-aware-node-connector";
-    uses stp-status-node-connector;
+      ext:augment-identifier "stp-status-aware-node-connector";
+      uses stp-status-node-connector;
   }
 }

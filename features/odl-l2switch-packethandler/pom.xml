@@ -12,8 +12,8 @@
     <parent>
         <groupId>org.opendaylight.l2switch</groupId>
         <artifactId>feature-parent</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
-        <relativePath>../feature-parent/pom.xml</relativePath>
+        <version>0.8.0-SNAPSHOT</version>
+        <relativePath>../feature-parent</relativePath>
     </parent>
 
     <artifactId>odl-l2switch-packethandler</artifactId>
@@ -29,12 +29,8 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
+            <groupId>org.opendaylight.l2switch.packethandler</groupId>
             <artifactId>packethandler-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
-            <artifactId>packethandler-model</artifactId>
         </dependency>
     </dependencies>
 </project>

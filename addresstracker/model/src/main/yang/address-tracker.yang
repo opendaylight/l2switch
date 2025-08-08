@@ -3,8 +3,9 @@ module address-tracker {
   namespace "urn:opendaylight:address-tracker";
   prefix address-tracker;
 
-  import odl-codegen-extensions {
-    prefix oce;
+  import yang-ext {
+    prefix ext;
+    revision-date "2013-07-09";
   }
   import ietf-inet-types {
     prefix inet;
@@ -62,7 +63,7 @@ module address-tracker {
   }
 
   augment "/inv:nodes/inv:node/inv:node-connector" {
-    oce:augment-identifier "address-capable-node-connector";
+    ext:augment-identifier "address-capable-node-connector";
     uses address-node-connector;
   }
 }

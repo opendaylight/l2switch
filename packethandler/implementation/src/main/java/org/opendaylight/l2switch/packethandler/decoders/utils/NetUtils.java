@@ -245,13 +245,16 @@ public final class NetUtils {
     /**
      * Checks if the test address and mask conflicts with the filter address and mask.
      *
-     * <p>For example: testAddress: 172.28.2.23 testMask: 255.255.255.0
+     * <p>
+     * For example: testAddress: 172.28.2.23 testMask: 255.255.255.0
      * filterAddress: 172.28.1.10 testMask: 255.255.255.0 do conflict
      *
-     * <p>testAddress: 172.28.2.23 testMask: 255.255.255.0 filterAddress:
+     * <p>
+     * testAddress: 172.28.2.23 testMask: 255.255.255.0 filterAddress:
      * 172.28.1.10 testMask: 255.255.0.0 do not conflict
      *
-     * <p>Null parameters are permitted
+     * <p>
+     * Null parameters are permitted
      *
      * @param testAddress address to test
      * @param filterAddress filter address

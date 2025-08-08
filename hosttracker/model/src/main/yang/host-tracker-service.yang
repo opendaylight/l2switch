@@ -2,10 +2,11 @@ module host-tracker-service {
     namespace "urn:opendaylight:host-tracker";
     prefix host-track;
 
-    import address-tracker { prefix at; }
-    import opendaylight-inventory { prefix inv; }
-    import network-topology { prefix "topo"; revision-date "2013-10-21"; }
-    import odl-codegen-extensions { prefix oce; }
+    import ietf-yang-types {prefix yang;}
+    import address-tracker {prefix at;}
+    import opendaylight-inventory {prefix inv;}
+    import network-topology {prefix "topo"; revision-date "2013-10-21"; }
+    import yang-ext {prefix ext;}
 
     revision 2014-06-24 {
         description
@@ -36,7 +37,7 @@ module host-tracker-service {
     }
 
     augment "/topo:network-topology/topo:topology/topo:node" {
-        oce:augment-identifier "host-node";
+        ext:augment-identifier "host-node";
         uses host;
     }
 }

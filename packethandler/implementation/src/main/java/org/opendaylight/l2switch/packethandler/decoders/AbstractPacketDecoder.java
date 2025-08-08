@@ -16,12 +16,14 @@ import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 
+
 /**
  * A base class for all decoders. Each extended decoder should also implement a notification listener that it can
  * consume.
  */
 // FIXME: Implement NotificationInterestLister equivalent when it is available again
-public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implements AutoCloseable {
+public abstract class AbstractPacketDecoder<C, P extends Notification>
+    implements AutoCloseable {
 
     //private final Class<P> producedPacketNotificationType;
     private final NotificationPublishService notificationProviderService;

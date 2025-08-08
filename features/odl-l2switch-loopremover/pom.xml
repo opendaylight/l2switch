@@ -12,8 +12,8 @@
     <parent>
         <groupId>org.opendaylight.l2switch</groupId>
         <artifactId>feature-parent</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
-        <relativePath>../feature-parent/pom.xml</relativePath>
+        <version>0.8.0-SNAPSHOT</version>
+        <relativePath>../feature-parent</relativePath>
     </parent>
 
     <artifactId>odl-l2switch-loopremover</artifactId>
@@ -29,24 +29,8 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>net.sf.jung</groupId>
-            <artifactId>jung-algorithms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jung</groupId>
-            <artifactId>jung-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jung</groupId>
-            <artifactId>jung-graph-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
+            <groupId>org.opendaylight.l2switch.loopremover</groupId>
             <artifactId>loopremover-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
-            <artifactId>loopremover-model</artifactId>
         </dependency>
     </dependencies>
 </project>

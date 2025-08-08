@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>odlparent-lite</artifactId>
-        <version>14.1.0</version>
-        <relativePath/>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
+  <parent>
     <groupId>org.opendaylight.l2switch</groupId>
-    <artifactId>addresstracker.aggregator</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <artifactId>l2switch-parent</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
 
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
+  <artifactId>addresstracker.aggregator</artifactId>
+  <groupId>org.opendaylight.l2switch.addresstracker</groupId>
+  <packaging>pom</packaging>
 
-    <modules>
-        <module>implementation</module>
-        <module>model</module>
-    </modules>
+  <modules>
+    <module>model</module>
+    <module>implementation</module>
+  </modules>
 </project>

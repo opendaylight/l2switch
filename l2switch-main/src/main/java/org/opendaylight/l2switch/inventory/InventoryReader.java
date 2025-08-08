@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ public class InventoryReader {
      * @return NodeConnectorRef that pertains to the NodeConnector containing
      *         the MacAddress observation.
      */
-    public NodeConnectorRef getNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress macAddress) {
+    public NodeConnectorRef getNodeConnector(DataObjectIdentifier<Node> nodeInsId, MacAddress macAddress) {
         if (nodeInsId == null || macAddress == null) {
             return null;
         }
@@ -97,8 +98,7 @@ public class InventoryReader {
                     if (macAddress.equals(add.getMac())) {
                         final long lastSeen = add.getLastSeen();
                         if (lastSeen > latest) {
-                            destNodeConnector = new NodeConnectorRef(
-                                nodeInsId.child(NodeConnector.class, nc.key()).toIdentifier());
+                            destNodeConnector = new NodeConnectorRef(nodeInsId.toBuilder().child(NodeConnector.class, nc.key()).build());
                             latest = lastSeen;
                             LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                             break;

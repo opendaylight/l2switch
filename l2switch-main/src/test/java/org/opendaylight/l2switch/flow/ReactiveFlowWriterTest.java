@@ -21,10 +21,8 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
@@ -49,15 +47,15 @@ public class ReactiveFlowWriterTest {
     private NodeConnectorRef nodeConnectorRef;
     private ArrayList<PacketChain> packetChainList;
 
+
+
     @Before
     public void initMocks() {
 
         MockitoAnnotations.initMocks(this);
         reactiveFlowWriter = new ReactiveFlowWriter(inventoryReader, flowWriterService);
 
-        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .build();
+        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class).child(Node.class).build();
         nodeConnectorRef = new NodeConnectorRef(nodeInstanceIdentifier);
         packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
@@ -75,19 +73,21 @@ public class ReactiveFlowWriterTest {
 
     @Test
     public void onArpPacketReceivedTest() {
+
         ArpPacketReceived arpPacketReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
         reactiveFlowWriter.onNotification(arpPacketReceived);
+
     }
 
     @Test
     public void writeFlowsTest() {
 
-        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class)))
+        when(inventoryReader.getNodeConnector(any(DataObjectIdentifier.class), any(MacAddress.class)))
             .thenReturn(destNodeConnectorRef);
         reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"),
                 new MacAddress("00:00:00:00:00:02"));
 
-        verify(inventoryReader, times(1)).getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class));
+        verify(inventoryReader, times(1)).getNodeConnector(any(DataObjectIdentifier.class), any(MacAddress.class));
         verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class),
                 any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
 

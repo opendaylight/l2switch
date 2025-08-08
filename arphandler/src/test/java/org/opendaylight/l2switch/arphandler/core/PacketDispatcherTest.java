@@ -31,7 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacket;
+import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,10 +58,8 @@ class PacketDispatcherTest {
     void testSendPacketOut() {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
-        final var ncInsId1 = DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-            .build();
+        DataObjectIdentifier<NodeConnector> ncInsId1 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
+                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
         packetDispatcher.sendPacketOut(null, new NodeConnectorRef(ncInsId1), new NodeConnectorRef(ncInsId1));
         verify(transmitPacket, times(1)).invoke(any());
     }
@@ -67,8 +67,8 @@ class PacketDispatcherTest {
     @Test
     void testSendPacketOut_NullIngress() {
         packetDispatcher.sendPacketOut(null, null, new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
+            .child(Node.class)
+            .child(NodeConnector.class)
             .build()));
         verify(transmitPacket, times(0)).invoke(any());
     }
@@ -76,8 +76,8 @@ class PacketDispatcherTest {
     @Test
     void testSendPacketOut_NullEgress() {
         packetDispatcher.sendPacketOut(null, new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
+            .child(Node.class)
+            .child(NodeConnector.class)
             .build()), null);
         verify(transmitPacket, times(0)).invoke(any());
     }
@@ -87,14 +87,10 @@ class PacketDispatcherTest {
         doReturn(RpcResultBuilder.success().buildFuture()).when(transmitPacket).invoke(any());
 
         var nodeConnectors = new ArrayList<NodeConnectorRef>();
-        var ncInsId1 = DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1")))
-            .build();
-        var ncInsId2 = DataObjectIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(new NodeId("abc")))
-            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2")))
-            .build();
+        var ncInsId1 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
+                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("1"))).build();
+        var ncInsId2 = DataObjectIdentifier.builder(Nodes.class).child(Node.class)
+                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("2"))).build();
         nodeConnectors.add(new NodeConnectorRef(ncInsId1));
         nodeConnectors.add(new NodeConnectorRef(ncInsId1));
         nodeConnectors.add(new NodeConnectorRef(ncInsId2));
@@ -103,8 +99,8 @@ class PacketDispatcherTest {
 
         packetDispatcher.floodPacket("", null, new NodeConnectorRef(ncInsId2),
                 new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-                    .child(Node.class, new NodeKey(new NodeId("abc")))
-                    .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
+                    .child(Node.class)
+                    .child(NodeConnector.class)
                     .build()));
         verify(inventoryReader, times(0)).setRefreshData(true);
         verify(inventoryReader, times(0)).readInventory();
@@ -118,12 +114,12 @@ class PacketDispatcherTest {
 
         packetDispatcher.floodPacket("", null,
             new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId("abc")))
-                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
+                .child(Node.class)
+                .child(NodeConnector.class)
                 .build()),
             new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId("abc")))
-                .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
+                .child(Node.class)
+                .child(NodeConnector.class)
                 .build()));
         verify(inventoryReader, times(1)).setRefreshData(true);
         verify(inventoryReader, times(1)).readInventory();

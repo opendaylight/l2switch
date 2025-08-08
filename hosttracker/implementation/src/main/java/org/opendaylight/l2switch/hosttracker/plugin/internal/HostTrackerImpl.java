@@ -9,10 +9,12 @@
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.l2switch.hosttracker.plugin.util.Utilities.firstIdentifierOf;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -44,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -135,42 +138,14 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
             // FIXME: add an specialized object instead of going through raw types!
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, linkIID), (DataTreeChangeListener)this);
 
-        //Processing addresses that existed before we register as a data change listener.
-//        ReadOnlyTransaction newReadOnlyTransaction = dataService.newReadOnlyTransaction();
-//        InstanceIdentifier<NodeConnector> iinc = addrCapableNodeConnectors.firstIdentifierOf(NodeConnector.class);
-//        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin
-//                = addrCapableNodeConnectors.firstIdentifierOf(
-//                    org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
-//        ListenableFuture<Optional<NodeConnector>> dataFuture = newReadOnlyTransaction.read(
-//            LogicalDatastoreType.OPERATIONAL, iinc);
-//        try {
-//            NodeConnector get = dataFuture.get().get();
-//            log.trace("test "+get);
-//        } catch (InterruptedException | ExecutionException ex) {
-//            java.util.logging.Logger.getLogger(HostTrackerImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        Futures.addCallback(dataFuture, new FutureCallback<Optional<NodeConnector>>() {
-//            @Override
-//            public void onSuccess(final Optional<NodeConnector> result) {
-//                if (result.isPresent()) {
-//                    log.trace("Processing NEW NODE? " + result.get().getId().getValue());
-////                    processHost(result, dataObject, node);
-//                }
-//            }
-
-//            @Override
-//            public void onFailure(Throwable arg0) {
-//            }
-//        });
     }
-
     @Override
     public void onDataTreeChanged(List<DataTreeModification<DataObject>> changes) {
         exec.submit(() -> {
             for (DataTreeModification<?> change: changes) {
                 DataObjectModification<?> rootNode = change.getRootNode();
-                final InstanceIdentifier<?> identifier = change.getRootPath().getRootIdentifier();
-                switch (rootNode.getModificationType()) {
+                final DataObjectIdentifier<?> identifier = change.path();
+                switch (rootNode.modificationType()) {
                     case SUBTREE_MODIFIED:
                     case WRITE:
                         onModifiedData(identifier, rootNode);
@@ -186,42 +161,42 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
     }
 
     @SuppressWarnings("unchecked")
-    private void onModifiedData(InstanceIdentifier<?> iid, DataObjectModification<?> rootNode) {
+    private void onModifiedData(DataObjectIdentifier<?> iid, DataObjectModification<?> rootNode) {
         final DataObject dataObject = rootNode.getDataAfter();
         if (dataObject instanceof Addresses) {
             packetReceived((Addresses) dataObject, iid);
         } else if (dataObject instanceof Node) {
-            hosts.putLocally((InstanceIdentifier<Node>) iid, Host.createHost((Node) dataObject));
+            hosts.putLocally((DataObjectIdentifier<Node>) iid, Host.createHost((Node) dataObject));
         } else if (dataObject instanceof  Link) {
-            links.putLocally((InstanceIdentifier<Link>) iid, (Link) dataObject);
+            links.putLocally((DataObjectIdentifier<Link>) iid, (Link) dataObject);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void onDeletedData(InstanceIdentifier<?> iid, DataObjectModification<?> rootNode) {
-        if (iid.getTargetType().equals(Node.class)) {
+    private void onDeletedData(DataObjectIdentifier<?> iid, DataObjectModification<?> rootNode) {
+        if (iid.lastStep().type().equals(NodeConnector.class)) {
             Node node = (Node) rootNode.getDataBefore();
-            InstanceIdentifier<Node> iiN = (InstanceIdentifier<Node>) iid;
+            DataObjectIdentifier<Node> iiN = (DataObjectIdentifier<Node>) iid;
             HostNode hostNode = node.augmentation(HostNode.class);
             if (hostNode != null) {
                 hosts.removeLocally(iiN);
             }
-        } else if (iid.getTargetType().equals(Link.class)) {
+        } else if (iid.lastStep().type().equals(Link.class)) {
             // TODO performance improvement here
-            InstanceIdentifier<Link> iiL = (InstanceIdentifier<Link>) iid;
+            DataObjectIdentifier<Link> iiL = (DataObjectIdentifier<Link>) iid;
             links.removeLocally(iiL);
-            linkRemoved((InstanceIdentifier<Link>) iid, (Link) rootNode.getDataBefore());
+            linkRemoved((DataObjectIdentifier<Link>) iid, (Link) rootNode.getDataBefore());
         }
     }
 
-    public void packetReceived(Addresses addrs, InstanceIdentifier<?> ii) {
-        InstanceIdentifier<NodeConnector> iinc = ii.firstIdentifierOf(NodeConnector.class);
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin =
-            ii.firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
+    public void packetReceived(Addresses addrs, DataObjectIdentifier<?> ii) {
+
+        DataObjectIdentifier<NodeConnector> iinc = firstIdentifierOf(ii,NodeConnector.class);
+        DataObjectIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> iin = firstIdentifierOf(ii,org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class);
 
         FluentFuture<Optional<NodeConnector>> futureNodeConnector;
         FluentFuture<Optional<
-            org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode;
+                org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node>> futureNode;
         try (ReadTransaction readTx = dataService.newReadOnlyTransaction()) {
             futureNodeConnector = readTx.read(LogicalDatastoreType.OPERATIONAL, iinc);
             futureNode = readTx.read(LogicalDatastoreType.OPERATIONAL, iin);
@@ -342,7 +317,7 @@ public class HostTrackerImpl implements DataTreeChangeListener<DataObject> {
         }
     }
 
-    private void linkRemoved(InstanceIdentifier<Link> iiLink, Link linkRemoved) {
+    private void linkRemoved(DataObjectIdentifier<Link> iiLink, Link linkRemoved) {
         LOG.trace("linkRemoved");
         List<Host> hostsToMod = new ArrayList<>();
         List<Host> hostsToRem = new ArrayList<>();

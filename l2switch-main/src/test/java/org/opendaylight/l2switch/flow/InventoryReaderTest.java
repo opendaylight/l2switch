@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.flow;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -51,12 +52,12 @@ public class InventoryReaderTest {
     private DataBroker dataService;
     @Mock
     private ReadTransaction readOnlyTransaction;
-    private final Optional<Node> dataObjectOptional = Optional.empty();
+    private Optional<Node> dataObjectOptional = Optional.empty();
     @Mock
     private Node node;
 
     private InventoryReader inventoryReader;
-    private InstanceIdentifier<Node> nodeInstanceIdentifier;
+    private DataObjectIdentifier<Node> nodeInstanceIdentifier;
 
     @Before
     public void init() {
@@ -67,7 +68,7 @@ public class InventoryReaderTest {
     @Test
     public void getNodeConnectorTest() throws Exception {
 
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))

@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -90,7 +89,7 @@ public class ProactiveFloodFlowWriterTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(), any(DataTreeChangeListener.class));
+        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(), any());
     }
 
     @Test

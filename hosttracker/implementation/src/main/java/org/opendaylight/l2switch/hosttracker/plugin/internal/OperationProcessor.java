@@ -8,47 +8,31 @@
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import static java.util.Objects.requireNonNull;
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.opendaylight.mdsal.binding.api.*;
 import org.opendaylight.mdsal.common.api.OptimisticLockFailedException;
-import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, Runnable {
+public class OperationProcessor implements AutoCloseable, Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(OperationProcessor.class);
     private static final int NUM_RETRY_SUBMIT = 2;
     private static final int OPS_PER_CHAIN = 256;
     private static final int QUEUE_DEPTH = 512;
 
     private final BlockingQueue<HostTrackerOperation> queue = new LinkedBlockingQueue<>(QUEUE_DEPTH);
-    private final AtomicReference<TransactionChain> transactionChain = new AtomicReference<>();
     private final DataBroker dataBroker;
+    private final TransactionFactory transactionChain;
 
+    @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
     OperationProcessor(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-
-        final var chain = dataBroker.createTransactionChain();
-        transactionChain.set(chain);
-        chain.addCallback(this);
-    }
-
-    @Override
-    public void onFailure(Throwable cause) {
-        chainFailure();
-    }
-
-    @Override
-    public void onSuccess(Empty result) {
-        // no-op
+        this.transactionChain = dataBroker.createTransactionChain();
     }
 
     @Override
@@ -57,20 +41,18 @@ final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, 
         while (!done) {
             try {
                 HostTrackerOperation op = queue.take();
-                final TransactionChain txChain = transactionChain.get();
+                final ReadWriteTransaction txChain = dataBroker.newReadWriteTransaction();
                 if (txChain == null) {
                     break;
                 }
-
-                ReadWriteTransaction tx = txChain.newReadWriteTransaction();
                 int ops = 0;
                 while (op != null && ops < OPS_PER_CHAIN) {
-                    op.applyOperation(tx);
+                    op.applyOperation(txChain);
                     ops += 1;
                     op = queue.poll();
                 }
 
-                submitTransaction(tx, NUM_RETRY_SUBMIT);
+                submitTransaction(txChain, NUM_RETRY_SUBMIT);
             } catch (InterruptedException e) {
                 done = true;
             }
@@ -78,27 +60,25 @@ final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, 
         clearQueue();
     }
 
-    @Override
-    public void close() {
-        final TransactionChain txChain = transactionChain.getAndSet(null);
-        if (txChain != null) {
-            txChain.close();
-        }
-    }
+	/*@Override
+	public void close() {
+		final TransactionChain txChain = transactionChain.getAndSet(null);
+		if (txChain != null) {
+			txChain.close();
+		}
+	}*/
 
-    private void chainFailure() {
-        try {
-            final var nextChain = dataBroker.createTransactionChain();
-            final var prevChain = transactionChain.getAndSet(nextChain);
-            nextChain.addCallback(this);
-            if (prevChain != null) {
-                prevChain.close();
-            }
-            clearQueue();
-        } catch (IllegalStateException e) {
-            LOG.warn("Failed to close chain", e);
-        }
-    }
+	/*private void chainFailure() {
+		try {
+			final TransactionChain prevChain = transactionChain.get();
+			if (prevChain != null) {
+				prevChain.close();
+			}
+			clearQueue();
+		} catch (IllegalStateException e) {
+			LOG.warn("Failed to close chain", e);
+		}
+	}*/
 
     public void enqueueOperation(HostTrackerOperation op) {
         try {
@@ -125,13 +105,13 @@ final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, 
                     } else {
                         LOG.warn("tx {} failed, out of retries", tx.getIdentifier());
                         // out of retries
-                        chainFailure();
+                        //chainFailure();
                     }
                 } else {
                     // failed due to another type of
                     // TransactionCommitFailedException.
                     LOG.warn("tx {} failed: {}", tx.getIdentifier(), failure.getMessage());
-                    chainFailure();
+                    //chainFailure();
                 }
             }
         }, MoreExecutors.directExecutor());
@@ -143,4 +123,8 @@ final class OperationProcessor implements AutoCloseable, FutureCallback<Empty>, 
         }
     }
 
+    @Override
+    public void close() throws Exception {
+
+    }
 }

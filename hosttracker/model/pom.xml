@@ -2,32 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.opendaylight.l2switch</groupId>
-        <artifactId>binding-parent</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
-        <relativePath>../../binding-parent/pom.xml</relativePath>
+        <artifactId>hosttracker.aggregator</artifactId>
+        <groupId>org.opendaylight.l2switch.hosttracker</groupId>
+        <version>0.8.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>hosttracker-model</artifactId>
     <packaging>bundle</packaging>
-    <name>hosttracker-model</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.l2switch</groupId>
+            <groupId>org.opendaylight.l2switch.addresstracker</groupId>
             <artifactId>addresstracker-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-topology</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.openflowplugin.model</groupId>
-            <artifactId>model-inventory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>codegen-extensions</artifactId>
+            <artifactId>model-topology</artifactId>
         </dependency>
     </dependencies>
 
@@ -40,10 +29,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Import-Package>org.opendaylight.yangtools.binding.annotations, *</Import-Package>
+                        <Import-Package>*</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    <name>hosttracker-model</name>
 </project>

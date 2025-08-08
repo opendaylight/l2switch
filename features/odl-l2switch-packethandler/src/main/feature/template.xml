@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.6.0" name="odl-l2switch-packethandler">
-    <repository>mvn:org.opendaylight.openflowplugin/odl-openflowplugin-southbound/{{versionAsInProject}}/xml/features</repository>
-    <feature name="odl-l2switch-packethandler">
-        <feature version="{{semVerRange}}">odl-openflowplugin-southbound</feature>
-        <bundle>mvn:org.opendaylight.l2switch/packethandler-impl/{{versionAsInProject}}</bundle>
-        <bundle>mvn:org.opendaylight.l2switch/packethandler-model/{{versionAsInProject}}</bundle>
-    </feature>
-</features>
