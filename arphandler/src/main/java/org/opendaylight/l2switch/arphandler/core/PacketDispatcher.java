@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.PropertyIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +134,7 @@ public class PacketDispatcher {
         if (ingress == null || egress == null) {
             return;
         }
-        InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
+        DataObjectIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
         TransmitPacketInput input = new TransmitPacketInputBuilder()
                 .setPayload(payload)
                 .setNode(new NodeRef(egressNodePath.toIdentifier()))
@@ -161,14 +160,14 @@ public class PacketDispatcher {
         inventoryReader.readInventory();
     }
 
-    private static InstanceIdentifier<Node> getNodePath(final BindingInstanceIdentifier path) {
+    private static DataObjectIdentifier<Node> getNodePath(final BindingInstanceIdentifier path) {
         return getNodePath(switch (path) {
             case DataObjectIdentifier<?> doi -> doi;
             case PropertyIdentifier<?, ?> pi -> pi.container();
         });
     }
 
-    private static InstanceIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
-        return nodeChild.toLegacy().firstIdentifierOf(Node.class);
+    private static DataObjectIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
+        return (DataObjectIdentifier<Node>) nodeChild.toIdentifier();
     }
 }

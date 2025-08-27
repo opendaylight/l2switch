@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,20 +79,20 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void registerAsDataChangeListener() {
-        InstanceIdentifier<NodeConnector> nodeConnector = InstanceIdentifier.builder(Nodes.class)
+        DataObjectIdentifier<NodeConnector> nodeConnector = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .build();
         this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-                         DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,nodeConnector),
+                         DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,nodeConnector),
                                                    (DataTreeChangeListener)this));
 
-        InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto =
-            InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
+        DataObjectIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto =
+            DataObjectIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
                 .build();
         this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
-                 DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
+                 DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
                                            (DataTreeChangeListener)this));
     }
 
@@ -142,7 +141,8 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             Nodes nodes = null;
             try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
                 Optional<Nodes> dataObjectOptional = readOnlyTransaction
-                        .read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class)).get();
+                        .read(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(Nodes.class)
+                        .build()).get();
                 if (dataObjectOptional.isPresent()) {
                     nodes = dataObjectOptional.orElseThrow();
                 }
@@ -205,7 +205,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
      * @return NodeConnectorRef that pertains to the NodeConnector containing
      *         the MacAddress observation.
      */
-    public NodeConnectorRef getNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress macAddress) {
+    public NodeConnectorRef getNodeConnector(DataObjectIdentifier<Node> nodeInsId, MacAddress macAddress) {
         if (nodeInsId == null || macAddress == null) {
             return null;
         }
