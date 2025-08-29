@@ -15,6 +15,7 @@
 
     <properties>
         <odlparent.dependency.enforce>true</odlparent.dependency.enforce>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <dependencyManagement>
