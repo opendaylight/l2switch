@@ -47,6 +47,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "342031d5_09a5f76f",
+        "filename": "addresstracker/implementation/src/main/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9377
+      },
+      "writtenOn": "2025-09-01T10:01:37Z",
+      "side": 1,
+      "message": "I have downloaded google style but it shows checkstyle errors",
+      "parentUuid": "d5403f9f_0142ba67",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 1
+      },
+      "revId": "b6e3c48d19ad2453b926100dfbce737a68fada85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c245836_ca963bcd",
