@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c04e695_8a209d92",
+        "filename": "arphandler/src/test/java/org/opendaylight/l2switch/arphandler/inventory/InventoryReaderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T20:05:06Z",
+      "side": 1,
+      "message": "as noted by CI run: you cannot mock a DataObjectIdentifier, and that is on purpose. \nUse a DataObjectIdentifier.builder()-based object instead.",
+      "revId": "32075cc0d45e0811ab3a5069a7a86bf7c061cbe4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
