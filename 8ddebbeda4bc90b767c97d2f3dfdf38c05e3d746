@@ -16,6 +16,23 @@
       "message": "A better description of this code change is needed.",
       "revId": "8ddebbeda4bc90b767c97d2f3dfdf38c05e3d746",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc5189c4_92f76f30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T20:07:44Z",
+      "side": 1,
+      "message": "Yes, and while this might be useful for local testing, we will never accept a patch to disable the test suite.\n\nI am putting a -2 here only to prevent that happening on accident.",
+      "revId": "8ddebbeda4bc90b767c97d2f3dfdf38c05e3d746",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
