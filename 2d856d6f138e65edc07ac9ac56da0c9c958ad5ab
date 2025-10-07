@@ -46,6 +46,29 @@
       },
       "revId": "2d856d6f138e65edc07ac9ac56da0c9c958ad5ab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73a88d3f_73f9436b",
+        "filename": "binding-parent/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T19:45:40Z",
+      "side": 0,
+      "message": "this is a very useful place to keep things centralized. why is it being removed?",
+      "range": {
+        "startLine": 12,
+        "startChar": 15,
+        "endLine": 12,
+        "endChar": 30
+      },
+      "revId": "2d856d6f138e65edc07ac9ac56da0c9c958ad5ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }

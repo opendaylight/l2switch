@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7a337642_fbbf336a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T19:45:40Z",
+      "side": 1,
+      "message": "ODL policy on this: https://docs.opendaylight.org/en/latest/contributor-guides/coding-guidelines/coding-guidelines-generic.html#git-commit-message-style\n\nin particular this patch is doing a lot of unrelated things for no apparent reason and does not provide justification: like for the binding-parent removal.",
+      "parentUuid": "67896dcf_ac1e7353",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 3
+      },
+      "revId": "b6e3c48d19ad2453b926100dfbce737a68fada85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d5403f9f_0142ba67",
         "filename": "addresstracker/implementation/src/main/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriter.java",
         "patchSetId": 1
@@ -61,6 +85,30 @@
       "side": 1,
       "message": "I have downloaded google style but it shows checkstyle errors",
       "parentUuid": "d5403f9f_0142ba67",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 1
+      },
+      "revId": "b6e3c48d19ad2453b926100dfbce737a68fada85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c061e0d_73f9a389",
+        "filename": "addresstracker/implementation/src/main/java/org/opendaylight/l2switch/addresstracker/addressobserver/AddressObservationWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T19:45:40Z",
+      "side": 1,
+      "message": "All contributed patches are expected to conform to https://docs.opendaylight.org/en/latest/contributor-guides/index.html\n\nJava Coding style is covered in https://docs.opendaylight.org/en/latest/contributor-guides/coding-guidelines/coding-guidelines-java.html and says \"4 spaces indentation\" as the very first rule.",
+      "parentUuid": "342031d5_09a5f76f",
       "range": {
         "startLine": 72,
         "startChar": 0,
