@@ -65,6 +65,23 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed0a03dd_dbba6089",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2025-10-08T04:06:13Z",
+      "side": 1,
+      "message": "More information is needed about what these changes want to accomplish, and most probably need to be submitted into different smaller patches.",
+      "revId": "b6e3c48d19ad2453b926100dfbce737a68fada85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db0114b9_da9d65a4",
