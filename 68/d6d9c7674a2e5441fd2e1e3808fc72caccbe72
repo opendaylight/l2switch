@@ -1,0 +1,9 @@
+Code-Review+1: David Arjona <darjona@yahoo.com>
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Verified+1: jenkins-releng ODL
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Fri, 10 Oct 2025 19:52:03 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/l2switch/+/118493
+Project: l2switch
+Branch: refs/heads/master
