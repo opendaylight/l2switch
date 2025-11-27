@@ -71,12 +71,12 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     private long graphRefreshDelay;
     private String topologyId;
 
-    public TopologyLinkDataChangeHandler(DataBroker dataBroker, NetworkGraphService networkGraphService) {
+    public TopologyLinkDataChangeHandler(final DataBroker dataBroker, final NetworkGraphService networkGraphService) {
         this.dataBroker = requireNonNull(dataBroker);
         this.networkGraphService = requireNonNull(networkGraphService);
     }
 
-    public void setGraphRefreshDelay(long graphRefreshDelay) {
+    public void setGraphRefreshDelay(final long graphRefreshDelay) {
         if (graphRefreshDelay < 0) {
             this.graphRefreshDelay = DEFAULT_GRAPH_REFRESH_DELAY;
         } else {
@@ -84,7 +84,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
     }
 
-    public void setTopologyId(String topologyId) {
+    public void setTopologyId(final String topologyId) {
         if (topologyId == null || topologyId.isEmpty()) {
             this.topologyId = DEFAULT_TOPOLOGY_ID;
         } else {
@@ -111,21 +111,21 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
      * network graph.
      */
     @Override
-    public void onDataTreeChanged(List<DataTreeModification<Link>> changes) {
+    public void onDataTreeChanged(final List<DataTreeModification<Link>> changes) {
         boolean isGraphUpdated = false;
 
         for (DataTreeModification<Link> change: changes) {
             DataObjectModification<Link> rootNode = change.getRootNode();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case WRITE:
-                    Link createdLink = rootNode.getDataAfter();
-                    if (rootNode.getDataBefore() == null && !createdLink.getLinkId().getValue().contains("host")) {
+                    Link createdLink = rootNode.dataAfter();
+                    if (rootNode.dataBefore() == null && !createdLink.getLinkId().getValue().contains("host")) {
                         isGraphUpdated = true;
                         LOG.debug("Graph is updated! Added Link {}", createdLink.getLinkId().getValue());
                     }
                     break;
                 case DELETE:
-                    Link deletedLink = rootNode.getDataBefore();
+                    Link deletedLink = rootNode.dataBefore();
                     if (!deletedLink.getLinkId().getValue().contains("host")) {
                         isGraphUpdated = true;
                         LOG.debug("Graph is updated! Removed Link {}", deletedLink.getLinkId().getValue());
@@ -176,13 +176,13 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             updateNodeConnectorStatus(readWriteTransaction);
             Futures.addCallback(readWriteTransaction.commit(), new FutureCallback<CommitInfo>() {
                 @Override
-                public void onSuccess(CommitInfo result) {
+                public void onSuccess(final CommitInfo result) {
                     LOG.debug("TopologyLinkDataChangeHandler write successful for tx :{}",
                             readWriteTransaction.getIdentifier());
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
+                public void onFailure(final Throwable throwable) {
                     LOG.error("TopologyLinkDataChangeHandler write transaction {} failed",
                             readWriteTransaction.getIdentifier(), throwable.getCause());
                 }
@@ -225,7 +225,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             return internalLinks;
         }
 
-        private void updateNodeConnectorStatus(ReadWriteTransaction readWriteTransaction) {
+        private void updateNodeConnectorStatus(final ReadWriteTransaction readWriteTransaction) {
             List<Link> allLinks = networkGraphService.getAllLinks();
             if (allLinks == null || allLinks.isEmpty()) {
                 return;
@@ -243,14 +243,14 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             }
         }
 
-        private NodeConnectorRef getSourceNodeConnectorRef(Link link) {
+        private NodeConnectorRef getSourceNodeConnectorRef(final Link link) {
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
                     .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
                             link.getSource().getSourceTp().getValue());
             return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
         }
 
-        private NodeConnectorRef getDestNodeConnectorRef(Link link) {
+        private NodeConnectorRef getDestNodeConnectorRef(final Link link) {
             InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
                     .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
                             link.getDestination().getDestTp().getValue());
@@ -258,16 +258,17 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
             return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
         }
 
-        private void updateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef,
-                StpStatus stpStatus) {
+        private void updateNodeConnector(final ReadWriteTransaction readWriteTransaction,
+                final NodeConnectorRef nodeConnectorRef, final StpStatus stpStatus) {
             StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder =
                     new StpStatusAwareNodeConnectorBuilder().setStatus(stpStatus);
             checkIfExistAndUpdateNodeConnector(readWriteTransaction, nodeConnectorRef,
                     stpStatusAwareNodeConnectorBuilder.build());
         }
 
-        private void checkIfExistAndUpdateNodeConnector(ReadWriteTransaction readWriteTransaction,
-                NodeConnectorRef nodeConnectorRef, StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
+        private void checkIfExistAndUpdateNodeConnector(final ReadWriteTransaction readWriteTransaction,
+                final NodeConnectorRef nodeConnectorRef,
+                final StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
             final Optional<NodeConnector> dataObjectOptional;
             try {
                 dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL,
@@ -303,8 +304,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 stpStatusAwareNcInstanceId, stpStatusAwareNodeConnector);
         }
 
-        private boolean sameStatusPresent(StpStatusAwareNodeConnector stpStatusAwareNodeConnector,
-                StpStatus stpStatus) {
+        private boolean sameStatusPresent(final StpStatusAwareNodeConnector stpStatusAwareNodeConnector,
+                final StpStatus stpStatus) {
 
             if (stpStatusAwareNodeConnector == null) {
                 return false;

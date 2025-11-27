@@ -105,10 +105,10 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         final var nodeIds = new HashSet<InstanceIdentifier<?>>();
         for (var change : changes) {
             final var rootNode = change.getRootNode();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case WRITE:
-                    if (rootNode.getDataBefore() == null) {
-                        nodeIds.add(change.getRootPath().getRootIdentifier());
+                    if (rootNode.dataBefore() == null) {
+                        nodeIds.add(change.path().toLegacy());
                     }
                     break;
                 default:

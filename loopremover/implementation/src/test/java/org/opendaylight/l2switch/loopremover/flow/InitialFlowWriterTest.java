@@ -50,8 +50,8 @@ class InitialFlowWriterTest {
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .build();
 
-        when(mockModification.getDataBefore()).thenReturn(null);
-        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.dataBefore()).thenReturn(null);
+        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
