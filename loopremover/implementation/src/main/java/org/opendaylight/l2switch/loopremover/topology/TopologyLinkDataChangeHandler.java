@@ -25,7 +25,6 @@ import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
@@ -43,8 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,10 +99,10 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
      * operation data root.
      */
     public Registration registerAsDataChangeListener() {
-        InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).build();
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-            linkInstance), this);
+        return dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class)
+                .build(), this);
     }
 
     /**
@@ -116,16 +115,16 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
 
         for (DataTreeModification<Link> change: changes) {
             DataObjectModification<Link> rootNode = change.getRootNode();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case WRITE:
-                    Link createdLink = rootNode.getDataAfter();
-                    if (rootNode.getDataBefore() == null && !createdLink.getLinkId().getValue().contains("host")) {
+                    Link createdLink = rootNode.dataAfter();
+                    if (rootNode.dataBefore() == null && !createdLink.getLinkId().getValue().contains("host")) {
                         isGraphUpdated = true;
                         LOG.debug("Graph is updated! Added Link {}", createdLink.getLinkId().getValue());
                     }
                     break;
                 case DELETE:
-                    Link deletedLink = rootNode.getDataBefore();
+                    Link deletedLink = rootNode.dataBefore();
                     if (!deletedLink.getLinkId().getValue().contains("host")) {
                         isGraphUpdated = true;
                         LOG.debug("Graph is updated! Removed Link {}", deletedLink.getLinkId().getValue());
@@ -191,7 +190,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
 
         private List<Link> getLinksFromTopology() {
-            final InstanceIdentifier<Topology> topologyInstanceIdentifier =
+            final var topologyInstanceIdentifier =
                 InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
             final FluentFuture<Optional<Topology>> readFuture;
             try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
@@ -244,18 +243,15 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
 
         private NodeConnectorRef getSourceNodeConnectorRef(Link link) {
-            InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-                    .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
-                            link.getSource().getSourceTp().getValue());
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+            var nodeConnectorInstanceIdentifier = InstanceIdentifierUtils.createNodeConnectorIdentifier(
+                link.getSource().getSourceNode().getValue(), link.getSource().getSourceTp().getValue());
+            return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
         }
 
         private NodeConnectorRef getDestNodeConnectorRef(Link link) {
-            InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-                    .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
-                            link.getDestination().getDestTp().getValue());
-
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+            var nodeConnectorInstanceIdentifier = InstanceIdentifierUtils.createNodeConnectorIdentifier(
+                link.getDestination().getDestNode().getValue(), link.getDestination().getDestTp().getValue());
+            return new NodeConnectorRef(nodeConnectorInstanceIdentifier);
         }
 
         private void updateNodeConnector(ReadWriteTransaction readWriteTransaction, NodeConnectorRef nodeConnectorRef,

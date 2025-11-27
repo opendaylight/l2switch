@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
@@ -58,9 +57,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -110,23 +110,19 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     public Registration registerAsDataChangeListener(DataBroker dataBroker) {
-        InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class).build();
-
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                nodeInstanceIdentifier), this);
+        return dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(Nodes.class).child(Node.class).build(), this);
     }
 
     @Override
     public void onDataTreeChanged(List<DataTreeModification<Node>> changes) {
-        Set<InstanceIdentifier<?>> nodeIds = new HashSet<>();
+        final var nodeIds = new HashSet<DataObjectIdentifier<Node>>();
         for (DataTreeModification<Node> change: changes) {
             DataObjectModification<Node> rootNode = change.getRootNode();
-            final InstanceIdentifier<Node> identifier = change.getRootPath().getRootIdentifier();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case WRITE:
-                    if (rootNode.getDataBefore() == null) {
-                        nodeIds.add(identifier);
+                    if (rootNode.dataBefore() == null) {
+                        nodeIds.add(change.path());
                     }
                     break;
                 default:
@@ -144,60 +140,45 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        private final Set<InstanceIdentifier<?>> nodeIds;
+        private final Set<DataObjectIdentifier<Node>> nodeIds;
 
-        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(Set<DataObjectIdentifier<Node>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
         @Override
         public void run() {
-
             if (nodeIds == null) {
                 return;
             }
 
-            for (InstanceIdentifier<?> nodeId : nodeIds) {
-                if (Node.class.isAssignableFrom(nodeId.getTargetType())) {
-                    InstanceIdentifier<Node> topoNodeId = (InstanceIdentifier<Node>)nodeId;
-                    if (topoNodeId.firstKeyOf(Node.class).getId().getValue().contains("openflow:")) {
-                        addInitialFlows(topoNodeId);
-                    }
+            for (var nodeId : nodeIds) {
+                if (nodeId.getFirstKeyOf(Node.class).getId().getValue().contains("openflow:")) {
+                    addInitialFlows(nodeId);
                 }
             }
-
         }
 
         /**
          * Adds a flow, which sends all LLDP packets to the controller, to the specified node.
          * @param nodeId The node to write the flow on.
          */
-        public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
-            LOG.debug("adding initial flows for node {} ", nodeId);
+        public void addInitialFlows(DataObjectIdentifier<Node> nodeId) {
+            LOG.debug("adding initial flows for node {}", nodeId);
 
-            InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
-            InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
+            final var tableId = nodeId.toBuilder()
+                .augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flowTableId))
+                .build();
+            final var flowId = tableId.toBuilder()
+                .child(Flow.class, new FlowKey(
+                    new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()))))
+                .build();
 
             //add lldpToController flow
             writeFlowToController(nodeId, tableId, flowId, createLldpToControllerFlow(flowTableId, flowPriority));
 
             LOG.debug("Added initial flows for node {} ", nodeId);
-        }
-
-        private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
-            // get flow table key
-            TableKey flowTableKey = new TableKey(flowTableId);
-            return nodeId.builder()
-                    .augmentation(FlowCapableNode.class)
-                    .child(Table.class, flowTableKey)
-                    .build();
-        }
-
-        private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
-            // generate unique flow key
-            FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
-            FlowKey flowKey = new FlowKey(flowId);
-            return tableId.child(Flow.class, flowKey);
         }
 
         private Flow createLldpToControllerFlow(Uint8 tableId, Uint16 priority) {
@@ -259,16 +240,13 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
         }
 
-        private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
-                                                                       InstanceIdentifier<Table> tableInstanceId,
-                                                                       InstanceIdentifier<Flow> flowPath,
-                                                                       Flow flow) {
-            LOG.trace("Adding flow to node {}",
-                    requireNonNull(nodeInstanceId.firstKeyOf(Node.class)).getId().getValue());
+        private Future<RpcResult<AddFlowOutput>> writeFlowToController(DataObjectIdentifier<Node> nodeInstanceId,
+                DataObjectIdentifier<Table> tableInstanceId, DataObjectIdentifier<Flow> flowPath, Flow flow) {
+            LOG.trace("Adding flow to node {}", nodeInstanceId.getFirstKeyOf(Node.class).getId().getValue());
             return addFlow.invoke(new AddFlowInputBuilder(flow)
-                .setNode(new NodeRef(nodeInstanceId.toIdentifier()))
-                .setFlowRef(new FlowRef(flowPath.toIdentifier()))
-                .setFlowTable(new FlowTableRef(tableInstanceId.toIdentifier()))
+                .setNode(new NodeRef(nodeInstanceId))
+                .setFlowRef(new FlowRef(flowPath))
+                .setFlowTable(new FlowTableRef(tableInstanceId))
                 .setTransactionUri(new Uri(flow.getId().getValue()))
                 .build());
         }

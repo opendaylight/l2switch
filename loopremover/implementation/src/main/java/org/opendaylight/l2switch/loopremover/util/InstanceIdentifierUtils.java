@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
@@ -42,8 +42,8 @@ public final class InstanceIdentifierUtils {
      * @param nodeId the node id
      * @return the node InstanceIdentifier
      */
-    public static InstanceIdentifier<Node> createNodePath(final NodeId nodeId) {
-        return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build();
+    public static WithKey<Node, NodeKey> createNodePath(final NodeId nodeId) {
+        return DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build();
     }
 
     /**
@@ -53,8 +53,8 @@ public final class InstanceIdentifierUtils {
      *            child of node, from which we want node path.
      * @return the Node InstanceIdentifier
      */
-    public static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
-        return nodeChild.firstIdentifierOf(Node.class);
+    public static DataObjectIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
+        return nodeChild.trimTo(Node.class);
     }
 
     /**
@@ -64,9 +64,9 @@ public final class InstanceIdentifierUtils {
      * @param tableKey the table key
      * @return the table InstanceIdentifier
      */
-    public static InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath,
+    public static DataObjectIdentifier<Table> createTablePath(final DataObjectIdentifier<Node> nodePath,
             final TableKey tableKey) {
-        return nodePath.builder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
+        return nodePath.toBuilder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
     }
 
     /**
@@ -77,9 +77,9 @@ public final class InstanceIdentifierUtils {
      * @param flowKey the floe key
      * @return the flow InstanceIdentifier
      */
-    public static InstanceIdentifier<Flow> createFlowPath(final InstanceIdentifier<Table> table,
+    public static DataObjectIdentifier<Flow> createFlowPath(final DataObjectIdentifier<Table> table,
             final FlowKey flowKey) {
-        return table.child(Flow.class, flowKey);
+        return table.toBuilder().child(Flow.class, flowKey).build();
     }
 
     /**
@@ -88,47 +88,53 @@ public final class InstanceIdentifierUtils {
      * @param tablePath the table path
      * @return the table id
      */
-    public static Uint8 getTableId(final InstanceIdentifier<Table> tablePath) {
-        return tablePath.firstKeyOf(Table.class).getId();
+    public static Uint8 getTableId(final DataObjectIdentifier<Table> tablePath) {
+        return tablePath.getFirstKeyOf(Table.class).getId();
     }
 
     /**
      * Extracts NodeConnectorKey from node connector path.
      */
-    public static NodeConnectorKey getNodeConnectorKey(final InstanceIdentifier<?> nodeConnectorPath) {
+    public static NodeConnectorKey getNodeConnectorKey(final DataObjectIdentifier<?> nodeConnectorPath) {
         return nodeConnectorPath.firstKeyOf(NodeConnector.class);
     }
 
     /**
      * Extracts NodeKey from node path.
      */
-    public static NodeKey getNodeKey(final InstanceIdentifier<?> nodePath) {
+    public static NodeKey getNodeKey(final DataObjectIdentifier<?> nodePath) {
         return nodePath.firstKeyOf(Node.class);
     }
 
-    public static InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
+    public static WithKey<NodeConnector, NodeConnectorKey> createNodeConnectorIdentifier(final String nodeIdValue,
             final String nodeConnectorIdValue) {
-        return createNodePath(new NodeId(nodeIdValue)).child(NodeConnector.class,
-                new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)));
+        return createNodePath(new NodeId(nodeIdValue)).toBuilder()
+            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)))
+            .build();
     }
 
-    public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
-        return ((DataObjectIdentifier<?>)nodeConnectorRef.getValue()).toLegacy().firstIdentifierOf(Node.class);
+    public static DataObjectIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
+        return ((DataObjectIdentifier<?>)nodeConnectorRef.getValue()).trimTo(Node.class);
     }
 
-    public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
+    public static WithKey<Table, TableKey> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey) {
-        return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
-                .child(Table.class, flowTableKey).build();
+        return generateNodeInstanceIdentifier(nodeConnectorRef).toBuilder()
+            .augmentation(FlowCapableNode.class)
+            .child(Table.class, flowTableKey)
+            .build();
     }
 
-    public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
+    public static WithKey<Flow, FlowKey> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey, final FlowKey flowKey) {
-        return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
+        return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).toBuilder()
+            .child(Flow.class, flowKey)
+            .build();
     }
 
-    public static InstanceIdentifier<Topology> generateTopologyInstanceIdentifier(final String topologyId) {
-        return InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).build();
+    public static WithKey<Topology, TopologyKey> generateTopologyInstanceIdentifier(final String topologyId) {
+        return DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
+            .build();
     }
 }

@@ -75,7 +75,6 @@ public class TopologyLinkDataChangeHandlerTest {
                 any(DataTreeChangeListener.class));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataNoRefresh() throws Exception {
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
@@ -85,8 +84,8 @@ public class TopologyLinkDataChangeHandlerTest {
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock(DataTreeModification.class);
         DataObjectModification<Link> mockModification = Mockito.mock(DataObjectModification.class);
-        when(mockModification.getDataAfter()).thenReturn(hostLink);
-        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.dataAfter()).thenReturn(hostLink);
+        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -95,7 +94,6 @@ public class TopologyLinkDataChangeHandlerTest {
         verify(networkGraphService, times(0)).clear();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
@@ -115,7 +113,6 @@ public class TopologyLinkDataChangeHandlerTest {
         verify(networkGraphService, times(1)).clear();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataNoRefresh() throws Exception {
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
@@ -135,7 +132,6 @@ public class TopologyLinkDataChangeHandlerTest {
         verify(networkGraphService, times(0)).clear();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testOnDataChanged_RemovedDataRefresh() throws Exception {
         InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
@@ -176,7 +172,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
             .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
