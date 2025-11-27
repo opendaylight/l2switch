@@ -80,9 +80,8 @@ public class Host {
     }
 
     public synchronized Node getHostNode() {
-        Map<AttachmentPointsKey, AttachmentPoints> attachmentPointsMap =
-                new HashMap<AttachmentPointsKey, AttachmentPoints>();
-        for (AttachmentPointsBuilder apb : attachmentPointsBuilders) {
+        final var attachmentPointsMap = new HashMap<AttachmentPointsKey, AttachmentPoints>();
+        for (var apb : attachmentPointsBuilders) {
             AttachmentPoints builtAttachmentPoints = apb.build();
             attachmentPointsMap.put(builtAttachmentPoints.key(), builtAttachmentPoints);
         }
@@ -98,9 +97,8 @@ public class Host {
      *     each HostNodeBuilder's AttachmentPoints.
      */
     private static NodeBuilder createNodeBuilder(HostNodeBuilder hostNode, List<AttachmentPointsBuilder> apbs) {
-        Map<TerminationPointKey, TerminationPoint> tpsMap =
-                new HashMap<TerminationPointKey, TerminationPoint>();
-        for (AttachmentPointsBuilder apb : apbs) {
+        final var tpsMap = new HashMap<TerminationPointKey, TerminationPoint>();
+        for (var apb : apbs) {
             TerminationPoint tp = createTerminationPoint(hostNode);
             tpsMap.put(tp.key(), tp);
             apb.setCorrespondingTp(tp.getTpId());

@@ -36,7 +36,6 @@ import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.PropertyIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 /**
@@ -99,11 +98,11 @@ public class SimpleAddressObserver {
                 .build();
         }
 
-        InstanceIdentifier<?> ingress() {
+        DataObjectIdentifier<?> ingress() {
             final var id = raw.getRawPacketFields().getIngress().getValue();
             return switch (id) {
-                case DataObjectIdentifier<?> doi -> doi.toLegacy();
-                case PropertyIdentifier<?, ?> pi -> pi.container().toLegacy();
+                case DataObjectIdentifier<?> doi -> doi;
+                case PropertyIdentifier<?, ?> pi -> pi.container();
             };
         }
     }
