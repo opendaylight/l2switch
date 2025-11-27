@@ -26,7 +26,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.mdsal.binding.api.DataObjectWritten;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -89,9 +91,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(hostLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -108,9 +110,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(hostLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -127,9 +129,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectDeleted<Link> mockModification = Mockito.mock();
         when(mockModification.dataBefore()).thenReturn(hostLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.DELETE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.DELETE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -146,9 +148,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectDeleted<Link> mockModification = Mockito.mock();
         when(mockModification.dataBefore()).thenReturn(hostLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.DELETE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.DELETE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -166,9 +168,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -198,9 +200,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
@@ -271,9 +273,9 @@ public class TopologyLinkDataChangeHandlerTest {
             .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
-        DataObjectModification<Link> mockModification = Mockito.mock();
+        DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
