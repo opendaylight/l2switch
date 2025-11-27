@@ -5,21 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.hosttracker.plugin.internal;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.l2switch.hosttracker.plugin.inventory.Host;
 import org.opendaylight.l2switch.hosttracker.plugin.util.Utilities;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.host.tracker.rev140624.HostId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +32,7 @@ public class ConcurrentClusterAwareHostHashMap {
     /**
      * The instance identifiers for each host submitted to MD-SAL.
      */
-    private final ConcurrentHashMap<InstanceIdentifier<Node>, HostId> instanceIDs = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<DataObjectIdentifier<Node>, HostId> instanceIDs = new ConcurrentHashMap<>();
 
     /**
      * The local Hosts' HashMap.
@@ -57,7 +53,7 @@ public class ConcurrentClusterAwareHostHashMap {
      *            the InstanceIdentifier&lt;Node&gt; of the Host to remove.
      * @return the removed Host if exits, null if it doesn't exist.
      */
-    public synchronized Host removeLocally(InstanceIdentifier<Node> iiN) {
+    public synchronized Host removeLocally(DataObjectIdentifier<Node> iiN) {
         HostId hostId = this.instanceIDs.remove(iiN);
         if (hostId != null) {
             return this.hostHashMap.remove(hostId);
@@ -74,7 +70,7 @@ public class ConcurrentClusterAwareHostHashMap {
      * @return the removed Host if exits, null if it doesn't exist.
      */
     public synchronized Host removeLocally(HostId key) {
-        Iterator<Entry<InstanceIdentifier<Node>, HostId>> iterator = this.instanceIDs.entrySet().iterator();
+        final var iterator = this.instanceIDs.entrySet().iterator();
         while (iterator.hasNext()) {
             if (iterator.next().getValue().equals(key)) {
                 iterator.remove();
@@ -94,7 +90,7 @@ public class ConcurrentClusterAwareHostHashMap {
      *            the Host to store locally.
      * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for {@code key}
      */
-    public synchronized Host putLocally(InstanceIdentifier<Node> ii, Host value) {
+    public synchronized Host putLocally(DataObjectIdentifier<Node> ii, Host value) {
         Host host = value;
         LOG.trace("Putting locally {}", host.getId());
         this.instanceIDs.put(ii, host.getId());
@@ -108,7 +104,7 @@ public class ConcurrentClusterAwareHostHashMap {
      *            the hosts to remove.
      */
     public synchronized void removeAll(List<Host> hosts) {
-        for (final Map.Entry<InstanceIdentifier<Node>, HostId> e : this.instanceIDs.entrySet()) {
+        for (var e : this.instanceIDs.entrySet()) {
             for (Host h : hosts) {
                 if (e.getValue().equals(h.getId())) {
                     this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));
@@ -129,7 +125,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void submit(HostId hostid) {
         Host host = this.hostHashMap.get(hostid);
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
+        final var buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(
             tx -> tx.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode));
         putLocally(buildNodeIID, host);
@@ -147,7 +143,7 @@ public class ConcurrentClusterAwareHostHashMap {
     public synchronized void putAll(List<Host> hosts) {
         for (Host h : hosts) {
             final Node hostNode = h.getHostNode();
-            final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
+            final var buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(
                 tx -> tx.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode));
             putLocally(buildNodeIID, h);
@@ -167,7 +163,7 @@ public class ConcurrentClusterAwareHostHashMap {
      */
     public synchronized Host put(HostId hostId, Host host) {
         final Node hostNode = host.getHostNode();
-        final InstanceIdentifier<Node> buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
+        final var buildNodeIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
         this.opProcessor.enqueueOperation(
             tx -> tx.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, buildNodeIID, hostNode));
         LOG.trace("Putting MD-SAL {}", hostNode.getNodeId());
@@ -186,7 +182,7 @@ public class ConcurrentClusterAwareHostHashMap {
         Host removedValue = this.hostHashMap.remove(hostId);
         if (removedValue != null) {
             Node hostNode = removedValue.getHostNode();
-            final InstanceIdentifier<Node> hnIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
+            final var hnIID = Utilities.buildNodeIID(hostNode.key(), topologyId);
             this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, hnIID));
             this.instanceIDs.remove(hnIID);
         }
@@ -206,7 +202,7 @@ public class ConcurrentClusterAwareHostHashMap {
      * local HashMap will be empty after this call returns.
      */
     public synchronized void clear() {
-        for (final Map.Entry<? extends InstanceIdentifier<Node>, HostId> e : this.instanceIDs.entrySet()) {
+        for (var e : this.instanceIDs.entrySet()) {
             this.opProcessor.enqueueOperation(tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, e.getKey()));
         }
         this.hostHashMap.clear();
