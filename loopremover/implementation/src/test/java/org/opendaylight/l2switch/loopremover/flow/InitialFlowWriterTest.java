@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.mdsal.binding.api.DataObjectWritten;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -36,7 +37,7 @@ class InitialFlowWriterTest {
     @Mock
     private DataTreeModification<Node> mockChange;
     @Mock
-    private DataObjectModification<Node> mockModification;
+    private DataObjectWritten<Node> mockModification;
     private InitialFlowWriter initialFlowWriter;
 
     @BeforeEach
@@ -51,7 +52,7 @@ class InitialFlowWriterTest {
                 .build();
 
         when(mockModification.dataBefore()).thenReturn(null);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
                 instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
