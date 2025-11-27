@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.mdsal.binding.api.DataObjectWritten;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
@@ -35,7 +36,7 @@ class InitialFlowWriterTest {
     @Mock
     private DataTreeModification<Node> mockChange;
     @Mock
-    private DataObjectModification<Node> mockModification;
+    private DataObjectWritten<Node> mockModification;
 
     private InitialFlowWriter initialFlowWriter;
 
@@ -46,7 +47,7 @@ class InitialFlowWriterTest {
 
     @Test
     void onDataChange_Valid() throws Exception {
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.path()).thenReturn(
             DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build());
         when(mockChange.getRootNode()).thenReturn(mockModification);
