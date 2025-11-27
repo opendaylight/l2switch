@@ -89,27 +89,27 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private final AtomicLong flowIdInc = new AtomicLong();
     private final AtomicLong flowCookieInc = new AtomicLong(0x2b00000000000000L);
 
-    public InitialFlowWriter(AddFlow addFlow) {
+    public InitialFlowWriter(final AddFlow addFlow) {
         this.addFlow = requireNonNull(addFlow);
     }
 
-    public void setFlowTableId(Uint8 flowTableId) {
+    public void setFlowTableId(final Uint8 flowTableId) {
         this.flowTableId = requireNonNull(flowTableId);
     }
 
-    public void setFlowPriority(Uint16 flowPriority) {
+    public void setFlowPriority(final Uint16 flowPriority) {
         this.flowPriority = requireNonNull(flowPriority);
     }
 
-    public void setFlowIdleTimeout(Uint16 flowIdleTimeout) {
+    public void setFlowIdleTimeout(final Uint16 flowIdleTimeout) {
         this.flowIdleTimeout = requireNonNull(flowIdleTimeout);
     }
 
-    public void setFlowHardTimeout(Uint16 flowHardTimeout) {
+    public void setFlowHardTimeout(final Uint16 flowHardTimeout) {
         this.flowHardTimeout = requireNonNull(flowHardTimeout);
     }
 
-    public Registration registerAsDataChangeListener(DataBroker dataBroker) {
+    public Registration registerAsDataChangeListener(final DataBroker dataBroker) {
         InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class).build();
 
@@ -118,14 +118,14 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     @Override
-    public void onDataTreeChanged(List<DataTreeModification<Node>> changes) {
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
         Set<InstanceIdentifier<?>> nodeIds = new HashSet<>();
         for (DataTreeModification<Node> change: changes) {
             DataObjectModification<Node> rootNode = change.getRootNode();
             final InstanceIdentifier<Node> identifier = change.getRootPath().getRootIdentifier();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case WRITE:
-                    if (rootNode.getDataBefore() == null) {
+                    if (rootNode.dataBefore() == null) {
                         nodeIds.add(identifier);
                     }
                     break;
@@ -146,7 +146,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     private class InitialFlowWriterProcessor implements Runnable {
         private final Set<InstanceIdentifier<?>> nodeIds;
 
-        InitialFlowWriterProcessor(Set<InstanceIdentifier<?>> nodeIds) {
+        InitialFlowWriterProcessor(final Set<InstanceIdentifier<?>> nodeIds) {
             this.nodeIds = nodeIds;
         }
 
@@ -172,7 +172,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
          * Adds a flow, which sends all LLDP packets to the controller, to the specified node.
          * @param nodeId The node to write the flow on.
          */
-        public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
+        public void addInitialFlows(final InstanceIdentifier<Node> nodeId) {
             LOG.debug("adding initial flows for node {} ", nodeId);
 
             InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
@@ -184,7 +184,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             LOG.debug("Added initial flows for node {} ", nodeId);
         }
 
-        private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
+        private InstanceIdentifier<Table> getTableInstanceId(final InstanceIdentifier<Node> nodeId) {
             // get flow table key
             TableKey flowTableKey = new TableKey(flowTableId);
             return nodeId.builder()
@@ -193,14 +193,14 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
         }
 
-        private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
+        private InstanceIdentifier<Flow> getFlowInstanceId(final InstanceIdentifier<Table> tableId) {
             // generate unique flow key
             FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
             FlowKey flowKey = new FlowKey(flowId);
             return tableId.child(Flow.class, flowKey);
         }
 
-        private Flow createLldpToControllerFlow(Uint8 tableId, Uint16 priority) {
+        private Flow createLldpToControllerFlow(final Uint8 tableId, final Uint16 priority) {
 
             // start building flow
             FlowBuilder lldpFlow = new FlowBuilder()
@@ -259,10 +259,10 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
                     .build();
         }
 
-        private Future<RpcResult<AddFlowOutput>> writeFlowToController(InstanceIdentifier<Node> nodeInstanceId,
-                                                                       InstanceIdentifier<Table> tableInstanceId,
-                                                                       InstanceIdentifier<Flow> flowPath,
-                                                                       Flow flow) {
+        private Future<RpcResult<AddFlowOutput>> writeFlowToController(final InstanceIdentifier<Node> nodeInstanceId,
+                                                                       final InstanceIdentifier<Table> tableInstanceId,
+                                                                       final InstanceIdentifier<Flow> flowPath,
+                                                                       final Flow flow) {
             LOG.trace("Adding flow to node {}",
                     requireNonNull(nodeInstanceId.firstKeyOf(Node.class)).getId().getValue());
             return addFlow.invoke(new AddFlowInputBuilder(flow)

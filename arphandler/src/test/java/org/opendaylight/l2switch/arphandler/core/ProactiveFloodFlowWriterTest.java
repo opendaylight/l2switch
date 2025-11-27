@@ -95,7 +95,7 @@ public class ProactiveFloodFlowWriterTest {
 
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()

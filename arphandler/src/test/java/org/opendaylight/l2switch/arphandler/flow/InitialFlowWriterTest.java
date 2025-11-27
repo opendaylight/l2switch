@@ -48,8 +48,8 @@ public class InitialFlowWriterTest {
 
     @Test
     public void onDataChange_Valid() throws Exception {
-        when(mockModification.getDataAfter()).thenReturn(new NodeBuilder().setId(new NodeId("openflow:1")).build());
-        when(mockModification.getModificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.dataAfter()).thenReturn(new NodeBuilder().setId(new NodeId("openflow:1")).build());
+        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
         when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build()));
         when(mockChange.getRootNode()).thenReturn(mockModification);
