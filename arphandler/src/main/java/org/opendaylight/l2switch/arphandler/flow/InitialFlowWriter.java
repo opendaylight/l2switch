@@ -117,7 +117,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     public Registration registerAsDataChangeListener(DataBroker dataBroker) {
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+        return dataBroker.registerLegacyTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
             InstanceIdentifier.builder(Nodes.class).child(Node.class).build()), this);
     }
 

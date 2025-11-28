@@ -61,7 +61,7 @@ public class InventoryReader {
 
         final FluentFuture<Optional<Node>> readFuture;
         try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
-            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId);
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId.toIdentifier());
         }
 
         final Optional<Node> dataObjectOptional;

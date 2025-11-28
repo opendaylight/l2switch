@@ -36,9 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -90,7 +90,7 @@ public class ProactiveFloodFlowWriterTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(), any(DataTreeChangeListener.class));
+        verify(dataBroker, times(1)).registerLegacyTreeChangeListener(any(), any(DataTreeChangeListener.class));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ProactiveFloodFlowWriterTest {
                 .build()))
             .build();
 
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(FluentFutures.immediateFluentFuture(Optional.of(nodes)));
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 

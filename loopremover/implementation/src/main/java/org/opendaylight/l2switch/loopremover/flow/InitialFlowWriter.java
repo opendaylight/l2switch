@@ -113,7 +113,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class).build();
 
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+        return dataBroker.registerLegacyTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 nodeInstanceIdentifier), this);
     }
 

@@ -71,7 +71,7 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         topologyLinkDataChangeHandler.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(DataTreeIdentifier.class),
+        verify(dataBroker, times(1)).registerLegacyTreeChangeListener(any(DataTreeIdentifier.class),
                 any(DataTreeChangeListener.class));
     }
 
@@ -171,7 +171,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
             .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
@@ -207,7 +207,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
@@ -280,7 +280,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 

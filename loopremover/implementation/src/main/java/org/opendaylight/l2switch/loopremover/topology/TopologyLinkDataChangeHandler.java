@@ -102,7 +102,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     public Registration registerAsDataChangeListener() {
         InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).build();
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+        return dataBroker.registerLegacyTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
             linkInstance), this);
     }
 
@@ -195,7 +195,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
             final FluentFuture<Optional<Topology>> readFuture;
             try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
-                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, topologyInstanceIdentifier);
+                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                    topologyInstanceIdentifier.toIdentifier());
             }
 
             final Optional<Topology> topologyOptional;
