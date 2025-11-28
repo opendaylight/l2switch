@@ -144,7 +144,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         if (!networkGraphRefreshScheduled) {
             synchronized (this) {
                 if (!networkGraphRefreshScheduled) {
-                    topologyDataChangeEventProcessor.schedule(new TopologyDataChangeEventProcessor(), graphRefreshDelay,
+                    topologyDataChangeEventProcessor.schedule(this::processTopologyDataChangeEvents, graphRefreshDelay,
                             TimeUnit.MILLISECONDS);
                     networkGraphRefreshScheduled = true;
                     LOG.debug("Scheduled Graph for refresh.");
@@ -156,172 +156,161 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
     }
 
-    private final class TopologyDataChangeEventProcessor implements Runnable {
-
-        @Override
-        public void run() {
-            if (threadReschedule) {
-                topologyDataChangeEventProcessor.schedule(this, graphRefreshDelay, TimeUnit.MILLISECONDS);
-                threadReschedule = false;
-                return;
-            }
-            LOG.debug("In network graph refresh thread.");
-            networkGraphRefreshScheduled = false;
-            networkGraphService.clear();
-            List<Link> links = getLinksFromTopology();
-            if (links == null || links.isEmpty()) {
-                return;
-            }
-            networkGraphService.addLinks(links);
-            final ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
-            updateNodeConnectorStatus(readWriteTransaction);
-            Futures.addCallback(readWriteTransaction.commit(), new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.debug("TopologyLinkDataChangeHandler write successful for tx :{}",
-                            readWriteTransaction.getIdentifier());
-                }
-
-                @Override
-                public void onFailure(final Throwable throwable) {
-                    LOG.error("TopologyLinkDataChangeHandler write transaction {} failed",
-                            readWriteTransaction.getIdentifier(), throwable.getCause());
-                }
-            }, MoreExecutors.directExecutor());
-            LOG.debug("Done with network graph refresh thread.");
+    private void processTopologyDataChangeEvents() {
+        if (threadReschedule) {
+            topologyDataChangeEventProcessor.schedule(this::processTopologyDataChangeEvents, graphRefreshDelay,
+                TimeUnit.MILLISECONDS);
+            threadReschedule = false;
+            return;
         }
 
-        private List<Link> getLinksFromTopology() {
-            final InstanceIdentifier<Topology> topologyInstanceIdentifier =
-                InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
-            final FluentFuture<Optional<Topology>> readFuture;
-            try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
-                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                    topologyInstanceIdentifier.toIdentifier());
+        LOG.debug("In network graph refresh thread.");
+        networkGraphRefreshScheduled = false;
+        networkGraphService.clear();
+        List<Link> links = getLinksFromTopology();
+        if (links == null || links.isEmpty()) {
+            return;
+        }
+        networkGraphService.addLinks(links);
+        final ReadWriteTransaction readWriteTransaction = dataBroker.newReadWriteTransaction();
+        updateNodeConnectorStatus(readWriteTransaction);
+        Futures.addCallback(readWriteTransaction.commit(), new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.debug("TopologyLinkDataChangeHandler write successful for tx :{}",
+                    readWriteTransaction.getIdentifier());
             }
 
-            final Optional<Topology> topologyOptional;
-            try {
-                topologyOptional = readFuture.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error reading topology {}", topologyInstanceIdentifier);
-                throw new RuntimeException(
-                    "Error reading from operational store, topology : " + topologyInstanceIdentifier, e);
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("TopologyLinkDataChangeHandler write transaction {} failed",
+                    readWriteTransaction.getIdentifier(), throwable.getCause());
             }
+        }, MoreExecutors.directExecutor());
+        LOG.debug("Done with network graph refresh thread.");
+    }
 
-            if (topologyOptional.isEmpty()) {
-                return null;
-            }
-            final Topology topology = topologyOptional.orElseThrow();
-            final Map<LinkKey, Link> links = topology.getLink();
-            if (links == null || links.isEmpty()) {
-                return null;
-            }
-
-            List<Link> internalLinks = new ArrayList<>();
-            for (Link link : links.values()) {
-                if (!link.getLinkId().getValue().contains("host")) {
-                    internalLinks.add(link);
-                }
-            }
-            return internalLinks;
+    private List<Link> getLinksFromTopology() {
+        final InstanceIdentifier<Topology> topologyInstanceIdentifier =
+            InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
+        final FluentFuture<Optional<Topology>> readFuture;
+        try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                topologyInstanceIdentifier.toIdentifier());
         }
 
-        private void updateNodeConnectorStatus(final ReadWriteTransaction readWriteTransaction) {
-            List<Link> allLinks = networkGraphService.getAllLinks();
-            if (allLinks == null || allLinks.isEmpty()) {
-                return;
-            }
-
-            List<Link> mstLinks = networkGraphService.getLinksInMst();
-            for (Link link : allLinks) {
-                if (mstLinks != null && !mstLinks.isEmpty() && mstLinks.contains(link)) {
-                    updateNodeConnector(readWriteTransaction, getSourceNodeConnectorRef(link), StpStatus.Forwarding);
-                    updateNodeConnector(readWriteTransaction, getDestNodeConnectorRef(link), StpStatus.Forwarding);
-                } else {
-                    updateNodeConnector(readWriteTransaction, getSourceNodeConnectorRef(link), StpStatus.Discarding);
-                    updateNodeConnector(readWriteTransaction, getDestNodeConnectorRef(link), StpStatus.Discarding);
-                }
-            }
+        final Optional<Topology> topologyOptional;
+        try {
+            topologyOptional = readFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading topology {}", topologyInstanceIdentifier);
+            throw new RuntimeException(
+                "Error reading from operational store, topology : " + topologyInstanceIdentifier, e);
         }
 
-        private NodeConnectorRef getSourceNodeConnectorRef(final Link link) {
-            InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-                    .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
-                            link.getSource().getSourceTp().getValue());
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+        if (topologyOptional.isEmpty()) {
+            return null;
+        }
+        final Topology topology = topologyOptional.orElseThrow();
+        final Map<LinkKey, Link> links = topology.getLink();
+        if (links == null || links.isEmpty()) {
+            return null;
         }
 
-        private NodeConnectorRef getDestNodeConnectorRef(final Link link) {
-            InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-                    .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
-                            link.getDestination().getDestTp().getValue());
+        List<Link> internalLinks = new ArrayList<>();
+        for (Link link : links.values()) {
+            if (!link.getLinkId().getValue().contains("host")) {
+                internalLinks.add(link);
+            }
+        }
+        return internalLinks;
+    }
 
-            return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+    private void updateNodeConnectorStatus(final ReadWriteTransaction readWriteTransaction) {
+        List<Link> allLinks = networkGraphService.getAllLinks();
+        if (allLinks == null || allLinks.isEmpty()) {
+            return;
         }
 
-        private void updateNodeConnector(final ReadWriteTransaction readWriteTransaction,
-                final NodeConnectorRef nodeConnectorRef, final StpStatus stpStatus) {
-            StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder =
-                    new StpStatusAwareNodeConnectorBuilder().setStatus(stpStatus);
-            checkIfExistAndUpdateNodeConnector(readWriteTransaction, nodeConnectorRef,
-                    stpStatusAwareNodeConnectorBuilder.build());
+        List<Link> mstLinks = networkGraphService.getLinksInMst();
+        for (Link link : allLinks) {
+            if (mstLinks != null && !mstLinks.isEmpty() && mstLinks.contains(link)) {
+                updateNodeConnector(readWriteTransaction, getSourceNodeConnectorRef(link), StpStatus.Forwarding);
+                updateNodeConnector(readWriteTransaction, getDestNodeConnectorRef(link), StpStatus.Forwarding);
+            } else {
+                updateNodeConnector(readWriteTransaction, getSourceNodeConnectorRef(link), StpStatus.Discarding);
+                updateNodeConnector(readWriteTransaction, getDestNodeConnectorRef(link), StpStatus.Discarding);
+            }
+        }
+    }
+
+    private static NodeConnectorRef getSourceNodeConnectorRef(final Link link) {
+        InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
+            .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
+                link.getSource().getSourceTp().getValue());
+        return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+    }
+
+    private static NodeConnectorRef getDestNodeConnectorRef(final Link link) {
+        InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
+            .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
+                link.getDestination().getDestTp().getValue());
+
+        return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+    }
+
+    private static void updateNodeConnector(final ReadWriteTransaction readWriteTransaction,
+        final NodeConnectorRef nodeConnectorRef, final StpStatus stpStatus) {
+        StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder =
+            new StpStatusAwareNodeConnectorBuilder().setStatus(stpStatus);
+        checkIfExistAndUpdateNodeConnector(readWriteTransaction, nodeConnectorRef,
+            stpStatusAwareNodeConnectorBuilder.build());
+    }
+
+    private static void checkIfExistAndUpdateNodeConnector(final ReadWriteTransaction readWriteTransaction,
+        final NodeConnectorRef nodeConnectorRef,
+        final StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
+        final Optional<NodeConnector> dataObjectOptional;
+        try {
+            dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                (DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
+            readWriteTransaction.commit();
+            throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
+                e);
         }
 
-        private void checkIfExistAndUpdateNodeConnector(final ReadWriteTransaction readWriteTransaction,
-                final NodeConnectorRef nodeConnectorRef,
-                final StpStatusAwareNodeConnector stpStatusAwareNodeConnector) {
-            final Optional<NodeConnector> dataObjectOptional;
-            try {
-                dataObjectOptional = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                        (DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue()).get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error reading node connector {}", nodeConnectorRef.getValue());
-                readWriteTransaction.commit();
-                throw new RuntimeException("Error reading from operational store, node connector : " + nodeConnectorRef,
-                    e);
-            }
-
-            if (dataObjectOptional.isEmpty()) {
-                LOG.error("Unable to update Stp Status node connector {} note present in  operational store",
-                    nodeConnectorRef.getValue());
-                return;
-            }
-
-            final NodeConnector nc = dataObjectOptional.orElseThrow();
-            if (sameStatusPresent(nc.augmentation(StpStatusAwareNodeConnector.class),
-                stpStatusAwareNodeConnector.getStatus())) {
-                return;
-            }
-
-            // build instance id for StpStatusAwareNodeConnector
-            final var stpStatusAwareNcInstanceId = ((DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue())
-                .toBuilder()
-                .augmentation(StpStatusAwareNodeConnector.class)
-                .build();
-            // update StpStatusAwareNodeConnector in operational store
-            readWriteTransaction.merge(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNcInstanceId,
-                stpStatusAwareNodeConnector);
-            LOG.debug("Merged Stp Status aware node connector in operational {} with status {}",
-                stpStatusAwareNcInstanceId, stpStatusAwareNodeConnector);
+        if (dataObjectOptional.isEmpty()) {
+            LOG.error("Unable to update Stp Status node connector {} note present in  operational store",
+                nodeConnectorRef.getValue());
+            return;
         }
 
-        private boolean sameStatusPresent(final StpStatusAwareNodeConnector stpStatusAwareNodeConnector,
-                final StpStatus stpStatus) {
-
-            if (stpStatusAwareNodeConnector == null) {
-                return false;
-            }
-
-            if (stpStatusAwareNodeConnector.getStatus() == null) {
-                return false;
-            }
-
-            if (stpStatus.getIntValue() != stpStatusAwareNodeConnector.getStatus().getIntValue()) {
-                return false;
-            }
-
-            return true;
+        final NodeConnector nc = dataObjectOptional.orElseThrow();
+        if (sameStatusPresent(nc.augmentation(StpStatusAwareNodeConnector.class),
+            stpStatusAwareNodeConnector.getStatus())) {
+            return;
         }
+
+        // build instance id for StpStatusAwareNodeConnector
+        final var stpStatusAwareNcInstanceId = ((DataObjectIdentifier<NodeConnector>) nodeConnectorRef.getValue())
+            .toBuilder()
+            .augmentation(StpStatusAwareNodeConnector.class)
+            .build();
+        // update StpStatusAwareNodeConnector in operational store
+        readWriteTransaction.merge(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNcInstanceId,
+            stpStatusAwareNodeConnector);
+        LOG.debug("Merged Stp Status aware node connector in operational {} with status {}",
+            stpStatusAwareNcInstanceId, stpStatusAwareNodeConnector);
+    }
+
+    private static boolean sameStatusPresent(final StpStatusAwareNodeConnector stpStatusAwareNodeConnector,
+            final StpStatus stpStatus) {
+        if (stpStatusAwareNodeConnector == null) {
+            return false;
+        }
+        final var status = stpStatusAwareNodeConnector.getStatus();
+        return status != null && status.getIntValue() == stpStatus.getIntValue();
     }
 }
