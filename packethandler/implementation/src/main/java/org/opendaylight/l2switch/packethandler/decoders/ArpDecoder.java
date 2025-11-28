@@ -73,15 +73,17 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
                     KnownOperation.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 48, 16))));
 
             // Decode the address fields
-            int indexSrcProtAdd = 64 + 8 * builder.getHardwareLength().toJava();
-            int indexDstHardAdd = indexSrcProtAdd + 8 * builder.getProtocolLength().toJava();
-            int indexDstProtAdd = indexDstHardAdd + 8 * builder.getHardwareLength().toJava();
+            final var hardwareLength = builder.getHardwareLength().toJava();
+            final var protocolLength = builder.getProtocolLength().toJava();
+
+            int indexSrcProtAdd = 64 + 8 * hardwareLength;
+            int indexDstHardAdd = indexSrcProtAdd + 8 * protocolLength;
+            int indexDstProtAdd = indexDstHardAdd + 8 * hardwareLength;
             if (builder.getHardwareType().equals(KnownHardwareType.Ethernet)) {
                 builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(
-                    BitBufferHelper.getBits(data, bitOffset + 64, 8 * builder.getHardwareLength().toJava())));
+                    BitBufferHelper.getBits(data, bitOffset + 64, 8 * hardwareLength)));
                 builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(
-                    BitBufferHelper.getBits(data, bitOffset + indexDstHardAdd,
-                        8 * builder.getHardwareLength().toJava())));
+                    BitBufferHelper.getBits(data, bitOffset + indexDstHardAdd, 8 * hardwareLength)));
             } else {
                 LOG.debug("Unknown HardwareType -- source and destination  HardwareAddress are not decoded");
             }
@@ -89,11 +91,10 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
             if (builder.getProtocolType().equals(KnownEtherType.Ipv4)
                     || builder.getProtocolType().equals(KnownEtherType.Ipv6)) {
                 builder.setSourceProtocolAddress(InetAddress.getByAddress(
-                    BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * builder.getProtocolLength().toJava()))
+                    BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * protocolLength))
                     .getHostAddress());
                 builder.setDestinationProtocolAddress(InetAddress.getByAddress(
-                    BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd,
-                        8 * builder.getProtocolLength().toJava())).getHostAddress());
+                    BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd, 8 * protocolLength)).getHostAddress());
             } else {
                 LOG.debug("Unknown ProtocolType -- source and destination ProtocolAddress are not decoded");
             }
