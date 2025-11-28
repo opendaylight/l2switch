@@ -7,9 +7,9 @@
  */
 package org.opendaylight.l2switch.arphandler.inventory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,11 +17,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -45,8 +45,8 @@ import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class InventoryReaderTest {
+@ExtendWith(MockitoExtension.class)
+class InventoryReaderTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
@@ -58,23 +58,23 @@ public class InventoryReaderTest {
 
     private InventoryReader inventoryReader;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void beforeEach() {
         inventoryReader = new InventoryReader(dataBroker);
     }
 
     @Test
-    public void testGetControllerSwitchConnectors() throws Exception {
+    void testGetControllerSwitchConnectors() throws Exception {
         assertEquals(Map.of(), inventoryReader.getControllerSwitchConnectors());
     }
 
     @Test
-    public void testGetSwitchNodeConnectors() throws Exception {
+    void testGetSwitchNodeConnectors() throws Exception {
         assertEquals(Map.of(), inventoryReader.getSwitchNodeConnectors());
     }
 
     @Test
-    public void testGetNodeConnector() throws Exception {
+    void testGetNodeConnector() throws Exception {
         Node node = new NodeBuilder()
             .setId(new NodeId("nodeId"))
             .setNodeConnector(BindingMap.of(new NodeConnectorBuilder()
@@ -101,26 +101,26 @@ public class InventoryReaderTest {
     }
 
     @Test
-    public void testGetNodeConnector_NullNodeInsId() throws Exception {
+    void testGetNodeConnector_NullNodeInsId() throws Exception {
         assertNull(inventoryReader.getNodeConnector(null, mockMacAddress));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    public void testGetNodeConnector_NullMacAddress() throws Exception {
+    void testGetNodeConnector_NullMacAddress() throws Exception {
         assertNull(inventoryReader.getNodeConnector(mockInstanceIdentifier, null));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    public void testReadInventory_NoRefresh() throws Exception {
+    void testReadInventory_NoRefresh() throws Exception {
         inventoryReader.setRefreshData(false);
         inventoryReader.readInventory();
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    public void testReadInventory_Refresh() throws Exception {
+    void testReadInventory_Refresh() throws Exception {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 
