@@ -8,13 +8,15 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -28,17 +30,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4PacketBuilder;
 
-public class AddressObserverUsingIpv4Test {
-
+@ExtendWith(MockitoExtension.class)
+class AddressObserverUsingIpv4Test {
+    @Mock
     private AddressObservationWriter addressObservationWriterMock;
 
-    @Before
-    public void init() {
-        addressObservationWriterMock = mock(AddressObservationWriter.class);
+    private AddressObserverUsingIpv4 addressObserverIpv4;
+
+    @BeforeEach
+    void beforeEach() {
+        addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
     }
 
     @Test
-    public void onIpv4PacketReceivedTest() throws Exception {
+    void onIpv4PacketReceivedTest() throws Exception {
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder()
                 .setPacket(new RawPacketBuilder().setRawPacketFields(new RawPacketFieldsBuilder().build()).build())
@@ -50,25 +55,21 @@ public class AddressObserverUsingIpv4Test {
                 .setPacket(new Ipv4PacketBuilder().setSourceIpv4(new Ipv4Address("1.2.3.4")).build()).build());
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
-        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
         addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test
-    public void onIpv4PacketReceivedNullInputTest1() throws Exception {
-
-        Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(null).build();
-        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
-        addressObserverIpv4.onNotification(ipv4PktReceived);
+    void onIpv4PacketReceivedNullInputTest1() throws Exception {
+        addressObserverIpv4.onNotification(new Ipv4PacketReceivedBuilder().setPacketChain(null).build());
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
     }
 
     @Test
-    public void onIpv4PacketReceivedNullInputTest2() throws Exception {
+    void onIpv4PacketReceivedNullInputTest2() throws Exception {
 
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
@@ -77,7 +78,6 @@ public class AddressObserverUsingIpv4Test {
                 .build());
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
-        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
         addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
@@ -85,7 +85,7 @@ public class AddressObserverUsingIpv4Test {
     }
 
     @Test
-    public void onIpv4PacketReceivedNullInputTest3() throws Exception {
+    void onIpv4PacketReceivedNullInputTest3() throws Exception {
 
         ArrayList<PacketChain> packetChainList = new ArrayList<>();
         packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
@@ -96,7 +96,6 @@ public class AddressObserverUsingIpv4Test {
                 .setPacket(new Ipv4PacketBuilder().setSourceIpv4(new Ipv4Address("0.0.0.0")).build()).build());
 
         Ipv4PacketReceived ipv4PktReceived = new Ipv4PacketReceivedBuilder().setPacketChain(packetChainList).build();
-        AddressObserverUsingIpv4 addressObserverIpv4 = new AddressObserverUsingIpv4(addressObservationWriterMock);
         addressObserverIpv4.onNotification(ipv4PktReceived);
 
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
