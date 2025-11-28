@@ -9,10 +9,10 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HexFormat;
 import java.util.List;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
 import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, ArpPacketReceived>
         implements Listener<EthernetPacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpDecoder.class);
+    private static final HexFormat HWADDRESS_FORMAT = HexFormat.ofDelimiter(":");
 
     public ArpDecoder(NotificationPublishService notificationProviderService, NotificationService notificationService) {
         super(ArpPacketReceived.class, notificationProviderService, notificationService);
@@ -84,9 +85,9 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
 
             switch (hardwareType) {
                 case KnownHardwareType.Ethernet -> {
-                    builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(
+                    builder.setSourceHardwareAddress(HWADDRESS_FORMAT.formatHex(
                         BitBufferHelper.getBits(data, bitOffset + 64, 8 * hardwareLength)));
-                    builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(
+                    builder.setDestinationHardwareAddress(HWADDRESS_FORMAT.formatHex(
                         BitBufferHelper.getBits(data, bitOffset + indexDstHardAdd, 8 * hardwareLength)));
                 }
                 case null, default ->
