@@ -8,27 +8,29 @@
 package org.opendaylight.l2switch.flow;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
-public class InitialFlowWriterTest {
+@ExtendWith(MockitoExtension.class)
+class InitialFlowWriterTest {
     @Mock
     private AddFlow addFlow;
     @Mock
@@ -37,25 +39,21 @@ public class InitialFlowWriterTest {
     private DataObjectModification<Node> mockModification;
     private InitialFlowWriter initialFlowWriter;
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void beforeEach() {
         initialFlowWriter = new InitialFlowWriter(addFlow);
     }
 
     @Test
-    public void onDataChange_Valid() throws Exception {
+    void onDataChange_Valid() throws Exception {
         var instanceId = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .build();
-        Node topoNode = new NodeBuilder().setId(new NodeId("openflow:1")).build();
-        when(mockModification.dataAfter()).thenReturn(topoNode);
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
+        when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
         when(mockChange.path()).thenReturn(instanceId);
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         initialFlowWriter.onDataTreeChanged(List.of(mockChange));
-        Thread.sleep(250);
-        verify(addFlow, times(1)).invoke(any(AddFlowInput.class));
+        verify(addFlow, timeout(250)).invoke(any(AddFlowInput.class));
     }
 }
