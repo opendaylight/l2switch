@@ -178,7 +178,7 @@ public class TopologyLinkDataChangeHandlerTest {
         topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
         verify(dataBroker, times(0)).newReadWriteTransaction();
-        verify(networkGraphService, times(0)).addLinks(any(List.class));
+        verify(networkGraphService, times(0)).addLinks(anyList());
         verify(networkGraphService, times(0)).getAllLinks();
         verify(networkGraphService, times(0)).getLinksInMst();
     }
