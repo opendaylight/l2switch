@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.l2switch.inventory.InventoryReader;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -46,36 +47,30 @@ import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
+@ExtendWith(MockitoExtension.class)
 public class InventoryReaderTest {
-
     @Mock
     private DataBroker dataService;
     @Mock
     private ReadTransaction readOnlyTransaction;
-    private final Optional<Node> dataObjectOptional = Optional.empty();
-    @Mock
-    private Node node;
+    // @Mock
+    // private Node node;
 
     private InventoryReader inventoryReader;
     private InstanceIdentifier<Node> nodeInstanceIdentifier;
 
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void beforeEach() {
         inventoryReader = new InventoryReader(dataService);
     }
 
     @Test
-    public void getNodeConnectorTest() throws Exception {
-
+    void getNodeConnectorTest() throws Exception {
         nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
-                .thenReturn(FluentFutures.immediateFluentFuture(dataObjectOptional));
-        if (dataObjectOptional.isPresent()) {
-            node = dataObjectOptional.orElseThrow();
-        }
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.empty()));
 
         long now = new Date().getTime();
         IpAddress ipAddress1 = new IpAddress(Ipv4Address.getDefaultInstance("10.0.0.1"));
@@ -118,6 +113,7 @@ public class InventoryReaderTest {
         nodeConnectors.add(nc3);
         nodeConnectors.add(ncLocal);
 
+        // FIXME: re-activate this
         //when(node.getNodeConnector().values()).thenReturn(nodeConnectors);
 
         inventoryReader.getNodeConnector(nodeInstanceIdentifier, macAddress1);
