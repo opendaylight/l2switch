@@ -42,6 +42,7 @@ public final class InstanceIdentifierUtils {
      * @param nodeId the node id
      * @return the node InstanceIdentifier
      */
+    // FIXME: inline into sole caller
     public static InstanceIdentifier<Node> createNodePath(final NodeId nodeId) {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build();
     }
@@ -53,6 +54,7 @@ public final class InstanceIdentifierUtils {
      *            child of node, from which we want node path.
      * @return the Node InstanceIdentifier
      */
+    // FIXME: remove this method
     public static InstanceIdentifier<Node> getNodePath(final InstanceIdentifier<?> nodeChild) {
         return nodeChild.firstIdentifierOf(Node.class);
     }
@@ -64,6 +66,7 @@ public final class InstanceIdentifierUtils {
      * @param tableKey the table key
      * @return the table InstanceIdentifier
      */
+    // FIXME: remove this method
     public static InstanceIdentifier<Table> createTablePath(final InstanceIdentifier<Node> nodePath,
             final TableKey tableKey) {
         return nodePath.builder().augmentation(FlowCapableNode.class).child(Table.class, tableKey).build();
@@ -77,6 +80,7 @@ public final class InstanceIdentifierUtils {
      * @param flowKey the floe key
      * @return the flow InstanceIdentifier
      */
+    // FIXME: remove this method
     public static InstanceIdentifier<Flow> createFlowPath(final InstanceIdentifier<Table> table,
             final FlowKey flowKey) {
         return table.child(Flow.class, flowKey);
@@ -88,6 +92,7 @@ public final class InstanceIdentifierUtils {
      * @param tablePath the table path
      * @return the table id
      */
+    // FIXME: remove this method
     public static Uint8 getTableId(final InstanceIdentifier<Table> tablePath) {
         return tablePath.firstKeyOf(Table.class).getId();
     }
@@ -95,6 +100,7 @@ public final class InstanceIdentifierUtils {
     /**
      * Extracts NodeConnectorKey from node connector path.
      */
+    // FIXME: remove this method
     public static NodeConnectorKey getNodeConnectorKey(final InstanceIdentifier<?> nodeConnectorPath) {
         return nodeConnectorPath.firstKeyOf(NodeConnector.class);
     }
@@ -102,31 +108,37 @@ public final class InstanceIdentifierUtils {
     /**
      * Extracts NodeKey from node path.
      */
+    // FIXME: remove this method
     public static NodeKey getNodeKey(final InstanceIdentifier<?> nodePath) {
         return nodePath.firstKeyOf(Node.class);
     }
 
+    // FIXME: move to TopologyDataChangeEventProcessor
     public static InstanceIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
             final String nodeConnectorIdValue) {
         return createNodePath(new NodeId(nodeIdValue)).child(NodeConnector.class,
                 new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)));
     }
 
+    // FIXME: inline into sole caller
     public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
         return ((DataObjectIdentifier<?>)nodeConnectorRef.getValue()).toLegacy().firstIdentifierOf(Node.class);
     }
 
+    // FIXME: inline into sole caller
     public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey) {
         return generateNodeInstanceIdentifier(nodeConnectorRef).builder().augmentation(FlowCapableNode.class)
                 .child(Table.class, flowTableKey).build();
     }
 
+    // FIXME: remove this method
     public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
             final TableKey flowTableKey, final FlowKey flowKey) {
         return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
     }
 
+    // FIXME: move to TopologyDataChangeEventProcessor
     public static InstanceIdentifier<Topology> generateTopologyInstanceIdentifier(final String topologyId) {
         return InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).build();
