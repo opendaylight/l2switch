@@ -340,7 +340,7 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testCreateNodeConnectorIdentifier() {
-        assertEquals(InstanceIdentifier.builder(Nodes.class)
+        assertEquals(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class,
                 new NodeKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId("nodeId")))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("ncId")))
@@ -349,7 +349,7 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testGenerateTopologyInstanceIdentifier() {
-        assertEquals(InstanceIdentifier.builder(NetworkTopology.class)
+        assertEquals(DataObjectIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(new TopologyId("topo")))
             .build(), TopologyLinkDataChangeHandler.generateTopologyInstanceIdentifier("topo"));
     }

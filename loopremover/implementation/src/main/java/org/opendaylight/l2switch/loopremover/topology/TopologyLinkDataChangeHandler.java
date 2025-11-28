@@ -50,8 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,8 +199,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         final var topologyInstanceIdentifier = generateTopologyInstanceIdentifier(topologyId);
         final FluentFuture<Optional<Topology>> readFuture;
         try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
-            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                topologyInstanceIdentifier.toIdentifier());
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, topologyInstanceIdentifier);
         }
 
         final Optional<Topology> topologyOptional;
@@ -252,17 +249,14 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
 
     private static NodeConnectorRef getSourceNodeConnectorRef(final Link link) {
         final var source = link.getSource();
-        final var identifier = createNodeConnectorIdentifier(source.getSourceNode().getValue(),
-            source.getSourceTp().getValue());
-        return new NodeConnectorRef(identifier.toIdentifier());
+        return new NodeConnectorRef(createNodeConnectorIdentifier(source.getSourceNode().getValue(),
+            source.getSourceTp().getValue()));
     }
 
     private static NodeConnectorRef getDestNodeConnectorRef(final Link link) {
         final var dest = link.getDestination();
-        final var identifier = createNodeConnectorIdentifier(dest.getDestNode().getValue(),
-            dest.getDestTp().getValue());
-
-        return new NodeConnectorRef(identifier.toIdentifier());
+        return new NodeConnectorRef(createNodeConnectorIdentifier(dest.getDestNode().getValue(),
+            dest.getDestTp().getValue()));
     }
 
     private static void updateNodeConnector(final ReadWriteTransaction readWriteTransaction,
@@ -321,18 +315,17 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     }
 
     @VisibleForTesting
-    static KeyedInstanceIdentifier<NodeConnector, NodeConnectorKey> createNodeConnectorIdentifier(
-            final String nodeIdValue, final String nodeConnectorIdValue) {
-        return InstanceIdentifier.builder(Nodes.class)
+    static DataObjectIdentifier<NodeConnector> createNodeConnectorIdentifier(final String nodeIdValue,
+            final String nodeConnectorIdValue) {
+        return DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class, new NodeKey(new NodeId(nodeIdValue)))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)))
             .build();
     }
 
     @VisibleForTesting
-    static KeyedInstanceIdentifier<Topology, TopologyKey> generateTopologyInstanceIdentifier(
-            final String topologyId) {
-        return InstanceIdentifier.builder(NetworkTopology.class)
+    static DataObjectIdentifier<Topology> generateTopologyInstanceIdentifier(final String topologyId) {
+        return DataObjectIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
             .build();
     }
