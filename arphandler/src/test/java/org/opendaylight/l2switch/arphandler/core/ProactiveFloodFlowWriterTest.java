@@ -15,12 +15,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -42,7 +42,8 @@ import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class ProactiveFloodFlowWriterTest {
+@ExtendWith(MockitoExtension.class)
+class ProactiveFloodFlowWriterTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
@@ -51,53 +52,47 @@ public class ProactiveFloodFlowWriterTest {
     private ReadTransaction readOnlyTransaction;
     @Mock
     private DataTreeModification<StpStatusAwareNodeConnector> mockChange;
-    @Mock
-    private DataObjectModification<StpStatusAwareNodeConnector> mockModification;
 
     private ProactiveFloodFlowWriter proactiveFloodFlowWriter;
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void beforeEach() {
         proactiveFloodFlowWriter = new ProactiveFloodFlowWriter(dataBroker, addFlow);
     }
 
     @Test
-    public void testSetFlowInstallationDelay() throws Exception {
+    void testSetFlowInstallationDelay() throws Exception {
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
     }
 
     @Test
-    public void testSetFlowTableId() throws Exception {
+    void testSetFlowTableId() throws Exception {
         proactiveFloodFlowWriter.setFlowTableId(Uint8.ZERO);
     }
 
     @Test
-    public void testSetFlowPriority() throws Exception {
+    void testSetFlowPriority() throws Exception {
         proactiveFloodFlowWriter.setFlowPriority(Uint16.ZERO);
     }
 
     @Test
-    public void testSetFlowIdleTimeout() throws Exception {
+    void testSetFlowIdleTimeout() throws Exception {
         proactiveFloodFlowWriter.setFlowIdleTimeout(Uint16.ZERO);
     }
 
     @Test
-    public void testSetFlowHardTimeout() throws Exception {
+    void testSetFlowHardTimeout() throws Exception {
         proactiveFloodFlowWriter.setFlowHardTimeout(Uint16.ZERO);
     }
 
     @Test
-    public void testRegisterAsDataChangeListener() throws Exception {
+    void testRegisterAsDataChangeListener() throws Exception {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
         verify(dataBroker, times(1)).registerLegacyTreeChangeListener(any(), any(DataTreeChangeListener.class));
     }
 
     @Test
-    public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        when(mockModification.modificationType()).thenReturn(DataObjectModification.ModificationType.WRITE);
-        when(mockChange.getRootNode()).thenReturn(mockModification);
-
+    void testOnDataChanged_CreatedDataRefresh() throws Exception {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 
