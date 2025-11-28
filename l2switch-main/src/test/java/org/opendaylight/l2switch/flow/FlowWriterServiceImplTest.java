@@ -8,13 +8,13 @@
 package org.opendaylight.l2switch.flow;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInput;
@@ -28,21 +28,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
-public class FlowWriterServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+class FlowWriterServiceImplTest {
     @Mock
     private AddFlow addFlow;
+
     private FlowWriterServiceImpl flowWriterService;
     private DataObjectIdentifier<NodeConnector> nodeConnectorInstanceIdentifier;
     private NodeConnectorRef nodeConnectorRef;
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    void beforeEach() {
         flowWriterService = new FlowWriterServiceImpl(addFlow);
     }
 
     @Test
-    public void addMacToMacFlowTest() {
+    void addMacToMacFlowTest() {
         nodeConnectorInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id")))
                 .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("nodeconnector-id")))
@@ -53,6 +54,6 @@ public class FlowWriterServiceImplTest {
         MacAddress destMac = new MacAddress("00:00:ac:f0:02:02");
 
         flowWriterService.addMacToMacFlow(sourceMac, destMac, nodeConnectorRef);
-        verify(addFlow, times(1)).invoke(any(AddFlowInput.class));
+        verify(addFlow).invoke(any(AddFlowInput.class));
     }
 }
