@@ -7,10 +7,10 @@
  */
 package org.opendaylight.l2switch.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
@@ -28,12 +28,13 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class InstanceIdentifierUtilsTest {
+
+class InstanceIdentifierUtilsTest {
     private static final Uint8 NUM_ID_1 = Uint8.ONE;
     private static final String STR_ID_1 = "id1";
 
     @Test
-    public void testGenerateNodeInstanceIdentifier() throws Exception {
+    void testGenerateNodeInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class, new NodeKey(new NodeId("abc")))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
@@ -42,7 +43,7 @@ public class InstanceIdentifierUtilsTest {
     }
 
     @Test
-    public void testGenerateFlowTableInstanceIdentifier() throws Exception {
+    void testGenerateFlowTableInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class, new NodeKey(new NodeId("abc")))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
@@ -54,7 +55,7 @@ public class InstanceIdentifierUtilsTest {
     }
 
     @Test
-    public void testGenerateFlowInstanceIdentifier() throws Exception {
+    void testGenerateFlowInstanceIdentifier() throws Exception {
         NodeConnectorRef ncRef = new NodeConnectorRef(DataObjectIdentifier.builder(Nodes.class)
             .child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1)))
