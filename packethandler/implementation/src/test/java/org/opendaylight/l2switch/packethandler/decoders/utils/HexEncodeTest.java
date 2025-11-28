@@ -7,7 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -17,13 +16,5 @@ class HexEncodeTest {
     void testbytesToHexString() {
         assertEquals("01:02:03", HexEncode.bytesToHexStringFormat(new byte[] { 0x01, 0x02, 0x03 }));
         assertEquals("11:22:33", HexEncode.bytesToHexStringFormat(new byte[] { 0x11, 0x22, 0x33 }));
-    }
-
-    @Test
-    void testBytesFromHexString() {
-        assertArrayEquals(new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 },
-            HexEncode.bytesFromHexString("00:11:22:33:44:55"));
-        assertArrayEquals(new byte[] { 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 },
-            HexEncode.bytesFromHexString("55:44:33:22:11:00"));
     }
 }

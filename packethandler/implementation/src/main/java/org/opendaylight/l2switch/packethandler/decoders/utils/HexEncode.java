@@ -15,19 +15,6 @@ public final class HexEncode {
         // Hidden on purpose
     }
 
-    public static byte[] bytesFromHexString(String values) {
-        String target = "";
-        if (values != null) {
-            target = values;
-        }
-        String[] octets = target.split(":");
-
-        byte[] ret = new byte[octets.length];
-        for (int i = 0; i < octets.length; i++) {
-            ret[i] = Integer.valueOf(octets[i], 16).byteValue();
-        }
-        return ret;
-    }
 
     /**
      * This method converts byte array into HexString format with ":" inserted.
