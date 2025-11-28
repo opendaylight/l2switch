@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
@@ -59,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherTyp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -117,8 +117,8 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
     }
 
     public Registration registerAsDataChangeListener(DataBroker dataBroker) {
-        return dataBroker.registerLegacyTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-            InstanceIdentifier.builder(Nodes.class).child(Node.class).build()), this);
+        return dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectIdentifier.builder(Nodes.class).child(Node.class).build(), this);
     }
 
     @Override
