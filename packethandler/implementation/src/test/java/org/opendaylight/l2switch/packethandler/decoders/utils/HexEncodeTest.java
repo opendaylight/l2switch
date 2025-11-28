@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 class HexEncodeTest {
     @Test
     void testbytesToHexString() {
-        assertEquals("010203", HexEncode.bytesToHexString(new byte[] { 0x01, 0x02, 0x03 }));
-        assertEquals("112233", HexEncode.bytesToHexString(new byte[] { 0x11, 0x22, 0x33 }));
+        assertEquals("01:02:03", HexEncode.bytesToHexStringFormat(new byte[] { 0x01, 0x02, 0x03 }));
+        assertEquals("11:22:33", HexEncode.bytesToHexStringFormat(new byte[] { 0x11, 0x22, 0x33 }));
     }
 
     @Test
