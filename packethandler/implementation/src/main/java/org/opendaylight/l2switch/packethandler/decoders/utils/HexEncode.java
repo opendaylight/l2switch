@@ -15,26 +15,6 @@ public final class HexEncode {
         // Hidden on purpose
     }
 
-    public static String longToHexString(long val) {
-        char[] arr = Long.toHexString(val).toCharArray();
-        StringBuilder sb = new StringBuilder();
-        // prepend the right number of leading zeros
-        int index = 0;
-        for (; index < 16 - arr.length; index++) {
-            sb.append("0");
-            if ((index & 0x01) == 1) {
-                sb.append(":");
-            }
-        }
-        for (int j = 0; j < arr.length; j++) {
-            sb.append(arr[j]);
-            if ((index + j & 0x01) == 1 && j < arr.length - 1) {
-                sb.append(":");
-            }
-        }
-        return sb.toString();
-    }
-
     public static byte[] bytesFromHexString(String values) {
         String target = "";
         if (values != null) {

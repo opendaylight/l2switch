@@ -20,12 +20,6 @@ class HexEncodeTest {
     }
 
     @Test
-    void testLongToHexString() {
-        assertEquals("00:00:00:00:00:bc:61:4e", HexEncode.longToHexString(12345678L));
-        assertEquals("00:00:00:00:05:e3:0a:78", HexEncode.longToHexString(98765432L));
-    }
-
-    @Test
     void testBytesFromHexString() {
         assertArrayEquals(new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 },
             HexEncode.bytesFromHexString("00:11:22:33:44:55"));
