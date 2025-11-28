@@ -149,7 +149,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Registers as a data listener for Nodes.
      */
     public Registration registerAsDataChangeListener() {
-        return dataBroker.registerDataTreeChangeListener(
+        return dataBroker.registerLegacyTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
@@ -199,7 +199,7 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
             final FluentFuture<Optional<Nodes>> readFuture;
             try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
                 readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.create(Nodes.class));
+                    DataObjectIdentifier.builder(Nodes.class).build());
             }
 
             final Nodes nodes;

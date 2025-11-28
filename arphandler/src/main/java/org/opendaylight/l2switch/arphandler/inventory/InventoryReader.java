@@ -84,7 +84,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .build();
-        this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
+        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(
                          DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,nodeConnector),
                                                    (DataTreeChangeListener)this));
 
@@ -92,7 +92,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
                 .build();
-        this.listenerRegistrationList.add(dataService.registerDataTreeChangeListener(
+        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(
                  DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
                                            (DataTreeChangeListener)this));
     }
@@ -141,8 +141,8 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
             // Read Inventory
             Nodes nodes = null;
             try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
-                Optional<Nodes> dataObjectOptional = readOnlyTransaction
-                        .read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class)).get();
+                var dataObjectOptional = readOnlyTransaction
+                    .read(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(Nodes.class).build()).get();
                 if (dataObjectOptional.isPresent()) {
                     nodes = dataObjectOptional.orElseThrow();
                 }
@@ -212,7 +212,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
         final FluentFuture<Optional<Node>> readFuture;
         try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
-            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId);
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId.toIdentifier());
         }
 
         final Optional<Node> dataObjectOptional;

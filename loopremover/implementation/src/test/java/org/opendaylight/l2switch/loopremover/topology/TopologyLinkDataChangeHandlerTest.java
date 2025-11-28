@@ -9,6 +9,7 @@ package org.opendaylight.l2switch.loopremover.topology;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +26,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -71,8 +71,8 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testRegisterAsDataChangeListener() throws Exception {
         topologyLinkDataChangeHandler.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerDataTreeChangeListener(any(DataTreeIdentifier.class),
-                any(DataTreeChangeListener.class));
+        verify(dataBroker, times(1)).registerLegacyTreeChangeListener(eq(LogicalDatastoreType.OPERATIONAL), any(),
+                eq(topologyLinkDataChangeHandler));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
             .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
@@ -207,7 +207,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
@@ -280,7 +280,7 @@ public class TopologyLinkDataChangeHandlerTest {
         Optional<Topology> topologyOptional = Optional.of(topology);
         FluentFuture<Optional<Topology>> checkedFuture = FluentFutures.immediateFluentFuture(topologyOptional);
         ReadTransaction readOnlyTransaction = Mockito.mock(ReadTransaction.class);
-        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))
                 .thenReturn(checkedFuture);
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 

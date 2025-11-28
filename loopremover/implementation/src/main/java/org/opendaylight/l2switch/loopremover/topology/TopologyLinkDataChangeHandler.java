@@ -25,7 +25,6 @@ import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
@@ -43,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -100,10 +100,11 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
      * operation data root.
      */
     public Registration registerAsDataChangeListener() {
-        InstanceIdentifier<Link> linkInstance = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId))).child(Link.class).build();
-        return dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-            linkInstance), this);
+        return dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
+                .child(Link.class)
+                .build(), this);
     }
 
     /**
@@ -195,7 +196,8 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
                 InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
             final FluentFuture<Optional<Topology>> readFuture;
             try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
-                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, topologyInstanceIdentifier);
+                readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
+                    topologyInstanceIdentifier.toIdentifier());
             }
 
             final Optional<Topology> topologyOptional;
