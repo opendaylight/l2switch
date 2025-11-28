@@ -7,8 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
-import java.math.BigInteger;
-
 /**
  * The class provides methods to convert hex encode strings.
  */
@@ -49,10 +47,6 @@ public final class HexEncode {
             ret[i] = Integer.valueOf(octets[i], 16).byteValue();
         }
         return ret;
-    }
-
-    public static long stringToLong(String values) {
-        return new BigInteger(values.replaceAll(":", ""), 16).longValue();
     }
 
     /**
