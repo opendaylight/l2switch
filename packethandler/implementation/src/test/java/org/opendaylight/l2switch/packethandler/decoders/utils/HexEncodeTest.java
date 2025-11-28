@@ -7,57 +7,29 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HexEncodeTest {
+import org.junit.jupiter.api.Test;
+
+class HexEncodeTest {
     @Test
-    public void testbytesToHexString() {
-        byte[] bytes1 = { (byte) 0x01, (byte) 0x02, (byte) 0x03 };
-        String str1 = HexEncode.bytesToHexString(bytes1);
-        Assert.assertTrue(str1.equals("010203"));
-
-        byte[] bytes2 = { (byte) 0x11, (byte) 0x22, (byte) 0x33 };
-        String str2 = HexEncode.bytesToHexString(bytes2);
-        Assert.assertFalse(str2.equals("010203"));
-
+    void testbytesToHexString() {
+        assertEquals("010203", HexEncode.bytesToHexString(new byte[] { 0x01, 0x02, 0x03 }));
+        assertEquals("112233", HexEncode.bytesToHexString(new byte[] { 0x11, 0x22, 0x33 }));
     }
 
     @Test
-    public void testLongToHexString() {
-        long value1 = 12345678L;
-        String str1 = HexEncode.longToHexString(value1);
-        Assert.assertTrue(str1.equals("00:00:00:00:00:bc:61:4e"));
-
-        long value2 = 98765432L;
-        String str2 = HexEncode.longToHexString(value2);
-        Assert.assertFalse(str2.equals("00:44:33:22:11:bc:61:4e"));
-
+    void testLongToHexString() {
+        assertEquals("00:00:00:00:00:bc:61:4e", HexEncode.longToHexString(12345678L));
+        assertEquals("00:00:00:00:05:e3:0a:78", HexEncode.longToHexString(98765432L));
     }
 
     @Test
-    public void testBytesFromHexString() {
-        String byteStr1 = "00:11:22:33:44:55";
-        byte[] byteArray1 = new byte[(byteStr1.length() + 1) / 3];
-        byteArray1 = HexEncode.bytesFromHexString(byteStr1);
-
-        Assert.assertTrue(byteArray1[0] == (byte) 0x0);
-        Assert.assertTrue(byteArray1[1] == (byte) 0x11);
-        Assert.assertTrue(byteArray1[2] == (byte) 0x22);
-        Assert.assertTrue(byteArray1[3] == (byte) 0x33);
-        Assert.assertTrue(byteArray1[4] == (byte) 0x44);
-        Assert.assertTrue(byteArray1[5] == (byte) 0x55);
-
-        String byteStr2 = "00:11:22:33:44:55";
-        byte[] byteArray2 = new byte[(byteStr2.length() + 1) / 3];
-        byteArray2 = HexEncode.bytesFromHexString(byteStr2);
-
-        Assert.assertFalse(byteArray2[0] == (byte) 0x55);
-        Assert.assertFalse(byteArray2[1] == (byte) 0x44);
-        Assert.assertFalse(byteArray2[2] == (byte) 0x33);
-        Assert.assertFalse(byteArray2[3] == (byte) 0x22);
-        Assert.assertFalse(byteArray2[4] == (byte) 0x11);
-        Assert.assertFalse(byteArray2[5] == (byte) 0x0);
-
+    void testBytesFromHexString() {
+        assertArrayEquals(new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 },
+            HexEncode.bytesFromHexString("00:11:22:33:44:55"));
+        assertArrayEquals(new byte[] { 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 },
+            HexEncode.bytesFromHexString("55:44:33:22:11:00"));
     }
 }
