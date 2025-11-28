@@ -9,6 +9,7 @@ package org.opendaylight.l2switch.loopremover.topology;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -21,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.l2switch.loopremover.util.InstanceIdentifierUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
@@ -30,8 +30,14 @@ import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnectorBuilder;
@@ -45,6 +51,7 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,8 +198,7 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     }
 
     private List<Link> getLinksFromTopology() {
-        final InstanceIdentifier<Topology> topologyInstanceIdentifier =
-            InstanceIdentifierUtils.generateTopologyInstanceIdentifier(topologyId);
+        final var topologyInstanceIdentifier = generateTopologyInstanceIdentifier(topologyId);
         final FluentFuture<Optional<Topology>> readFuture;
         try (ReadTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
             readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL,
@@ -245,22 +251,22 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
     }
 
     private static NodeConnectorRef getSourceNodeConnectorRef(final Link link) {
-        InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-            .createNodeConnectorIdentifier(link.getSource().getSourceNode().getValue(),
-                link.getSource().getSourceTp().getValue());
-        return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+        final var source = link.getSource();
+        final var identifier = createNodeConnectorIdentifier(source.getSourceNode().getValue(),
+            source.getSourceTp().getValue());
+        return new NodeConnectorRef(identifier.toIdentifier());
     }
 
     private static NodeConnectorRef getDestNodeConnectorRef(final Link link) {
-        InstanceIdentifier<NodeConnector> nodeConnectorInstanceIdentifier = InstanceIdentifierUtils
-            .createNodeConnectorIdentifier(link.getDestination().getDestNode().getValue(),
-                link.getDestination().getDestTp().getValue());
+        final var dest = link.getDestination();
+        final var identifier = createNodeConnectorIdentifier(dest.getDestNode().getValue(),
+            dest.getDestTp().getValue());
 
-        return new NodeConnectorRef(nodeConnectorInstanceIdentifier.toIdentifier());
+        return new NodeConnectorRef(identifier.toIdentifier());
     }
 
     private static void updateNodeConnector(final ReadWriteTransaction readWriteTransaction,
-        final NodeConnectorRef nodeConnectorRef, final StpStatus stpStatus) {
+            final NodeConnectorRef nodeConnectorRef, final StpStatus stpStatus) {
         StpStatusAwareNodeConnectorBuilder stpStatusAwareNodeConnectorBuilder =
             new StpStatusAwareNodeConnectorBuilder().setStatus(stpStatus);
         checkIfExistAndUpdateNodeConnector(readWriteTransaction, nodeConnectorRef,
@@ -312,5 +318,22 @@ public class TopologyLinkDataChangeHandler implements DataTreeChangeListener<Lin
         }
         final var status = stpStatusAwareNodeConnector.getStatus();
         return status != null && status.getIntValue() == stpStatus.getIntValue();
+    }
+
+    @VisibleForTesting
+    static KeyedInstanceIdentifier<NodeConnector, NodeConnectorKey> createNodeConnectorIdentifier(
+            final String nodeIdValue, final String nodeConnectorIdValue) {
+        return InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class, new NodeKey(new NodeId(nodeIdValue)))
+            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(nodeConnectorIdValue)))
+            .build();
+    }
+
+    @VisibleForTesting
+    static KeyedInstanceIdentifier<Topology, TopologyKey> generateTopologyInstanceIdentifier(
+            final String topologyId) {
+        return InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
+            .build();
     }
 }
