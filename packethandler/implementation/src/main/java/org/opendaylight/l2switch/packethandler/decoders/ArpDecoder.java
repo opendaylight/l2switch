@@ -50,10 +50,9 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
     public ArpPacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
         ArpPacketReceivedBuilder arpReceivedBuilder = new ArpPacketReceivedBuilder();
 
-        // Find the latest packet in the packet-chain, which is an
-        // EthernetPacket
-        List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
-        EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
+        // Find the latest packet in the packet-chain, which is an EthernetPacket
+        final var packetChainList = ethernetPacketReceived.nonnullPacketChain();
+        final var ethernetPacket = (EthernetPacket) packetChainList.getLast().getPacket();
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
         byte[] data = ethernetPacketReceived.getPayload();
 
