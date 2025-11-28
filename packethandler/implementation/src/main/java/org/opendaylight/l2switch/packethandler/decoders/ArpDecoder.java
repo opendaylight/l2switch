@@ -96,19 +96,23 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
 
             switch (protocolType) {
                 case KnownEtherType.Ipv4, KnownEtherType.Ipv6 -> {
-                    builder.setSourceProtocolAddress(InetAddress.getByAddress(
-                        BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * protocolLength))
-                            .getHostAddress());
-                    builder.setDestinationProtocolAddress(InetAddress.getByAddress(
-                        BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd, 8 * protocolLength))
-                            .getHostAddress());
+                    try {
+                        builder.setSourceProtocolAddress(InetAddress.getByAddress(
+                            BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * protocolLength))
+                                .getHostAddress());
+                        builder.setDestinationProtocolAddress(InetAddress.getByAddress(
+                            BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd, 8 * protocolLength))
+                                .getHostAddress());
+                    } catch (UnknownHostException e) {
+                        LOG.debug("Exception while decoding IP address", e);
+                    }
                 }
                 case null, default ->
                     LOG.debug("Unknown ProtocolType {} -- source and destination ProtocolAddress are not decoded",
                         protocolType);
             }
-        } catch (BufferException | UnknownHostException e) {
-            LOG.debug("Exception while decoding APR packet", e);
+        } catch (BufferException e) {
+            LOG.debug("Exception while decoding ARP packet", e);
         }
 
         // build arp
