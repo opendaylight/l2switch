@@ -8,78 +8,71 @@
 package org.opendaylight.l2switch.addresstracker.addressobserver;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import org.junit.Before;
+import java.util.List;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 
-public class AddressObserverUsingArpTest {
-
+@ExtendWith(MockitoExtension.class)
+class AddressObserverUsingArpTest {
+    @Mock
     private AddressObservationWriter addressObservationWriterMock;
 
-    @Before
-    public void init() {
-        addressObservationWriterMock = mock(AddressObservationWriter.class);
+    private AddressObserverUsingArp addressOberserverArp;
+
+    @BeforeEach
+    void beforeEach() {
+        addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
     }
 
     @Test
-    public void onArpPacketReceivedTest() throws Exception {
-        ArrayList<PacketChain> packetChainList = new ArrayList<>();
-        packetChainList.add(new PacketChainBuilder()
-                .setPacket(new RawPacketBuilder().setRawPacketFields(new RawPacketFieldsBuilder().build()).build())
-                .build());
-        packetChainList.add(new PacketChainBuilder()
-                .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
-                .build());
-        packetChainList.add(new PacketChainBuilder()
-                .setPacket(new ArpPacketBuilder().setSourceProtocolAddress("1.2.3.4").build()).build());
-
-        ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
-        addressOberserverArp.onNotification(arpReceived);
-
+    void onArpPacketReceivedTest() throws Exception {
+        addressOberserverArp.onNotification(new ArpPacketReceivedBuilder()
+            .setPacketChain(List.of(
+                new PacketChainBuilder()
+                    .setPacket(new RawPacketBuilder().setRawPacketFields(new RawPacketFieldsBuilder().build()).build())
+                    .build(),
+                new PacketChainBuilder()
+                    .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
+                    .build(),
+                new PacketChainBuilder()
+                    .setPacket(new ArpPacketBuilder().setSourceProtocolAddress("1.2.3.4").build())
+                    .build()))
+            .build());
         verify(addressObservationWriterMock, times(1)).addAddress(any(MacAddress.class), any(IpAddress.class), any());
     }
 
     @Test
-    public void onArpPacketReceivedNullInputTest1() throws Exception {
-
-        ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(null).build();
-        AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
-        addressOberserverArp.onNotification(arpReceived);
-
+    void onArpPacketReceivedNullInputTest1() throws Exception {
+        addressOberserverArp.onNotification(new ArpPacketReceivedBuilder().setPacketChain(null).build());
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
                 any(NodeConnectorRef.class));
     }
 
     @Test
-    public void onArpPacketReceivedNullInputTest2() throws Exception {
-
-        ArrayList<PacketChain> packetChainList = new ArrayList<>();
-        packetChainList.add(new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build());
-        packetChainList.add(new PacketChainBuilder()
-                .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
-                .build());
-
-        ArpPacketReceived arpReceived = new ArpPacketReceivedBuilder().setPacketChain(packetChainList).build();
-        AddressObserverUsingArp addressOberserverArp = new AddressObserverUsingArp(addressObservationWriterMock);
-        addressOberserverArp.onNotification(arpReceived);
-
+    void onArpPacketReceivedNullInputTest2() throws Exception {
+        addressOberserverArp.onNotification(new ArpPacketReceivedBuilder()
+            .setPacketChain(List.of(
+                new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
+                new PacketChainBuilder()
+                    .setPacket(new EthernetPacketBuilder().setSourceMac(new MacAddress("aa:bb:cc:dd:ee:ff")).build())
+                    .build()))
+            .build());
         verify(addressObservationWriterMock, times(0)).addAddress(any(MacAddress.class), any(IpAddress.class),
-                any(NodeConnectorRef.class));
+            any(NodeConnectorRef.class));
     }
 }
