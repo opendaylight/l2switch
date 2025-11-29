@@ -9,7 +9,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.ArrayList;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
@@ -47,12 +47,9 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
      */
     @Override
     public Ipv4PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
-        Ipv4PacketReceivedBuilder ipv4ReceivedBuilder = new Ipv4PacketReceivedBuilder();
-
-        // Find the latest packet in the packet-chain, which is an
-        // EthernetPacket
-        List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
-        EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
+        // Find the latest packet in the packet-chain, which is an EthernetPacket
+        final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
+        var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
@@ -106,13 +103,15 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         }
 
         // build ipv4
-        packetChainList.add(new PacketChainBuilder().setPacket(builder.build()).build());
-        ipv4ReceivedBuilder.setPacketChain(packetChainList);
+        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
+        packetChain.addAll(recvPacketChain);
+        packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
-        // carry forward the original payload.
-        ipv4ReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
-
-        return ipv4ReceivedBuilder.build();
+        return new Ipv4PacketReceivedBuilder()
+            .setPacketChain(packetChain)
+            // carry forward the original payload.
+            .setPayload(ethernetPacketReceived.getPayload())
+            .build();
     }
 
     @Override
