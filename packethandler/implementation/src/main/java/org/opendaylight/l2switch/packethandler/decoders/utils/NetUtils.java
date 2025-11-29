@@ -109,23 +109,6 @@ public final class NetUtils {
     }
 
     /**
-     * Converts an IP address passed as integer value into the respective
-     * InetAddress object.
-     *
-     * @param address
-     *            the IP address in integer form
-     * @return the IP address in InetAddress form
-     */
-    public static InetAddress getInetAddress(int address) {
-        try {
-            return InetAddress.getByAddress(NetUtils.intToByteArray4(address));
-        } catch (UnknownHostException e) {
-            LOG.error("Failed to decode address {}", address, e);
-            return null;
-        }
-    }
-
-    /**
      * Return the InetAddress Network Mask given the length of the prefix bit
      * mask. The prefix bit mask indicates the contiguous leading bits that are
      * NOT masked out. Example: A prefix bit mask length of 8 will give an

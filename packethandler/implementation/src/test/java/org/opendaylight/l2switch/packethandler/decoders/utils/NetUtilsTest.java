@@ -113,21 +113,6 @@ public class NetUtilsTest {
     }
 
     @Test
-    public void testInetMethods() throws UnknownHostException {
-        int ip = 0xfffffff0;
-        InetAddress inet = InetAddress.getByName("255.255.255.240");
-        assertTrue(inet.equals(NetUtils.getInetAddress(ip)));
-
-        ip = 0;
-        inet = InetAddress.getByName("0.0.0.0");
-        assertTrue(inet.equals(NetUtils.getInetAddress(ip)));
-
-        ip = 0x9ffff09;
-        inet = InetAddress.getByName("9.255.255.9");
-        assertTrue(inet.equals(NetUtils.getInetAddress(ip)));
-    }
-
-    @Test
     public void testMasksV4() throws UnknownHostException {
 
         InetAddress mask = InetAddress.getByName("128.0.0.0");
