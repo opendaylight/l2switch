@@ -36,9 +36,8 @@ public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implem
      * Constructor.
      */
     @SuppressFBWarnings("MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR")
-    public AbstractPacketDecoder(Class<P> producedPacketNotificationType,
-                                 NotificationPublishService notificationProviderService,
-                                 NotificationService notificationService) {
+    protected AbstractPacketDecoder(Class<P> producedPacketNotificationType,
+            NotificationPublishService notificationProviderService, NotificationService notificationService) {
         // this.producedPacketNotificationType = producedPacketNotificationType;
         this.notificationProviderService = notificationProviderService;
         this.notificationService = notificationService;
@@ -64,17 +63,21 @@ public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implem
      * necessary and publishes corresponding event on successful decoding.
      */
     public void decodeAndPublish(final C consumedPacketNotification) {
+        if (consumedPacketNotification == null) {
+            return;
+        }
+
         decodeAndPublishExecutor.execute(() -> {
-            P packetNotification = null;
-            if (consumedPacketNotification != null && canDecode(consumedPacketNotification)) {
-                packetNotification = decode(consumedPacketNotification);
-            }
-            if (packetNotification != null) {
-                try {
-                    notificationProviderService.putNotification(packetNotification);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new IllegalStateException("Interrupted while publishing notification", e);
+            // FIXME: improve calling convention: canDecode() and decode() should be combined into tryDecode()
+            if (canDecode(consumedPacketNotification)) {
+                final var packetNotification = decode(consumedPacketNotification);
+                if (packetNotification != null) {
+                    try {
+                        notificationProviderService.putNotification(packetNotification);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("Interrupted while publishing notification", e);
+                    }
                 }
             }
         });
