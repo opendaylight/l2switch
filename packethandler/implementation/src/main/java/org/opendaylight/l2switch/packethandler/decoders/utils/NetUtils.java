@@ -211,20 +211,4 @@ public final class NetUtils {
         }
         return false;
     }
-
-    /**
-     * Returns true if the passed InetAddress contains all zero.
-     *
-     * @param ip
-     *            the IP address to test
-     * @return true if the address is all zero
-     */
-    public static boolean isAny(InetAddress ip) {
-        for (byte b : ip.getAddress()) {
-            if (b != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
 }
