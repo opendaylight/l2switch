@@ -219,18 +219,6 @@ public class NetUtilsTest {
     }
 
     @Test
-    public void testIPAddressValidity() {
-        assertFalse(NetUtils.isIPAddressValid(null));
-        assertFalse(NetUtils.isIPAddressValid("abc"));
-        assertFalse(NetUtils.isIPAddressValid("1.1.1"));
-        assertFalse(NetUtils.isIPAddressValid("1.1.1.1/49"));
-
-        assertTrue(NetUtils.isIPAddressValid("1.1.1.1"));
-        assertTrue(NetUtils.isIPAddressValid("1.1.1.1/32"));
-        assertTrue(NetUtils.isIPAddressValid("2001:420:281:1004:407a:57f4:4d15:c355"));
-    }
-
-    @Test
     public void testMulticastMACAddr() {
         byte[] empty = new byte[0];
         assertFalse(NetUtils.isUnicastMACAddr(empty));

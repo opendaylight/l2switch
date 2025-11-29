@@ -10,8 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders.utils;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,34 +247,6 @@ public final class NetUtils {
     }
 
     /**
-     * Checks if the passed IP v4 address in string form is valid The address
-     * may specify a mask at the end as "/MM".
-     *
-     * @param cidr
-     *            the v4 address as A.B.C.D/MM
-     */
-    public static boolean isIPv4AddressValid(String cidr) {
-        if (cidr == null) {
-            return false;
-        }
-
-        String[] values = cidr.split("/");
-        Pattern ipv4Pattern = Pattern
-                .compile("(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])");
-        Matcher mm = ipv4Pattern.matcher(values[0]);
-        if (!mm.matches()) {
-            return false;
-        }
-        if (values.length >= 2) {
-            int prefix = Integer.parseInt(values[1]);
-            if (prefix < 0 || prefix > 32) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Checks if the passed IP v6 address in string form is valid The address
      * may specify a mask at the end as "/MMM".
      *
@@ -307,16 +277,5 @@ public final class NetUtils {
             }
         }
         return true;
-    }
-
-    /**
-     * Checks if the passed IP address in string form is a valid v4 or v6
-     * address. The address may specify a mask at the end as "/MMM".
-     *
-     * @param cidr
-     *            the v4 or v6 address as IP/MMM
-     */
-    public static boolean isIPAddressValid(String cidr) {
-        return NetUtils.isIPv4AddressValid(cidr) || NetUtils.isIPv6AddressValid(cidr);
     }
 }
