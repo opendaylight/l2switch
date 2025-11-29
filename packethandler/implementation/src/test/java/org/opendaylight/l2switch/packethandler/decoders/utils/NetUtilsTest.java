@@ -7,8 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.net.InetAddress;
@@ -183,31 +181,5 @@ public class NetUtilsTest {
         InetAddress ip = InetAddress.getByName("192.128.64.252");
         int maskLen = 25;
         assertTrue(NetUtils.getSubnetPrefix(ip, maskLen).equals(InetAddress.getByName("192.128.64.128")));
-    }
-
-    @Test
-    public void testMulticastMACAddr() {
-        byte[] empty = new byte[0];
-        assertFalse(NetUtils.isUnicastMACAddr(empty));
-        assertFalse(NetUtils.isMulticastMACAddr(empty));
-
-        byte[] bcast = { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, };
-        assertFalse(NetUtils.isUnicastMACAddr(bcast));
-        assertFalse(NetUtils.isMulticastMACAddr(bcast));
-
-        byte[] firstOctet = { (byte) 0x00, (byte) 0x20, (byte) 0x80, (byte) 0xfe, };
-        for (int len = 1; len <= 10; len++) {
-            byte[] ba = new byte[len];
-            boolean valid = len == 6;
-            for (byte first : firstOctet) {
-                ba[0] = first;
-                assertFalse(NetUtils.isMulticastMACAddr(ba));
-                assertEquals(valid, NetUtils.isUnicastMACAddr(ba));
-
-                ba[0] |= (byte) 0x01;
-                assertEquals(valid, NetUtils.isMulticastMACAddr(ba));
-                assertFalse(NetUtils.isUnicastMACAddr(ba));
-            }
-        }
     }
 }

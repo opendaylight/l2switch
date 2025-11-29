@@ -19,16 +19,6 @@ import org.slf4j.LoggerFactory;
 public final class NetUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
 
-    /**
-     * Constant holding the number of bytes in MAC Address.
-     */
-    public static final int MAC_ADDR_LENGTH_IN_BYTES = 6;
-
-    /**
-     * Constant holding the broadcast MAC address.
-     */
-    private static final byte[] BROADCAST_MAC_ADDR = { -1, -1, -1, -1, -1, -1 };
-
     private NetUtils() {
         // Hidden on purpose
     }
@@ -143,51 +133,5 @@ public final class NetUtils {
         } catch (UnknownHostException e) {
             return null;
         }
-    }
-
-    /**
-     * Returns true if the MAC address is the broadcast MAC address and false
-     * otherwise.
-     *
-     * @param macAddress the MAC address
-     */
-    public static boolean isBroadcastMACAddr(byte[] macAddress) {
-        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES) {
-            for (int i = 0; i < 6; i++) {
-                if (macAddress[i] != BROADCAST_MAC_ADDR[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if the MAC address is a unicast MAC address and false
-     * otherwise.
-     *
-     * @param macAddress the MAC address
-     */
-    public static boolean isUnicastMACAddr(byte[] macAddress) {
-        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES) {
-            return (macAddress[0] & 1) == 0;
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if the MAC address is a multicast MAC address and false
-     * otherwise. Note that this explicitly returns false for the broadcast MAC
-     * address.
-     *
-     * @param macAddress the MAC address
-     */
-    public static boolean isMulticastMACAddr(byte[] macAddress) {
-        if (macAddress.length == MAC_ADDR_LENGTH_IN_BYTES && !isBroadcastMACAddr(macAddress)) {
-            return (macAddress[0] & 1) != 0;
-        }
-        return false;
     }
 }
