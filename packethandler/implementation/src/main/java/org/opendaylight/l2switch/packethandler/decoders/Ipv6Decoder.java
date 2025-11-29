@@ -53,12 +53,10 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
      */
     @Override
     public Ipv6PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
-        Ipv6PacketReceivedBuilder ipv6ReceivedBuilder = new Ipv6PacketReceivedBuilder();
-
         // Find the latest packet in the packet-chain, which is an
         // EthernetPacket
-        List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
-        EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
+        final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
+        var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
@@ -115,13 +113,15 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         }
 
         // build ipv6
-        packetChainList.add(new PacketChainBuilder().setPacket(builder.build()).build());
-        ipv6ReceivedBuilder.setPacketChain(packetChainList);
+        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
+        packetChain.addAll(recvPacketChain);
+        packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
-        // carry forward the original payload.
-        ipv6ReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
-
-        return ipv6ReceivedBuilder.build();
+        return new Ipv6PacketReceivedBuilder()
+            .setPacketChain(packetChain)
+            // carry forward the original payload.
+            .setPayload(ethernetPacketReceived.getPayload())
+            .build();
     }
 
     @Override
