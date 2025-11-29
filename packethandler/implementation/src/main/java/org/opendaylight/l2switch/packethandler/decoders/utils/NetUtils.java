@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders.utils;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -362,14 +361,5 @@ public final class NetUtils {
         } catch (UnknownHostException e) {
             return null;
         }
-    }
-
-    /**
-     * Returns Broadcast MAC Address.
-     *
-     * @return the byte array containing broadcast mac address
-     */
-    public static byte[] getBroadcastMACAddr() {
-        return Arrays.copyOf(BROADCAST_MAC_ADDR, BROADCAST_MAC_ADDR.length);
     }
 }
