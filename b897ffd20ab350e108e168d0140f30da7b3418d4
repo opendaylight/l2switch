@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "3e247aa1_faba17c7",
         "filename": "INFO.yaml",
@@ -20,10 +21,10 @@
         "endChar": 19
       },
       "revId": "b897ffd20ab350e108e168d0140f30da7b3418d4",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "875756ff_f7e002c6",
         "filename": "INFO.yaml",
@@ -44,8 +45,31 @@
         "endChar": 19
       },
       "revId": "b897ffd20ab350e108e168d0140f30da7b3418d4",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57ecee2a_c77f7a9b",
+        "filename": "INFO.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-11-29T15:18:00Z",
+      "side": 1,
+      "message": "Ugh... I don\u0027t actually have a link :(",
+      "parentUuid": "875756ff_f7e002c6",
+      "range": {
+        "startLine": 52,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 19
+      },
+      "revId": "b897ffd20ab350e108e168d0140f30da7b3418d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
