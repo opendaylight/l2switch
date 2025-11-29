@@ -9,7 +9,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
+import java.util.ArrayList;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
@@ -45,12 +45,10 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
      */
     @Override
     public ArpPacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
-        ArpPacketReceivedBuilder arpReceivedBuilder = new ArpPacketReceivedBuilder();
-
         // Find the latest packet in the packet-chain, which is an
         // EthernetPacket
-        List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
-        EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
+        final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
+        var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
@@ -100,12 +98,15 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
         }
 
         // build arp
-        packetChainList.add(new PacketChainBuilder().setPacket(builder.build()).build());
-        arpReceivedBuilder.setPacketChain(packetChainList);
+        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
+        packetChain.addAll(recvPacketChain);
+        packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
-        // carry forward the original payload.
-        arpReceivedBuilder.setPayload(ethernetPacketReceived.getPayload());
-        return arpReceivedBuilder.build();
+        return new ArpPacketReceivedBuilder()
+            .setPacketChain(packetChain)
+            // carry forward the original payload.
+            .setPayload(ethernetPacketReceived.getPayload())
+            .build();
     }
 
     @Override
