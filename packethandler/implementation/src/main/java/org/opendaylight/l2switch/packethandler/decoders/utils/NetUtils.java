@@ -227,11 +227,4 @@ public final class NetUtils {
         }
         return true;
     }
-
-    public static boolean fieldsConflict(int field1, int field2) {
-        if (field1 == 0 || field2 == 0 || field1 == field2) {
-            return false;
-        }
-        return true;
-    }
 }
