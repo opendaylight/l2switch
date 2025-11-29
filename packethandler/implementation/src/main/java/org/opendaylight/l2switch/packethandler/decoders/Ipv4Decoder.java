@@ -12,7 +12,6 @@ import java.net.UnknownHostException;
 import java.util.List;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -56,7 +55,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
@@ -99,10 +98,9 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
             // Decode the IPv4 Payload
             int payloadStartInBits = bitOffset + 160 + optionsSize;
-            int payloadEndInBits = data.length * NetUtils.NUM_BITS_IN_A_BYTE - payloadStartInBits
-                    - 4 * NetUtils.NUM_BITS_IN_A_BYTE;
-            int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
+            int payloadEndInBits = data.length * Byte.SIZE - payloadStartInBits - 4 * Byte.SIZE;
+            int start = payloadStartInBits / Byte.SIZE;
+            int end = start + payloadEndInBits / Byte.SIZE;
             builder.setPayloadOffset(Uint32.valueOf(start));
             builder.setPayloadLength(Uint32.valueOf(end - start));
         } catch (BufferException | UnknownHostException e) {

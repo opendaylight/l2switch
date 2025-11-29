@@ -13,7 +13,6 @@ import java.util.List;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
-import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -53,7 +52,7 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         ArpPacketBuilder builder = new ArpPacketBuilder();

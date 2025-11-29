@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -61,7 +60,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
         // EthernetPacket
         List<PacketChain> packetChainList = ethernetPacketReceived.getPacketChain();
         EthernetPacket ethernetPacket = (EthernetPacket) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ethernetPacketReceived.getPayload();
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
@@ -82,7 +81,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 64, 128)).getHostAddress()));
             builder.setDestinationIpv6(Ipv6Address.getDefaultInstance(
                     InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset + 192, 128)).getHostAddress()));
-            builder.setPayloadOffset(Uint32.valueOf((320 + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE));
+            builder.setPayloadOffset(Uint32.valueOf((320 + bitOffset) / Byte.SIZE));
             builder.setPayloadLength(builder.getIpv6Length().toUint32());
 
             // Decode the optional "extension headers"
@@ -97,7 +96,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                 nextHeader = KnownIpProtocols.forValue(nextHeaderType);
                 int octetLength = BitBufferHelper
                         .getInt(BitBufferHelper.getBits(data, 328 + extHeaderOffset + bitOffset, 8));
-                int start = (336 + extHeaderOffset + bitOffset) / NetUtils.NUM_BITS_IN_A_BYTE;
+                int start = (336 + extHeaderOffset + bitOffset) / Byte.SIZE;
                 int end = start + 6 + octetLength;
 
                 extensionHeaders.add(new ExtensionHeadersBuilder()
@@ -107,7 +106,7 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
                         .build());
 
                 // Update the NextHeader field
-                extHeaderOffset += 64 + octetLength * NetUtils.NUM_BITS_IN_A_BYTE;
+                extHeaderOffset += 64 + octetLength * Byte.SIZE;
             }
             if (!extensionHeaders.isEmpty()) {
                 builder.setExtensionHeaders(extensionHeaders);

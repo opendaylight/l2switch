@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
-import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -143,14 +142,14 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
             }
 
             // Determine start & end of payload
-            int payloadStart = (112 + extraHeaderBits) / NetUtils.NUM_BITS_IN_A_BYTE;
+            int payloadStart = (112 + extraHeaderBits) / Byte.SIZE;
             int payloadEnd = data.length - 4;
             epBuilder.setPayloadOffset(Uint32.valueOf(payloadStart));
             epBuilder.setPayloadLength(Uint32.valueOf(payloadEnd - payloadStart));
 
             // Deserialize the CRC
             epBuilder.setCrc(BitBufferHelper
-                    .getUint32(BitBufferHelper.getBits(data, (data.length - 4) * NetUtils.NUM_BITS_IN_A_BYTE, 32)));
+                    .getUint32(BitBufferHelper.getBits(data, (data.length - 4) * Byte.SIZE, 32)));
 
             // Set EthernetPacket field
             packetChain.add(new PacketChainBuilder().setPacket(epBuilder.build()).build());

@@ -10,7 +10,6 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.util.List;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.l2switch.packethandler.decoders.utils.NetUtils;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -48,7 +47,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         // EthernetPacket
         List<PacketChain> packetChainList = ipv4PacketReceived.getPacketChain();
         Ipv4Packet ipv4Packet = (Ipv4Packet) packetChainList.get(packetChainList.size() - 1).getPacket();
-        int bitOffset = ipv4Packet.getPayloadOffset().intValue() * NetUtils.NUM_BITS_IN_A_BYTE;
+        int bitOffset = ipv4Packet.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ipv4PacketReceived.getPayload();
 
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
@@ -66,10 +65,9 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
             // Decode the ICMP Payload
             int payloadStartInBits = bitOffset + 64;
-            int payloadEndInBits = data.length * NetUtils.NUM_BITS_IN_A_BYTE - payloadStartInBits - 4
-                    * NetUtils.NUM_BITS_IN_A_BYTE;
-            int start = payloadStartInBits / NetUtils.NUM_BITS_IN_A_BYTE;
-            int end = start + payloadEndInBits / NetUtils.NUM_BITS_IN_A_BYTE;
+            int payloadEndInBits = data.length * Byte.SIZE - payloadStartInBits - 4 * Byte.SIZE;
+            int start = payloadStartInBits / Byte.SIZE;
+            int end = start + payloadEndInBits / Byte.SIZE;
             builder.setPayloadOffset(Uint32.valueOf(start));
             builder.setPayloadLength(Uint32.valueOf(end - start));
         } catch (BufferException e) {

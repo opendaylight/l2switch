@@ -42,7 +42,7 @@ public final class BitBufferHelper {
      * @return byte value
      */
     public static byte getByte(byte[] data) {
-        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > Byte.SIZE) {
+        if (data.length * Byte.SIZE > Byte.SIZE) {
             LOG.error("getByte", new BufferException("Container is too small for the number of requested bits"));
         }
         return data[0];
@@ -56,7 +56,7 @@ public final class BitBufferHelper {
      * @return Uint8 value
      */
     public static Uint8 getUint8(byte[] data) {
-        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 8) {
+        if (data.length * Byte.SIZE > 8) {
             LOG.error("getUint8",
                     new BufferException("Container is too small for the number of requested bits"));
         }
@@ -71,7 +71,7 @@ public final class BitBufferHelper {
      * @return Uint16 value
      */
     public static Uint16 getUint16(byte[] data) {
-        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 16) {
+        if (data.length * Byte.SIZE > 16) {
             LOG.error("getUint16",
                     new BufferException("Container is too small for the number of requested bits"));
         }
@@ -91,7 +91,7 @@ public final class BitBufferHelper {
             LOG.error("getUint16",
                     new BufferException("Container is too small for the number of requested bits"));
         }
-        int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
+        int startOffset = data.length * Byte.SIZE - numBits;
         byte[] bits = null;
         try {
             bits = getBits(data, startOffset, numBits);
@@ -110,7 +110,7 @@ public final class BitBufferHelper {
      * @return Uint32 value
      */
     public static Uint32 getUint32(byte[] data) {
-        if (data.length * NetUtils.NUM_BITS_IN_A_BYTE > 32) {
+        if (data.length * Byte.SIZE > 32) {
             LOG.error("getUint32",
                     new BufferException("Container is too small for the number of requested bits"));
         }
@@ -131,7 +131,7 @@ public final class BitBufferHelper {
         if (numBits > Short.SIZE) {
             LOG.error("getShort", new BufferException("Container is too small for the number of requested bits"));
         }
-        int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
+        int startOffset = data.length * Byte.SIZE - numBits;
         byte[] bits = null;
         try {
             bits = getBits(data, startOffset, numBits);
@@ -170,7 +170,7 @@ public final class BitBufferHelper {
         if (numBits > Integer.SIZE) {
             LOG.error("getInt", new BufferException("Container is too small for the number of requested bits"));
         }
-        int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
+        int startOffset = data.length * Byte.SIZE - numBits;
         byte[] bits = null;
         try {
             bits = BitBufferHelper.getBits(data, startOffset, numBits);
@@ -209,10 +209,10 @@ public final class BitBufferHelper {
         if (numBits > Long.SIZE) {
             LOG.error("getLong", new BufferException("Container is too small for the number of requested bits"));
         }
-        if (numBits > data.length * NetUtils.NUM_BITS_IN_A_BYTE) {
+        if (numBits > data.length * Byte.SIZE) {
             LOG.error("getLong", new BufferException("Trying to read more bits than contained in the data buffer"));
         }
-        int startOffset = data.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits;
+        int startOffset = data.length * Byte.SIZE - numBits;
         byte[] bits = null;
         try {
             bits = BitBufferHelper.getBits(data, startOffset, numBits);
@@ -261,11 +261,10 @@ public final class BitBufferHelper {
     public static byte[] getBits(byte[] data, int startOffset, int numBits) throws BufferException {
 
         int startByteOffset = 0;
-        final int extranumBits = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
-        final int extraOffsetBits = startOffset % NetUtils.NUM_BITS_IN_A_BYTE;
-        int numBytes = numBits % NetUtils.NUM_BITS_IN_A_BYTE != 0 ? 1 + numBits / NetUtils.NUM_BITS_IN_A_BYTE
-                : numBits / NetUtils.NUM_BITS_IN_A_BYTE;
-        startByteOffset = startOffset / NetUtils.NUM_BITS_IN_A_BYTE;
+        final int extranumBits = numBits % Byte.SIZE;
+        final int extraOffsetBits = startOffset % Byte.SIZE;
+        int numBytes = numBits % Byte.SIZE != 0 ? 1 + numBits / Byte.SIZE : numBits / Byte.SIZE;
+        startByteOffset = startOffset / Byte.SIZE;
         byte[] bytes = new byte[numBytes];
         if (numBits == 0) {
             return bytes;
@@ -284,31 +283,31 @@ public final class BitBufferHelper {
         } else {
             int index;
             int valfromnext;
-            for (index = 0; index < numBits / NetUtils.NUM_BITS_IN_A_BYTE; index++) {
+            for (index = 0; index < numBits / Byte.SIZE; index++) {
                 // Reading numBytes starting from offset
                 int valfromcurr = data[startByteOffset + index]
-                        & getLSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                        & getLSBMask(Byte.SIZE - extraOffsetBits);
                 valfromnext = data[startByteOffset + index + 1] & getMSBMask(extraOffsetBits);
                 bytes[index] = (byte) (valfromcurr << extraOffsetBits
-                        | valfromnext >> NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                        | valfromnext >> Byte.SIZE - extraOffsetBits);
             }
             // Now adding the rest of the bits if any
             if (extranumBits != 0) {
-                if (extranumBits < NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits) {
+                if (extranumBits < Byte.SIZE - extraOffsetBits) {
                     valfromnext = (byte) (data[startByteOffset + index]
                             & getMSBMask(extranumBits) >> extraOffsetBits);
                     bytes[index] = (byte) (valfromnext << extraOffsetBits);
-                } else if (extranumBits == NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits) {
+                } else if (extranumBits == Byte.SIZE - extraOffsetBits) {
                     int valfromcurr = data[startByteOffset + index]
-                            & getLSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                            & getLSBMask(Byte.SIZE - extraOffsetBits);
                     bytes[index] = (byte) (valfromcurr << extraOffsetBits);
                 } else {
                     int valfromcurr = data[startByteOffset + index]
-                            & getLSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                            & getLSBMask(Byte.SIZE - extraOffsetBits);
                     valfromnext = data[startByteOffset + index + 1]
-                            & getMSBMask(extranumBits - (NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits));
+                            & getMSBMask(extranumBits - (Byte.SIZE - extraOffsetBits));
                     bytes[index] = (byte) (valfromcurr << extraOffsetBits
-                            | valfromnext >> NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                            | valfromnext >> Byte.SIZE - extraOffsetBits);
                 }
 
             }
@@ -398,7 +397,7 @@ public final class BitBufferHelper {
             if (value < 0) {
                 value += 256;
             }
-            ret = ret | (long) value << (length - i - 1) * NetUtils.NUM_BITS_IN_A_BYTE;
+            ret = ret | (long) value << (length - i - 1) * Byte.SIZE;
         }
         return ret;
     }
@@ -412,22 +411,22 @@ public final class BitBufferHelper {
      * @return numerical value of byte array passed
      */
     public static long toNumber(byte @NonNull [] array, int numBits) {
-        int length = numBits / NetUtils.NUM_BITS_IN_A_BYTE;
-        int bitsRest = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
+        int length = numBits / Byte.SIZE;
+        int bitsRest = numBits % Byte.SIZE;
         int startOffset = array.length - length;
         long ret = 0;
         int value = 0;
 
         value = array[startOffset - 1] & getLSBMask(bitsRest);
         value = array[startOffset - 1] < 0 ? array[startOffset - 1] + 256 : array[startOffset - 1];
-        ret = ret | value << (array.length - startOffset) * NetUtils.NUM_BITS_IN_A_BYTE;
+        ret = ret | value << (array.length - startOffset) * Byte.SIZE;
 
         for (int i = startOffset; i < array.length; i++) {
             value = array[i];
             if (value < 0) {
                 value += 256;
             }
-            ret = ret | (long) value << (array.length - i - 1) * NetUtils.NUM_BITS_IN_A_BYTE;
+            ret = ret | (long) value << (array.length - i - 1) * Byte.SIZE;
         }
 
         return ret;
@@ -456,12 +455,12 @@ public final class BitBufferHelper {
             throw new IllegalArgumentException("Parameter must one of the following: Short/Int/Long\n");
         }
 
-        int length = size / NetUtils.NUM_BITS_IN_A_BYTE;
+        int length = size / Byte.SIZE;
         byte[] bytes = new byte[length];
 
         // Getting the bytes from input value
         for (int i = 0; i < length; i++) {
-            bytes[i] = (byte) (longValue >> NetUtils.NUM_BITS_IN_A_BYTE * (length - i - 1) & BYTE_MASK);
+            bytes[i] = (byte) (longValue >> Byte.SIZE * (length - i - 1) & BYTE_MASK);
         }
         return bytes;
     }
@@ -491,14 +490,14 @@ public final class BitBufferHelper {
             throw new IllegalArgumentException("Parameter must one of the following: Short/Int/Long\n");
         }
 
-        int length = size / NetUtils.NUM_BITS_IN_A_BYTE;
+        int length = size / Byte.SIZE;
         byte[] bytes = new byte[length];
         byte[] inputbytes = new byte[length];
         byte[] shiftedBytes;
 
         // Getting the bytes from input value
         for (int i = 0; i < length; i++) {
-            bytes[i] = (byte) (longValue >> NetUtils.NUM_BITS_IN_A_BYTE * (length - i - 1) & BYTE_MASK);
+            bytes[i] = (byte) (longValue >> Byte.SIZE * (length - i - 1) & BYTE_MASK);
         }
 
         if (bytes[0] == 0 && dataType == Long.class || bytes[0] == 0 && dataType == Integer.class) {
@@ -544,11 +543,11 @@ public final class BitBufferHelper {
             }
         }
 
-        if (numBits % NetUtils.NUM_BITS_IN_A_BYTE == 0) {
+        if (numBits % Byte.SIZE == 0) {
             numBitstoShiftBy = 0;
         } else {
-            numBitstoShiftBy = NetUtils.NUM_BITS_IN_A_BYTE - numBits % NetUtils.NUM_BITS_IN_A_BYTE < leadZeroesMSB
-                    ? NetUtils.NUM_BITS_IN_A_BYTE - numBits % NetUtils.NUM_BITS_IN_A_BYTE : leadZeroesMSB;
+            numBitstoShiftBy = Byte.SIZE - numBits % Byte.SIZE < leadZeroesMSB
+                    ? Byte.SIZE - numBits % Byte.SIZE : leadZeroesMSB;
         }
         if (numBitstoShiftBy == 0) {
             return inputBytes;
@@ -556,13 +555,13 @@ public final class BitBufferHelper {
 
         int size = inputBytes.length;
         final byte[] shiftedBytes = new byte[size];
-        if (numBits < NetUtils.NUM_BITS_IN_A_BYTE) {
+        if (numBits < Byte.SIZE) {
             // inputbytes.length = 1 OR read less than a byte
             shiftedBytes[0] = (byte) ((inputBytes[0] & getLSBMask(numBits)) << numBitstoShiftBy);
         } else {
             // # of bits to read from last byte
-            final int numEndRestBits = NetUtils.NUM_BITS_IN_A_BYTE
-                    - (inputBytes.length * NetUtils.NUM_BITS_IN_A_BYTE - numBits - numBitstoShiftBy);
+            final int numEndRestBits = Byte.SIZE
+                    - (inputBytes.length * Byte.SIZE - numBits - numBitstoShiftBy);
 
             for (index = 0; index < size - 1; index++) {
                 if (index + 1 == size - 1) {
@@ -573,11 +572,11 @@ public final class BitBufferHelper {
                                 & getLSBMask(numEndRestBits - numBitstoShiftBy)) << numBitstoShiftBy);
                     } else {
                         shiftedBytes[index] = (byte) (inputBytes[index] << numBitstoShiftBy | (inputBytes[index + 1]
-                                & getMSBMask(numEndRestBits)) >> NetUtils.NUM_BITS_IN_A_BYTE - numEndRestBits);
+                                & getMSBMask(numEndRestBits)) >> Byte.SIZE - numEndRestBits);
                     }
                 }
                 shiftedBytes[index] = (byte) (inputBytes[index] << numBitstoShiftBy | (inputBytes[index + 1]
-                        & getMSBMask(numBitstoShiftBy)) >> NetUtils.NUM_BITS_IN_A_BYTE - numBitstoShiftBy);
+                        & getMSBMask(numBitstoShiftBy)) >> Byte.SIZE - numBitstoShiftBy);
             }
 
         }
@@ -598,7 +597,7 @@ public final class BitBufferHelper {
      */
     public static byte[] shiftBitsToLSB(byte[] inputBytes, int numBits) {
         int numBytes = inputBytes.length;
-        int numBitstoShift = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
+        int numBitstoShift = numBits % Byte.SIZE;
         byte[] shiftedBytes = new byte[numBytes];
         int inputLsb = 0;
         int inputMsb = 0;
@@ -608,16 +607,16 @@ public final class BitBufferHelper {
         }
 
         for (int i = 1; i < numBytes; i++) {
-            inputLsb = inputBytes[i - 1] & getLSBMask(NetUtils.NUM_BITS_IN_A_BYTE - numBitstoShift);
+            inputLsb = inputBytes[i - 1] & getLSBMask(Byte.SIZE - numBitstoShift);
             inputLsb = inputLsb < 0 ? inputLsb + 256 : inputLsb;
             inputMsb = inputBytes[i] & getMSBMask(numBitstoShift);
             inputMsb = inputBytes[i] < 0 ? inputBytes[i] + 256 : inputBytes[i];
             shiftedBytes[i] = (byte) (inputLsb << numBitstoShift
-                    | inputMsb >> NetUtils.NUM_BITS_IN_A_BYTE - numBitstoShift);
+                    | inputMsb >> Byte.SIZE - numBitstoShift);
         }
         inputMsb = inputBytes[0] & getMSBMask(numBitstoShift);
         inputMsb = inputMsb < 0 ? inputMsb + 256 : inputMsb;
-        shiftedBytes[0] = (byte) (inputMsb >> NetUtils.NUM_BITS_IN_A_BYTE - numBitstoShift);
+        shiftedBytes[0] = (byte) (inputMsb >> Byte.SIZE - numBitstoShift);
         return shiftedBytes;
     }
 
@@ -636,11 +635,11 @@ public final class BitBufferHelper {
         // MSB the
         // passed byte
         // array
-        int numBytes = numBits / NetUtils.NUM_BITS_IN_A_BYTE;
-        int startByteOffset = startOffset / NetUtils.NUM_BITS_IN_A_BYTE;
-        int extraOffsetBits = startOffset % NetUtils.NUM_BITS_IN_A_BYTE;
-        int extranumBits = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
-        int restBits = numBits % NetUtils.NUM_BITS_IN_A_BYTE;
+        int numBytes = numBits / Byte.SIZE;
+        int startByteOffset = startOffset / Byte.SIZE;
+        int extraOffsetBits = startOffset % Byte.SIZE;
+        int extranumBits = numBits % Byte.SIZE;
+        int restBits = numBits % Byte.SIZE;
         int inputMSBbits = 0;
         int inputLSBbits = 0;
 
@@ -650,7 +649,7 @@ public final class BitBufferHelper {
 
         if (extraOffsetBits == 0) {
             if (extranumBits == 0) {
-                numBytes = numBits / NetUtils.NUM_BITS_IN_A_BYTE;
+                numBytes = numBits / Byte.SIZE;
                 System.arraycopy(inputdata, 0, data, startByteOffset, numBytes);
             } else {
                 System.arraycopy(inputdata, 0, data, startByteOffset, numBytes);
@@ -663,45 +662,45 @@ public final class BitBufferHelper {
                 if (index != 0) {
                     inputLSBbits = inputdata[index - 1] & getLSBMask(extraOffsetBits);
                 }
-                inputMSBbits = (byte) (inputdata[index] & getMSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits));
+                inputMSBbits = (byte) (inputdata[index] & getMSBMask(Byte.SIZE - extraOffsetBits));
                 inputMSBbits = inputMSBbits >= 0 ? inputMSBbits : inputMSBbits + 256;
                 data[startByteOffset + index] = (byte) (data[startByteOffset + index]
-                        | inputLSBbits << NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits
+                        | inputLSBbits << Byte.SIZE - extraOffsetBits
                         | inputMSBbits >> extraOffsetBits);
                 inputMSBbits = inputLSBbits = 0;
             }
-            if (restBits < NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits) {
+            if (restBits < Byte.SIZE - extraOffsetBits) {
                 if (numBytes != 0) {
                     inputLSBbits = inputdata[index - 1] & getLSBMask(extraOffsetBits);
                 }
                 inputMSBbits = (byte) (inputdata[index] & getMSBMask(restBits));
                 inputMSBbits = inputMSBbits >= 0 ? inputMSBbits : inputMSBbits + 256;
                 data[startByteOffset + index] = (byte) (data[startByteOffset + index]
-                        | inputLSBbits << NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits
+                        | inputLSBbits << Byte.SIZE - extraOffsetBits
                         | inputMSBbits >> extraOffsetBits);
-            } else if (restBits == NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits) {
+            } else if (restBits == Byte.SIZE - extraOffsetBits) {
                 if (numBytes != 0) {
                     inputLSBbits = inputdata[index - 1] & getLSBMask(extraOffsetBits);
                 }
-                inputMSBbits = (byte) (inputdata[index] & getMSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits));
+                inputMSBbits = (byte) (inputdata[index] & getMSBMask(Byte.SIZE - extraOffsetBits));
                 inputMSBbits = inputMSBbits >= 0 ? inputMSBbits : inputMSBbits + 256;
                 data[startByteOffset + index] = (byte) (data[startByteOffset + index]
-                        | inputLSBbits << NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits
+                        | inputLSBbits << Byte.SIZE - extraOffsetBits
                         | inputMSBbits >> extraOffsetBits);
             } else {
                 if (numBytes != 0) {
                     inputLSBbits = inputdata[index - 1] & getLSBMask(extraOffsetBits);
                 }
-                inputMSBbits = (byte) (inputdata[index] & getMSBMask(NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits));
+                inputMSBbits = (byte) (inputdata[index] & getMSBMask(Byte.SIZE - extraOffsetBits));
                 inputMSBbits = inputMSBbits >= 0 ? inputMSBbits : inputMSBbits + 256;
                 data[startByteOffset + index] = (byte) (data[startByteOffset + index]
-                        | inputLSBbits << NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits
+                        | inputLSBbits << Byte.SIZE - extraOffsetBits
                         | inputMSBbits >> extraOffsetBits);
 
                 inputLSBbits = inputdata[index] & getLSBMask(restBits
-                        - (NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits)) << NetUtils.NUM_BITS_IN_A_BYTE - restBits;
+                        - (Byte.SIZE - extraOffsetBits)) << Byte.SIZE - restBits;
                 data[startByteOffset + index + 1] = (byte) (data[startByteOffset + index + 1]
-                        | inputLSBbits << NetUtils.NUM_BITS_IN_A_BYTE - extraOffsetBits);
+                        | inputLSBbits << Byte.SIZE - extraOffsetBits);
             }
         }
     }
@@ -719,17 +718,16 @@ public final class BitBufferHelper {
     public static void checkExceptions(byte[] data, int startOffset, int numBits) throws BufferException {
         int endOffsetByte;
         int startByteOffset;
-        endOffsetByte = startOffset / NetUtils.NUM_BITS_IN_A_BYTE + numBits / NetUtils.NUM_BITS_IN_A_BYTE
-                + (numBits % NetUtils.NUM_BITS_IN_A_BYTE != 0 ? 1
-                        : startOffset % NetUtils.NUM_BITS_IN_A_BYTE != 0 ? 1 : 0);
-        startByteOffset = startOffset / NetUtils.NUM_BITS_IN_A_BYTE;
+        endOffsetByte = startOffset / Byte.SIZE + numBits / Byte.SIZE
+                + (numBits % Byte.SIZE != 0 ? 1 : startOffset % Byte.SIZE != 0 ? 1 : 0);
+        startByteOffset = startOffset / Byte.SIZE;
 
         if (data == null) {
             throw new BufferException("data[] is null\n");
         }
 
         if (startOffset < 0 || startByteOffset >= data.length || endOffsetByte > data.length || numBits < 0
-                || numBits > NetUtils.NUM_BITS_IN_A_BYTE * data.length) {
+                || numBits > Byte.SIZE * data.length) {
             throw new BufferException("Illegal arguement/out of bound exception - data.length = " + data.length
                     + " startOffset = " + startOffset + " numBits " + numBits);
         }

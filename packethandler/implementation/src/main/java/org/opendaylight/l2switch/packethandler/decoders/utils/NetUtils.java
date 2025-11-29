@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
 import java.net.Inet4Address;
@@ -24,10 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class NetUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
-    /**
-     * Constant holding the number of bits in a byte.
-     */
-    public static final int NUM_BITS_IN_A_BYTE = 8;
 
     /**
      * Constant holding the number of bytes in MAC Address.
@@ -76,7 +71,7 @@ public final class NetUtils {
         long num = 0L;
         int index = 0;
         do {
-            num <<= NUM_BITS_IN_A_BYTE;
+            num <<= Byte.SIZE;
             num |= 0xff & ba[index];
             index++;
         } while (index < MAC_ADDR_LENGTH_IN_BYTES);
@@ -95,7 +90,7 @@ public final class NetUtils {
         int index = MAC_ADDR_LENGTH_IN_BYTES - 1;
         do {
             mac[index] = (byte) addr;
-            addr >>>= NUM_BITS_IN_A_BYTE;
+            addr >>>= Byte.SIZE;
             index--;
         } while (index >= 0);
         return mac;
@@ -184,11 +179,11 @@ public final class NetUtils {
         if (subnetMask != null && (subnetMask.length == 4 || subnetMask.length == 16)) {
             int index = 0;
             while (index < subnetMask.length && subnetMask[index] == (byte) 0xFF) {
-                maskLength += NetUtils.NUM_BITS_IN_A_BYTE;
+                maskLength += Byte.SIZE;
                 index++;
             }
             if (index != subnetMask.length) {
-                int bits = NetUtils.NUM_BITS_IN_A_BYTE - 1;
+                int bits = Byte.SIZE - 1;
                 while (bits >= 0 && (subnetMask[index] & 1 << bits) != 0) {
                     bits--;
                     maskLength++;
