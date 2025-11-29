@@ -115,8 +115,8 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
     }
 
     @Override
-    public Class<ArpPacketReceived> getPacketType() {
-        return ArpPacketReceived.class;
+    public Class<EthernetPacketReceived> getConsumedType() {
+        return EthernetPacketReceived.class;
     }
 
     @Override
