@@ -18,39 +18,31 @@ import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 
-// FIXME: implement NotificationPublishService.DemandMonitor using commented out code
 final class PacketListener<C extends Notification<C> & DataObject, P extends Notification<P> & DataObject>
-        implements NotificationService.Listener<C> {
+        implements NotificationPublishService.DemandMonitor, NotificationService.Listener<C> {
     private final @NonNull NotificationPublishService notificationPublishService;
+    private final @NonNull NotificationService notificationService;
     private final @NonNull PacketDecoder<C, P> decoder;
     private final @NonNull ExecutorService executor;
 
-    private Registration consumerReg;
+    private Registration demandReg;
 
     PacketListener(final NotificationPublishService notificationPublishService,
             final NotificationService notificationService, final PacketDecoder<C, P> decoder) {
         this.notificationPublishService = requireNonNull(notificationPublishService);
-        requireNonNull(notificationService);
+        this.notificationService = requireNonNull(notificationService);
         this.decoder = requireNonNull(decoder);
 
         // FIXME: use a better/shared executor
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        consumerReg = notificationService.registerListener(decoder.consumedType(), this, executor);
+        demandReg = notificationPublishService.registerDemandMonitor(decoder.producedType(), this);
     }
 
-//  /**
-//   * Keeps track of listeners registered for the notification that a decoder
-//   * produces.
-//   */
-//  public synchronized void onNotificationSubscribtion(Class<? extends Notification> clazz) {
-//      if (clazz != null && clazz.equals(producedPacketNotificationType)) {
-//          if (listenerRegistration == null) {
-//              NotificationListener notificationListener = getConsumedNotificationListener();
-//              listenerRegistration = notificationProviderService.registerNotificationListener(notificationListener);
-//          }
-//      }
-//  }
+    @Override
+    public Registration demandEncountered() {
+        return notificationService.registerListener(decoder.consumedType(), this, executor);
+    }
 
     @Override
     public void onNotification(final C notification) {
@@ -73,9 +65,9 @@ final class PacketListener<C extends Notification<C> & DataObject, P extends Not
     }
 
     void close() {
-        if (consumerReg != null) {
-            consumerReg.close();
-            consumerReg = null;
+        if (demandReg != null) {
+            demandReg.close();
+            demandReg = null;
         }
         executor.shutdown();
     }
