@@ -141,10 +141,6 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null) {
-            return false;
-        }
-
         final var packetChain = ethernetPacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()
             && packetChain.getLast().getPacket() instanceof EthernetPacket ethernetPacket

@@ -100,10 +100,6 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
     @Override
     public boolean canDecode(Ipv4PacketReceived ipv4PacketReceived) {
-        if (ipv4PacketReceived == null) {
-            return false;
-        }
-
         // Only decode the latest packet in the chain
         final var packetChain = ipv4PacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()

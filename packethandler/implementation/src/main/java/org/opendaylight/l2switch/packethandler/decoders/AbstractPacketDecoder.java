@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
@@ -93,7 +94,7 @@ public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implem
 
     public abstract Class getPacketType();
 
-    public abstract boolean canDecode(C consumedPacketNotification);
+    public abstract boolean canDecode(@NonNull C consumedPacketNotification);
 
     @Override
     public void close() {

@@ -183,6 +183,6 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
 
     @Override
     public boolean canDecode(PacketReceived packetReceived) {
-        return packetReceived != null && packetReceived.getPayload() != null;
+        return packetReceived.getPayload() != null;
     }
 }

@@ -126,10 +126,6 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null) {
-            return false;
-        }
-
         // Only decode the latest packet in the chain
         final var packetChain = ethernetPacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()
