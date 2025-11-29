@@ -175,11 +175,4 @@ public class NetUtilsTest {
             (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
         assertTrue(NetUtils.getSubnetMaskLength(address11) == 0);
     }
-
-    @Test
-    public void testGetSubnetPrefix() throws UnknownHostException {
-        InetAddress ip = InetAddress.getByName("192.128.64.252");
-        int maskLen = 25;
-        assertTrue(NetUtils.getSubnetPrefix(ip, maskLen).equals(InetAddress.getByName("192.128.64.128")));
-    }
 }

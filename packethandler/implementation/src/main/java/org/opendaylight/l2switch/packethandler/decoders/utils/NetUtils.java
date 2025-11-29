@@ -103,35 +103,4 @@ public final class NetUtils {
     public static int getSubnetMaskLength(InetAddress subnetMask) {
         return subnetMask == null ? 0 : NetUtils.getSubnetMaskLength(subnetMask.getAddress());
     }
-
-    /**
-     * Given an IP address and a prefix network mask length, it returns the
-     * equivalent subnet prefix IP address Example: for ip = "172.28.30.254" and
-     * maskLen = 25 it will return "172.28.30.128".
-     *
-     * @param ip
-     *            the IP address in InetAddress form
-     * @param maskLen
-     *            the length of the prefix network mask
-     * @return the subnet prefix IP address in InetAddress form
-     */
-    public static InetAddress getSubnetPrefix(InetAddress ip, int maskLen) {
-        int bytes = maskLen / 8;
-        int bits = maskLen % 8;
-        byte modifiedByte;
-        byte[] sn = ip.getAddress();
-        if (bits > 0) {
-            modifiedByte = (byte) (sn[bytes] >> 8 - bits);
-            sn[bytes] = (byte) (modifiedByte << 8 - bits);
-            bytes++;
-        }
-        for (; bytes < sn.length; bytes++) {
-            sn[bytes] = (byte) 0;
-        }
-        try {
-            return InetAddress.getByAddress(sn);
-        } catch (UnknownHostException e) {
-            return null;
-        }
-    }
 }
