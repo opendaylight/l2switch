@@ -15,7 +15,6 @@ import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.IcmpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.IcmpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.icmp.packet.received.packet.chain.packet.IcmpPacketBuilder;
@@ -101,20 +100,14 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
 
     @Override
     public boolean canDecode(Ipv4PacketReceived ipv4PacketReceived) {
-        if (ipv4PacketReceived == null || ipv4PacketReceived.getPacketChain() == null) {
+        if (ipv4PacketReceived == null) {
             return false;
         }
 
         // Only decode the latest packet in the chain
-        Ipv4Packet ipv4Packet = null;
-        if (!ipv4PacketReceived.getPacketChain().isEmpty()) {
-            Packet packet = ipv4PacketReceived.getPacketChain().get(ipv4PacketReceived.getPacketChain().size() - 1)
-                    .getPacket();
-            if (packet instanceof Ipv4Packet) {
-                ipv4Packet = (Ipv4Packet) packet;
-            }
-        }
-
-        return ipv4Packet != null && KnownIpProtocols.Icmp.equals(ipv4Packet.getProtocol());
+        final var packetChain = ipv4PacketReceived.getPacketChain();
+        return packetChain != null && !packetChain.isEmpty()
+            && packetChain.getLast().getPacket() instanceof Ipv4Packet ipv4Packet
+            && KnownIpProtocols.Icmp.equals(ipv4Packet.getProtocol());
     }
 }
