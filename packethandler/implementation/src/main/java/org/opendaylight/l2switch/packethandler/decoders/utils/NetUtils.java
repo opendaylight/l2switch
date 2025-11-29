@@ -25,11 +25,6 @@ public final class NetUtils {
     public static final int MAC_ADDR_LENGTH_IN_BYTES = 6;
 
     /**
-     * Constant holding the number of words in MAC Address.
-     */
-    public static final int MAC_ADDR_LENGTH_IN_WORDS = 3;
-
-    /**
      * Constant holding the broadcast MAC address.
      */
     private static final byte[] BROADCAST_MAC_ADDR = { -1, -1, -1, -1, -1, -1 };
