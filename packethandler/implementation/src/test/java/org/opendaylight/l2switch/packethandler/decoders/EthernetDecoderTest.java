@@ -14,13 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
@@ -32,19 +26,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@ExtendWith(MockitoExtension.class)
 class EthernetDecoderTest {
-    @Mock
-    private NotificationPublishService notificationPublishService;
-    @Mock
-    private NotificationService notificationService;
-
-    private EthernetDecoder ethernetDecoder;
-
-    @BeforeEach
-    void beforeEach() {
-        ethernetDecoder = new EthernetDecoder(notificationPublishService, notificationService);
-    }
+    private final EthernetDecoder ethernetDecoder = new EthernetDecoder();
 
     @Test
     void testDecode_IPv4EtherType() {

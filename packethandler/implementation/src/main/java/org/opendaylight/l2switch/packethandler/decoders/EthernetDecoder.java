@@ -8,12 +8,10 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.ArrayList;
+import org.opendaylight.l2switch.packethandler.PacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -38,33 +36,26 @@ import org.slf4j.LoggerFactory;
 /**
  * Ethernet Packet Decoder.
  */
-public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, EthernetPacketReceived>
-        implements Listener<PacketReceived> {
+public final class EthernetDecoder extends PacketDecoder<PacketReceived, EthernetPacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(EthernetDecoder.class);
-    public static final Integer LENGTH_MAX = 1500;
-    public static final Integer ETHERTYPE_MIN = 1536;
-    public static final Integer ETHERTYPE_8021Q = 0x8100;
-    public static final Integer ETHERTYPE_QINQ = 0x9100;
+    // FIXME: what about jumbo packets?
+    private static final Integer LENGTH_MAX = 1500;
+    private static final Integer ETHERTYPE_MIN = 1536;
+    private static final Integer ETHERTYPE_8021Q = 0x8100;
+    private static final Integer ETHERTYPE_QINQ = 0x9100;
 
-    public EthernetDecoder(NotificationPublishService notificationProviderService,
-                           NotificationService notificationService) {
-        super(EthernetPacketReceived.class, notificationProviderService, notificationService);
-    }
-
-    @Override
-    public void onNotification(PacketReceived packetReceived) {
-        decodeAndPublish(packetReceived);
+    public EthernetDecoder() {
+        super(PacketReceived.class, EthernetPacketReceived.class);
     }
 
     /**
      * Decode a RawPacket into an EthernetPacket.
      *
-     * @param packetReceived
-     *            -- data from wire to deserialize
+     * @param packetReceived data from wire to deserialize
      * @return EthernetPacketReceived
      */
     @Override
-    public EthernetPacketReceived decode(PacketReceived packetReceived) {
+    protected EthernetPacketReceived decode(final PacketReceived packetReceived) {
         byte[] data = packetReceived.getPayload();
         EthernetPacketReceivedBuilder builder = new EthernetPacketReceivedBuilder();
 
@@ -172,17 +163,7 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     }
 
     @Override
-    public Listener<PacketReceived> getConsumedListener() {
-        return this;
-    }
-
-    @Override
-    public Class<PacketReceived> getConsumedType() {
-        return PacketReceived.class;
-    }
-
-    @Override
-    public boolean canDecode(PacketReceived packetReceived) {
+    public boolean canDecode(final PacketReceived packetReceived) {
         return packetReceived.getPayload() != null;
     }
 }

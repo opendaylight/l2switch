@@ -12,13 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
@@ -29,19 +23,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@ExtendWith(MockitoExtension.class)
 class IcmpDecoderTest {
-    @Mock
-    private NotificationPublishService notificationPublishService;
-    @Mock
-    private NotificationService notificationService;
-
-    private IcmpDecoder icmpDecoder;
-
-    @BeforeEach
-    void beforeEach() {
-        icmpDecoder = new IcmpDecoder(notificationPublishService, notificationService);
-    }
+    private final IcmpDecoder icmpDecoder = new IcmpDecoder();
 
     @Test
     void testDecode() {
