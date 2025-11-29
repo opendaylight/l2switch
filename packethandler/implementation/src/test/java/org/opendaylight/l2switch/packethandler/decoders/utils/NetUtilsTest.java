@@ -17,43 +17,6 @@ import java.util.Arrays;
 import org.junit.Test;
 
 public class NetUtilsTest {
-
-    @Test
-    public void testByteArrayMethods() {
-        int ip = 8888;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        ip = 0xffffffff;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        ip = 0;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        ip = 0x1fffffff;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        ip = 0xfffffff;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        ip = 0xf000ffff;
-        assertTrue(NetUtils.byteArray4ToInt(NetUtils.intToByteArray4(ip)) == ip);
-
-        byte[] ba = { (byte) 0xf, (byte) 0xf, (byte) 0xf, (byte) 0xff };
-        assertTrue(Arrays.equals(ba, NetUtils.intToByteArray4(NetUtils.byteArray4ToInt(ba))));
-
-        byte[] ba1 = { (byte) 255, (byte) 255, (byte) 255, (byte) 255 };
-        assertTrue(Arrays.equals(ba1, NetUtils.intToByteArray4(NetUtils.byteArray4ToInt(ba1))));
-
-        byte[] ba2 = { (byte) 255, (byte) 0, (byte) 0, (byte) 0 };
-        assertTrue(Arrays.equals(ba2, NetUtils.intToByteArray4(NetUtils.byteArray4ToInt(ba2))));
-
-        byte[] ba3 = { (byte) 0, (byte) 0, (byte) 0, (byte) 0 };
-        assertTrue(Arrays.equals(ba3, NetUtils.intToByteArray4(NetUtils.byteArray4ToInt(ba3))));
-
-        byte[] ba4 = { (byte) 255, (byte) 128, (byte) 0, (byte) 0 };
-        assertTrue(Arrays.equals(ba4, NetUtils.intToByteArray4(NetUtils.byteArray4ToInt(ba4))));
-    }
-
     @Test
     public void testByteArrayMethodsForLong() {
         // Test of longToByteArray6 method.

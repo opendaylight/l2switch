@@ -40,20 +40,7 @@ public final class NetUtils {
     private static final byte[] BROADCAST_MAC_ADDR = { -1, -1, -1, -1, -1, -1 };
 
     private NetUtils() {
-    }
-
-    /**
-     * Converts a 4 bytes array into an integer number.
-     *
-     * @param ba
-     *            the 4 bytes long byte array
-     * @return the integer number
-     */
-    public static int byteArray4ToInt(byte[] ba) {
-        if (ba == null || ba.length != 4) {
-            return 0;
-        }
-        return (0xff & ba[0]) << 24 | (0xff & ba[1]) << 16 | (0xff & ba[2]) << 8 | 0xff & ba[3];
+        // Hidden on purpose
     }
 
     /**
@@ -94,18 +81,6 @@ public final class NetUtils {
             index--;
         } while (index >= 0);
         return mac;
-    }
-
-    /**
-     * Converts an integer number into a 4 bytes array.
-     *
-     * @param value
-     *            the integer number
-     * @return the byte array
-     */
-    public static byte[] intToByteArray4(int value) {
-        return new byte[] { (byte) (value >> 24 & 0xff), (byte) (value >> 16 & 0xff), (byte) (value >> 8 & 0xff),
-            (byte) (value & 0xff) };
     }
 
     /**
