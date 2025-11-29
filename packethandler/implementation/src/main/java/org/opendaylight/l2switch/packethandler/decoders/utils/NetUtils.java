@@ -44,46 +44,6 @@ public final class NetUtils {
     }
 
     /**
-     * Converts a 6 bytes array into a long number MAC addresses.
-     *
-     * @param ba
-     *            The 6 bytes long byte array.
-     * @return The long number. Zero is returned if {@code ba} is {@code null}
-     *         or the length of it is not six.
-     */
-    public static long byteArray6ToLong(byte[] ba) {
-        if (ba == null || ba.length != MAC_ADDR_LENGTH_IN_BYTES) {
-            return 0L;
-        }
-        long num = 0L;
-        int index = 0;
-        do {
-            num <<= Byte.SIZE;
-            num |= 0xff & ba[index];
-            index++;
-        } while (index < MAC_ADDR_LENGTH_IN_BYTES);
-        return num;
-    }
-
-    /**
-     * Converts a long number to a 6 bytes array for MAC addresses.
-     *
-     * @param addr
-     *            The long number.
-     * @return The byte array.
-     */
-    public static byte[] longToByteArray6(long addr) {
-        byte[] mac = new byte[MAC_ADDR_LENGTH_IN_BYTES];
-        int index = MAC_ADDR_LENGTH_IN_BYTES - 1;
-        do {
-            mac[index] = (byte) addr;
-            addr >>>= Byte.SIZE;
-            index--;
-        } while (index >= 0);
-        return mac;
-    }
-
-    /**
      * Return the InetAddress Network Mask given the length of the prefix bit
      * mask. The prefix bit mask indicates the contiguous leading bits that are
      * NOT masked out. Example: A prefix bit mask length of 8 will give an
