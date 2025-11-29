@@ -7,7 +7,7 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import java.util.List;
+import java.util.ArrayList;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpPacketReceived>
         implements Listener<Ipv4PacketReceived> {
-
     private static final Logger LOG = LoggerFactory.getLogger(IcmpDecoder.class);
 
     public IcmpDecoder(NotificationPublishService notificationProviderService,
@@ -40,12 +39,11 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
      */
     @Override
     public IcmpPacketReceived decode(Ipv4PacketReceived ipv4PacketReceived) {
-        IcmpPacketReceivedBuilder icmpReceivedBuilder = new IcmpPacketReceivedBuilder();
 
         // Find the latest packet in the packet-chain, which is an
         // EthernetPacket
-        List<PacketChain> packetChainList = ipv4PacketReceived.getPacketChain();
-        Ipv4Packet ipv4Packet = (Ipv4Packet) packetChainList.get(packetChainList.size() - 1).getPacket();
+        final var recvPacketChain = ipv4PacketReceived.nonnullPacketChain();
+        var ipv4Packet = (Ipv4Packet) recvPacketChain.getLast().getPacket();
         int bitOffset = ipv4Packet.getPayloadOffset().intValue() * Byte.SIZE;
         byte[] data = ipv4PacketReceived.getPayload();
 
@@ -74,13 +72,15 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
         }
 
         // build icmp
-        packetChainList.add(new PacketChainBuilder().setPacket(builder.build()).build());
-        icmpReceivedBuilder.setPacketChain(packetChainList);
+        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
+        packetChain.addAll(recvPacketChain);
+        packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
-        // carry forward the original payload.
-        icmpReceivedBuilder.setPayload(ipv4PacketReceived.getPayload());
-
-        return icmpReceivedBuilder.build();
+        return new IcmpPacketReceivedBuilder()
+            .setPacketChain(packetChain)
+            // carry forward the original payload.
+            .setPayload(ipv4PacketReceived.getPayload())
+            .build();
     }
 
     @Override
