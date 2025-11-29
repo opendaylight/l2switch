@@ -146,22 +146,6 @@ public final class NetUtils {
     }
 
     /**
-     * Returns true if the passed MAC address is all zero.
-     *
-     * @param mac
-     *            the byte array representing the MAC address
-     * @return true if all MAC bytes are zero
-     */
-    public static boolean isZeroMAC(byte[] mac) {
-        for (short i = 0; i < 6; i++) {
-            if (mac[i] != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Returns true if the MAC address is the broadcast MAC address and false
      * otherwise.
      *
