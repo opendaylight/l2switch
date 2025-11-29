@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownO
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.Packet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
@@ -126,20 +125,14 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
 
     @Override
     public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
-        if (ethernetPacketReceived == null || ethernetPacketReceived.getPacketChain() == null) {
+        if (ethernetPacketReceived == null) {
             return false;
         }
 
         // Only decode the latest packet in the chain
-        EthernetPacket ethernetPacket = null;
-        if (!ethernetPacketReceived.getPacketChain().isEmpty()) {
-            Packet packet = ethernetPacketReceived.getPacketChain()
-                    .get(ethernetPacketReceived.getPacketChain().size() - 1).getPacket();
-            if (packet instanceof EthernetPacket) {
-                ethernetPacket = (EthernetPacket) packet;
-            }
-        }
-
-        return ethernetPacket != null && KnownEtherType.Arp.equals(ethernetPacket.getEthertype());
+        final var packetChain = ethernetPacketReceived.getPacketChain();
+        return packetChain != null && !packetChain.isEmpty()
+            && packetChain.getLast().getPacket() instanceof EthernetPacket ethernetPacket
+            && KnownEtherType.Arp.equals(ethernetPacket.getEthertype());
     }
 }
