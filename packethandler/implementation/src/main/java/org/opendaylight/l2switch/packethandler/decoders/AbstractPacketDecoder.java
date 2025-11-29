@@ -25,7 +25,6 @@ import org.opendaylight.yangtools.concepts.Registration;
 // FIXME: implement NotificationPublishService.DemandMonitor using commented out code
 public abstract class AbstractPacketDecoder<C extends Notification<C> & DataObject,
         P extends Notification<P> & DataObject> implements AutoCloseable {
-
     //private final Class<P> producedPacketNotificationType;
     private final NotificationPublishService notificationProviderService;
     private final NotificationService notificationService;
@@ -46,19 +45,6 @@ public abstract class AbstractPacketDecoder<C extends Notification<C> & DataObje
         this.notificationService = notificationService;
         listenerRegistration = this.notificationService.registerListener(getConsumedType(), getConsumedListener());
     }
-
-//    /**
-//     * Keeps track of listeners registered for the notification that a decoder
-//     * produces.
-//     */
-//    public synchronized void onNotificationSubscribtion(Class<? extends Notification> clazz) {
-//        if (clazz != null && clazz.equals(producedPacketNotificationType)) {
-//            if (listenerRegistration == null) {
-//                NotificationListener notificationListener = getConsumedNotificationListener();
-//                listenerRegistration = notificationProviderService.registerNotificationListener(notificationListener);
-//            }
-//        }
-//    }
 
     /**
      * Every extended decoder should call this method on a receipt of a input
