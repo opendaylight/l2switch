@@ -62,32 +62,4 @@ public final class NetUtils {
         }
         return null;
     }
-
-    /**
-     * Returns the prefix size in bits of the specified subnet mask. Example:
-     * For the subnet mask ff.ff.ff.e0 it returns 25 while for ff.00.00.00 it
-     * returns 8. If the passed subnetMask array is null, 0 is returned.
-     *
-     * @param subnetMask
-     *            the subnet mask as byte array
-     * @return the prefix length as number of bits
-     */
-    public static int getSubnetMaskLength(byte[] subnetMask) {
-        int maskLength = 0;
-        if (subnetMask != null && (subnetMask.length == 4 || subnetMask.length == 16)) {
-            int index = 0;
-            while (index < subnetMask.length && subnetMask[index] == (byte) 0xFF) {
-                maskLength += Byte.SIZE;
-                index++;
-            }
-            if (index != subnetMask.length) {
-                int bits = Byte.SIZE - 1;
-                while (bits >= 0 && (subnetMask[index] & 1 << bits) != 0) {
-                    bits--;
-                    maskLength++;
-                }
-            }
-        }
-        return maskLength;
-    }
 }
