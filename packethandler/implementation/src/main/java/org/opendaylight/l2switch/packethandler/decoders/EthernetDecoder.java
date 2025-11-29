@@ -51,33 +51,40 @@ public final class EthernetDecoder extends FirstDecoder<EthernetPacketReceived> 
     /**
      * Decode a RawPacket into an EthernetPacket.
      *
-     * @param packetReceived data from wire to deserialize
+     * @param input data from wire to deserialize
      * @return EthernetPacketReceived
      */
     @Override
-    protected EthernetPacketReceived decode(final PacketReceived packetReceived) {
-        byte[] data = packetReceived.getPayload();
-        EthernetPacketReceivedBuilder builder = new EthernetPacketReceivedBuilder();
+    protected EthernetPacketReceived tryDecode(final PacketReceived input) {
+        final var data = input.getPayload();
+        if (data == null) {
+            return null;
+        }
 
         // Save original rawPacket & set the payloadOffset/payloadLength fields
-        RawPacketFieldsBuilder rpfb = new RawPacketFieldsBuilder()
-                .setIngress(packetReceived.getIngress())
-                .setConnectionCookie(packetReceived.getConnectionCookie())
-                .setFlowCookie(packetReceived.getFlowCookie())
-                .setTableId(packetReceived.getTableId())
-                .setPacketInReason(packetReceived.getPacketInReason())
+        final var rpfb = new RawPacketFieldsBuilder()
+                .setIngress(input.getIngress())
+                .setConnectionCookie(input.getConnectionCookie())
+                .setFlowCookie(input.getFlowCookie())
+                .setTableId(input.getTableId())
+                .setPacketInReason(input.getPacketInReason())
                 .setPayloadOffset(Uint32.ZERO)
                 .setPayloadLength(Uint32.valueOf(data.length));
-        if (packetReceived.getMatch() != null) {
-            rpfb.setMatch(new MatchBuilder(packetReceived.getMatch()).build());
+
+        final var match = input.getMatch();
+        if (match != null) {
+            rpfb.setMatch(new MatchBuilder(match).build());
         }
-        ArrayList<PacketChain> packetChain = new ArrayList<>();
+
+        final var packetChain = new ArrayList<PacketChain>(2);
         packetChain.add(new PacketChainBuilder()
             .setPacket(new RawPacketBuilder().setRawPacketFields(rpfb.build()).build())
             .build());
 
+        final var builder = new EthernetPacketReceivedBuilder();
+
         try {
-            EthernetPacketBuilder epBuilder = new EthernetPacketBuilder();
+            final var epBuilder = new EthernetPacketBuilder();
 
             // Deserialize the destination & source fields
             epBuilder.setDestinationMac(
@@ -160,10 +167,5 @@ public final class EthernetDecoder extends FirstDecoder<EthernetPacketReceived> 
          */
         builder.setPacketChain(packetChain);
         return builder.build();
-    }
-
-    @Override
-    public boolean canDecode(final PacketReceived packetReceived) {
-        return packetReceived.getPayload() != null;
     }
 }

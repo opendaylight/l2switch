@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv6.rev140528.ipv6.packet.received.packet.chain.packet.Ipv6Packet;
@@ -57,14 +59,19 @@ class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
 
-        var notification = ipv6Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv6Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv6)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(payload)
             .build());
+        assertNotNull(notification);
+
         var ipv6Packet = assertInstanceOf(Ipv6Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(6), ipv6Packet.getVersion());
         assertEquals(new Dscp(Uint8.valueOf(3)), ipv6Packet.getDscp());
@@ -101,14 +108,19 @@ class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
 
-        var notification = ipv6Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv6Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv6)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(payload)
             .build());
+        assertNotNull(notification);
+
         var ipv6Packet = assertInstanceOf(Ipv6Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(6), ipv6Packet.getVersion());
         assertEquals(new Dscp(Uint8.valueOf(3)), ipv6Packet.getDscp());
@@ -153,14 +165,19 @@ class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
 
-        var notification = ipv6Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv6Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv6)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(payload)
             .build());
+        assertNotNull(notification);
+
         var ipv6Packet = assertInstanceOf(Ipv6Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(6), ipv6Packet.getVersion());
         assertEquals(new Dscp(Uint8.valueOf(3)), ipv6Packet.getDscp());
@@ -209,14 +226,19 @@ class Ipv6DecoderTest {
             0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
         };
 
-        var notification = ipv6Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv6Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv6)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(payload)
             .build());
+        assertNotNull(notification);
+
         var ipv6Packet = assertInstanceOf(Ipv6Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(6), ipv6Packet.getVersion());
         assertEquals(new Dscp(Uint8.ZERO), ipv6Packet.getDscp());
@@ -252,14 +274,19 @@ class Ipv6DecoderTest {
             (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff // Ethernet Crc
         };
 
-        var notification = ipv6Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv6Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv6)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(payload)
             .build());
+        assertNotNull(notification);
+
         var ipv6Packet = assertInstanceOf(Ipv6Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(6), ipv6Packet.getVersion());
         assertEquals(new Dscp(Uint8.ZERO), ipv6Packet.getDscp());

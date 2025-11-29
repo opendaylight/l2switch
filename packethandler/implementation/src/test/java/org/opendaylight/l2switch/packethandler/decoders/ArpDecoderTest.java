@@ -9,6 +9,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -36,11 +37,12 @@ class ArpDecoderTest {
 
     @Test
     void testDecode_RequestIPv4() {
-        var notification = arpDecoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = arpDecoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
                     .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Arp)
                         .setPayloadOffset(Uint32.valueOf(5))
                         .setPayloadLength(Uint32.valueOf(33))
                         .build())
@@ -58,6 +60,7 @@ class ArpDecoderTest {
                 0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
             })
             .build());
+        assertNotNull(notification);
 
         var arpPacket = assertInstanceOf(ArpPacket.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(KnownHardwareType.Ethernet, arpPacket.getHardwareType());
@@ -73,11 +76,12 @@ class ArpDecoderTest {
 
     @Test
     void testDecode_ReplyIPv4() {
-        var notification = arpDecoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = arpDecoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
                     .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Arp)
                         .setPayloadOffset(Uint32.valueOf(8))
                         .setPayloadLength(Uint32.valueOf(36))
                         .build())
@@ -95,6 +99,7 @@ class ArpDecoderTest {
                 0x01, 0x02, 0x03, 0x04 // Dest Protocol Address
             })
             .build());
+        assertNotNull(notification);
 
         var arpPacket = assertInstanceOf(ArpPacket.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(KnownHardwareType.Ethernet, arpPacket.getHardwareType());
@@ -111,14 +116,15 @@ class ArpDecoderTest {
     // This test is from a Mininet VM, from a wireshark dump
     @Test
     void testDecode_Broadcast() {
-        var notification = arpDecoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = arpDecoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
                     .setPacket(new EthernetPacketBuilder()
-                    .setPayloadOffset(Uint32.valueOf(14))
-                    .build())
-                .build()))
+                        .setEthertype(KnownEtherType.Arp)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
+                    .build()))
             .setPayload(new byte[] {
                 // Ethernet start
                 (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xba, 0x43, 0x52,
@@ -128,6 +134,7 @@ class ArpDecoderTest {
                 0x0a, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x02
             })
             .build());
+        assertNotNull(notification);
 
         var arpPacket = assertInstanceOf(ArpPacket.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(KnownHardwareType.Ethernet, arpPacket.getHardwareType());

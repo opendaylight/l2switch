@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4Packet;
@@ -57,14 +59,19 @@ class Ipv4DecoderTest {
             (byte) 0x98, (byte) 0xfe, (byte) 0xdc, (byte) 0xba // CRC
         };
 
-        var notification = ipv4Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv4Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(14)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv4)
+                        .setPayloadOffset(Uint32.valueOf(14))
+                        .build())
                     .build()))
             .setPayload(ethPayload)
             .build());
+        assertNotNull(notification);
+
         var ipv4Packet = assertInstanceOf(Ipv4Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(4), ipv4Packet.getVersion());
         assertEquals(Uint8.valueOf(5), ipv4Packet.getIhl());
@@ -109,14 +116,19 @@ class Ipv4DecoderTest {
             (byte) 0x98, (byte) 0xfe, (byte) 0xdc, (byte) 0xba // CRC
         };
 
-        var notification = ipv4Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv4Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(16)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv4)
+                        .setPayloadOffset(Uint32.valueOf(16))
+                        .build())
                     .build()))
             .setPayload(ethPayload)
             .build());
+        assertNotNull(notification);
+
         var ipv4Packet = assertInstanceOf(Ipv4Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(4), ipv4Packet.getVersion());
         assertEquals(Uint8.valueOf(5), ipv4Packet.getIhl());
@@ -162,14 +174,19 @@ class Ipv4DecoderTest {
             (byte) 0x98, (byte) 0xfe, (byte) 0xdc, (byte) 0xba // CRC
         };
 
-        var notification = ipv4Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv4Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new EthernetPacketBuilder().setPayloadOffset(Uint32.valueOf(18)).build())
+                    .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv4)
+                        .setPayloadOffset(Uint32.valueOf(18))
+                        .build())
                     .build()))
             .setPayload(ethPayload)
             .build());
+        assertNotNull(notification);
+
         var ipv4Packet = assertInstanceOf(Ipv4Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(15), ipv4Packet.getVersion());
         assertEquals(Uint8.valueOf(5), ipv4Packet.getIhl());
@@ -208,16 +225,19 @@ class Ipv4DecoderTest {
             0x00, 0x44, 0x00, 0x43, 0x01, 0x34, 0x2d, (byte)0xf5, 0x01, 0x01, 0x06, 0x00, (byte)0xdf, (byte)0xcc
         };
 
-        var notification = ipv4Decoder.decode(new EthernetPacketReceivedBuilder()
+        var notification = ipv4Decoder.tryDecode(new EthernetPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder()
                     .setPacket(new EthernetPacketBuilder()
+                        .setEthertype(KnownEtherType.Ipv4)
                         .setPayloadOffset(Uint32.valueOf(14))
                         .build())
                     .build()))
             .setPayload(ethPayload)
             .build());
+        assertNotNull(notification);
+
         var ipv4Packet = assertInstanceOf(Ipv4Packet.class, notification.nonnullPacketChain().get(2).getPacket());
         assertEquals(Uint8.valueOf(4), ipv4Packet.getVersion());
         assertEquals(Uint8.valueOf(5), ipv4Packet.getIhl());

@@ -42,12 +42,13 @@ public abstract sealed class AbstractDecoder<
         return producedType;
     }
 
-    protected abstract boolean canDecode(@NonNull C packetReceived);
-
     /**
-     * Decodes the payload in given Packet further and returns a extension of Packet. e.g. ARP, IPV4, LLDP etc.
+     * Try to decodes the payload in given Packet further and returns a extension of Packet. e.g. ARP, IPV4, LLDP etc.
+     *
+     * @param input the input of {@link #consumedType()}
+     * @return output of {@link #producedType()} or {@code null} if the packet cannot be decoded
      */
-    protected abstract @Nullable P decode(@NonNull C packetReceived);
+    protected abstract @Nullable P tryDecode(@NonNull C input);
 
     @Override
     public final String toString() {

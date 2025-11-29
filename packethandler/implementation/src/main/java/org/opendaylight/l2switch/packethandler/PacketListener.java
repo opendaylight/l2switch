@@ -103,13 +103,9 @@ final class PacketListener<
 
     @Override
     public void onNotification(final C notification) {
-        // FIXME: improve calling convention: canDecode() and decode() should be combined into tryDecode()
-        if (!decoder.canDecode(notification)) {
-            return;
-        }
-
-        final var decoded = decoder.decode(notification);
+        final var decoded = decoder.tryDecode(notification);
         if (decoded == null) {
+            LOG.debug("{} could not decode {}", decoder, notification);
             return;
         }
 
