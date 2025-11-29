@@ -346,20 +346,4 @@ public final class NetUtils {
     public static int getUnsignedShort(short value) {
         return value & 0xFFFF;
     }
-
-    /**
-     * Returns the highest v4 or v6 InetAddress.
-     *
-     * @param v6
-     *            true for IPv6, false for Ipv4
-     * @return The highest IPv4 or IPv6 address
-     */
-    public static InetAddress gethighestIP(boolean v6) {
-        try {
-            return v6 ? InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
-                    : InetAddress.getByName("255.255.255.255");
-        } catch (UnknownHostException e) {
-            return null;
-        }
-    }
 }
