@@ -7,7 +7,6 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders.utils;
 
-import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -153,50 +152,6 @@ public final class NetUtils {
         } catch (UnknownHostException e) {
             return null;
         }
-    }
-
-    /**
-     * Checks if the test address and mask conflicts with the filter address and mask.
-     *
-     * <p>For example: testAddress: 172.28.2.23 testMask: 255.255.255.0
-     * filterAddress: 172.28.1.10 testMask: 255.255.255.0 do conflict
-     *
-     * <p>testAddress: 172.28.2.23 testMask: 255.255.255.0 filterAddress:
-     * 172.28.1.10 testMask: 255.255.0.0 do not conflict
-     *
-     * <p>Null parameters are permitted
-     *
-     * @param testAddress address to test
-     * @param filterAddress filter address
-     * @param testMask mast to test
-     * @param filterMask filter mask
-     */
-    public static boolean inetAddressConflict(InetAddress testAddress, InetAddress filterAddress, InetAddress testMask,
-            InetAddress filterMask) {
-        // Sanity check
-        if (testAddress == null || filterAddress == null) {
-            return false;
-        }
-
-        // Presence check
-        if (isAny(testAddress) || isAny(filterAddress)) {
-            return false;
-        }
-
-        int testMaskLen = testMask == null ? testAddress instanceof Inet4Address ? 32 : 128
-                : NetUtils.getSubnetMaskLength(testMask);
-        int filterMaskLen = filterMask == null ? testAddress instanceof Inet4Address ? 32 : 128
-                : NetUtils.getSubnetMaskLength(filterMask);
-
-        // Mask length check. Test mask has to be more specific than filter one
-        if (testMaskLen < filterMaskLen) {
-            return true;
-        }
-
-        // Subnet Prefix on filter mask length must be the same
-        InetAddress prefix1 = getSubnetPrefix(testAddress, filterMaskLen);
-        InetAddress prefix2 = getSubnetPrefix(filterAddress, filterMaskLen);
-        return !prefix1.equals(prefix2);
     }
 
     /**
