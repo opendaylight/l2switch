@@ -335,15 +335,4 @@ public final class NetUtils {
     public static int getUnsignedByte(byte value) {
         return value & 0xFF;
     }
-
-    /**
-     * Return the unsigned value of the passed short variable.
-     *
-     * @param value
-     *            the short value
-     * @return the int variable containing the unsigned short value
-     */
-    public static int getUnsignedShort(short value) {
-        return value & 0xFFFF;
-    }
 }

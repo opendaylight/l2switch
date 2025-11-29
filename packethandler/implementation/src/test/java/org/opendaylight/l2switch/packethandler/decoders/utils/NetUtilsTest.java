@@ -241,16 +241,6 @@ public class NetUtilsTest {
     }
 
     @Test
-    public void testGetUnsignedShort() {
-        assertEquals(0, NetUtils.getUnsignedShort((short) 0x0000));
-        assertEquals(1, NetUtils.getUnsignedShort((short) 0x0001));
-        assertEquals(32767, NetUtils.getUnsignedShort((short) 0x7fff));
-
-        assertEquals(32768, NetUtils.getUnsignedShort((short) 0x8000));
-        assertEquals(65535, NetUtils.getUnsignedShort((short) 0xffff));
-    }
-
-    @Test
     public void testMulticastMACAddr() {
         byte[] empty = new byte[0];
         assertFalse(NetUtils.isUnicastMACAddr(empty));
