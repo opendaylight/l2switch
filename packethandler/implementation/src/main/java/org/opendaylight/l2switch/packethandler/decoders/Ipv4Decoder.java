@@ -10,11 +10,9 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import org.opendaylight.l2switch.packethandler.PacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
@@ -33,20 +31,18 @@ import org.slf4j.LoggerFactory;
 /**
  * IPv4 Packet Decoder.
  */
-public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, Ipv4PacketReceived>
-        implements Listener<EthernetPacketReceived> {
+public final class Ipv4Decoder extends PacketDecoder<EthernetPacketReceived, Ipv4PacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Decoder.class);
 
-    public Ipv4Decoder(NotificationPublishService notificationProviderService,
-                       NotificationService notificationService) {
-        super(Ipv4PacketReceived.class, notificationProviderService, notificationService);
+    public Ipv4Decoder() {
+        super(EthernetPacketReceived.class, Ipv4PacketReceived.class);
     }
 
     /**
      * Decode an EthernetPacket into an Ipv4Packet.
      */
     @Override
-    public Ipv4PacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
+    protected Ipv4PacketReceived decode(final EthernetPacketReceived ethernetPacketReceived) {
         // Find the latest packet in the packet-chain, which is an EthernetPacket
         final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
         var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
@@ -115,22 +111,7 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     @Override
-    public Listener<EthernetPacketReceived> getConsumedListener() {
-        return this;
-    }
-
-    @Override
-    public Class<EthernetPacketReceived> getConsumedType() {
-        return EthernetPacketReceived.class;
-    }
-
-    @Override
-    public void onNotification(EthernetPacketReceived notification) {
-        decodeAndPublish(notification);
-    }
-
-    @Override
-    public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
+    protected boolean canDecode(final EthernetPacketReceived ethernetPacketReceived) {
         // Only decode the latest packet in the chain
         final var packetChain = ethernetPacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()

@@ -14,13 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -33,19 +27,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@ExtendWith(MockitoExtension.class)
 class Ipv6DecoderTest {
-    @Mock
-    private NotificationPublishService notificationPublishService;
-    @Mock
-    private NotificationService notificationService;
-
-    private Ipv6Decoder ipv6Decoder;
-
-    @BeforeEach
-    void beforeEach() {
-        ipv6Decoder = new Ipv6Decoder(notificationPublishService, notificationService);
-    }
+    private final Ipv6Decoder ipv6Decoder = new Ipv6Decoder();
 
     @Test
     void testDecode() {
