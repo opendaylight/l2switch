@@ -47,13 +47,15 @@ public final class Ipv6Decoder extends SubsequentDecoder<EthernetPacketReceived,
      * Decode an EthernetPacket into an Ipv4Packet.
      */
     @Override
-    protected Ipv6PacketReceived decode(final EthernetPacketReceived ethernetPacketReceived) {
-        // Find the latest packet in the packet-chain, which is an
-        // EthernetPacket
-        final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
-        var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
+    protected Ipv6PacketReceived tryDecode(final EthernetPacketReceived input, final List<PacketChain> chain) {
+        // Find the latest packet in the packet-chain, which is an EthernetPacket
+        if (!(chain.getLast().getPacket() instanceof EthernetPacket ethernetPacket)
+            || !KnownEtherType.Ipv6.equals(ethernetPacket.getEthertype())) {
+            return null;
+        }
+
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
-        byte[] data = ethernetPacketReceived.getPayload();
+        byte[] data = input.getPayload();
 
         Ipv6PacketBuilder builder = new Ipv6PacketBuilder();
         try {
@@ -108,22 +110,14 @@ public final class Ipv6Decoder extends SubsequentDecoder<EthernetPacketReceived,
         }
 
         // build ipv6
-        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
-        packetChain.addAll(recvPacketChain);
+        final var packetChain = new ArrayList<PacketChain>(chain.size() + 1);
+        packetChain.addAll(chain);
         packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
         return new Ipv6PacketReceivedBuilder()
             .setPacketChain(packetChain)
             // carry forward the original payload.
-            .setPayload(ethernetPacketReceived.getPayload())
+            .setPayload(input.getPayload())
             .build();
-    }
-
-    @Override
-    protected boolean canDecode(final EthernetPacketReceived ethernetPacketReceived) {
-        final var packetChain = ethernetPacketReceived.getPacketChain();
-        return packetChain != null && !packetChain.isEmpty()
-            && packetChain.getLast().getPacket() instanceof EthernetPacket ethernetPacket
-            && KnownEtherType.Ipv6.equals(ethernetPacket.getEthertype());
     }
 }

@@ -8,6 +8,7 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.l2switch.packethandler.SubsequentDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -34,14 +35,15 @@ public final class IcmpDecoder extends SubsequentDecoder<Ipv4PacketReceived, Icm
      * Decode an EthernetPacket into an IcmpPacket.
      */
     @Override
-    protected IcmpPacketReceived decode(final Ipv4PacketReceived ipv4PacketReceived) {
+    protected IcmpPacketReceived tryDecode(final Ipv4PacketReceived input, final List<PacketChain> chain) {
+        // Find the latest packet in the packet-chain, which is an EthernetPacket
+        if (!(chain.getLast().getPacket() instanceof Ipv4Packet ipv4Packet)
+            || !KnownIpProtocols.Icmp.equals(ipv4Packet.getProtocol())) {
+            return null;
+        }
 
-        // Find the latest packet in the packet-chain, which is an
-        // EthernetPacket
-        final var recvPacketChain = ipv4PacketReceived.nonnullPacketChain();
-        var ipv4Packet = (Ipv4Packet) recvPacketChain.getLast().getPacket();
         int bitOffset = ipv4Packet.getPayloadOffset().intValue() * Byte.SIZE;
-        byte[] data = ipv4PacketReceived.getPayload();
+        byte[] data = input.getPayload();
 
         IcmpPacketBuilder builder = new IcmpPacketBuilder();
         try {
@@ -68,23 +70,14 @@ public final class IcmpDecoder extends SubsequentDecoder<Ipv4PacketReceived, Icm
         }
 
         // build icmp
-        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
-        packetChain.addAll(recvPacketChain);
+        final var packetChain = new ArrayList<PacketChain>(chain.size() + 1);
+        packetChain.addAll(chain);
         packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
         return new IcmpPacketReceivedBuilder()
             .setPacketChain(packetChain)
             // carry forward the original payload.
-            .setPayload(ipv4PacketReceived.getPayload())
+            .setPayload(input.getPayload())
             .build();
-    }
-
-    @Override
-    protected boolean canDecode(final Ipv4PacketReceived ipv4PacketReceived) {
-        // Only decode the latest packet in the chain
-        final var packetChain = ipv4PacketReceived.getPacketChain();
-        return packetChain != null && !packetChain.isEmpty()
-            && packetChain.getLast().getPacket() instanceof Ipv4Packet ipv4Packet
-            && KnownIpProtocols.Icmp.equals(ipv4Packet.getProtocol());
     }
 }

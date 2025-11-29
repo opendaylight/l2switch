@@ -69,16 +69,15 @@ final class PacketListener<
 
     @Override
     public void onNotification(final C notification) {
-        // FIXME: improve calling convention: canDecode() and decode() should be combined into tryDecode()
-        if (!decoder.canDecode(notification)) {
-            return;
-        }
-
-        final var decoded = decoder.decode(notification);
+        final var decoded = decoder.tryDecode(notification);
         if (decoded == null) {
+            LOG.debug("{} could not decode {}", decoder, notification);
             return;
         }
 
+        // FIXME: We really want to publish notifications only if there are outside observers of the specific result.
+        //        In case this is only an intermediate step towards an observer (via a downstream SubsequentDecoder), we
+        //        want to bypass publishing here and continue decoding the packet on this thread.
         try {
             notificationPublishService.putNotification(decoded);
         } catch (InterruptedException e) {

@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,10 +47,12 @@ class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
             (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba
         };
-        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+        var notification = ethernetDecoder.tryDecode(new PacketReceivedBuilder()
             .setPayload(packet)
             .setMatch(new MatchBuilder().build())
             .build());
+        assertNotNull(notification);
+
         var ethernetPacket = assertInstanceOf(EthernetPacket.class,
             notification.nonnullPacketChain().get(1).getPacket());
         assertEquals(KnownEtherType.Ipv4, ethernetPacket.getEthertype());
@@ -72,10 +75,12 @@ class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22,
             0x00, (byte)0xfe, (byte)0xdc, (byte)0xba
         };
-        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+        var notification = ethernetDecoder.tryDecode(new PacketReceivedBuilder()
             .setPayload(packet)
             .setMatch(new MatchBuilder().build())
             .build());
+        assertNotNull(notification);
+
         var ethernetPacket = assertInstanceOf(EthernetPacket.class,
             notification.nonnullPacketChain().get(1).getPacket());
         assertNull(ethernetPacket.getEthertype());
@@ -100,10 +105,12 @@ class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
             0x00, (byte)0x00, (byte)0xdc, (byte)0xba
         };
-        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+        var notification = ethernetDecoder.tryDecode(new PacketReceivedBuilder()
             .setPayload(packet)
             .setMatch(new MatchBuilder().build())
             .build());
+        assertNotNull(notification);
+
         var ethernetPacket = assertInstanceOf(EthernetPacket.class,
             notification.nonnullPacketChain().get(1).getPacket());
         assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());
@@ -125,7 +132,7 @@ class EthernetDecoderTest {
     }
 
     @Test
-    public void testDecode_IPv6EtherTypeWithQinQ() throws Exception {
+    void testDecode_IPv6EtherTypeWithQinQ() throws Exception {
         byte[] packet = {
             0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
@@ -137,10 +144,12 @@ class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
             (byte)0x0a, (byte)0x0b, (byte)0x0c, (byte)0x0d
         };
-        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+        var notification = ethernetDecoder.tryDecode(new PacketReceivedBuilder()
             .setPayload(packet)
             .setMatch(new MatchBuilder().build())
             .build());
+        assertNotNull(notification);
+
         var ethernetPacket = assertInstanceOf(EthernetPacket.class,
             notification.nonnullPacketChain().get(1).getPacket());
         assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());
@@ -187,10 +196,12 @@ class EthernetDecoderTest {
             0x04, 0x5f, 0x74, 0x63, 0x70, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x0c, 0x00, 0x01,
             0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
         };
-        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+        var notification = ethernetDecoder.tryDecode(new PacketReceivedBuilder()
             .setPayload(packet)
             .setMatch(new MatchBuilder().build())
             .build());
+        assertNotNull(notification);
+
         var ethernetPacket = assertInstanceOf(EthernetPacket.class,
             notification.nonnullPacketChain().get(1).getPacket());
         assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());

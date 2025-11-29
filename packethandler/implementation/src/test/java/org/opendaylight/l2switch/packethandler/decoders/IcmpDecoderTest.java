@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.icmp.packet.received.packet.chain.packet.IcmpPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.Ipv4PacketReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.KnownIpProtocols;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.ipv4.packet.received.packet.chain.packet.Ipv4PacketBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -52,15 +54,19 @@ class IcmpDecoderTest {
             0, 0, 0, 0 // CRC
         };
 
-        var notification = icmpDecoder.decode(new Ipv4PacketReceivedBuilder()
+        var notification = icmpDecoder.tryDecode(new Ipv4PacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build(),
                 new PacketChainBuilder()
-                    .setPacket(new Ipv4PacketBuilder().setPayloadOffset(Uint32.valueOf(34)).build())
+                    .setPacket(new Ipv4PacketBuilder()
+                        .setProtocol(KnownIpProtocols.Icmp)
+                        .setPayloadOffset(Uint32.valueOf(34))
+                        .build())
                     .build()))
             .setPayload(ethPayload)
             .build());
+        assertNotNull(notification);
 
         var icmpPacket = assertInstanceOf(IcmpPacket.class, notification.nonnullPacketChain().get(3).getPacket());
         assertEquals(Uint8.valueOf(8), icmpPacket.getType());

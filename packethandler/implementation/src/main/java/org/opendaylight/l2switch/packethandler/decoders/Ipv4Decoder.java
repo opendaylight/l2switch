@@ -10,6 +10,7 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.l2switch.packethandler.SubsequentDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
@@ -42,12 +43,15 @@ public final class Ipv4Decoder extends SubsequentDecoder<EthernetPacketReceived,
      * Decode an EthernetPacket into an Ipv4Packet.
      */
     @Override
-    protected Ipv4PacketReceived decode(final EthernetPacketReceived ethernetPacketReceived) {
+    protected Ipv4PacketReceived tryDecode(final EthernetPacketReceived input, final List<PacketChain> chain) {
         // Find the latest packet in the packet-chain, which is an EthernetPacket
-        final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
-        var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
+        if (!(chain.getLast().getPacket() instanceof EthernetPacket ethernetPacket)
+            || !KnownEtherType.Ipv4.equals(ethernetPacket.getEthertype())) {
+            return null;
+        }
+
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
-        byte[] data = ethernetPacketReceived.getPayload();
+        byte[] data = input.getPayload();
 
         Ipv4PacketBuilder builder = new Ipv4PacketBuilder();
         try {
@@ -99,23 +103,14 @@ public final class Ipv4Decoder extends SubsequentDecoder<EthernetPacketReceived,
         }
 
         // build ipv4
-        final var packetChain = new ArrayList<PacketChain>(recvPacketChain.size());
-        packetChain.addAll(recvPacketChain);
+        final var packetChain = new ArrayList<PacketChain>(chain.size() + 1);
+        packetChain.addAll(chain);
         packetChain.add(new PacketChainBuilder().setPacket(builder.build()).build());
 
         return new Ipv4PacketReceivedBuilder()
             .setPacketChain(packetChain)
             // carry forward the original payload.
-            .setPayload(ethernetPacketReceived.getPayload())
+            .setPayload(input.getPayload())
             .build();
-    }
-
-    @Override
-    protected boolean canDecode(final EthernetPacketReceived ethernetPacketReceived) {
-        // Only decode the latest packet in the chain
-        final var packetChain = ethernetPacketReceived.getPacketChain();
-        return packetChain != null && !packetChain.isEmpty()
-            && packetChain.getLast().getPacket() instanceof EthernetPacket ethernetPacket
-            && KnownEtherType.Ipv4.equals(ethernetPacket.getEthertype());
     }
 }
