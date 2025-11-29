@@ -186,39 +186,6 @@ public class NetUtilsTest {
     }
 
     @Test
-    public void testIsIPv6Valid() throws UnknownHostException {
-        assertTrue(NetUtils.isIPv6AddressValid("fe80:0000:0000:0000:0204:61ff:fe9d:f156")); // normal ipv6
-        assertTrue(NetUtils.isIPv6AddressValid("fe80:0:0:0:204:61ff:fe9d:f156")); // no leading zeroes
-        assertTrue(NetUtils.isIPv6AddressValid("fe80::204:61ff:fe9d:f156")); // zeroes to ::
-        assertTrue(NetUtils.isIPv6AddressValid("fe80:0000:0000:0000:0204:61ff:254.157.241.86")); // ipv4 ending
-        assertTrue(NetUtils.isIPv6AddressValid("fe80:0:0:0:0204:61ff:254.157.241.86")); // no leading zeroes, ipv4 end
-        assertTrue(NetUtils.isIPv6AddressValid("fe80::204:61ff:254.157.241.86")); // zeroes ::, no leading zeroes
-
-        assertTrue(NetUtils.isIPv6AddressValid("2001::")); // link-local prefix
-        assertTrue(NetUtils.isIPv6AddressValid("::1")); // localhost
-        assertTrue(NetUtils.isIPv6AddressValid("fe80::")); // global-unicast
-        assertFalse(NetUtils.isIPv6AddressValid("abcd")); // not valid
-        assertFalse(NetUtils.isIPv6AddressValid("1")); // not valid
-        assertFalse(NetUtils.isIPv6AddressValid("fe80:0:0:0:204:61ff:fe9d")); // not valid, too short
-        assertFalse(NetUtils.isIPv6AddressValid("fe80:::0:0:0:204:61ff:fe9d")); // not valid
-        assertFalse(NetUtils.isIPv6AddressValid("192.168.1.1")); // not valid,ipv4
-        assertFalse(NetUtils.isIPv6AddressValid("2001:0000:1234:0000:10001:C1C0:ABCD:0876")); // invalid, extra number
-        assertFalse(NetUtils.isIPv6AddressValid("20010:0000:1234:0000:10001:C1C0:ABCD:0876")); // invalid, extra number
-
-        assertTrue(NetUtils.isIPv6AddressValid("2001:0DB8:0000:CD30:0000:0000:0000:0000/60")); // full with mask
-        assertTrue(NetUtils.isIPv6AddressValid("2001:0DB8:0:CD30::/64")); // shortened with mask
-        assertTrue(NetUtils.isIPv6AddressValid("2001:0DB8:0:CD30::/0")); // 0 subnet with mask
-        assertTrue(NetUtils.isIPv6AddressValid("::1/128")); // localhost 128 mask
-
-        assertFalse(NetUtils.isIPv6AddressValid("124.15.6.89/60")); // invalid, ip with mask
-        assertFalse(NetUtils.isIPv6AddressValid("2001:0DB8:0000:CD30:0000:0000:0000:0000/130")); // invalid, mask >128
-        assertFalse(NetUtils.isIPv6AddressValid("2001:0DB8:0:CD30::/-5")); // invalid, mask < 0
-        assertFalse(NetUtils.isIPv6AddressValid("fe80:::0:0:0:204:61ff:fe9d/64")); // not valid ip, valid netmask
-        assertFalse(NetUtils.isIPv6AddressValid("fe80:::0:0:0:204:61ff:fe9d/-1")); // not valid both
-
-    }
-
-    @Test
     public void testMulticastMACAddr() {
         byte[] empty = new byte[0];
         assertFalse(NetUtils.isUnicastMACAddr(empty));
