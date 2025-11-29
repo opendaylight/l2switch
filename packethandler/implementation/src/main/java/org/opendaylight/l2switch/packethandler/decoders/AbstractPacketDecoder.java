@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 
@@ -21,7 +22,8 @@ import org.opendaylight.yangtools.concepts.Registration;
  * consume.
  */
 // FIXME: Implement NotificationInterestLister equivalent when it is available again
-public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implements AutoCloseable {
+public abstract class AbstractPacketDecoder<C extends Notification<C> & DataObject,
+        P extends Notification<P> & DataObject> implements AutoCloseable {
 
     //private final Class<P> producedPacketNotificationType;
     private final NotificationPublishService notificationProviderService;
@@ -42,7 +44,7 @@ public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implem
         // this.producedPacketNotificationType = producedPacketNotificationType;
         this.notificationProviderService = notificationProviderService;
         this.notificationService = notificationService;
-        listenerRegistration = this.notificationService.registerListener(getPacketType(), getConsumedListener());
+        listenerRegistration = this.notificationService.registerListener(getConsumedType(), getConsumedListener());
     }
 
 //    /**
@@ -86,9 +88,9 @@ public abstract class AbstractPacketDecoder<C, P extends Notification<?>> implem
      */
     public abstract P decode(C consumedPacketNotification);
 
-    public abstract Listener<?> getConsumedListener();
+    public abstract Listener<C> getConsumedListener();
 
-    public abstract Class getPacketType();
+    public abstract Class<C> getConsumedType();
 
     public abstract boolean canDecode(C consumedPacketNotification);
 

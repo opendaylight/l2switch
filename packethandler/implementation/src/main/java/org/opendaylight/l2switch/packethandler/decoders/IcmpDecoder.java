@@ -92,8 +92,8 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
     }
 
     @Override
-    public Class<IcmpPacketReceived> getPacketType() {
-        return IcmpPacketReceived.class;
+    public Class<Ipv4PacketReceived> getConsumedType() {
+        return Ipv4PacketReceived.class;
     }
 
     @Override

@@ -178,8 +178,8 @@ public class EthernetDecoder extends AbstractPacketDecoder<PacketReceived, Ether
     }
 
     @Override
-    public Class<EthernetPacketReceived> getPacketType() {
-        return EthernetPacketReceived.class;
+    public Class<PacketReceived> getConsumedType() {
+        return PacketReceived.class;
     }
 
     @Override

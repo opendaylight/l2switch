@@ -132,8 +132,8 @@ public class Ipv6Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     @Override
-    public Class<Ipv6PacketReceived> getPacketType() {
-        return Ipv6PacketReceived.class;
+    public Class<EthernetPacketReceived> getConsumedType() {
+        return EthernetPacketReceived.class;
     }
 
     @Override

@@ -125,8 +125,8 @@ public class Ipv4Decoder extends AbstractPacketDecoder<EthernetPacketReceived, I
     }
 
     @Override
-    public Class<Ipv4PacketReceived> getPacketType() {
-        return Ipv4PacketReceived.class;
+    public Class<EthernetPacketReceived> getConsumedType() {
+        return EthernetPacketReceived.class;
     }
 
     @Override
