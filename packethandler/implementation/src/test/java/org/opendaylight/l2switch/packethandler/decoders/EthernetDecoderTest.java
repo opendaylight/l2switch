@@ -7,27 +7,47 @@
  */
 package org.opendaylight.l2switch.packethandler.decoders;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.Header8021qType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class EthernetDecoderTest {
+@ExtendWith(MockitoExtension.class)
+class EthernetDecoderTest {
+    @Mock
+    private NotificationPublishService mock;
+    @Mock
+    private NotificationService mock2;
+
+    private EthernetDecoder ethernetDecoder;
+
+    @BeforeEach
+    void beforeEach() {
+        ethernetDecoder = new EthernetDecoder(mock, mock2);
+    }
 
     @Test
-    public void testDecode_IPv4EtherType() throws Exception {
+    void testDecode_IPv4EtherType() {
         byte[] packet = {
             0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
@@ -35,24 +55,25 @@ public class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
             (byte)0x98, (byte)0xfe, (byte)0xdc, (byte)0xba
         };
-        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
-        NotificationService mock2 = Mockito.mock(NotificationService.class);
-        EthernetPacketReceived notification = new EthernetDecoder(mock, mock2)
-                .decode(new PacketReceivedBuilder().setPayload(packet).setMatch(new MatchBuilder().build()).build());
-        EthernetPacket ethernetPacket = (EthernetPacket) notification.getPacketChain().get(1).getPacket();
-        assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv4);
+        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+            .setPayload(packet)
+            .setMatch(new MatchBuilder().build())
+            .build());
+        var ethernetPacket = assertInstanceOf(EthernetPacket.class,
+            notification.nonnullPacketChain().get(1).getPacket());
+        assertEquals(KnownEtherType.Ipv4, ethernetPacket.getEthertype());
         assertNull(ethernetPacket.getEthernetLength());
         assertNull(ethernetPacket.getHeader8021q());
-        assertEquals(ethernetPacket.getDestinationMac().getValue(), "01:23:45:67:89:ab");
-        assertEquals(ethernetPacket.getSourceMac().getValue(), "cd:ef:01:23:45:67");
-        assertEquals(14, ethernetPacket.getPayloadOffset().intValue());
-        assertEquals(14, ethernetPacket.getPayloadLength().intValue());
-        assertEquals(2566839482L, ethernetPacket.getCrc().longValue());
-        assertTrue(Arrays.equals(packet, notification.getPayload()));
+        assertEquals(new MacAddress("01:23:45:67:89:ab"), ethernetPacket.getDestinationMac());
+        assertEquals(new MacAddress("cd:ef:01:23:45:67"), ethernetPacket.getSourceMac());
+        assertEquals(Uint32.valueOf(14), ethernetPacket.getPayloadOffset());
+        assertEquals(Uint32.valueOf(14), ethernetPacket.getPayloadLength());
+        assertEquals(Uint32.valueOf(2566839482L), ethernetPacket.getCrc());
+        assertArrayEquals(packet, notification.getPayload());
     }
 
     @Test
-    public void testDecode_Length() throws Exception {
+    void testDecode_Length() {
         byte[] packet = {
             0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
@@ -60,24 +81,25 @@ public class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22,
             0x00, (byte)0xfe, (byte)0xdc, (byte)0xba
         };
-        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
-        NotificationService mock2 = Mockito.mock(NotificationService.class);
-        EthernetPacketReceived notification = new EthernetDecoder(mock, mock2)
-                .decode(new PacketReceivedBuilder().setPayload(packet).setMatch(new MatchBuilder().build()).build());
-        EthernetPacket ethernetPacket = (EthernetPacket) notification.getPacketChain().get(1).getPacket();
+        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+            .setPayload(packet)
+            .setMatch(new MatchBuilder().build())
+            .build());
+        var ethernetPacket = assertInstanceOf(EthernetPacket.class,
+            notification.nonnullPacketChain().get(1).getPacket());
         assertNull(ethernetPacket.getEthertype());
-        assertEquals(14, ethernetPacket.getEthernetLength().intValue());
+        assertEquals(Uint16.valueOf(14), ethernetPacket.getEthernetLength());
         assertNull(ethernetPacket.getHeader8021q());
-        assertEquals("01:23:45:67:89:ab", ethernetPacket.getDestinationMac().getValue());
-        assertEquals("cd:ef:01:23:45:67", ethernetPacket.getSourceMac().getValue());
-        assertEquals(14, ethernetPacket.getPayloadOffset().intValue());
-        assertEquals(13, ethernetPacket.getPayloadLength().intValue());
-        assertEquals(16702650L, ethernetPacket.getCrc().longValue());
-        assertTrue(Arrays.equals(packet, notification.getPayload()));
+        assertEquals(new MacAddress("01:23:45:67:89:ab"), ethernetPacket.getDestinationMac());
+        assertEquals(new MacAddress("cd:ef:01:23:45:67"), ethernetPacket.getSourceMac());
+        assertEquals(Uint32.valueOf(14), ethernetPacket.getPayloadOffset());
+        assertEquals(Uint32.valueOf(13), ethernetPacket.getPayloadLength());
+        assertEquals(Uint32.valueOf(16702650), ethernetPacket.getCrc());
+        assertArrayEquals(packet, notification.getPayload());
     }
 
     @Test
-    public void testDecode_IPv6EtherTypeWith8021qHeader() throws Exception {
+    void testDecode_IPv6EtherTypeWith8021qHeader() {
         byte[] packet = {
             0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab,
             (byte) 0xcd, (byte) 0xef, 0x01, 0x23, 0x45, 0x67,
@@ -87,24 +109,28 @@ public class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
             0x00, (byte)0x00, (byte)0xdc, (byte)0xba
         };
-        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
-        NotificationService mock2 = Mockito.mock(NotificationService.class);
-        EthernetPacketReceived notification = new EthernetDecoder(mock, mock2)
-                .decode(new PacketReceivedBuilder().setPayload(packet).setMatch(new MatchBuilder().build()).build());
-        EthernetPacket ethernetPacket = (EthernetPacket) notification.getPacketChain().get(1).getPacket();
-        assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv6);
+        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+            .setPayload(packet)
+            .setMatch(new MatchBuilder().build())
+            .build());
+        var ethernetPacket = assertInstanceOf(EthernetPacket.class,
+            notification.nonnullPacketChain().get(1).getPacket());
+        assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());
         assertNull(ethernetPacket.getEthernetLength());
-        assertEquals(1, ethernetPacket.getHeader8021q().size());
-        assertEquals(Header8021qType.VlanTagged, ethernetPacket.getHeader8021q().get(0).getTPID());
-        assertEquals(7, ethernetPacket.getHeader8021q().get(0).getPriorityCode().intValue());
-        assertTrue(ethernetPacket.getHeader8021q().get(0).getDropEligible());
-        assertEquals(4095, ethernetPacket.getHeader8021q().get(0).getVlan().getValue().intValue());
-        assertEquals("01:23:45:67:89:ab", ethernetPacket.getDestinationMac().getValue());
-        assertEquals("cd:ef:01:23:45:67", ethernetPacket.getSourceMac().getValue());
-        assertEquals(18, ethernetPacket.getPayloadOffset().intValue());
-        assertEquals(8, ethernetPacket.getPayloadLength().intValue());
-        assertEquals(56506L, ethernetPacket.getCrc().longValue());
-        assertTrue(Arrays.equals(packet, notification.getPayload()));
+        assertEquals(new MacAddress("01:23:45:67:89:ab"), ethernetPacket.getDestinationMac());
+        assertEquals(new MacAddress("cd:ef:01:23:45:67"), ethernetPacket.getSourceMac());
+        assertEquals(Uint32.valueOf(18), ethernetPacket.getPayloadOffset());
+        assertEquals(Uint32.valueOf(8), ethernetPacket.getPayloadLength());
+        assertEquals(Uint32.valueOf(56506), ethernetPacket.getCrc());
+        assertArrayEquals(packet, notification.getPayload());
+
+        final var dot1qs = ethernetPacket.nonnullHeader8021q();
+        assertEquals(1, dot1qs.size());
+        final var dot1q = dot1qs.getFirst();
+        assertEquals(Header8021qType.VlanTagged, dot1q.getTPID());
+        assertEquals(Uint8.valueOf(7), dot1q.getPriorityCode());
+        assertTrue(dot1q.getDropEligible());
+        assertEquals(new VlanId(Uint16.valueOf(4095)), dot1q.getVlan());
     }
 
     @Test
@@ -120,33 +146,40 @@ public class EthernetDecoderTest {
             0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11,
             (byte)0x0a, (byte)0x0b, (byte)0x0c, (byte)0x0d
         };
-        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
-        NotificationService mock2 = Mockito.mock(NotificationService.class);
-        EthernetPacketReceived notification = new EthernetDecoder(mock, mock2)
-                .decode(new PacketReceivedBuilder().setPayload(packet).setMatch(new MatchBuilder().build()).build());
-        EthernetPacket ethernetPacket = (EthernetPacket) notification.getPacketChain().get(1).getPacket();
-        assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv6);
+        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+            .setPayload(packet)
+            .setMatch(new MatchBuilder().build())
+            .build());
+        var ethernetPacket = assertInstanceOf(EthernetPacket.class,
+            notification.nonnullPacketChain().get(1).getPacket());
+        assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());
         assertNull(ethernetPacket.getEthernetLength());
-        assertEquals(2, ethernetPacket.getHeader8021q().size());
-        assertEquals(Header8021qType.QInQ, ethernetPacket.getHeader8021q().get(0).getTPID());
-        assertEquals(7, ethernetPacket.getHeader8021q().get(0).getPriorityCode().intValue());
-        assertTrue(ethernetPacket.getHeader8021q().get(0).getDropEligible());
-        assertEquals(4095, ethernetPacket.getHeader8021q().get(0).getVlan().getValue().intValue());
-        assertEquals(Header8021qType.VlanTagged, ethernetPacket.getHeader8021q().get(1).getTPID());
-        assertEquals(5, ethernetPacket.getHeader8021q().get(1).getPriorityCode().intValue());
-        assertFalse(ethernetPacket.getHeader8021q().get(1).getDropEligible());
-        assertEquals(10, ethernetPacket.getHeader8021q().get(1).getVlan().getValue().intValue());
-        assertEquals("01:23:45:67:89:ab", ethernetPacket.getDestinationMac().getValue());
-        assertEquals("cd:ef:01:23:45:67", ethernetPacket.getSourceMac().getValue());
-        assertEquals(22, ethernetPacket.getPayloadOffset().intValue());
-        assertEquals(14, ethernetPacket.getPayloadLength().intValue());
-        assertEquals(168496141L, ethernetPacket.getCrc().longValue());
-        assertTrue(Arrays.equals(packet, notification.getPayload()));
+        assertEquals(new MacAddress("01:23:45:67:89:ab"), ethernetPacket.getDestinationMac());
+        assertEquals(new MacAddress("cd:ef:01:23:45:67"), ethernetPacket.getSourceMac());
+        assertEquals(Uint32.valueOf(22), ethernetPacket.getPayloadOffset());
+        assertEquals(Uint32.valueOf(14), ethernetPacket.getPayloadLength());
+        assertEquals(Uint32.valueOf(168496141), ethernetPacket.getCrc());
+        assertArrayEquals(packet, notification.getPayload());
+
+        final var dot1qs = ethernetPacket.nonnullHeader8021q();
+        assertEquals(2, dot1qs.size());
+
+        var dot1q = dot1qs.getFirst();
+        assertEquals(Header8021qType.QInQ, dot1q.getTPID());
+        assertEquals(Uint8.valueOf(7), dot1q.getPriorityCode());
+        assertTrue(dot1q.getDropEligible());
+        assertEquals(new VlanId(Uint16.valueOf(4095)), dot1q.getVlan());
+
+        dot1q = dot1qs.get(1);
+        assertEquals(Header8021qType.VlanTagged, dot1q.getTPID());
+        assertEquals(Uint8.valueOf(5), dot1q.getPriorityCode());
+        assertFalse(dot1q.getDropEligible());
+        assertEquals(new VlanId(Uint16.TEN), dot1q.getVlan());
     }
 
     // This test is from a Mininet VM, taken from a wireshark dump
     @Test
-    public void testDecode_Ipv6Udp() throws Exception {
+    void testDecode_Ipv6Udp() {
         byte[] packet = {
             // Ethernet start
             0x33, 0x33, 0x00, 0x00, 0x00, (byte)0xfb, (byte)0xa2, (byte)0xe6, (byte)0xda, 0x67, (byte)0xef, (byte)0x95,
@@ -163,19 +196,19 @@ public class EthernetDecoderTest {
             0x04, 0x5f, 0x74, 0x63, 0x70, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x00, 0x00, 0x0c, 0x00, 0x01,
             0x04, 0x5f, 0x69, 0x70, 0x70, (byte)0xc0, 0x12, 0x00, 0x0c, 0x00, 0x01
         };
-        NotificationPublishService mock = Mockito.mock(NotificationPublishService.class);
-        NotificationService mock2 = Mockito.mock(NotificationService.class);
-        EthernetPacketReceived notification = new EthernetDecoder(mock, mock2)
-                .decode(new PacketReceivedBuilder().setPayload(packet).setMatch(new MatchBuilder().build()).build());
-        EthernetPacket ethernetPacket = (EthernetPacket) notification.getPacketChain().get(1).getPacket();
-        assertEquals(ethernetPacket.getEthertype(), KnownEtherType.Ipv6);
+        var notification = ethernetDecoder.decode(new PacketReceivedBuilder()
+            .setPayload(packet)
+            .setMatch(new MatchBuilder().build())
+            .build());
+        var ethernetPacket = assertInstanceOf(EthernetPacket.class,
+            notification.nonnullPacketChain().get(1).getPacket());
+        assertEquals(KnownEtherType.Ipv6, ethernetPacket.getEthertype());
         assertNull(ethernetPacket.getEthernetLength());
         assertNull(ethernetPacket.getHeader8021q());
-        assertEquals("33:33:00:00:00:fb", ethernetPacket.getDestinationMac().getValue());
-        assertEquals("a2:e6:da:67:ef:95", ethernetPacket.getSourceMac().getValue());
-        assertEquals(14, ethernetPacket.getPayloadOffset().intValue());
-        // Wirehshark didn't include a CRC, so not testing for length & crc
-        // fields
-        assertTrue(Arrays.equals(packet, notification.getPayload()));
+        assertEquals(new MacAddress("33:33:00:00:00:fb"), ethernetPacket.getDestinationMac());
+        assertEquals(new MacAddress("a2:e6:da:67:ef:95"), ethernetPacket.getSourceMac());
+        assertEquals(Uint32.valueOf(14), ethernetPacket.getPayloadOffset());
+        // Wirehshark didn't include a CRC, so not testing for length & crc fields
+        assertArrayEquals(packet, notification.getPayload());
     }
 }
