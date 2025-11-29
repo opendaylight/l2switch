@@ -90,17 +90,4 @@ public final class NetUtils {
         }
         return maskLength;
     }
-
-    /**
-     * Returns the prefix size in bits of the specified subnet mask. Example:
-     * For the subnet mask 255.255.255.128 it returns 25 while for 255.0.0.0 it
-     * returns 8. If the passed subnetMask object is null, 0 is returned
-     *
-     * @param subnetMask
-     *            the subnet mask as InetAddress
-     * @return the prefix length as number of bits
-     */
-    public static int getSubnetMaskLength(InetAddress subnetMask) {
-        return subnetMask == null ? 0 : NetUtils.getSubnetMaskLength(subnetMask.getAddress());
-    }
 }
