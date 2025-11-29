@@ -319,20 +319,4 @@ public final class NetUtils {
     public static boolean isIPAddressValid(String cidr) {
         return NetUtils.isIPv4AddressValid(cidr) || NetUtils.isIPv6AddressValid(cidr);
     }
-
-    /*
-     * Following utilities are useful when you need to compare or bit shift java
-     * primitive type variable which are inherently signed
-     */
-
-    /**
-     * Returns the unsigned value of the passed byte variable.
-     *
-     * @param value
-     *            the byte value
-     * @return the int variable containing the unsigned byte value
-     */
-    public static int getUnsignedByte(byte value) {
-        return value & 0xFF;
-    }
 }
