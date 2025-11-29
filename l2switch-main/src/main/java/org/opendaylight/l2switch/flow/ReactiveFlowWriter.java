@@ -60,10 +60,6 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
 
     @Override
     public void onNotification(ArpPacketReceived packetReceived) {
-        if (packetReceived == null) {
-            return;
-        }
-
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
