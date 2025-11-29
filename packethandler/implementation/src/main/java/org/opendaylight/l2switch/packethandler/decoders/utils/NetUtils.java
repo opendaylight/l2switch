@@ -236,16 +236,6 @@ public final class NetUtils {
         return true;
     }
 
-    public static InetAddress parseInetAddress(String addressString) {
-        InetAddress address = null;
-        try {
-            address = InetAddress.getByName(addressString);
-        } catch (UnknownHostException e) {
-            LOG.error("Failed to decode address {}", addressString, e);
-        }
-        return address;
-    }
-
     /**
      * Checks if the passed IP v6 address in string form is valid The address
      * may specify a mask at the end as "/MMM".
