@@ -14,13 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
@@ -33,18 +27,15 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@ExtendWith(MockitoExtension.class)
 class Ipv4DecoderTest {
-    @Mock
-    private NotificationPublishService notificationPublishService;
-    @Mock
-    private NotificationService notificationService;
+    private final Ipv4Decoder ipv4Decoder = new Ipv4Decoder();
 
-    private Ipv4Decoder ipv4Decoder;
-
-    @BeforeEach
-    void beforeEach() {
-        ipv4Decoder = new Ipv4Decoder(notificationPublishService, notificationService);
+    @Test
+    void testToString() {
+        assertEquals("""
+            Ipv4Decoder{consumes=org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.\
+            EthernetPacketReceived, produces=org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ipv4.rev140528.\
+            Ipv4PacketReceived}""", ipv4Decoder.toString());
     }
 
     @Test

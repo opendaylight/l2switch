@@ -10,12 +10,10 @@ package org.opendaylight.l2switch.packethandler.decoders;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import org.opendaylight.l2switch.packethandler.PacketChainDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
 import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.ArpPacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
@@ -32,21 +30,19 @@ import org.slf4j.LoggerFactory;
 /**
  * ARP (Address Resolution Protocol) Packet Decoder.
  */
-public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, ArpPacketReceived>
-        implements Listener<EthernetPacketReceived> {
+public final class ArpDecoder extends PacketChainDecoder<EthernetPacketReceived, ArpPacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpDecoder.class);
 
-    public ArpDecoder(NotificationPublishService notificationProviderService, NotificationService notificationService) {
-        super(ArpPacketReceived.class, notificationProviderService, notificationService);
+    public ArpDecoder() {
+        super(EthernetPacketReceived.class, ArpPacketReceived.class);
     }
 
     /**
      * Decode an EthernetPacket into an ArpPacket.
      */
     @Override
-    public ArpPacketReceived decode(EthernetPacketReceived ethernetPacketReceived) {
-        // Find the latest packet in the packet-chain, which is an
-        // EthernetPacket
+    protected ArpPacketReceived decode(final EthernetPacketReceived ethernetPacketReceived) {
+        // Find the latest packet in the packet-chain, which is an EthernetPacket
         final var recvPacketChain = ethernetPacketReceived.nonnullPacketChain();
         var ethernetPacket = (EthernetPacket) recvPacketChain.getLast().getPacket();
         int bitOffset = ethernetPacket.getPayloadOffset().intValue() * Byte.SIZE;
@@ -110,22 +106,7 @@ public class ArpDecoder extends AbstractPacketDecoder<EthernetPacketReceived, Ar
     }
 
     @Override
-    public Listener<EthernetPacketReceived> getConsumedListener() {
-        return this;
-    }
-
-    @Override
-    public Class<EthernetPacketReceived> getConsumedType() {
-        return EthernetPacketReceived.class;
-    }
-
-    @Override
-    public void onNotification(EthernetPacketReceived notification) {
-        decodeAndPublish(notification);
-    }
-
-    @Override
-    public boolean canDecode(EthernetPacketReceived ethernetPacketReceived) {
+    protected boolean canDecode(final EthernetPacketReceived ethernetPacketReceived) {
         // Only decode the latest packet in the chain
         final var packetChain = ethernetPacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()

@@ -11,7 +11,6 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.l2switch.packethandler.decoders.AbstractPacketDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.ArpDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.EthernetDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.IcmpDecoder;
@@ -31,18 +30,18 @@ import org.slf4j.LoggerFactory;
 public final class PacketHandlerProvider implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PacketHandlerProvider.class);
 
-    private final List<AbstractPacketDecoder<?, ?>> decoders;
+    private final List<PacketListener<?, ?>> decoders;
 
     @Inject
     @Activate
     public PacketHandlerProvider(@Reference final NotificationPublishService notificationPublishService,
             final @Reference NotificationService notificationService) {
         decoders = List.of(
-            new EthernetDecoder(notificationPublishService, notificationService),
-            new ArpDecoder(notificationPublishService, notificationService),
-            new Ipv4Decoder(notificationPublishService, notificationService),
-            new Ipv6Decoder(notificationPublishService, notificationService),
-            new IcmpDecoder(notificationPublishService, notificationService));
+            new PacketListener<>(notificationPublishService, notificationService, new EthernetDecoder()),
+            new PacketListener<>(notificationPublishService, notificationService, new ArpDecoder()),
+            new PacketListener<>(notificationPublishService, notificationService, new Ipv4Decoder()),
+            new PacketListener<>(notificationPublishService, notificationService, new Ipv6Decoder()),
+            new PacketListener<>(notificationPublishService, notificationService, new IcmpDecoder()));
         LOG.info("PacketHandler initialized.");
     }
 
@@ -50,7 +49,7 @@ public final class PacketHandlerProvider implements AutoCloseable {
     @Deactivate
     @PreDestroy
     public void close() {
-        decoders.forEach(AbstractPacketDecoder::close);
+        decoders.forEach(PacketListener::close);
         LOG.info("PacketHandler (instance {}) torn down.", this);
     }
 }

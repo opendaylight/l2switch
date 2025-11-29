@@ -11,13 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownHardwareType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.KnownOperation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.arp.packet.received.packet.chain.packet.ArpPacket;
@@ -29,18 +23,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.e
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@ExtendWith(MockitoExtension.class)
 class ArpDecoderTest {
-    @Mock
-    private NotificationPublishService notificationPublishService;
-    @Mock
-    private NotificationService notificationService;
+    private final ArpDecoder arpDecoder = new ArpDecoder();
 
-    private ArpDecoder arpDecoder;
-
-    @BeforeEach
-    void beforeEach() {
-        arpDecoder = new ArpDecoder(notificationPublishService, notificationService);
+    @Test
+    void testToString() {
+        assertEquals("""
+            ArpDecoder{consumes=org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.\
+            EthernetPacketReceived, produces=org.opendaylight.yang.gen.v1.urn.opendaylight.packet.arp.rev140528.\
+            ArpPacketReceived}""", arpDecoder.toString());
     }
 
     @Test
