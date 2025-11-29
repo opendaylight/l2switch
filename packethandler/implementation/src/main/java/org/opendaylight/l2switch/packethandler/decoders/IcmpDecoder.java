@@ -8,11 +8,9 @@
 package org.opendaylight.l2switch.packethandler.decoders;
 
 import java.util.ArrayList;
+import org.opendaylight.l2switch.packethandler.SubsequentDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.mdsal.binding.api.NotificationPublishService;
-import org.opendaylight.mdsal.binding.api.NotificationService;
-import org.opendaylight.mdsal.binding.api.NotificationService.Listener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.icmp.rev140528.IcmpPacketReceived;
@@ -25,20 +23,18 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpPacketReceived>
-        implements Listener<Ipv4PacketReceived> {
+public final class IcmpDecoder extends SubsequentDecoder<Ipv4PacketReceived, IcmpPacketReceived> {
     private static final Logger LOG = LoggerFactory.getLogger(IcmpDecoder.class);
 
-    public IcmpDecoder(NotificationPublishService notificationProviderService,
-                       NotificationService notificationService) {
-        super(IcmpPacketReceived.class, notificationProviderService, notificationService);
+    public IcmpDecoder() {
+        super(Ipv4PacketReceived.class, IcmpPacketReceived.class);
     }
 
     /**
      * Decode an EthernetPacket into an IcmpPacket.
      */
     @Override
-    public IcmpPacketReceived decode(Ipv4PacketReceived ipv4PacketReceived) {
+    protected IcmpPacketReceived decode(final Ipv4PacketReceived ipv4PacketReceived) {
 
         // Find the latest packet in the packet-chain, which is an
         // EthernetPacket
@@ -84,22 +80,7 @@ public class IcmpDecoder extends AbstractPacketDecoder<Ipv4PacketReceived, IcmpP
     }
 
     @Override
-    public Listener<Ipv4PacketReceived> getConsumedListener() {
-        return this;
-    }
-
-    @Override
-    public Class<Ipv4PacketReceived> getConsumedType() {
-        return Ipv4PacketReceived.class;
-    }
-
-    @Override
-    public void onNotification(Ipv4PacketReceived notification) {
-        decodeAndPublish(notification);
-    }
-
-    @Override
-    public boolean canDecode(Ipv4PacketReceived ipv4PacketReceived) {
+    protected boolean canDecode(final Ipv4PacketReceived ipv4PacketReceived) {
         // Only decode the latest packet in the chain
         final var packetChain = ipv4PacketReceived.getPacketChain();
         return packetChain != null && !packetChain.isEmpty()
