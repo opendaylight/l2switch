@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fe9c4c7_adaf7f1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2025-12-01T16:40:40Z",
+      "side": 1,
+      "message": "Would like to know what are you really thinking.",
+      "revId": "2df17e2e2f88b72ef28da4e4f3e0ea196bc00aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d9c11bc_f774b86d",
@@ -14,6 +31,30 @@
       "writtenOn": "2025-11-29T23:42:09Z",
       "side": 1,
       "message": "not sure about this: I think we should go for MacAddress and extract the string from there",
+      "range": {
+        "startLine": 83,
+        "startChar": 53,
+        "endLine": 83,
+        "endChar": 69
+      },
+      "revId": "2df17e2e2f88b72ef28da4e4f3e0ea196bc00aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da326589_1eae8a59",
+        "filename": "packethandler/implementation/src/main/java/org/opendaylight/l2switch/packethandler/decoders/ArpDecoder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 9247
+      },
+      "writtenOn": "2025-12-01T16:40:40Z",
+      "side": 1,
+      "message": "Not sure what do you mean: Do you want to store the MAC address in bit (binary) format and later extract it as a string? Or do you want to take the MAC address from somewhere else?",
+      "parentUuid": "3d9c11bc_f774b86d",
       "range": {
         "startLine": 83,
         "startChar": 53,
