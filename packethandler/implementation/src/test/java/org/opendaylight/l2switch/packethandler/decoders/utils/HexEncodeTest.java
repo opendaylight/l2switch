@@ -16,5 +16,6 @@ class HexEncodeTest {
     void testbytesToHexString() {
         assertEquals("01:02:03", HexEncode.bytesToHexStringFormat(new byte[] { 0x01, 0x02, 0x03 }));
         assertEquals("11:22:33", HexEncode.bytesToHexStringFormat(new byte[] { 0x11, 0x22, 0x33 }));
+        assertEquals("0a:0b:0c", HexEncode.bytesToHexStringFormat(new byte[] { 0x0A, 0x0B, 0x0C }));
     }
 }

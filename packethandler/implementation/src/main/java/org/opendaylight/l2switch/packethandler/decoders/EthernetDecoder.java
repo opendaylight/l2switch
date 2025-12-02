@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import org.opendaylight.l2switch.packethandler.FirstDecoder;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BitBufferHelper;
 import org.opendaylight.l2switch.packethandler.decoders.utils.BufferException;
-import org.opendaylight.l2switch.packethandler.decoders.utils.HexEncode;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.PacketChainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.RawPacketBuilder;
@@ -84,13 +83,10 @@ public final class EthernetDecoder extends FirstDecoder<EthernetPacketReceived> 
         final var builder = new EthernetPacketReceivedBuilder();
 
         try {
-            final var epBuilder = new EthernetPacketBuilder();
-
-            // Deserialize the destination & source fields
-            epBuilder.setDestinationMac(
-                new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 0, 48))));
-            epBuilder.setSourceMac(
-                new MacAddress(HexEncode.bytesToHexStringFormat(BitBufferHelper.getBits(data, 48, 48))));
+            final var epBuilder = new EthernetPacketBuilder()
+                // Deserialize the destination & source fields
+                .setDestinationMac(IetfYangUtil.macAddressFor(BitBufferHelper.getBits(data, 0, 48)))
+                .setSourceMac(IetfYangUtil.macAddressFor(BitBufferHelper.getBits(data, 48, 48)));
 
             // Deserialize the optional field 802.1Q headers
             Integer nextField = BitBufferHelper.getInt(BitBufferHelper.getBits(data, 96, 16));

@@ -54,10 +54,12 @@ public final class ArpDecoder extends SubsequentDecoder<EthernetPacketReceived, 
         ArpPacketBuilder builder = new ArpPacketBuilder();
         try {
             // Decode the hardware-type (HTYPE) and protocol-type (PTYPE) fields
-            builder.setHardwareType(KnownHardwareType
-                    .forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 0, 16))));
-            builder.setProtocolType(
-                    KnownEtherType.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16))));
+            final var hardwareType = KnownHardwareType.forValue(
+                BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 0, 16)));
+            builder.setHardwareType(hardwareType);
+            final var protocolType = KnownEtherType.forValue(
+                BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 16, 16)));
+            builder.setProtocolType(protocolType);
 
             // Decode the hardware-length and protocol-length fields
             builder.setHardwareLength(BitBufferHelper.getUint8(BitBufferHelper.getBits(data, bitOffset + 32, 8)));
@@ -68,29 +70,37 @@ public final class ArpDecoder extends SubsequentDecoder<EthernetPacketReceived, 
                     KnownOperation.forValue(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset + 48, 16))));
 
             // Decode the address fields
-            int indexSrcProtAdd = 64 + 8 * builder.getHardwareLength().toJava();
-            int indexDstHardAdd = indexSrcProtAdd + 8 * builder.getProtocolLength().toJava();
-            int indexDstProtAdd = indexDstHardAdd + 8 * builder.getHardwareLength().toJava();
-            if (builder.getHardwareType().equals(KnownHardwareType.Ethernet)) {
-                builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(
-                    BitBufferHelper.getBits(data, bitOffset + 64, 8 * builder.getHardwareLength().toJava())));
-                builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(
-                    BitBufferHelper.getBits(data, bitOffset + indexDstHardAdd,
-                        8 * builder.getHardwareLength().toJava())));
-            } else {
-                LOG.debug("Unknown HardwareType -- source and destination  HardwareAddress are not decoded");
+            final var hardwareLength = builder.getHardwareLength().toJava();
+            final var protocolLength = builder.getProtocolLength().toJava();
+
+            int indexSrcProtAdd = 64 + 8 * hardwareLength;
+            int indexDstHardAdd = indexSrcProtAdd + 8 * protocolLength;
+            int indexDstProtAdd = indexDstHardAdd + 8 * hardwareLength;
+
+            switch (hardwareType) {
+                case KnownHardwareType.Ethernet -> {
+                    builder.setSourceHardwareAddress(HexEncode.bytesToHexStringFormat(
+                        BitBufferHelper.getBits(data, bitOffset + 64, 8 * hardwareLength)));
+                    builder.setDestinationHardwareAddress(HexEncode.bytesToHexStringFormat(
+                        BitBufferHelper.getBits(data, bitOffset + indexDstHardAdd, 8 * hardwareLength)));
+                }
+                case null, default ->
+                    LOG.debug("Unknown HardwareType {} -- source and destination  HardwareAddress are not decoded",
+                        hardwareType);
             }
 
-            if (builder.getProtocolType().equals(KnownEtherType.Ipv4)
-                    || builder.getProtocolType().equals(KnownEtherType.Ipv6)) {
-                builder.setSourceProtocolAddress(InetAddress.getByAddress(
-                    BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * builder.getProtocolLength().toJava()))
-                    .getHostAddress());
-                builder.setDestinationProtocolAddress(InetAddress.getByAddress(
-                    BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd,
-                        8 * builder.getProtocolLength().toJava())).getHostAddress());
-            } else {
-                LOG.debug("Unknown ProtocolType -- source and destination ProtocolAddress are not decoded");
+            switch (protocolType) {
+                case KnownEtherType.Ipv4, KnownEtherType.Ipv6 -> {
+                    builder.setSourceProtocolAddress(InetAddress.getByAddress(
+                        BitBufferHelper.getBits(data,bitOffset + indexSrcProtAdd, 8 * protocolLength))
+                            .getHostAddress());
+                    builder.setDestinationProtocolAddress(InetAddress.getByAddress(
+                        BitBufferHelper.getBits(data, bitOffset + indexDstProtAdd, 8 * protocolLength))
+                            .getHostAddress());
+                }
+                case null, default ->
+                    LOG.debug("Unknown ProtocolType {} -- source and destination ProtocolAddress are not decoded",
+                        protocolType);
             }
         } catch (BufferException | UnknownHostException e) {
             LOG.debug("Exception while decoding APR packet", e);
