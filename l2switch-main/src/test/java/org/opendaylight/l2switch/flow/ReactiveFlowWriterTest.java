@@ -86,4 +86,3 @@ class ReactiveFlowWriterTest {
                 any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
     }
 }
-
