@@ -23,3 +23,13 @@ maven-eclipse.xml
 .DS_Store
 .checkstyle
 .fbExcludeFilterFile
+
+# pre-commit / linting
+.pre-commit-log*
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+.tox/
+*.egg-info/
