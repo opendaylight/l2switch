@@ -29,7 +29,6 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
 import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.mdsal.binding.api.DataObjectWritten;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
@@ -59,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class TopologyLinkDataChangeHandlerTest {
     @Mock
@@ -85,17 +83,11 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testOnDataChanged_CreatedDataNoRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(hostLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
@@ -104,17 +96,11 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testOnDataChanged_CreatedDataRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(hostLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
@@ -123,17 +109,11 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testOnDataChanged_RemovedDataNoRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("host:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectDeleted<Link> mockModification = Mockito.mock();
         when(mockModification.dataBefore()).thenReturn(hostLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.DELETE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
@@ -142,17 +122,11 @@ public class TopologyLinkDataChangeHandlerTest {
 
     @Test
     public void testOnDataChanged_RemovedDataRefresh() throws Exception {
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link hostLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectDeleted<Link> mockModification = Mockito.mock();
         when(mockModification.dataBefore()).thenReturn(hostLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.DELETE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         topologyLinkDataChangeHandler.onDataTreeChanged(List.of(mockChange));
         Thread.sleep(500);
@@ -162,17 +136,11 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_NoLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
         // End setup code
         Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("topo")).setLink(Map.of()).build();
@@ -194,17 +162,11 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_WithLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology
@@ -267,17 +229,11 @@ public class TopologyLinkDataChangeHandlerTest {
     @Test
     public void testUpdateNodeConnectorStatus_WithStpLinks() throws Exception {
         // Setup code to trigger the TopologyDataChangeEventProcessor
-        InstanceIdentifier<Link> instanceId = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class)
-            .child(Link.class)
-            .build();
         Link nodeLink = new LinkBuilder().setLinkId(new LinkId("openflow:1")).build();
         DataTreeModification<Link> mockChange = Mockito.mock();
         DataObjectWritten<Link> mockModification = Mockito.mock();
         when(mockModification.dataAfter()).thenReturn(nodeLink);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                instanceId));
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         // getLinksFromTopology

@@ -20,15 +20,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.mdsal.binding.api.DataObjectWritten;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 @ExtendWith(MockitoExtension.class)
 class InitialFlowWriterTest {
@@ -47,14 +45,13 @@ class InitialFlowWriterTest {
 
     @Test
     void onDataChange_Valid() {
-        var instanceId = InstanceIdentifier.builder(Nodes.class)
+        var instanceId = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .build();
 
         when(mockModification.dataBefore()).thenReturn(null);
         when(mockModification.modificationType()).thenReturn(ModificationType.WRITE);
-        when(mockChange.getRootPath()).thenReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
-                instanceId));
+        when(mockChange.path()).thenReturn(instanceId);
         when(mockChange.getRootNode()).thenReturn(mockModification);
 
         initialFlowWriter.onDataTreeChanged(List.of(mockChange));
