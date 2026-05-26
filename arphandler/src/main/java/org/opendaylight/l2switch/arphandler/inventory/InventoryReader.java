@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -37,8 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +51,9 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
     private final DataBroker dataService;
     // Key: SwitchId, Value: NodeConnectorRef that corresponds to NC between
     // controller & switch
-    private final HashMap<String, NodeConnectorRef> controllerSwitchConnectors;
+    private final HashMap<String, NodeConnectorRef> controllerSwitchConnectors = new HashMap<>();
     // Key: SwitchId, Value: List of node connectors on this switch
-    private final HashMap<String, List<NodeConnectorRef>> switchNodeConnectors;
+    private final HashMap<String, List<NodeConnectorRef>> switchNodeConnectors = new HashMap<>();
     private final List<Registration> listenerRegistrationList = new CopyOnWriteArrayList<>();
 
     private volatile boolean refreshData = false;
@@ -70,8 +69,6 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
      */
     public InventoryReader(DataBroker dataService) {
         this.dataService = dataService;
-        controllerSwitchConnectors = new HashMap<>();
-        switchNodeConnectors = new HashMap<>();
     }
 
     public void setRefreshData(boolean refreshData) {
@@ -80,23 +77,19 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void registerAsDataChangeListener() {
-        InstanceIdentifier<NodeConnector> nodeConnector = InstanceIdentifier.builder(Nodes.class)
+        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
-                .build();
-        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(
-                         DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,nodeConnector),
-                                                   (DataTreeChangeListener)this));
+                .build(), (DataTreeChangeListener) this));
 
-        InstanceIdentifier<StpStatusAwareNodeConnector> stpStatusAwareNodeConnecto =
-            InstanceIdentifier.builder(Nodes.class).child(Node.class).child(NodeConnector.class)
+        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(Nodes.class)
+                .child(Node.class)
+                .child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
-                .build();
-        this.listenerRegistrationList.add(dataService.registerLegacyTreeChangeListener(
-                 DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, stpStatusAwareNodeConnecto),
-                                           (DataTreeChangeListener)this));
+                .build(), (DataTreeChangeListener) this));
     }
-
 
     public HashMap<String, NodeConnectorRef> getControllerSwitchConnectors() {
         return controllerSwitchConnectors;
@@ -199,20 +192,20 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
      * observation.
      *
      * @param nodeInsId
-     *            InstanceIdentifier for the node on which to search for.
+     *            DataObjectIdentifier for the node on which to search for.
      * @param macAddress
      *            MacAddress to be searched for.
      * @return NodeConnectorRef that pertains to the NodeConnector containing
      *         the MacAddress observation.
      */
-    public NodeConnectorRef getNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress macAddress) {
+    public NodeConnectorRef getNodeConnector(DataObjectIdentifier<Node> nodeInsId, MacAddress macAddress) {
         if (nodeInsId == null || macAddress == null) {
             return null;
         }
 
         final FluentFuture<Optional<Node>> readFuture;
-        try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
-            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId.toIdentifier());
+        try (var readOnlyTransaction = dataService.newReadOnlyTransaction()) {
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId);
         }
 
         final Optional<Node> dataObjectOptional;
@@ -256,7 +249,7 @@ public class InventoryReader implements DataTreeChangeListener<DataObject> {
                             LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                             destNodeConnector = new NodeConnectorRef(nodeInsId.toBuilder()
                                 .child(NodeConnector.class, nc.key())
-                                .build().toIdentifier());
+                                .build());
                             break;
                         }
                     }

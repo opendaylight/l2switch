@@ -42,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +50,6 @@ class InventoryReaderTest {
     private DataBroker dataBroker;
     @Mock
     private ReadTransaction readOnlyTransaction;
-    @Mock
-    private InstanceIdentifier<Node> mockInstanceIdentifier;
     @Mock
     private MacAddress mockMacAddress;
 
@@ -64,12 +61,12 @@ class InventoryReaderTest {
     }
 
     @Test
-    void testGetControllerSwitchConnectors() throws Exception {
+    void testGetControllerSwitchConnectors() {
         assertEquals(Map.of(), inventoryReader.getControllerSwitchConnectors());
     }
 
     @Test
-    void testGetSwitchNodeConnectors() throws Exception {
+    void testGetSwitchNodeConnectors() {
         assertEquals(Map.of(), inventoryReader.getSwitchNodeConnectors());
     }
 
@@ -95,32 +92,34 @@ class InventoryReaderTest {
         when(dataBroker.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
 
         assertNotNull(inventoryReader.getNodeConnector(
-            InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
+            DataObjectIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:1"))).build(),
             new MacAddress("aa:bb:cc:dd:ee:ff")));
         verify(readOnlyTransaction, times(1)).close();
     }
 
     @Test
-    void testGetNodeConnector_NullNodeInsId() throws Exception {
+    void testGetNodeConnector_NullNodeInsId() {
         assertNull(inventoryReader.getNodeConnector(null, mockMacAddress));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    void testGetNodeConnector_NullMacAddress() throws Exception {
-        assertNull(inventoryReader.getNodeConnector(mockInstanceIdentifier, null));
+    void testGetNodeConnector_NullMacAddress() {
+        assertNull(inventoryReader.getNodeConnector(DataObjectIdentifier.builder(Nodes.class)
+            .child(Node.class, new NodeKey(new NodeId("foo")))
+            .build(), null));
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    void testReadInventory_NoRefresh() throws Exception {
+    void testReadInventory_NoRefresh() {
         inventoryReader.setRefreshData(false);
         inventoryReader.readInventory();
         verify(dataBroker, times(0)).newReadOnlyTransaction();
     }
 
     @Test
-    void testReadInventory_Refresh() throws Exception {
+    void testReadInventory_Refresh() {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
@@ -58,11 +59,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherTyp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.KnownEtherType;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -123,13 +124,13 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
 
     @Override
     public void onDataTreeChanged(List<DataTreeModification<Node>> changes) {
-        var nodeIds = new HashSet<InstanceIdentifier<Node>>();
+        var nodeIds = new HashSet<DataObjectIdentifier<Node>>();
         for (var change: changes) {
             var rootNode = change.getRootNode();
             switch (rootNode.modificationType()) {
                 case WRITE:
                     if (rootNode.dataBefore() == null) {
-                        nodeIds.add(change.path().toLegacy());
+                        nodeIds.add(change.path());
                     }
                     break;
                 default:
@@ -147,10 +148,10 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
      * thread that invoked the data node updated event. Avoids any thread lock it may cause.
      */
     private class InitialFlowWriterProcessor implements Runnable {
-        private final Set<InstanceIdentifier<Node>> nodeIds;
+        private final Set<DataObjectIdentifier<Node>> nodeIds;
 
-        InitialFlowWriterProcessor(final Set<InstanceIdentifier<Node>> nodeIds) {
-            this.nodeIds = nodeIds;
+        InitialFlowWriterProcessor(final Set<DataObjectIdentifier<Node>> nodeIds) {
+            this.nodeIds = Set.copyOf(nodeIds);
         }
 
         @Override
@@ -160,7 +161,7 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
             }
 
             for (var nodeId : nodeIds) {
-                if (KeyedInstanceIdentifier.keyOf(nodeId).getId().getValue().contains("openflow:")) {
+                if (nodeId.getFirstKeyOf(Node.class).getId().getValue().contains("openflow:")) {
                     addInitialFlows(nodeId);
                 }
             }
@@ -170,32 +171,31 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
          * Adds a flow, which sends all ARP packets to the controller, to the specified node.
          * @param nodeId The node to write the flow on.
          */
-        public void addInitialFlows(InstanceIdentifier<Node> nodeId) {
+        public void addInitialFlows(DataObjectIdentifier<Node> nodeId) {
             LOG.debug("adding initial flows for node {} ", nodeId);
 
-            InstanceIdentifier<Table> tableId = getTableInstanceId(nodeId);
-            InstanceIdentifier<Flow> flowId = getFlowInstanceId(tableId);
+            final var tableId = getTableInstanceId(nodeId);
+            final var flowId = getFlowInstanceId(tableId);
 
             //add arpToController flow
             writeFlowToController(nodeId, tableId, flowId, createArpToControllerFlow(flowTableId, flowPriority));
             LOG.debug("Added initial flows for node {} ", nodeId);
         }
 
-        private InstanceIdentifier<Table> getTableInstanceId(InstanceIdentifier<Node> nodeId) {
+        private @NonNull WithKey<Table, TableKey> getTableInstanceId(DataObjectIdentifier<Node> nodeId) {
             // get flow table key
             TableKey flowTableKey = new TableKey(flowTableId);
 
-            return nodeId.builder()
+            return nodeId.toBuilder()
                     .augmentation(FlowCapableNode.class)
                     .child(Table.class, flowTableKey)
                     .build();
         }
 
-        private InstanceIdentifier<Flow> getFlowInstanceId(InstanceIdentifier<Table> tableId) {
+        private @NonNull WithKey<Flow, FlowKey> getFlowInstanceId(DataObjectIdentifier<Table> tableId) {
             // generate unique flow key
             FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
-            FlowKey flowKey = new FlowKey(flowId);
-            return tableId.child(Flow.class, flowKey);
+            return tableId.toBuilder().child(Flow.class, new FlowKey(flowId)).build();
         }
 
         private Flow createArpToControllerFlow(Uint8 tableId, Uint16 priority) {
@@ -268,15 +268,15 @@ public class InitialFlowWriter implements DataTreeChangeListener<Node> {
         }
 
         private ListenableFuture<RpcResult<AddFlowOutput>> writeFlowToController(
-                InstanceIdentifier<Node> nodeInstanceId, InstanceIdentifier<Table> tableInstanceId,
-                InstanceIdentifier<Flow> flowPath, Flow flow) {
+                DataObjectIdentifier<Node> nodeInstanceId, DataObjectIdentifier<Table> tableInstanceId,
+                DataObjectIdentifier<Flow> flowPath, Flow flow) {
             LOG.trace("Adding flow to node {}", requireNonNull(nodeInstanceId.firstKeyOf(Node.class))
                     .getId()
                     .getValue());
             return addFlow.invoke(new AddFlowInputBuilder(flow)
-                .setNode(new NodeRef(nodeInstanceId.toIdentifier()))
-                .setFlowRef(new FlowRef(flowPath.toIdentifier()))
-                .setFlowTable(new FlowTableRef(tableInstanceId.toIdentifier()))
+                .setNode(new NodeRef(nodeInstanceId))
+                .setFlowRef(new FlowRef(flowPath))
+                .setFlowTable(new FlowTableRef(tableInstanceId))
                 .setTransactionUri(new Uri(flow.getId().getValue()))
                 .build());
         }

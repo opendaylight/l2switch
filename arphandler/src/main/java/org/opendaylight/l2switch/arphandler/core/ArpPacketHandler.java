@@ -34,14 +34,10 @@ public class ArpPacketHandler implements Listener<ArpPacketReceived> {
      */
     @Override
     public void onNotification(ArpPacketReceived packetReceived) {
-        if (packetReceived == null || packetReceived.getPacketChain() == null) {
-            return;
-        }
-
         RawPacketFields rawPacket = null;
         EthernetPacket ethernetPacket = null;
         ArpPacket arpPacket = null;
-        for (PacketChain packetChain : packetReceived.getPacketChain()) {
+        for (PacketChain packetChain : packetReceived.nonnullPacketChain()) {
             if (packetChain.getPacket() instanceof RawPacket) {
                 rawPacket = ((RawPacket) packetChain.getPacket()).getRawPacketFields();
             } else if (packetChain.getPacket() instanceof EthernetPacket) {

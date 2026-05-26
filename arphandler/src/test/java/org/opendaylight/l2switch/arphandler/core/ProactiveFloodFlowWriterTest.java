@@ -21,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -61,38 +60,38 @@ class ProactiveFloodFlowWriterTest {
     }
 
     @Test
-    void testSetFlowInstallationDelay() throws Exception {
+    void testSetFlowInstallationDelay() {
         proactiveFloodFlowWriter.setFlowInstallationDelay(0);
     }
 
     @Test
-    void testSetFlowTableId() throws Exception {
+    void testSetFlowTableId() {
         proactiveFloodFlowWriter.setFlowTableId(Uint8.ZERO);
     }
 
     @Test
-    void testSetFlowPriority() throws Exception {
+    void testSetFlowPriority() {
         proactiveFloodFlowWriter.setFlowPriority(Uint16.ZERO);
     }
 
     @Test
-    void testSetFlowIdleTimeout() throws Exception {
+    void testSetFlowIdleTimeout() {
         proactiveFloodFlowWriter.setFlowIdleTimeout(Uint16.ZERO);
     }
 
     @Test
-    void testSetFlowHardTimeout() throws Exception {
+    void testSetFlowHardTimeout() {
         proactiveFloodFlowWriter.setFlowHardTimeout(Uint16.ZERO);
     }
 
     @Test
-    void testRegisterAsDataChangeListener() throws Exception {
+    void testRegisterAsDataChangeListener() {
         proactiveFloodFlowWriter.registerAsDataChangeListener();
-        verify(dataBroker, times(1)).registerLegacyTreeChangeListener(any(), any(DataTreeChangeListener.class));
+        verify(dataBroker, times(1)).registerLegacyTreeChangeListener(any(), any(), any());
     }
 
     @Test
-    void testOnDataChanged_CreatedDataRefresh() throws Exception {
+    void testOnDataChanged_CreatedDataRefresh() {
         StpStatusAwareNodeConnector stpStatusAwareNodeConnector = new StpStatusAwareNodeConnectorBuilder()
                 .setStatus(StpStatus.Discarding).build();
 

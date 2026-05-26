@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -68,9 +67,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.EthernetPacketReceived;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -149,12 +148,12 @@ public class ProactiveFloodFlowWriter implements DataTreeChangeListener<StpStatu
      * Registers as a data listener for Nodes.
      */
     public Registration registerAsDataChangeListener() {
-        return dataBroker.registerLegacyTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(Nodes.class)
+        return dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(Nodes.class)
                 .child(Node.class)
                 .child(NodeConnector.class)
                 .augmentation(StpStatusAwareNodeConnector.class)
-                .build()), this);
+                .build(), this);
     }
 
     /**

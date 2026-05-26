@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.l2switch.arphandler.inventory.InventoryReader;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
@@ -26,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.opendaylight.yangtools.binding.BindingInstanceIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.PropertyIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class PacketDispatcher {
         inventoryReader.readInventory();
 
         final var nodePath = getNodePath(ingress.getValue());
-        String nodeId = nodePath.firstKeyOf(Node.class).getId().getValue();
+        String nodeId = nodePath.getFirstKeyOf(Node.class).getId().getValue();
         NodeConnectorRef srcConnectorRef = inventoryReader.getControllerSwitchConnectors().get(nodeId);
 
         if (srcConnectorRef == null) {
@@ -118,7 +118,7 @@ public class PacketDispatcher {
             case DataObjectIdentifier<?> doi -> doi;
             case PropertyIdentifier<?, ?> pi -> pi.container();
         };
-        return container.toLegacy().firstKeyOf(NodeConnector.class).getId();
+        return container.getFirstKeyOf(NodeConnector.class).getId();
     }
 
     /**
@@ -135,10 +135,9 @@ public class PacketDispatcher {
         if (ingress == null || egress == null) {
             return;
         }
-        InstanceIdentifier<Node> egressNodePath = getNodePath(egress.getValue());
         TransmitPacketInput input = new TransmitPacketInputBuilder()
                 .setPayload(payload)
-                .setNode(new NodeRef(egressNodePath.toIdentifier()))
+                .setNode(new NodeRef(getNodePath(egress.getValue())))
                 .setEgress(egress)
                 .setIngress(ingress)
                 .build();
@@ -161,14 +160,14 @@ public class PacketDispatcher {
         inventoryReader.readInventory();
     }
 
-    private static InstanceIdentifier<Node> getNodePath(final BindingInstanceIdentifier path) {
+    private static @NonNull DataObjectIdentifier<Node> getNodePath(final BindingInstanceIdentifier path) {
         return getNodePath(switch (path) {
             case DataObjectIdentifier<?> doi -> doi;
             case PropertyIdentifier<?, ?> pi -> pi.container();
         });
     }
 
-    private static InstanceIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
-        return nodeChild.toLegacy().firstIdentifierOf(Node.class);
+    private static @NonNull DataObjectIdentifier<Node> getNodePath(final DataObjectIdentifier<?> nodeChild) {
+        return nodeChild.trimTo(Node.class);
     }
 }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.l2switch.arphandler.core;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -36,7 +37,7 @@ class ArpPacketHandlerTest {
     }
 
     @Test
-    void onArpPacketReceivedTest() throws Exception {
+    void onArpPacketReceivedTest() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder()
@@ -49,25 +50,25 @@ class ArpPacketHandlerTest {
     }
 
     @Test
-    void onArpPacketReceivedTest_NullInput() throws Exception {
-        arpPacketHandler.onNotification(null);
+    void onArpPacketReceivedTest_NullInput() {
+        assertThrows(NullPointerException.class, () -> arpPacketHandler.onNotification(null));
         verifyNoInteractions(packetDispatcher);
     }
 
     @Test
-    void onArpPacketReceivedTest_NullPacketChain() throws Exception {
+    void onArpPacketReceivedTest_NullPacketChain() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder().build());
         verifyNoInteractions(packetDispatcher);
     }
 
     @Test
-    void onArpPacketReceivedTest_EmptyPacketChain() throws Exception {
+    void onArpPacketReceivedTest_EmptyPacketChain() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder().setPacketChain(List.of()).build());
         verifyNoInteractions(packetDispatcher);
     }
 
     @Test
-    void onArpPacketReceivedTest_NoRawPacket() throws Exception {
+    void onArpPacketReceivedTest_NoRawPacket() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new EthernetPacketBuilder().build()).build(),
@@ -77,7 +78,7 @@ class ArpPacketHandlerTest {
     }
 
     @Test
-    void onArpPacketReceivedTest_NoEthernetPacket() throws Exception {
+    void onArpPacketReceivedTest_NoEthernetPacket() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
@@ -87,7 +88,7 @@ class ArpPacketHandlerTest {
     }
 
     @Test
-    void onArpPacketReceivedTest_NoArpPacket() throws Exception {
+    void onArpPacketReceivedTest_NoArpPacket() {
         arpPacketHandler.onNotification(new ArpPacketReceivedBuilder()
             .setPacketChain(List.of(
                 new PacketChainBuilder().setPacket(new RawPacketBuilder().build()).build(),
