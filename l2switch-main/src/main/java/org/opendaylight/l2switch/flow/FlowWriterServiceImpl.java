@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.l2switch.util.InstanceIdentifierUtils;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -46,8 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -109,7 +110,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
         TableKey flowTableKey = new TableKey(flowTableId);
 
         // build a flow path based on node connector to program flow
-        InstanceIdentifier<Flow> flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
+        var flowPath = buildFlowPath(destNodeConnectorRef, flowTableKey);
 
         // build a flow that target given mac id
         Flow flowBody = createMacToMacFlow(flowTableKey.getId(), flowPriority, sourceMac, destMac,
@@ -148,7 +149,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @param flowTableKey a reference to the flow table
      * @return Flow instance identifier
      */
-    private InstanceIdentifier<Flow> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
+    private @NonNull WithKey<Flow, FlowKey> buildFlowPath(NodeConnectorRef nodeConnectorRef, TableKey flowTableKey) {
 
         // generate unique flow key
         FlowId flowId = new FlowId(FLOW_ID_PREFIX + String.valueOf(flowIdInc.getAndIncrement()));
@@ -205,7 +206,7 @@ public class FlowWriterServiceImpl implements FlowWriterService {
                                     .setOutputAction(new OutputActionBuilder()
                                         .setMaxLength(Uint16.MAX_VALUE)
                                         .setOutputNodeConnector(((DataObjectIdentifier<?>) destPort.getValue())
-                                            .toLegacy().firstKeyOf(NodeConnector.class).getId())
+                                            .getFirstKeyOf(NodeConnector.class).getId())
                                         .build())
                                     .build())
                                 .build()))
@@ -230,11 +231,11 @@ public class FlowWriterServiceImpl implements FlowWriterService {
      * @param flow the Flow
      * @return transaction commit
      */
-    private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(InstanceIdentifier<Flow> flowPath, Flow flow) {
+    private Future<RpcResult<AddFlowOutput>> writeFlowToConfigData(DataObjectIdentifier<Flow> flowPath, Flow flow) {
         return addFlow.invoke(new AddFlowInputBuilder(flow)
-            .setNode(new NodeRef(flowPath.firstIdentifierOf(Node.class).toIdentifier()))
-            .setFlowRef(new FlowRef(flowPath.toIdentifier()))
-            .setFlowTable(new FlowTableRef(flowPath.firstIdentifierOf(Table.class).toIdentifier()))
+            .setNode(new NodeRef(flowPath.trimTo(Node.class)))
+            .setFlowRef(new FlowRef(flowPath))
+            .setFlowTable(new FlowTableRef(flowPath.trimTo(Table.class)))
             .setTransactionUri(new Uri(flow.getId().getValue()))
             .build());
     }

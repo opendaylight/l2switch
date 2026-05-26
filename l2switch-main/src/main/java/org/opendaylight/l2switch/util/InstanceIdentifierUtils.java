@@ -7,6 +7,7 @@
  */
 package org.opendaylight.l2switch.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
@@ -15,8 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.PropertyIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * InstanceIdentifierUtils provides utility functions related to InstanceIdentifiers.
@@ -26,24 +27,27 @@ public final class InstanceIdentifierUtils {
         // Hidden on purpose
     }
 
-    public static InstanceIdentifier<Node> generateNodeInstanceIdentifier(final NodeConnectorRef nodeConnectorRef) {
+    public static @NonNull DataObjectIdentifier<Node> generateNodeInstanceIdentifier(
+            final NodeConnectorRef nodeConnectorRef) {
         final var container = switch (nodeConnectorRef.getValue()) {
             case DataObjectIdentifier<?> doi -> doi;
             case PropertyIdentifier<?, ?> pi -> pi.container();
         };
-        return container.toLegacy().firstIdentifierOf(Node.class);
+        return container.trimTo(Node.class);
     }
 
-    public static InstanceIdentifier<Table> generateFlowTableInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
-            final TableKey flowTableKey) {
+    public static @NonNull WithKey<Table, TableKey> generateFlowTableInstanceIdentifier(
+            final NodeConnectorRef nodeConnectorRef, final TableKey flowTableKey) {
         return generateNodeInstanceIdentifier(nodeConnectorRef).toBuilder()
             .augmentation(FlowCapableNode.class)
             .child(Table.class, flowTableKey)
             .build();
     }
 
-    public static InstanceIdentifier<Flow> generateFlowInstanceIdentifier(final NodeConnectorRef nodeConnectorRef,
-            final TableKey flowTableKey, final FlowKey flowKey) {
-        return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).child(Flow.class, flowKey);
+    public static @NonNull WithKey<Flow, FlowKey> generateFlowInstanceIdentifier(
+            final NodeConnectorRef nodeConnectorRef, final TableKey flowTableKey, final FlowKey flowKey) {
+        return generateFlowTableInstanceIdentifier(nodeConnectorRef, flowTableKey).toBuilder()
+            .child(Flow.class, flowKey)
+            .build();
     }
 }

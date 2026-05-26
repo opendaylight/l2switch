@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.basepacket.rev140528.packet.chain.grp.packet.chain.packet.raw.packet.RawPacketFieldsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.ethernet.rev140528.ethernet.packet.received.packet.chain.packet.EthernetPacketBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @ExtendWith(MockitoExtension.class)
 class ReactiveFlowWriterTest {
@@ -76,12 +75,11 @@ class ReactiveFlowWriterTest {
 
     @Test
     void writeFlowsTest() {
-        when(inventoryReader.getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class)))
-            .thenReturn(destNodeConnectorRef);
+        when(inventoryReader.getNodeConnector(any(), any())).thenReturn(destNodeConnectorRef);
         reactiveFlowWriter.writeFlows(nodeConnectorRef, new MacAddress("00:00:00:00:00:01"),
                 new MacAddress("00:00:00:00:00:02"));
 
-        verify(inventoryReader, times(1)).getNodeConnector(any(InstanceIdentifier.class), any(MacAddress.class));
+        verify(inventoryReader, times(1)).getNodeConnector(any(), any());
         verify(flowWriterService, times(1)).addBidirectionalMacToMacFlows(any(MacAddress.class),
                 any(NodeConnectorRef.class), any(MacAddress.class), any(NodeConnectorRef.class));
     }

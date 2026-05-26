@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140714.StpStatusAwareNodeConnector;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * InventoryReader reads the opendaylight-inventory tree in MD-SAL data store.
  */
 public class InventoryReader {
-
     private static final Logger LOG = LoggerFactory.getLogger(InventoryReader.class);
-    private DataBroker dataService;
+
+    private final DataBroker dataService;
 
     /**
      * Construct an InventoryService object with the specified inputs.
@@ -54,23 +54,20 @@ public class InventoryReader {
      * @return NodeConnectorRef that pertains to the NodeConnector containing
      *         the MacAddress observation.
      */
-    public NodeConnectorRef getNodeConnector(InstanceIdentifier<Node> nodeInsId, MacAddress macAddress) {
+    public NodeConnectorRef getNodeConnector(DataObjectIdentifier<Node> nodeInsId, MacAddress macAddress) {
         if (nodeInsId == null || macAddress == null) {
             return null;
         }
 
         final FluentFuture<Optional<Node>> readFuture;
         try (ReadTransaction readOnlyTransaction = dataService.newReadOnlyTransaction()) {
-            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId.toIdentifier());
+            readFuture = readOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, nodeInsId);
         }
 
         final Optional<Node> dataObjectOptional;
         try {
             dataObjectOptional = readFuture.get();
-        } catch (InterruptedException e) {
-            LOG.error("Failed to read nodes from Operation data store.");
-            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
-        } catch (ExecutionException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.error("Failed to read nodes from Operation data store.");
             throw new RuntimeException("Failed to read nodes from Operation data store.", e);
         }
@@ -98,7 +95,7 @@ public class InventoryReader {
                         final long lastSeen = add.getLastSeen();
                         if (lastSeen > latest) {
                             destNodeConnector = new NodeConnectorRef(
-                                nodeInsId.child(NodeConnector.class, nc.key()).toIdentifier());
+                                nodeInsId.toBuilder().child(NodeConnector.class, nc.key()).build());
                             latest = lastSeen;
                             LOG.debug("Found address{} in nodeconnector : {}", macAddress, nc.key());
                             break;

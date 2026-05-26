@@ -41,8 +41,7 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
      * @return true if a MacAddess is broadcast or multicast, false if the
      *         MacAddress is unicast (and thus legible for flow creation).
      */
-
-    private boolean ignoreThisMac(MacAddress macToCheck) {
+    private static boolean ignoreThisMac(MacAddress macToCheck) {
         if (macToCheck == null) {
             return true;
         }
@@ -99,8 +98,7 @@ public class ReactiveFlowWriter implements Listener<ArpPacketReceived> {
             case PropertyIdentifier<?, ?> pi -> pi.container();
         };
 
-        NodeConnectorRef destNodeConnector = inventoryReader
-                .getNodeConnector(ingressId.toLegacy().firstIdentifierOf(Node.class), destMac);
+        NodeConnectorRef destNodeConnector = inventoryReader.getNodeConnector(ingressId.trimTo(Node.class), destMac);
         if (destNodeConnector != null) {
             flowWriterService.addBidirectionalMacToMacFlows(srcMac, ingress, destMac, destNodeConnector);
         }

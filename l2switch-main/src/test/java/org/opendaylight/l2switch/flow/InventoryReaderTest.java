@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2switch.loopremover.rev140
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +56,7 @@ class InventoryReaderTest {
     // private Node node;
 
     private InventoryReader inventoryReader;
-    private InstanceIdentifier<Node> nodeInstanceIdentifier;
+    private DataObjectIdentifier<Node> nodeInstanceIdentifier;
 
     @BeforeEach
     void beforeEach() {
@@ -65,8 +64,8 @@ class InventoryReaderTest {
     }
 
     @Test
-    void getNodeConnectorTest() throws Exception {
-        nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
+    void getNodeConnectorTest() {
+        nodeInstanceIdentifier = DataObjectIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("node-id"))).build();
         when(dataService.newReadOnlyTransaction()).thenReturn(readOnlyTransaction);
         when(readOnlyTransaction.read(any(LogicalDatastoreType.class), any(DataObjectIdentifier.class)))

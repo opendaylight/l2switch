@@ -25,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 
@@ -48,10 +47,9 @@ class InstanceIdentifierUtilsTest {
             .child(Node.class, new NodeKey(new NodeId("abc")))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId("def")))
             .build());
-        InstanceIdentifier<Table> tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef,
-                new TableKey(NUM_ID_1));
+        var tableInsId = InstanceIdentifierUtils.generateFlowTableInstanceIdentifier(ncRef, new TableKey(NUM_ID_1));
         assertNotNull(tableInsId);
-        assertEquals(NUM_ID_1, tableInsId.firstKeyOf(Table.class).getId());
+        assertEquals(NUM_ID_1, tableInsId.getFirstKeyOf(Table.class).getId());
     }
 
     @Test
@@ -60,10 +58,10 @@ class InstanceIdentifierUtilsTest {
             .child(Node.class, new NodeKey(new NodeId(STR_ID_1)))
             .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(STR_ID_1)))
             .build());
-        InstanceIdentifier<Flow> flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
+        var flowInsId = InstanceIdentifierUtils.generateFlowInstanceIdentifier(ncRef,
                 new TableKey(NUM_ID_1), new FlowKey(new FlowId(STR_ID_1)));
         assertNotNull(flowInsId);
-        assertEquals(NUM_ID_1, flowInsId.firstKeyOf(Table.class).getId());
-        assertEquals(STR_ID_1, flowInsId.firstKeyOf(Flow.class).getId().getValue());
+        assertEquals(NUM_ID_1, flowInsId.getFirstKeyOf(Table.class).getId());
+        assertEquals(STR_ID_1, flowInsId.getFirstKeyOf(Flow.class).getId().getValue());
     }
 }
