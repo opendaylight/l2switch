@@ -11,6 +11,10 @@
     <artifactId>packethandler-impl</artifactId>
     <packaging>bundle</packaging>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.guicedee.services</groupId>
