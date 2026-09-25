@@ -9,6 +9,7 @@ package org.opendaylight.l2switch.loopremover.topology;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.uci.ics.jung.algorithms.shortestpath.PrimMinimumSpanningTree;
 import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Graph;
@@ -19,7 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.slf4j.Logger;
@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  * return shortest path using Dijkstra algorithm.
  */
 public class NetworkGraphImpl implements NetworkGraphService {
-
     private static final Logger LOG = LoggerFactory.getLogger(NetworkGraphImpl.class);
 
     @GuardedBy("this")
