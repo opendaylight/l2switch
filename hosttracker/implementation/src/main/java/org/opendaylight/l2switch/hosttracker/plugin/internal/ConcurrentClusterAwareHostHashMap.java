@@ -46,11 +46,11 @@ public class ConcurrentClusterAwareHostHashMap {
 
     /**
      * Removes, if exists, the Host with the given
-     * InstanceIdentifier&lt;Node&gt; from this local HashMap. Ideally used for
+     * {@code InstanceIdentifier<Node>} from this local HashMap. Ideally used for
      * host data listener events.
      *
      * @param iiN
-     *            the InstanceIdentifier&lt;Node&gt; of the Host to remove.
+     *            the {@code InstanceIdentifier<Node>} of the Host to remove.
      * @return the removed Host if exits, null if it doesn't exist.
      */
     public synchronized Host removeLocally(DataObjectIdentifier<Node> iiN) {
@@ -85,7 +85,7 @@ public class ConcurrentClusterAwareHostHashMap {
      * host data listener events.
      *
      * @param ii
-     *            the value's (Host's) InstanceIdentifier&lt;Node&gt;
+     *            the value's (Host's) {@code InstanceIdentifier<Node>}
      * @param value
      *            the Host to store locally.
      * @return the previous value associated with {@code key}, or {@code null} if there was no mapping for {@code key}

@@ -46,7 +46,7 @@ public class ConcurrentClusterAwareLinkHashMap {
      * Puts the given value (Link) only in this local HashMap. Ideally used for
      * Link data listener events.
      *
-     * @param ii the value's (Link's) InstanceIdentifier&lt;Link&gt;
+     * @param ii the value's (Link's) {@code InstanceIdentifier<Link>}
      * @param link the Link to store locally.
      * @return the previous value associated with {@code key}, or
      *         {@code null} if there was no mapping for {@code key}
@@ -86,11 +86,11 @@ public class ConcurrentClusterAwareLinkHashMap {
     }
 
     /**
-     * Removes, if exists, the Link with the given InstanceIdentifier&lt;Link&gt; from
+     * Removes, if exists, the Link with the given {@code InstanceIdentifier<Link>} from
      * this local HashMap. Ideally used for link data listener events.
      *
      * @param iiL
-     *            the InstanceIdentifier&lt;Link&gt; of the Link to remove.
+     *            the {@code InstanceIdentifier<Link>} of the Link to remove.
      * @return the removed Link if exits, null if it doesn't exist.
      */
     public synchronized Link removeLocally(DataObjectIdentifier<Link> iiL) {
